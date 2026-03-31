@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE ESTATE — Private Hotel Portfolio Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-l:#E8D5A3;--gold-d:#8B6914;
+  --navy:#040D1C;--navy-mid:#071528;--navy-l:#0A1E38;--navy-card:#0D2240;
+  --text:#F5F0E8;--text-m:rgba(245,240,232,.55);--text-s:rgba(245,240,232,.3);
+  --border:rgba(201,168,76,.18);--border-h:rgba(201,168,76,.45);
+}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:28px 64px;transition:all .4s}
+.nav.scrolled{background:rgba(4,13,28,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:18px 64px}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;letter-spacing:.1em;color:var(--text);text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:44px;list-style:none}
+.nav-links a{color:var(--text-m);text-decoration:none;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;transition:color .3s}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:11px 30px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .3s;text-decoration:none;font-family:'Inter',sans-serif}
+.nav-cta:hover{background:var(--gold);color:var(--navy)}
+
+/* HERO */
+.hero{position:relative;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=90&auto=format&fit=crop');background-size:cover;background-position:center;animation:slowZoom 24s ease-in-out infinite alternate}
+@keyframes slowZoom{from{transform:scale(1.04)}to{transform:scale(1.12)}}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(160deg,rgba(4,13,28,.88) 0%,rgba(4,13,28,.55) 50%,rgba(4,13,28,.82) 100%)}
+.hero-ov::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.hero-ov::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 70%, rgba(201,168,76,.06) 0%, transparent 60%)}
+
+/* particles */
+#particles{position:absolute;inset:0;pointer-events:none}
+.ptc{position:absolute;width:2px;height:2px;background:var(--gold);border-radius:50%;opacity:0;animation:floatUp var(--d,8s) var(--dl,0s) ease-in infinite}
+@keyframes floatUp{0%{opacity:0;transform:translateY(0) scale(0)}8%{opacity:.7;transform:translateY(-15px) scale(1)}90%{opacity:.2}100%{opacity:0;transform:translateY(-280px) scale(.4)}}
+
+/* Hero content */
+.hero-content{position:relative;z-index:1;max-width:960px;padding:0 24px}
+.hero-ew{font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:36px;display:flex;align-items:center;justify-content:center;gap:20px;animation:fadeUp 1s .3s both}
+.hero-ew::before,.hero-ew::after{content:'';display:block;width:55px;height:1px;background:var(--gold);opacity:.5}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(3rem,6.5vw,6rem);font-weight:400;line-height:1.08;margin-bottom:30px;animation:fadeUp 1s .5s both}
+.hero-title em{font-style:italic;color:var(--gold)}
+.hero-sub{font-family:'Cormorant Garamond',serif;font-size:clamp(1.1rem,2.2vw,1.5rem);font-weight:300;color:var(--text-m);line-height:1.75;max-width:620px;margin:0 auto 52px;animation:fadeUp 1s .7s both}
+.hero-btns{display:flex;gap:20px;justify-content:center;animation:fadeUp 1s .9s both}
+.btn-p{background:var(--gold);color:var(--navy);border:none;padding:17px 46px;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:all .3s;text-decoration:none;display:inline-block}
+.btn-p:hover{background:var(--gold-l);transform:translateY(-2px);box-shadow:0 20px 50px rgba(201,168,76,.3)}
+.btn-s{background:transparent;color:var(--text);border:1px solid rgba(245,240,232,.25);padding:17px 46px;font-family:'Inter',sans-serif;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:all .3s;text-decoration:none;display:inline-block}
+.btn-s:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+.scroll-ind{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px;animation:fadeUp 1s 1.2s both}
+.scroll-ind span{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text-s)}
+.scroll-line{width:1px;height:64px;background:linear-gradient(to bottom,var(--gold),transparent);animation:spulse 2.2s ease-in-out infinite}
+@keyframes spulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* STATS BAR */
+.stats-bar{background:var(--navy-mid);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:50px 64px;display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+.stats-bar::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(201,168,76,.03),transparent,rgba(201,168,76,.03));pointer-events:none}
+.stat-div{text-align:center;padding:0 20px}
+.stat-div:not(:last-child){border-right:1px solid var(--border)}
+.stat-val{font-family:'Playfair Display',serif;font-size:3rem;font-weight:600;color:var(--gold);line-height:1;margin-bottom:12px}
+.stat-lbl{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-m)}
+
+/* FEATURES */
+.features{padding:130px 64px;max-width:1440px;margin:0 auto}
+.sec-hd{text-align:center;margin-bottom:80px}
+.sec-ew{font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:22px;display:block}
+.sec-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,3.2rem);font-weight:400;line-height:1.2}
+.sec-title em{font-style:italic;color:var(--gold)}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border)}
+.feat-card{background:var(--navy-mid);padding:52px 42px;position:relative;overflow:hidden;transition:background .4s;cursor:default}
+.feat-card:hover{background:var(--navy-l)}
+.feat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:transform .5s}
+.feat-card:hover::after{transform:scaleX(1)}
+.feat-card::before{content:'';position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 70%);opacity:0;transition:opacity .4s}
+.feat-card:hover::before{opacity:1}
+.feat-icon{width:58px;height:58px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1.25rem;margin-bottom:30px;transition:border-color .4s}
+.feat-card:hover .feat-icon{border-color:var(--gold)}
+.feat-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:500;margin-bottom:18px}
+.feat-desc{color:var(--text-m);font-size:.875rem;line-height:1.8}
+
+/* SHOWCASE */
+.showcase{padding:120px 64px;background:var(--navy-mid);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.showcase-in{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
+.showcase-text .sec-hd{text-align:left}
+.showcase-text p{color:var(--text-m);font-size:.95rem;line-height:1.9;margin-bottom:22px}
+.showcase-vis{position:relative;border:1px solid var(--border)}
+.showcase-vis img{width:100%;height:520px;object-fit:cover;display:block;opacity:.88;transition:opacity .4s}
+.showcase-vis:hover img{opacity:.95}
+.showcase-vis::before{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 60%,rgba(4,13,28,.7));z-index:1;pointer-events:none}
+.showcase-bdg{position:absolute;bottom:-1px;right:-1px;background:var(--navy);border:1px solid var(--border);padding:22px 30px;z-index:2}
+.bdg-val{font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--gold);display:block;line-height:1}
+.bdg-lbl{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-m);display:block;margin-top:6px}
+
+/* HOTEL GROUPS */
+.groups{padding:100px 64px}
+.groups-in{max-width:1100px;margin:0 auto}
+.grp-grid{display:flex;justify-content:center;align-items:center;gap:0;flex-wrap:wrap;margin-top:70px;border:1px solid var(--border)}
+.grp-item{padding:36px 50px;display:flex;flex-direction:column;align-items:center;gap:14px;opacity:.45;transition:all .4s;border-right:1px solid var(--border);cursor:default;flex:1;min-width:120px;position:relative}
+.grp-item:last-child{border-right:none}
+.grp-item:hover{opacity:1;background:rgba(201,168,76,.04)}
+.grp-dot{width:10px;height:10px;border-radius:50%}
+.grp-name{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-m);white-space:nowrap}
+.grp-rooms{font-size:.6rem;color:var(--text-s);margin-top:2px}
+
+/* CTA */
+.cta-sec{padding:130px 64px;text-align:center;background:var(--navy-mid);border-top:1px solid var(--border);position:relative;overflow:hidden}
+.cta-sec::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(201,168,76,.07) 0%,transparent 70%);pointer-events:none}
+.cta-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.8rem);font-weight:400;margin-bottom:28px;position:relative;z-index:1}
+.cta-title em{font-style:italic;color:var(--gold)}
+.cta-sub{color:var(--text-m);font-size:1rem;max-width:520px;margin:0 auto 52px;line-height:1.8;position:relative;z-index:1}
+.cta-sec .btn-p{position:relative;z-index:1}
+
+/* FOOTER */
+.footer{padding:36px 64px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:'Playfair Display',serif;font-size:1rem;letter-spacing:.1em;text-decoration:none;color:var(--text)}
+.footer-logo span{color:var(--gold)}
+.footer-cp{font-size:.68rem;color:var(--text-s);letter-spacing:.06em}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(4,13,28,.94);backdrop-filter:blur(16px);z-index:500;align-items:center;justify-content:center}
+.modal-ov.active{display:flex}
+.modal{background:var(--navy-mid);border:1px solid var(--border);padding:64px 56px;width:100%;max-width:400px;position:relative;animation:fadeUp .4s ease}
+.modal-close{position:absolute;top:18px;right:18px;background:none;border:none;color:var(--text-m);font-size:1rem;cursor:pointer;transition:color .3s;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{color:var(--gold)}
+.modal-brand{font-family:'Playfair Display',serif;font-size:1.2rem;letter-spacing:.1em;text-align:center;margin-bottom:6px}
+.modal-brand span{color:var(--gold)}
+.modal-hint{text-align:center;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-m);margin-bottom:44px}
+.form-grp{margin-bottom:22px}
+.form-grp label{display:block;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-m);margin-bottom:10px}
+.form-grp input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:14px 18px;font-family:'Inter',sans-serif;font-size:.9rem;transition:border-color .3s;outline:none}
+.form-grp input:focus{border-color:var(--gold)}
+.form-grp input::placeholder{color:var(--text-s)}
+.modal .btn-p{width:100%;text-align:center;margin-top:8px;display:block}
+.modal-foot{text-align:center;margin-top:22px;font-size:.76rem;color:var(--text-m)}
+.modal-foot a{color:var(--gold);text-decoration:none}
+.modal-foot a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="mainNav">
+  <a href="#" class="nav-logo">THE <span>ESTATE</span></a>
+  <ul class="nav-links">
+    <li><a href="#features">Fonctionnalités</a></li>
+    <li><a href="#groups">Groupes</a></li>
+    <li><a href="#showcase">La Plateforme</a></li>
+  </ul>
+  <a href="dashboard.html" class="nav-cta">Accéder au Dashboard</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-ov"></div>
+  <div id="particles"></div>
+  <div class="hero-content">
+    <div class="hero-ew">Gestion de Patrimoine Hôtelier de Luxe</div>
+    <h1 class="hero-title">Votre portefeuille.<br><em>Les palaces du monde.</em></h1>
+    <p class="hero-sub">Une plateforme exclusive pour investisseurs possédant des unités au sein des groupes hôteliers les plus prestigieux du monde. Visualisez, gérez, optimisez.</p>
+    <div class="hero-btns">
+      <a href="dashboard.html" class="btn-p">Explorer la plateforme</a>
+      <a href="#" class="btn-s" onclick="openModal(event)">Demander un accès</a>
+    </div>
+  </div>
+  <div class="scroll-ind">
+    <div class="scroll-line"></div>
+    <span>Découvrir</span>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-div"><div class="stat-val" data-target="47">0</div><div class="stat-lbl">Hôtels partenaires</div></div>
+  <div class="stat-div"><div class="stat-val" data-target="8">0</div><div class="stat-lbl">Groupes hôteliers</div></div>
+  <div class="stat-div"><div class="stat-val" data-target="32">0</div><div class="stat-lbl">Pays couverts</div></div>
+  <div class="stat-div"><div class="stat-val" data-target="185">0</div><div class="stat-lbl">Membres investisseurs</div></div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="sec-hd">
+    <span class="sec-ew">Fonctionnalités</span>
+    <h2 class="sec-title">Un outil de gestion <em>sans équivalent</em></h2>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-globe-europe"></i></div>
+      <h3 class="feat-title">Carte Mondiale Interactive</h3>
+      <p class="feat-desc">Visualisez l'intégralité de votre portefeuille sur une carte du monde. Filtrez par groupe hôtelier, pays, ville ou disponibilité en temps réel.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-layer-group"></i></div>
+      <h3 class="feat-title">Gestion Multi-Groupes</h3>
+      <p class="feat-desc">Accor, Hilton, Marriott, Hyatt, Four Seasons, Mandarin Oriental — tous vos actifs consolidés dans une interface unifiée et raffinée.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-chart-line"></i></div>
+      <h3 class="feat-title">Pilotage des Revenus</h3>
+      <p class="feat-desc">Suivi de l'ADR, calcul automatique du reversement (50-60%), alertes de monétisation et tableau de bord financier consolidé par actif.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-id-card"></i></div>
+      <h3 class="feat-title">Guest Cards & Vouchers</h3>
+      <p class="feat-desc">Générez et attribuez des vouchers numériques sécurisés à vos invités. L'hôtel ne voit que la carte de votre Family Office.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-file-contract"></i></div>
+      <h3 class="feat-title">Gestion des Contrats</h3>
+      <p class="feat-desc">Uploadez vos Side Letters, extrayez automatiquement les conditions (ADR, seuils, LRA) et archivez vos documents en toute sécurité.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-shield-alt"></i></div>
+      <h3 class="feat-title">Sécurité Bancaire</h3>
+      <p class="feat-desc">Chiffrement AES-256, authentification multi-facteurs, hébergement souverain. La confidentialité de vos actifs est notre priorité absolue.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SHOWCASE -->
+<section class="showcase" id="showcase">
+  <div class="showcase-in">
+    <div class="showcase-text">
+      <div class="sec-hd">
+        <span class="sec-ew">La Plateforme</span>
+        <h2 class="sec-title">Votre <em>Command Center</em> privé</h2>
+      </div>
+      <p>Depuis un seul tableau de bord, visualisez vos unités dans les palaces du monde entier, gérez vos réservations, attribuez des nuitées à vos invités et pilotez votre rentabilité.</p>
+      <p>La plateforme se connecte aux systèmes de réservation des grands groupes via API, vous offrant une vision en temps réel de vos actifs et de leur performance financière.</p>
+      <a href="dashboard.html" class="btn-p" style="margin-top:20px">Accéder au Dashboard</a>
+    </div>
+    <div class="showcase-vis">
+      <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=900&q=85&auto=format&fit=crop" alt="Suite de luxe">
+      <div class="showcase-bdg">
+        <span class="bdg-val">€2.4M</span>
+        <span class="bdg-lbl">Revenus annuels estimés</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOTEL GROUPS -->
+<section class="groups" id="groups">
+  <div class="groups-in">
+    <div class="sec-hd">
+      <span class="sec-ew">Groupes Partenaires</span>
+      <h2 class="sec-title">Les enseignes les plus <em>prestigieuses</em> du monde</h2>
+    </div>
+    <div class="grp-grid">
+      <div class="grp-item"><div class="grp-dot" style="background:#C41E3A"></div><div class="grp-name">Accor</div><div class="grp-rooms">Sofitel · Raffles · Fairmont</div></div>
+      <div class="grp-item"><div class="grp-dot" style="background:#1E3A6E"></div><div class="grp-name">Hilton</div><div class="grp-rooms">Waldorf · Conrad · LXR</div></div>
+      <div class="grp-item"><div class="grp-dot" style="background:#8B1A1A"></div><div class="grp-name">Marriott</div><div class="grp-rooms">Ritz-Carlton · St. Regis</div></div>
+      <div class="grp-item"><div class="grp-dot" style="background:#2E7D32"></div><div class="grp-name">Hyatt</div><div class="grp-rooms">Park Hyatt · Alila</div></div>
+      <div class="grp-item"><div class="grp-dot" style="background:#1B4332"></div><div class="grp-name">Four Seasons</div><div class="grp-rooms">Independent Luxury</div></div>
+      <div class="grp-item"><div class="grp-dot" style="background:#6D4C41"></div><div class="grp-name">Mandarin</div><div class="grp-rooms">Mandarin Oriental</div></div>
+      <div class="grp-item"><div class="grp-dot" style="background:#78909C"></div><div class="grp-name">Aman</div><div class="grp-rooms">Aman Resorts</div></div>
+      <div class="grp-item" style="border-right:none"><div class="grp-dot" style="background:#1565C0"></div><div class="grp-name">IHG</div><div class="grp-rooms">InterContinental · Kimpton</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <h2 class="cta-title">Prêt à piloter votre<br><em>patrimoine hôtelier</em> ?</h2>
+  <p class="cta-sub">Rejoignez une communauté exclusive d'investisseurs qui font confiance à THE ESTATE pour gérer leurs actifs dans les palaces du monde entier.</p>
+  <a href="dashboard.html" class="btn-p">Accéder à la plateforme</a>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <a href="#" class="footer-logo">THE <span>ESTATE</span></a>
+  <div class="footer-cp">© 2026 The Estate — Confidentiel & Réservé aux membres</div>
+  <div class="footer-cp">AES-256 · Hébergement souverain · MFA</div>
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal-ov" id="loginModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div class="modal-brand">THE <span>ESTATE</span></div>
+    <div class="modal-hint">Accès Membres Privé</div>
+    <div class="form-grp">
+      <label>Identifiant</label>
+      <input type="email" placeholder="votre@email.com">
+    </div>
+    <div class="form-grp">
+      <label>Mot de passe</label>
+      <input type="password" placeholder="••••••••••">
+    </div>
+    <a href="dashboard.html" class="btn-p">Connexion</a>
+    <div class="modal-foot"><a href="#">Mot de passe oublié</a> &nbsp;·&nbsp; <a href="#">Demander un accès</a></div>
+  </div>
+</div>
+
+<script>
+// Navbar scroll
+window.addEventListener('scroll',()=>document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>50));
+
+// Particles
+const pc=document.getElementById('particles');
+for(let i=0;i<35;i++){
+  const p=document.createElement('div');
+  p.className='ptc';
+  p.style.left=Math.random()*100+'%';
+  p.style.top=(20+Math.random()*80)+'%';
+  p.style.setProperty('--d',(5+Math.random()*9)+'s');
+  p.style.setProperty('--dl',(Math.random()*10)+'s');
+  pc.appendChild(p);
+}
+
+// Counters
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const el=e.target,target=+el.dataset.target;
+    let cur=0;const step=target/55;
+    const t=setInterval(()=>{cur+=step;if(cur>=target){el.textContent=target;clearInterval(t);}else el.textContent=Math.floor(cur);},22);
+    obs.unobserve(el);
+  });
+},{threshold:.5});
+document.querySelectorAll('[data-target]').forEach(el=>obs.observe(el));
+
+// Modal
+function openModal(e){e&&e.preventDefault();document.getElementById('loginModal').classList.add('active')}
+function closeModal(){document.getElementById('loginModal').classList.remove('active')}
+document.getElementById('loginModal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+</script>
+</body>
+</html>
