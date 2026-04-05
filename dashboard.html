@@ -1391,6 +1391,47 @@ async function _sbSyncVoucher(v){
 async function _sbInsertVoucher(v){
   try{await _sb.from('vouchers').insert({id:v.id,hotel_id:v.hotelId,hotel:v.hotel,city:v.city,room:v.room,room_type:v.roomType,guest:v.guest,email:v.email,nights:v.nights,nights_used:0,expiry:v.expiry,status:'active',created:v.created,note:v.note||''});}catch(e){}
 }
+// ── Phase 2 mappers ──────────────────────────────────────────
+function _mapGC(g){
+  return {id:g.id,guest:g.guest,email:g.email,hotelId:g.hotel_id,hotel:g.hotel,tier:g.tier,num:g.num,validFrom:g.valid_from,validTo:g.valid_to,status:g.status,access:g.access||[],stays:g.stays||0,nightsUsed:g.nights_used||0};
+}
+function _mapAlert(a){
+  return {id:a.id,type:a.type,priority:a.priority,title:a.title,desc:a.description,hotel:a.hotel,date:a.alert_date,time:a.alert_time,read:a.read};
+}
+function _mapContract(c){
+  return {name:c.name,date:c.date,expires:c.expires,hotels:c.hotels,status:c.status,icon:c.icon};
+}
+function _mapTrip(t){
+  return {id:t.id,num:t.num,hotel:t.hotel,city:t.city,flag:t.flag,lat:t.lat,lng:t.lng,from:t.from_date,to:t.to_date,nights:t.nights,voucher:t.voucher,color:t.color};
+}
+function _mapMember(m){
+  return {id:m.id,name:m.name,email:m.email,initials:m.initials,role:m.role,color:m.color,sharedTrips:m.shared_trips||[]};
+}
+// ── Phase 2 sync helpers ─────────────────────────────────────
+async function _sbSyncGC(gc){
+  try{await _sb.from('guest_cards').update({valid_to:gc.validTo,status:gc.status,stays:gc.stays,nights_used:gc.nightsUsed}).eq('id',gc.id);}catch(e){}
+}
+async function _sbInsertGC(gc){
+  try{await _sb.from('guest_cards').insert({id:gc.id,guest:gc.guest,email:gc.email,hotel_id:gc.hotelId,hotel:gc.hotel,tier:gc.tier,num:gc.num,valid_from:gc.validFrom,valid_to:gc.validTo,status:gc.status,access:gc.access,stays:0,nights_used:0});}catch(e){}
+}
+async function _sbSyncAlert(id){
+  try{await _sb.from('alerts').update({read:true}).eq('id',id);}catch(e){}
+}
+async function _sbMarkAllAlertsRead(){
+  try{await _sb.from('alerts').update({read:true}).eq('read',false);}catch(e){}
+}
+async function _sbInsertMember(m){
+  try{await _sb.from('members').insert({id:m.id,name:m.name,email:m.email,initials:m.initials,role:m.role,color:m.color,shared_trips:m.sharedTrips||[]});}catch(e){}
+}
+async function _sbDeleteMember(id){
+  try{await _sb.from('members').delete().eq('id',id);}catch(e){}
+}
+async function _sbInsertTrip(t){
+  try{await _sb.from('trips').insert({id:t.id,num:t.num,hotel:t.hotel,city:t.city,flag:t.flag,lat:t.lat,lng:t.lng,from_date:t.from,to_date:t.to,nights:t.nights,voucher:t.voucher,color:t.color});}catch(e){}
+}
+async function _sbDeleteTrip(id){
+  try{await _sb.from('trips').delete().eq('id',id);}catch(e){}
+}
 </script>
 </head>
 <body>
@@ -3354,7 +3395,7 @@ function renderContracts(){
   if(!grid)return;
   grid.innerHTML='';
   const isDemo=currentUser&&currentUser.id==='U002';
-  const contracts=isDemo?DUPONT_CONTRACTS:[];
+  const contracts=window._sbContracts?window._sbContracts:(isDemo?DUPONT_CONTRACTS:[]);
   if(!contracts.length){
     grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-s);font-size:.75rem"><i class="fas fa-file-contract" style="font-size:1.5rem;opacity:.25;display:block;margin-bottom:12px"></i>Aucun contrat actif</div>';
     return;
@@ -4508,7 +4549,9 @@ function submitGCIssue(btn){
   const access=(document.getElementById('gc-access-input')?.value||'Accès Standard').split(',').map(s=>s.trim()).filter(Boolean);
   const h=hotels.find(x=>x.id===hotelId);
   const newId='GC-00'+(guestCards.length+1);
-  guestCards.push({id:newId,guest,email,hotelId,hotel:h?h.name+' '+h.city:'',tier,num:'4521 •••• •••• '+Math.floor(1000+Math.random()*9000),validFrom:new Date().toISOString().split('T')[0],validTo,status:'active',access,stays:0,nightsUsed:0});
+  const newGC={id:newId,guest,email,hotelId,hotel:h?h.name+' '+h.city:'',tier,num:'4521 .... .... '+Math.floor(1000+Math.random()*9000),validFrom:new Date().toISOString().split('T')[0],validTo,status:'active',access,stays:0,nightsUsed:0};
+  guestCards.push(newGC);
+  _sbInsertGC(newGC);
   btn.closest('[data-overlay]').remove();
   renderGuestCards();
   showNotif(`<i class="fas fa-id-card" style="color:var(--gold)"></i> Carte <strong>${newId}</strong> émise pour <strong>${guest}</strong>`,'gold');
@@ -4554,6 +4597,7 @@ function extendGC(id){
   const c=guestCards.find(x=>x.id===id);if(!c)return;
   const d=new Date(c.validTo);d.setFullYear(d.getFullYear()+1);
   c.validTo=d.toISOString().split('T')[0];
+  _sbSyncGC(c);
   renderGuestCards();
   showNotif(`<i class="fas fa-check-circle" style="color:#10B981"></i> Carte <strong>${c.id}</strong> prolongée jusqu'au ${d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`,'success');
 }
@@ -4618,8 +4662,8 @@ function renderAlertes(){
 }
 
 function setAlertFilter(f){alertFilter=f;renderAlertes();}
-function readAlert(id){const a=alertsData.find(x=>x.id===id);if(a&&!a.read){a.read=true;renderAlertes();}}
-function markAllRead(){alertsData.forEach(a=>a.read=true);renderAlertes();showNotif('<i class="fas fa-check-double" style="color:#10B981"></i> Toutes les alertes marquées comme lues','success');}
+function readAlert(id){const a=alertsData.find(x=>x.id===id);if(a&&!a.read){a.read=true;_sbSyncAlert(id);renderAlertes();}}
+function markAllRead(){alertsData.forEach(a=>a.read=true);_sbMarkAllAlertsRead();renderAlertes();showNotif('<i class="fas fa-check-double" style="color:#10B981"></i> Toutes les alertes marquées comme lues','success');}
 
 // ===================== CONFIG =====================
 const notifSettings=[
@@ -5734,24 +5778,48 @@ function checkAuth(){
 }
 
 async function loadUserData(){
-  // Charger hotels + vouchers depuis Supabase, fallback sur données demo
+  // Charger toutes les tables depuis Supabase, fallback sur données demo
   try {
-    const [{data:hData},{data:vData}] = await Promise.all([
+    const [
+      {data:hData},{data:vData},{data:gcData},
+      {data:aData},{data:cData},{data:tData},{data:mData}
+    ] = await Promise.all([
       _sb.from('hotels').select('*').order('id'),
-      _sb.from('vouchers').select('*').order('id')
+      _sb.from('vouchers').select('*').order('id'),
+      _sb.from('guest_cards').select('*').order('id'),
+      _sb.from('alerts').select('*').order('id'),
+      _sb.from('contracts').select('*').order('id'),
+      _sb.from('trips').select('*').order('num'),
+      _sb.from('members').select('*').order('id')
     ]);
-    hotels = (hData && hData.length) ? hData.map(_mapHotel) : [...DUPONT_HOTELS];
-    vouchers = (vData && vData.length) ? vData.map(_mapVoucher) : [...DUPONT_VOUCHERS];
+    hotels     = (hData  && hData.length)  ? hData.map(_mapHotel)    : [...DUPONT_HOTELS];
+    vouchers   = (vData  && vData.length)  ? vData.map(_mapVoucher)  : [...DUPONT_VOUCHERS];
+    guestCards = (gcData && gcData.length) ? gcData.map(_mapGC)      : [...DUPONT_GUEST_CARDS];
+    alertsData = (aData  && aData.length)  ? aData.map(_mapAlert)    : [...DUPONT_ALERTS];
+    MEMBERS    = (mData  && mData.length)  ? mData.map(_mapMember)   : DUPONT_MEMBERS.map(m=>({...m}));
+    TRIPS      = (tData  && tData.length)  ? tData.map(_mapTrip)     : [...DUPONT_TRIPS];
+    // Contracts — stocke dans une variable globale utilisée par renderContracts()
+    if(cData && cData.length) window._sbContracts = cData.map(_mapContract);
+    else window._sbContracts = null;
+    // Shared trips index depuis les membres
+    MY_SHARED_TRIPS = {};
+    MEMBERS.forEach(m=>{
+      (m.sharedTrips||[]).forEach(tid=>{
+        if(!MY_SHARED_TRIPS[tid]) MY_SHARED_TRIPS[tid]=[];
+        MY_SHARED_TRIPS[tid].push(m.id);
+      });
+    });
   } catch(e) {
-    hotels = [...DUPONT_HOTELS];
-    vouchers = [...DUPONT_VOUCHERS];
+    hotels     = [...DUPONT_HOTELS];
+    vouchers   = [...DUPONT_VOUCHERS];
+    guestCards = [...DUPONT_GUEST_CARDS];
+    alertsData = [...DUPONT_ALERTS];
+    MEMBERS    = DUPONT_MEMBERS.map(m=>({...m}));
+    TRIPS      = [...DUPONT_TRIPS];
+    window._sbContracts = null;
+    MY_SHARED_TRIPS = Object.assign({},DUPONT_SHARED_TRIPS);
   }
   ROOMS_DATA = [...DUPONT_ROOMS];
-  guestCards = [...DUPONT_GUEST_CARDS];
-  TRIPS = [...DUPONT_TRIPS];
-  alertsData = [...DUPONT_ALERTS];
-  MEMBERS = DUPONT_MEMBERS.map(m=>({...m}));
-  MY_SHARED_TRIPS = Object.assign({},DUPONT_SHARED_TRIPS);
 }
 
 let _adminUser=null; // stocke l'admin pendant l'impersonation
@@ -6409,7 +6477,9 @@ function addMember(){
   const parts=name.split(' ');
   const initials=(parts[0][0]+(parts[1]?parts[1][0]:parts[0][1]||'')).toUpperCase();
   const id='M'+String(Date.now()).slice(-6);
-  MEMBERS.push({id,name,email,initials,role:role||'Membre',color,sharedTrips:[]});
+  const newMember={id,name,email,initials,role:role||'Membre',color,sharedTrips:[]};
+  MEMBERS.push(newMember);
+  _sbInsertMember(newMember);
   if(nameEl)nameEl.value='';
   if(emailEl)emailEl.value='';
   if(roleEl)roleEl.value='';
@@ -6421,6 +6491,7 @@ function addMember(){
 function removeMember(memberId){
   const m=MEMBERS.find(x=>x.id===memberId);
   MEMBERS=MEMBERS.filter(x=>x.id!==memberId);
+  _sbDeleteMember(memberId);
   voyActiveMembers.delete(memberId);
   Object.keys(MY_SHARED_TRIPS).forEach(tid=>{
     MY_SHARED_TRIPS[tid]=(MY_SHARED_TRIPS[tid]||[]).filter(id=>id!==memberId);
