@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#040D1C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Hotel Scout — THE ESTATE</title>
+<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<style>
+:root{
+  --navy:#040D1C;--navy-mid:#071425;--navy-card:#0A1A2E;
+  --gold:#C9A84C;--gold-l:#D4B96A;--gold-d:#A8842A;
+  --text:#E8E0D0;--text-m:#9BA8B8;--text-s:#5A6A7A;
+  --border:rgba(201,168,76,.15);
+  --portfolio:#10B981;--wishlist:#3B82F6;--potential:#F59E0B;--hotel-list:#8B5CF6;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden}
+
+/* HEADER */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--navy-mid);border-bottom:1px solid var(--border);padding:0 16px;height:56px;display:flex;align-items:center;gap:12px}
+.hdr-back{width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--text-m);font-size:.9rem;text-decoration:none;flex-shrink:0}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.hdr-sep{color:var(--text-s);font-size:.7rem}
+.hdr-sub{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-m);flex:1}
+.hdr-badge{background:rgba(201,168,76,.12);border:1px solid var(--border);color:var(--gold);font-size:.6rem;letter-spacing:.1em;padding:2px 8px;font-weight:600;flex-shrink:0}
+
+/* TABS */
+.tab-bar{position:fixed;top:56px;left:0;right:0;z-index:99;background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex}
+.tab-item{flex:1;padding:11px 4px;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-s);text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .25s}
+.tab-item.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-item i{display:block;font-size:.8rem;margin-bottom:2px}
+
+/* PANELS */
+.panel{position:fixed;top:103px;left:0;right:0;bottom:0;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch}
+.panel.active{display:block}
+
+/* EXPLORER */
+.browser-shell{margin:14px;border:1px solid var(--border);background:var(--navy-card)}
+.browser-bar{padding:9px 12px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.browser-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0}
+.browser-url{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-s);padding:6px 10px;font-size:.68rem;font-family:'Inter',sans-serif}
+.browser-blocked{padding:32px 20px;text-align:center}
+.browser-blocked i.main-icon{font-size:2rem;color:var(--gold);margin-bottom:14px;display:block}
+.browser-blocked h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:400;margin-bottom:10px}
+.browser-blocked p{font-size:.7rem;color:var(--text-m);line-height:1.65;margin-bottom:22px}
+.btn-open{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:var(--navy);padding:13px 20px;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;text-decoration:none;width:100%;border:none;transition:all .3s;margin-bottom:8px}
+.btn-open:active{background:var(--gold-d)}
+.steps{text-align:left;margin-top:24px;padding-top:18px;border-top:1px solid var(--border)}
+.step{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.step-n{width:22px;height:22px;border-radius:50%;background:rgba(201,168,76,.1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.58rem;color:var(--gold);font-weight:700;flex-shrink:0;margin-top:1px}
+.step-t{font-size:.7rem;color:var(--text-m);line-height:1.5}
+.step-t strong{color:var(--text);font-weight:500}
+
+/* CAPTURE BAR */
+.capture-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--navy-mid);border-top:1px solid var(--border);padding:10px 14px;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.capture-lbl{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.capture-row{display:flex;gap:8px}
+.capture-input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-size:.75rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s;min-width:0}
+.capture-input:focus{border-color:var(--gold)}
+.capture-input::placeholder{color:var(--text-s)}
+.capture-btn{background:var(--gold);color:var(--navy);border:none;padding:10px 16px;font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;flex-shrink:0;transition:all .3s;display:flex;align-items:center;gap:6px}
+.capture-btn:active{background:var(--gold-d)}
+.capture-btn.loading{background:var(--gold-d);pointer-events:none}
+
+/* LIST PANEL */
+.list-wrap{padding:14px 14px 100px}
+.cat-section{margin-bottom:24px}
+.cat-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.cat-title{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+.cat-count{font-size:.62rem;color:var(--text-s);margin-left:auto}
+.hotel-card{background:var(--navy-card);border:1px solid var(--border);margin-bottom:10px;overflow:hidden}
+.hotel-gallery{display:flex;gap:2px;height:120px;overflow:hidden;background:var(--navy-mid)}
+.hotel-gallery img{flex:1;object-fit:cover;min-width:0}
+.hotel-gallery-ph{width:100%;height:120px;display:flex;align-items:center;justify-content:center;color:var(--text-s);font-size:1.6rem;background:var(--navy-mid)}
+.hotel-body{padding:12px 14px}
+.hotel-name{font-size:.88rem;font-weight:600;margin-bottom:5px;line-height:1.3}
+.hotel-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.meta-chip{font-size:.62rem;color:var(--text-m);display:flex;align-items:center;gap:4px}
+.meta-chip i{color:var(--gold);font-size:.6rem}
+.hotel-desc{font-size:.68rem;color:var(--text-m);line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.amenity-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.amenity{font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;background:rgba(201,168,76,.06);border:1px solid var(--border);color:var(--text-s)}
+.hotel-cat-badge{font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;font-weight:600}
+.hotel-actions{display:flex;gap:6px;margin-top:8px}
+.hotel-btn{flex:1;background:transparent;border:1px solid var(--border);color:var(--text-m);padding:8px 6px;font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .3s;text-decoration:none}
+.hotel-btn:active,.hotel-btn:hover{border-color:var(--gold);color:var(--gold)}
+.hotel-btn.danger{border-color:rgba(239,68,68,.2);color:rgba(239,68,68,.7)}
+.hotel-btn.danger:active{border-color:#EF4444;color:#EF4444}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-s)}
+.empty-state i{font-size:1.6rem;margin-bottom:12px;display:block;opacity:.35}
+.empty-state p{font-size:.7rem;line-height:1.6}
+
+/* IMPORT MODAL */
+.modal-ov{position:fixed;inset:0;z-index:500;background:rgba(4,13,28,.9);display:none;align-items:flex-end}
+.modal-ov.open{display:flex}
+.modal-sheet{background:var(--navy-mid);border-top:1px solid var(--border);width:100%;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 18px}
+.modal-body{padding:0 18px 24px}
+.modal-eyebrow{font-size:.54rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:400;margin-bottom:18px;line-height:1.3}
+
+/* Galerie dans modal */
+.gallery-scroll{display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none}
+.gallery-scroll::-webkit-scrollbar{display:none}
+.gallery-thumb{width:130px;height:88px;object-fit:cover;flex-shrink:0;cursor:pointer;border:2px solid transparent;transition:border-color .2s}
+.gallery-thumb.active{border-color:var(--gold)}
+.gallery-main{width:100%;height:190px;object-fit:cover;margin-bottom:6px;display:block;background:var(--navy-card)}
+
+/* Infos preview */
+.preview-info{background:rgba(255,255,255,.03);border:1px solid var(--border);padding:14px;margin-bottom:16px}
+.preview-name{font-size:.95rem;font-weight:600;margin-bottom:6px}
+.preview-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.preview-desc{font-size:.7rem;color:var(--text-m);line-height:1.6;max-height:80px;overflow:hidden}
+.source-badge{display:inline-flex;align-items:center;gap:5px;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--border);color:var(--text-s);margin-top:8px}
+
+/* Champs formulaire */
+.field-group{margin-bottom:12px}
+.field-label{font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-s);margin-bottom:5px;display:block}
+.field-input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-size:.8rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s;-webkit-appearance:none}
+.field-input:focus{border-color:var(--gold)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Catégories */
+.cat-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.cat-btn{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:14px 6px;text-align:center;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.cat-btn i{display:block;font-size:1rem;margin-bottom:6px}
+.cat-btn span{display:block;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;line-height:1.4;color:var(--text-s)}
+.cat-btn.sel-portfolio{background:rgba(16,185,129,.08);border-color:var(--portfolio)}
+.cat-btn.sel-portfolio i,.cat-btn.sel-portfolio span{color:var(--portfolio)}
+.cat-btn.sel-wishlist{background:rgba(59,130,246,.08);border-color:var(--wishlist)}
+.cat-btn.sel-wishlist i,.cat-btn.sel-wishlist span{color:var(--wishlist)}
+.cat-btn.sel-potential{background:rgba(245,158,11,.08);border-color:var(--potential)}
+.cat-btn.sel-potential i,.cat-btn.sel-potential span{color:var(--potential)}
+.cat-btn.sel-hotel-list{background:rgba(139,92,246,.08);border-color:var(--hotel-list)}
+.cat-btn.sel-hotel-list i,.cat-btn.sel-hotel-list span{color:var(--hotel-list)}
+
+.btn-save{width:100%;background:var(--gold);color:var(--navy);border:none;padding:14px;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;margin-bottom:8px;transition:all .3s}
+.btn-save:active{background:var(--gold-d)}
+.btn-cancel{width:100%;background:transparent;border:1px solid var(--border);color:var(--text-m);padding:12px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-family:'Inter',sans-serif;cursor:pointer}
+.err-msg{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);color:#EF4444;padding:9px 12px;font-size:.68rem;margin-bottom:12px;display:none}
+
+/* LOADING */
+.loading-ov{position:fixed;inset:0;z-index:600;background:rgba(4,13,28,.88);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.loading-ov.show{display:flex}
+.loading-spin{width:40px;height:40px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-m)}
+
+/* NOTIF */
+.notif{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--navy-card);border:1px solid var(--border);padding:9px 16px;font-size:.7rem;white-space:nowrap;z-index:999;opacity:0;transition:all .3s;pointer-events:none;max-width:calc(100vw - 28px);text-align:center}
+.notif.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* LIGHTBOX */
+.lb{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center}
+.lb.open{display:flex}
+.lb img{max-width:100%;max-height:100vh;object-fit:contain}
+.lb-close{position:absolute;top:16px;right:16px;color:#fff;font-size:1.4rem;cursor:pointer;background:rgba(0,0,0,.4);width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <a href="dashboard.html" class="hdr-back"><i class="fas fa-chevron-left"></i></a>
+  <span class="hdr-logo">The Estate</span>
+  <span class="hdr-sep">·</span>
+  <span class="hdr-sub">Hotel Scout</span>
+  <div class="hdr-badge" id="totalBadge">0</div>
+</header>
+
+<!-- TAB BAR -->
+<nav class="tab-bar">
+  <div class="tab-item active" id="tab-explorer" onclick="switchTab('explorer')">
+    <i class="fas fa-search"></i>Explorer
+  </div>
+  <div class="tab-item" id="tab-portfolio" onclick="switchTab('portfolio')">
+    <i class="fas fa-building"></i>Portfolio
+  </div>
+  <div class="tab-item" id="tab-wishlist" onclick="switchTab('wishlist')">
+    <i class="fas fa-plane"></i>Wishlist
+  </div>
+  <div class="tab-item" id="tab-potential" onclick="switchTab('potential')">
+    <i class="fas fa-chart-line"></i>Potentiel
+  </div>
+  <div class="tab-item" id="tab-hotel-list" onclick="switchTab('hotel-list')" style="display:none">
+    <i class="fas fa-list-ul"></i>Hotel List
+  </div>
+</nav>
+
+<!-- EXPLORER PANEL -->
+<div class="panel active" id="panel-explorer">
+  <div class="browser-shell" style="margin-bottom:80px">
+    <div class="browser-bar">
+      <div class="browser-dot"></div><div class="browser-dot"></div><div class="browser-dot"></div>
+      <div class="browser-url">booking.com</div>
+      <i class="fas fa-lock" style="color:var(--text-s);font-size:.65rem"></i>
+    </div>
+    <div class="browser-blocked">
+      <i class="fas fa-hotel main-icon"></i>
+      <h3>Hotel Scout</h3>
+      <p>Ouvrez Booking.com dans un nouvel onglet, trouvez l'hôtel qui vous intéresse, copiez son URL, puis collez-la dans la barre ci-dessous.<br><br>THE ESTATE extrait automatiquement <strong style="color:var(--text)">nom, adresse, coordonnées, description, galerie photos et équipements</strong>.</p>
+      <a href="https://www.booking.com" target="_blank" rel="noopener" class="btn-open">
+        <i class="fas fa-external-link-alt"></i> Ouvrir Booking.com
+      </a>
+      <button class="btn-open" onclick="openBulkModal()" style="background:transparent;border:1px solid var(--border);color:var(--text-m);margin-top:0">
+        <i class="fas fa-layer-group"></i> Importer une liste de résultats
+      </button>
+      <div class="steps">
+        <div style="font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px">Comment ça marche</div>
+        <div class="step"><div class="step-n">1</div><div class="step-t"><strong>Ouvrez Booking.com</strong> et recherchez un hôtel</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-t"><strong>Copiez l'URL</strong> de la page de l'hôtel</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-t"><strong>Collez l'URL</strong> ci-dessous — l'analyse démarre automatiquement</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-t"><strong>Choisissez la catégorie</strong> : Portfolio, Wishlist ou Potentiel</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIST PANELS -->
+<div class="panel" id="panel-portfolio"><div class="list-wrap" id="list-portfolio"></div></div>
+<div class="panel" id="panel-wishlist"><div class="list-wrap" id="list-wishlist"></div></div>
+<div class="panel" id="panel-potential"><div class="list-wrap" id="list-potential"></div></div>
+<div class="panel" id="panel-hotel-list"><div class="list-wrap" id="list-hotel-list"></div></div>
+
+<!-- CAPTURE BAR -->
+<div class="capture-bar">
+  <div class="capture-lbl"><i class="fas fa-link" style="margin-right:5px"></i>Coller une URL Booking.com</div>
+  <div class="capture-row">
+    <input type="url" class="capture-input" id="captureInput" placeholder="https://www.booking.com/hotel/..." autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="capture-btn" id="captureBtn" onclick="handleCapture()">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div class="modal-ov" id="importModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-body">
+      <div class="modal-eyebrow">Ajouter un hôtel</div>
+      <div class="modal-title" id="modalHotelName">Chargement...</div>
+      <div class="err-msg" id="modalErr"></div>
+
+      <!-- Galerie -->
+      <div id="galleryMainWrap">
+        <img id="galleryMain" class="gallery-main" src="" alt="" onerror="this.style.display='none'">
+      </div>
+      <div class="gallery-scroll" id="galleryThumbs"></div>
+
+      <!-- Infos extraites -->
+      <div class="preview-info" id="previewInfo">
+        <div class="preview-meta" id="previewMeta"></div>
+        <div class="preview-desc" id="previewDesc"></div>
+        <div id="previewSource"></div>
+      </div>
+
+      <!-- Équipements -->
+      <div id="amenitiesWrap" style="display:none;margin-bottom:16px">
+        <div class="field-label" style="margin-bottom:8px">Équipements détectés</div>
+        <div class="amenity-wrap" id="amenityList"></div>
+      </div>
+
+      <!-- Champs éditables -->
+      <div class="field-group"><label class="field-label">Nom de l'hôtel</label><input class="field-input" id="fName" type="text"></div>
+      <div class="field-row">
+        <div class="field-group"><label class="field-label">Ville</label><input class="field-input" id="fCity" type="text"></div>
+        <div class="field-group"><label class="field-label">Pays</label><input class="field-input" id="fCountry" type="text"></div>
+      </div>
+      <div class="field-group"><label class="field-label">Adresse</label><input class="field-input" id="fAddress" type="text"></div>
+      <div class="field-group"><label class="field-label">Groupe hôtelier</label><input class="field-input" id="fGroup" type="text" placeholder="Four Seasons, Marriott..."></div>
+      <div class="field-group"><label class="field-label">Notes personnelles</label><input class="field-input" id="fNotes" type="text" placeholder="Observations, contacts..."></div>
+
+      <!-- Catégorie -->
+      <div class="field-label" style="margin-bottom:10px">Catégorie</div>
+      <div class="cat-selector">
+        <button class="cat-btn" id="cat-portfolio" onclick="selectCat('portfolio')">
+          <i class="fas fa-building" style="color:var(--portfolio)"></i>
+          <span>Hôtel<br>Portfolio</span>
+        </button>
+        <button class="cat-btn" id="cat-wishlist" onclick="selectCat('wishlist')">
+          <i class="fas fa-plane" style="color:var(--wishlist)"></i>
+          <span>Travel<br>Wishlist</span>
+        </button>
+        <button class="cat-btn" id="cat-potential" onclick="selectCat('potential')">
+          <i class="fas fa-chart-line" style="color:var(--potential)"></i>
+          <span>Potentiel<br>Invest.</span>
+        </button>
+      </div>
+      <div id="cat-hotel-list-wrap" style="display:none;margin-bottom:18px">
+        <button class="cat-btn" id="cat-hotel-list" onclick="selectCat('hotel-list')" style="width:100%">
+          <i class="fas fa-list-ul" style="color:var(--hotel-list)"></i>
+          <span>Hotel List <small style="display:block;font-size:.5rem;opacity:.6">(Admin)</small></span>
+        </button>
+      </div>
+
+      <button class="btn-save" onclick="saveHotel()">Ajouter à ma liste</button>
+      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-ov" id="loadingOv">
+  <div class="loading-spin"></div>
+  <div class="loading-txt" id="loadingTxt">Analyse en cours...</div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" onclick="closeLb()">
+  <div class="lb-close"><i class="fas fa-times"></i></div>
+  <img id="lbImg" src="" alt="">
+</div>
+
+<!-- BULK IMPORT MODAL -->
+<div class="modal-ov" id="bulkModal" onclick="if(event.target===this)closeBulkModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-body">
+      <div class="modal-eyebrow">Import en masse</div>
+      <div class="modal-title">Importer une liste Booking.com</div>
+      <p style="font-size:.7rem;color:var(--text-m);line-height:1.6;margin-bottom:16px">
+        Collez l'URL d'une page de résultats Booking.com (ex: recherche "Paris 5 étoiles"). THE ESTATE extrait automatiquement tous les hôtels de la page et les enrichit un par un.
+      </p>
+      <div class="field-group"><label class="field-label">URL de la page de résultats</label>
+        <input class="field-input" id="bulkUrl" type="url" placeholder="https://www.booking.com/searchresults...">
+      </div>
+      <div class="field-label" style="margin-bottom:10px">Catégorie pour tous les hôtels importés</div>
+      <div class="cat-selector" style="margin-bottom:8px">
+        <button class="cat-btn" id="bcat-portfolio" onclick="selectBulkCat('portfolio')"><i class="fas fa-building" style="color:var(--portfolio)"></i><span>Portfolio</span></button>
+        <button class="cat-btn" id="bcat-wishlist" onclick="selectBulkCat('wishlist')"><i class="fas fa-plane" style="color:var(--wishlist)"></i><span>Wishlist</span></button>
+        <button class="cat-btn" id="bcat-potential" onclick="selectBulkCat('potential')"><i class="fas fa-chart-line" style="color:var(--potential)"></i><span>Potentiel</span></button>
+      </div>
+      <div id="bcat-hotel-list-wrap" style="display:none;margin-bottom:16px">
+        <button class="cat-btn" id="bcat-hotel-list" onclick="selectBulkCat('hotel-list')" style="width:100%">
+          <i class="fas fa-list-ul" style="color:var(--hotel-list)"></i>
+          <span>Hotel List <small style="opacity:.6">(Admin uniquement)</small></span>
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div id="bulkProgress" style="display:none;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:.68rem;color:var(--text-m)" id="bulkProgressLabel">Analyse en cours...</div>
+          <div style="font-size:.68rem;color:var(--gold)" id="bulkProgressCount"></div>
+        </div>
+        <div style="background:rgba(255,255,255,.06);border:1px solid var(--border);height:4px;border-radius:2px">
+          <div id="bulkProgressBar" style="height:100%;background:var(--gold);width:0%;transition:width .4s;border-radius:2px"></div>
+        </div>
+        <div id="bulkLog" style="margin-top:12px;max-height:120px;overflow-y:auto;font-size:.65rem;color:var(--text-s);line-height:1.6"></div>
+      </div>
+
+      <div class="err-msg" id="bulkErr"></div>
+      <button class="btn-save" id="bulkStartBtn" onclick="startBulkImport()"><i class="fas fa-layer-group" style="margin-right:7px"></i>Lancer l'import</button>
+      <button class="btn-cancel" onclick="closeBulkModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIF -->
+<div class="notif" id="notif"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+const SCOUT_KEY = 'estate_v1_scout';
+const API_URL   = '/api/scout';
+
+const CAT = {
+  portfolio:   { color:'var(--portfolio)',  icon:'fa-building',   label:'Hôtel Portfolio',   bg:'rgba(16,185,129,.1)',  border:'rgba(16,185,129,.3)'  },
+  wishlist:    { color:'var(--wishlist)',   icon:'fa-plane',       label:'Travel Wishlist',   bg:'rgba(59,130,246,.1)',  border:'rgba(59,130,246,.3)'  },
+  potential:   { color:'var(--potential)',  icon:'fa-chart-line', label:'Potentiel Invest.', bg:'rgba(245,158,11,.1)',  border:'rgba(245,158,11,.3)'  },
+  'hotel-list':{ color:'var(--hotel-list)','icon':'fa-list-ul',   label:'Hotel List',        bg:'rgba(139,92,246,.1)', border:'rgba(139,92,246,.3)'  },
+};
+
+function isAdmin() {
+  try {
+    const sess = JSON.parse(localStorage.getItem('estate_v1_session') || '{}');
+    const users = JSON.parse(localStorage.getItem('estate_v1_users') || '[]');
+    const u = users.find(x => x.id === sess.userId);
+    return !!(u && u.isAdmin);
+  } catch(e) { return false; }
+}
+
+let hotels = [];
+let importData = null;
+let selectedCat = null;
+let currentTab = 'explorer';
+
+// ── STORAGE ──────────────────────────────────────────────────
+function load() { try { hotels = JSON.parse(localStorage.getItem(SCOUT_KEY)) || []; } catch(e) { hotels = []; } }
+function save() { localStorage.setItem(SCOUT_KEY, JSON.stringify(hotels)); updateBadge(); }
+function updateBadge() { document.getElementById('totalBadge').textContent = hotels.length; }
+
+// ── TABS ─────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  if (tab !== 'explorer') renderList(tab);
+}
+
+function initAdminUI() {
+  if (!isAdmin()) return;
+  document.getElementById('tab-hotel-list').style.display = '';
+  const hlWrap = document.getElementById('cat-hotel-list-wrap');
+  if (hlWrap) hlWrap.style.display = 'block';
+  const bhlWrap = document.getElementById('bcat-hotel-list-wrap');
+  if (bhlWrap) bhlWrap.style.display = 'block';
+}
+
+// ── CAPTURE ──────────────────────────────────────────────────
+async function handleCapture() {
+  const val = (document.getElementById('captureInput').value || '').trim();
+  if (!val) return;
+  if (!val.includes('booking.com/hotel/')) { showNotif('URL Booking.com invalide'); return; }
+
+  showLoading('Extraction des données...');
+  try {
+    const res = await fetch(`${API_URL}?url=${encodeURIComponent(val)}`);
+    if (!res.ok) throw new Error('Erreur API');
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    hideLoading();
+    openImportModal(data);
+  } catch(e) {
+    hideLoading();
+    showNotif('Impossible d\'analyser cette URL');
+  }
+}
+
+document.getElementById('captureInput').addEventListener('keydown', e => { if (e.key === 'Enter') handleCapture(); });
+document.getElementById('captureInput').addEventListener('paste', () => {
+  setTimeout(() => {
+    const v = document.getElementById('captureInput').value.trim();
+    if (v.includes('booking.com/hotel/')) handleCapture();
+  }, 120);
+});
+
+// ── IMPORT MODAL ─────────────────────────────────────────────
+function openImportModal(data) {
+  importData = data;
+  selectedCat = null;
+
+  // Titre
+  document.getElementById('modalHotelName').textContent = data.name || 'Hôtel sans nom';
+
+  // Galerie principale
+  const photos = data.photos || [];
+  const mainImg = document.getElementById('galleryMain');
+  if (photos.length > 0) {
+    mainImg.src = photos[0];
+    mainImg.style.display = 'block';
+  } else {
+    mainImg.style.display = 'none';
+  }
+
+  // Thumbnails
+  const thumbWrap = document.getElementById('galleryThumbs');
+  thumbWrap.innerHTML = photos.map((p, i) =>
+    `<img src="${p}" class="gallery-thumb${i===0?' active':''}" alt="" onclick="setMainPhoto(${i})"
+         onerror="this.style.display='none'">`
+  ).join('');
+
+  // Infos
+  const metaEl = document.getElementById('previewMeta');
+  const metaItems = [];
+  if (data.city) metaItems.push(`<span class="meta-chip"><i class="fas fa-map-marker-alt"></i>${data.city}</span>`);
+  if (data.country) metaItems.push(`<span class="meta-chip"><i class="fas fa-globe"></i>${data.country}</span>`);
+  if (data.address) metaItems.push(`<span class="meta-chip"><i class="fas fa-road"></i>${data.address}${data.postal_code?' '+data.postal_code:''}</span>`);
+  if (data.stars) metaItems.push(`<span class="meta-chip"><i class="fas fa-star"></i>${data.stars} étoiles</span>`);
+  if (data.rating) metaItems.push(`<span class="meta-chip"><i class="fas fa-thumbs-up"></i>${data.rating}/10</span>`);
+  if (data.lat) metaItems.push(`<span class="meta-chip"><i class="fas fa-crosshairs"></i>${parseFloat(data.lat).toFixed(4)}, ${parseFloat(data.lng).toFixed(4)}</span>`);
+  metaEl.innerHTML = metaItems.join('');
+
+  document.getElementById('previewDesc').textContent = data.description || 'Aucune description disponible.';
+
+  const srcLabels = { booking:'Booking.com', wikipedia:'Wikipedia', nominatim:'OpenStreetMap', manual:'Manuel' };
+  document.getElementById('previewSource').innerHTML =
+    `<span class="source-badge"><i class="fas fa-database"></i>Source : ${srcLabels[data.source]||data.source}</span>`;
+
+  // Équipements
+  const amenities = data.amenities || [];
+  if (amenities.length > 0) {
+    document.getElementById('amenityList').innerHTML = amenities.map(a =>
+      `<span class="amenity">${a}</span>`
+    ).join('');
+    document.getElementById('amenitiesWrap').style.display = 'block';
+  } else {
+    document.getElementById('amenitiesWrap').style.display = 'none';
+  }
+
+  // Champs
+  document.getElementById('fName').value = data.name || '';
+  document.getElementById('fCity').value = data.city || '';
+  document.getElementById('fCountry').value = data.country || '';
+  document.getElementById('fAddress').value = [data.address, data.postal_code].filter(Boolean).join(' ');
+  document.getElementById('fGroup').value = '';
+  document.getElementById('fNotes').value = '';
+
+  // Reset catégories
+  ['portfolio','wishlist','potential','hotel-list'].forEach(c => { const el=document.getElementById('cat-'+c); if(el) el.className='cat-btn'; });
+  document.getElementById('modalErr').style.display = 'none';
+  document.getElementById('importModal').classList.add('open');
+}
+
+function setMainPhoto(idx) {
+  const photos = importData?.photos || [];
+  if (!photos[idx]) return;
+  document.getElementById('galleryMain').src = photos[idx];
+  document.querySelectorAll('.gallery-thumb').forEach((t, i) => t.classList.toggle('active', i === idx));
+}
+
+function closeModal() {
+  document.getElementById('importModal').classList.remove('open');
+  document.getElementById('captureInput').value = '';
+  importData = null; selectedCat = null;
+}
+
+function selectCat(cat) {
+  selectedCat = cat;
+  ['portfolio','wishlist','potential','hotel-list'].forEach(c => {
+    const el = document.getElementById('cat-' + c);
+    if (el) el.className = 'cat-btn' + (c === cat ? ' sel-' + c : '');
+  });
+}
+
+function saveHotel() {
+  const errEl = document.getElementById('modalErr');
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { errEl.textContent = 'Nom requis.'; errEl.style.display = 'block'; return; }
+  if (!selectedCat) { errEl.textContent = 'Choisissez une catégorie.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+
+  const hotel = {
+    id: 'scout_' + Date.now(),
+    name,
+    city:         document.getElementById('fCity').value.trim(),
+    country:      document.getElementById('fCountry').value.trim(),
+    address:      document.getElementById('fAddress').value.trim(),
+    group:        document.getElementById('fGroup').value.trim(),
+    notes:        document.getElementById('fNotes').value.trim(),
+    description:  importData?.description || '',
+    photos:       importData?.photos || [],
+    amenities:    importData?.amenities || [],
+    stars:        importData?.stars || 5,
+    rating:       importData?.rating || '',
+    lat:          importData?.lat || null,
+    lng:          importData?.lng || null,
+    bookingUrl:   importData?.booking_url || '',
+    source:       importData?.source || 'manual',
+    category:     selectedCat,
+    addedAt:      Date.now(),
+  };
+
+  hotels.unshift(hotel);
+  save();
+  closeModal();
+  showNotif('Hôtel ajouté · ' + CAT[selectedCat].label);
+  switchTab(selectedCat);
+}
+
+// ── RENDER LISTS ─────────────────────────────────────────────
+function renderList(cat) {
+  const el = document.getElementById('list-' + cat);
+  if (!el) return;
+  const items = hotels.filter(h => h.category === cat);
+  const cfg = CAT[cat];
+
+  if (!items.length) {
+    el.innerHTML = `<div class="empty-state"><i class="fas ${cfg.icon}"></i><p>Aucun hôtel dans cette liste.<br>Explorez Booking.com et capturez des URLs.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = items.map(h => {
+    const photos = h.photos || [];
+    const galleryHtml = photos.length > 0
+      ? `<div class="hotel-gallery">${photos.slice(0,3).map(p =>
+          `<img src="${p}" alt="${h.name}" onerror="this.style.display='none'">`
+        ).join('')}</div>`
+      : `<div class="hotel-gallery-ph"><i class="fas fa-hotel"></i></div>`;
+
+    const metaParts = [];
+    if (h.city) metaParts.push(`<span class="meta-chip"><i class="fas fa-map-marker-alt"></i>${h.city}</span>`);
+    if (h.country) metaParts.push(`<span class="meta-chip"><i class="fas fa-globe"></i>${h.country}</span>`);
+    if (h.stars) metaParts.push(`<span class="meta-chip"><i class="fas fa-star"></i>${h.stars}★</span>`);
+    if (h.group) metaParts.push(`<span class="meta-chip"><i class="fas fa-tag"></i>${h.group}</span>`);
+
+    const amenityHtml = (h.amenities||[]).slice(0,6).map(a =>
+      `<span class="amenity">${a}</span>`).join('');
+
+    return `<div class="hotel-card">
+      ${galleryHtml}
+      <div class="hotel-body">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px">
+          <div class="hotel-name">${h.name}</div>
+          <span class="hotel-cat-badge" style="background:${cfg.bg};border:1px solid ${cfg.border};color:${cfg.color};flex-shrink:0">${cfg.label}</span>
+        </div>
+        <div class="hotel-meta">${metaParts.join('')}</div>
+        ${h.address ? `<div style="font-size:.65rem;color:var(--text-s);margin-bottom:8px"><i class="fas fa-road" style="margin-right:5px;color:var(--gold)"></i>${h.address}</div>` : ''}
+        ${h.description ? `<div class="hotel-desc">${h.description}</div>` : ''}
+        ${amenityHtml ? `<div class="amenity-wrap">${amenityHtml}</div>` : ''}
+        ${h.notes ? `<div style="font-size:.66rem;color:var(--text-s);font-style:italic;margin-bottom:8px">"${h.notes}"</div>` : ''}
+        <div class="hotel-actions">
+          <a href="${h.bookingUrl}" target="_blank" rel="noopener" class="hotel-btn" style="text-decoration:none"><i class="fas fa-external-link-alt"></i>Booking</a>
+          <button class="hotel-btn" onclick="moveHotel('${h.id}')"><i class="fas fa-exchange-alt"></i>Déplacer</button>
+          <button class="hotel-btn danger" onclick="deleteHotel('${h.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────
+function deleteHotel(id) {
+  hotels = hotels.filter(h => h.id !== id);
+  save(); renderList(currentTab);
+  showNotif('Hôtel supprimé');
+}
+
+function moveHotel(id) {
+  const h = hotels.find(x => x.id === id);
+  if (!h) return;
+  const cats = isAdmin()
+    ? ['portfolio','wishlist','potential','hotel-list']
+    : ['portfolio','wishlist','potential'];
+  const idx = cats.indexOf(h.category);
+  h.category = cats[(idx < 0 ? 0 : idx + 1) % cats.length];
+  save(); renderList(currentTab);
+  showNotif('Déplacé → ' + CAT[h.category].label);
+}
+
+// ── LIGHTBOX ─────────────────────────────────────────────────
+function openLb(src) { document.getElementById('lbImg').src = src; document.getElementById('lb').classList.add('open'); }
+function closeLb() { document.getElementById('lb').classList.remove('open'); }
+
+// ── LOADING ──────────────────────────────────────────────────
+function showLoading(txt) {
+  document.getElementById('loadingTxt').textContent = txt || 'Chargement...';
+  document.getElementById('loadingOv').classList.add('show');
+  document.getElementById('captureBtn').classList.add('loading');
+}
+function hideLoading() {
+  document.getElementById('loadingOv').classList.remove('show');
+  document.getElementById('captureBtn').classList.remove('loading');
+}
+
+// ── NOTIF ─────────────────────────────────────────────────────
+function showNotif(msg) {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ── BULK IMPORT ───────────────────────────────────────────────
+let bulkCat = null;
+let bulkRunning = false;
+
+function openBulkModal() {
+  bulkCat = null;
+  bulkRunning = false;
+  document.getElementById('bulkUrl').value = '';
+  document.getElementById('bulkErr').style.display = 'none';
+  document.getElementById('bulkProgress').style.display = 'none';
+  document.getElementById('bulkProgressBar').style.width = '0%';
+  document.getElementById('bulkLog').innerHTML = '';
+  document.getElementById('bulkStartBtn').disabled = false;
+  document.getElementById('bulkStartBtn').textContent = 'Lancer l\'import';
+  ['portfolio','wishlist','potential','hotel-list'].forEach(c => { const el=document.getElementById('bcat-'+c); if(el) el.className='cat-btn'; });
+  document.getElementById('bulkModal').classList.add('open');
+}
+function closeBulkModal() {
+  if (bulkRunning) return;
+  document.getElementById('bulkModal').classList.remove('open');
+}
+function selectBulkCat(cat) {
+  bulkCat = cat;
+  ['portfolio','wishlist','potential','hotel-list'].forEach(c => {
+    const el = document.getElementById('bcat-'+c);
+    if (el) el.className = 'cat-btn'+(c===cat?' sel-'+c:'');
+  });
+}
+
+async function startBulkImport() {
+  const url = (document.getElementById('bulkUrl').value||'').trim();
+  const errEl = document.getElementById('bulkErr');
+  errEl.style.display = 'none';
+  if (!url || !url.includes('booking.com')) { errEl.textContent='URL Booking.com invalide'; errEl.style.display='block'; return; }
+  if (!bulkCat) { errEl.textContent='Choisissez une catégorie'; errEl.style.display='block'; return; }
+
+  bulkRunning = true;
+  document.getElementById('bulkStartBtn').disabled = true;
+  document.getElementById('bulkProgress').style.display = 'block';
+  document.getElementById('bulkProgressLabel').textContent = 'Récupération de la liste...';
+  document.getElementById('bulkProgressCount').textContent = '';
+  document.getElementById('bulkLog').innerHTML = '';
+
+  let hotelList = [];
+  try {
+    const res = await fetch(`/api/scout-list?url=${encodeURIComponent(url)}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    hotelList = data.hotels || [];
+  } catch(e) {
+    bulkRunning = false;
+    errEl.textContent = 'Impossible de charger la liste : '+e.message;
+    errEl.style.display = 'block';
+    document.getElementById('bulkProgress').style.display = 'none';
+    document.getElementById('bulkStartBtn').disabled = false;
+    return;
+  }
+
+  if (!hotelList.length) {
+    bulkRunning = false;
+    errEl.textContent = 'Aucun hôtel trouvé sur cette page. Essayez une page de résultats Booking.com.';
+    errEl.style.display = 'block';
+    document.getElementById('bulkStartBtn').disabled = false;
+    return;
+  }
+
+  const total = hotelList.length;
+  let done = 0, added = 0, skipped = 0;
+  const logEl = document.getElementById('bulkLog');
+  const bar = document.getElementById('bulkProgressBar');
+  const lbl = document.getElementById('bulkProgressLabel');
+  const cnt = document.getElementById('bulkProgressCount');
+
+  for (const h of hotelList) {
+    lbl.textContent = `Enrichissement : ${h.name}`;
+    cnt.textContent = `${done+1} / ${total}`;
+
+    // Skip si déjà dans la liste
+    if (hotels.find(x => x.slug === h.slug)) {
+      logEl.innerHTML += `<div style="color:var(--text-s)">⊘ ${h.name} — déjà importé</div>`;
+      done++; skipped++;
+      bar.style.width = (done/total*100)+'%';
+      logEl.scrollTop = logEl.scrollHeight;
+      continue;
+    }
+
+    try {
+      const res = await fetch(`/api/scout?url=${encodeURIComponent(h.url)}`);
+      const data = await res.json();
+      if (!data.error && data.name) {
+        const hotel = {
+          id: 'scout_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+          name: data.name,
+          city: data.city||'', country: data.country||'', address: data.address||'',
+          group: '', notes: '',
+          description: data.description||'', photos: data.photos||[],
+          amenities: data.amenities||[], stars: data.stars||5, rating: data.rating||'',
+          lat: data.lat||null, lng: data.lng||null,
+          bookingUrl: data.booking_url||h.url, source: data.source||'auto',
+          slug: h.slug, category: bulkCat, addedAt: Date.now(),
+        };
+        hotels.unshift(hotel);
+        save();
+        added++;
+        logEl.innerHTML += `<div style="color:#10B981">✓ ${data.name}${data.city?' · '+data.city:''}</div>`;
+      } else {
+        logEl.innerHTML += `<div style="color:var(--text-s)">— ${h.name} — données insuffisantes</div>`;
+        skipped++;
+      }
+    } catch(e) {
+      logEl.innerHTML += `<div style="color:#EF4444">✗ ${h.name} — erreur réseau</div>`;
+      skipped++;
+    }
+
+    done++;
+    bar.style.width = (done/total*100)+'%';
+    logEl.scrollTop = logEl.scrollHeight;
+    // Pause courtoise entre chaque requête
+    await new Promise(r => setTimeout(r, 600));
+  }
+
+  bulkRunning = false;
+  lbl.textContent = `Import terminé — ${added} hôtels ajoutés, ${skipped} ignorés`;
+  cnt.textContent = `${total} / ${total}`;
+  document.getElementById('bulkStartBtn').textContent = 'Fermer';
+  document.getElementById('bulkStartBtn').disabled = false;
+  document.getElementById('bulkStartBtn').onclick = closeBulkModal;
+  updateBadge();
+  showNotif(`${added} hôtels importés · ${CAT[bulkCat].label}`);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+load();
+updateBadge();
+initAdminUI();
+</script>
+</body>
+</html>

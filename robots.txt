@@ -1,0 +1,15 @@
+# THE ESTATE — Robots.txt
+# Application privée : indexation moteurs de recherche désactivée
+
+User-agent: *
+Disallow: /
+
+# GPTBot, CCBot, etc. — bloqués explicitement
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /

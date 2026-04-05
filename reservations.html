@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE ESTATE — Réservations & Channel Manager</title>
+<meta name="description" content="THE ESTATE — Gestion des réservations — Channel manager et suivi des disponibilités.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#040D1C">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="THE ESTATE">
+<meta property="og:title" content="THE ESTATE — Réservations & Channel Manager">
+<meta property="og:description" content="Gestion des réservations, channel manager et suivi des disponibilités.">
+<meta property="og:url" content="https://the-estate.app/reservations.html">
+<meta property="og:image" content="https://the-estate.app/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="THE ESTATE — Réservations & Channel Manager">
+<meta name="twitter:description" content="Gestion des réservations, channel manager et suivi des disponibilités.">
+<meta name="twitter:image" content="https://the-estate.app/og-cover.jpg">
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');</script>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+<script src="api.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-l:#E8D5A3;--gold-d:#9A7A28;
+  --navy:#040D1C;--navy-mid:#071528;--navy-l:#0A1E38;--navy-card:#0D2545;--navy-h:#102F58;
+  --text:#F5F0E8;--text-m:rgba(245,240,232,.55);--text-s:rgba(245,240,232,.28);
+  --border:rgba(201,168,76,.15);--border-h:rgba(201,168,76,.4);
+  --success:#10B981;--warning:#F59E0B;--danger:#EF4444;--info:#3B82F6;
+}
+html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);font-family:'Inter',sans-serif}
+
+/* TOPNAV */
+.topnav{height:56px;background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;z-index:200;position:relative}
+.nav-back{display:flex;align-items:center;gap:8px;color:var(--text-m);text-decoration:none;font-size:.78rem;transition:color .3s}
+.nav-back:hover{color:var(--gold)}
+.nav-logo-wrap{display:flex;align-items:center;gap:10px;margin:0 auto}
+.nav-logo-mark{width:28px;height:28px;background:var(--gold);display:flex;align-items:center;justify-content:center}
+.nav-logo-mark span{font-family:'Playfair Display',serif;font-size:.8rem;font-weight:700;color:var(--navy)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:600;letter-spacing:.12em;color:var(--text)}
+.nav-subtitle{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-m)}
+.nav-right{display:flex;align-items:center;gap:12px;margin-left:auto}
+.nav-btn{display:flex;align-items:center;gap:6px;color:var(--text-m);text-decoration:none;font-size:.72rem;letter-spacing:.06em;border:1px solid var(--border);padding:6px 12px;transition:all .3s;background:none;cursor:pointer}
+.nav-btn:hover,.nav-btn.active{border-color:var(--gold);color:var(--gold)}
+.nav-btn.active{background:rgba(201,168,76,.08)}
+
+/* LAYOUT */
+.layout{display:flex;height:calc(100vh - 56px)}
+
+/* ── SIDEBAR ── */
+.sidebar{width:280px;min-width:280px;background:var(--navy-mid);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sb-section-title{padding:16px 16px 8px;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-s)}
+
+/* Search form */
+.search-form{padding:12px 16px;border-bottom:1px solid var(--border)}
+.sf-row{margin-bottom:10px}
+.sf-label{display:block;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-s);margin-bottom:6px}
+.sf-input,.sf-select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-size:.78rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s;-webkit-appearance:none}
+.sf-input:focus,.sf-select:focus{border-color:var(--gold)}
+.sf-input::placeholder{color:var(--text-s)}
+.sf-select option{background:var(--navy-mid);color:var(--text)}
+.sf-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.btn-search{width:100%;background:var(--gold);color:var(--navy);border:none;padding:10px;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-search:hover{background:var(--gold-l)}
+.btn-search.loading{opacity:.7;pointer-events:none}
+
+/* Group filters */
+.grp-filters{padding:10px 16px;border-bottom:1px solid var(--border);overflow-y:auto}
+.grp-item{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer}
+.grp-item input[type=checkbox]{display:none}
+.grp-cb{width:14px;height:14px;border:1px solid var(--border);flex-shrink:0;transition:border-color .25s;display:flex;align-items:center;justify-content:center}
+.grp-item input:checked~.grp-cb,.grp-item.active .grp-cb{border-color:var(--gold)}
+.grp-item input:checked~.grp-cb::after,.grp-item.active .grp-cb::after{content:'';width:6px;height:6px;background:var(--gold);display:block}
+.grp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.grp-name{font-size:.74rem;color:var(--text-m);flex:1}
+.grp-count{font-size:.62rem;color:var(--text-s)}
+
+/* Vouchers sidebar */
+.vouchers-panel{padding:10px 16px;overflow-y:auto;flex:1}
+.v-card{background:var(--navy-card);border:1px solid var(--border);padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.v-card:hover,.v-card.selected{border-color:var(--gold)}
+.v-card.selected::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold)}
+.v-id{font-size:.62rem;letter-spacing:.1em;color:var(--text-s);margin-bottom:4px}
+.v-hotel{font-size:.78rem;font-weight:500;color:var(--text);margin-bottom:3px}
+.v-nights{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold)}
+.v-nights small{font-family:'Inter',sans-serif;font-size:.62rem;color:var(--text-s);margin-left:4px}
+.v-meta{display:flex;align-items:center;gap:8px;margin-top:4px}
+.v-tag{font-size:.58rem;padding:2px 6px;border:1px solid;border-radius:20px;letter-spacing:.06em}
+.v-tag.avail{border-color:rgba(16,185,129,.4);color:var(--success)}
+.v-tag.used{border-color:rgba(245,158,11,.4);color:var(--warning)}
+.v-tag.exp{border-color:rgba(239,68,68,.4);color:var(--danger)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* Tabs */
+.tabs{height:44px;background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex;align-items:stretch;padding:0 20px;gap:0;flex-shrink:0}
+.tab{display:flex;align-items:center;gap:7px;padding:0 18px;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-m);cursor:pointer;border-bottom:2px solid transparent;transition:all .3s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab i{font-size:.78rem}
+.tab-badge{background:rgba(201,168,76,.15);color:var(--gold);font-size:.58rem;padding:1px 6px;border-radius:20px;font-weight:700}
+
+/* Content panes */
+.pane{display:none;flex:1;overflow:hidden}
+.pane.active{display:flex;flex-direction:column}
+
+/* ── AVAILABILITY PANE ── */
+.avail-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.avail-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:500}
+.avail-meta{font-size:.68rem;color:var(--text-m)}
+.status-indicator{display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--text-m)}
+.status-dot{width:7px;height:7px;border-radius:50%;animation:pulse-dot 2s ease-in-out infinite}
+.status-dot.live{background:var(--success)}
+.status-dot.loading{background:var(--warning)}
+.status-dot.error{background:var(--danger)}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+
+.avail-grid{flex:1;overflow-y:auto;padding:16px 20px}
+.avail-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;opacity:.4}
+.avail-placeholder i{font-size:2.5rem;color:var(--gold)}
+.avail-placeholder p{font-size:.88rem;color:var(--text-m);text-align:center}
+
+/* Hotel availability card */
+.ha-card{background:var(--navy-mid);border:1px solid var(--border);margin-bottom:10px;overflow:hidden;transition:border-color .3s}
+.ha-card:hover{border-color:rgba(201,168,76,.3)}
+.ha-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.ha-group-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.ha-info{flex:1;min-width:0}
+.ha-name{font-size:.88rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ha-sub{font-size:.68rem;color:var(--text-m);margin-top:2px}
+.ha-avail-badge{font-size:.68rem;padding:4px 10px;border:1px solid;border-radius:2px}
+.ha-avail-badge.high{border-color:rgba(16,185,129,.4);color:var(--success);background:rgba(16,185,129,.07)}
+.ha-avail-badge.med{border-color:rgba(245,158,11,.4);color:var(--warning);background:rgba(245,158,11,.07)}
+.ha-avail-badge.low{border-color:rgba(239,68,68,.4);color:var(--danger);background:rgba(239,68,68,.07)}
+.ha-expand{color:var(--text-s);font-size:.72rem;transition:transform .3s;flex-shrink:0;margin-left:8px}
+.ha-card.open .ha-expand{transform:rotate(180deg)}
+.ha-rooms{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
+.ha-card.open .ha-rooms{display:block}
+
+/* Room row */
+.room-row{display:grid;grid-template-columns:1fr 80px 100px 110px 120px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(201,168,76,.06)}
+.room-row:last-child{border-bottom:none}
+.room-name{font-size:.78rem;font-weight:500}
+.room-avail{font-size:.72rem;text-align:center}
+.room-avail.ok{color:var(--success)}
+.room-avail.warn{color:var(--warning)}
+.room-avail.none{color:var(--danger)}
+.room-rate{font-size:.78rem;color:var(--gold);font-family:'Playfair Display',serif;text-align:right}
+.room-source{font-size:.6rem;color:var(--text-s);text-align:center}
+.room-source span{padding:2px 6px;border:1px solid var(--border);border-radius:20px}
+.btn-book{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:6px 14px;font-size:.65rem;font-family:'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s;white-space:nowrap}
+.btn-book:hover{background:var(--gold);color:var(--navy)}
+
+/* Loading skeleton */
+.skeleton{background:linear-gradient(90deg,rgba(255,255,255,.03) 25%,rgba(201,168,76,.06) 50%,rgba(255,255,255,.03) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:2px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{height:56px;margin-bottom:8px}
+
+/* ── CHANNEL MANAGER PANE ── */
+.cm-content{flex:1;overflow-y:auto;padding:20px}
+.cm-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.cm-channel{background:var(--navy-mid);border:1px solid var(--border);padding:16px;position:relative;overflow:hidden;transition:all .3s}
+.cm-channel:hover{border-color:rgba(201,168,76,.3)}
+.cm-ch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cm-ch-name{font-size:.78rem;font-weight:600;letter-spacing:.04em}
+.cm-ch-code{font-size:.6rem;color:var(--text-s);letter-spacing:.14em}
+.cm-status-pill{font-size:.6rem;padding:3px 8px;border-radius:20px;font-weight:600;letter-spacing:.08em}
+.cm-status-pill.live{background:rgba(16,185,129,.15);color:var(--success);border:1px solid rgba(16,185,129,.3)}
+.cm-status-pill.degraded{background:rgba(245,158,11,.15);color:var(--warning);border:1px solid rgba(245,158,11,.3)}
+.cm-status-pill.offline{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)}
+.cm-latency{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--text);margin-bottom:4px}
+.cm-latency small{font-family:'Inter',sans-serif;font-size:.62rem;color:var(--text-s)}
+.cm-meta{font-size:.62rem;color:var(--text-s);display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.cm-bar{position:absolute;bottom:0;left:0;right:0;height:2px}
+.cm-bar.live{background:linear-gradient(90deg,transparent,var(--success),transparent);animation:scan 3s linear infinite}
+.cm-bar.degraded{background:linear-gradient(90deg,transparent,var(--warning),transparent);animation:scan 4s linear infinite}
+.cm-bar.offline{background:var(--danger);opacity:.4}
+@keyframes scan{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+/* Sync log */
+.sync-log{background:var(--navy-mid);border:1px solid var(--border);padding:16px}
+.sync-log-title{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-s);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.sync-log-entries{font-family:'JetBrains Mono',monospace;font-size:.72rem;line-height:1.8;max-height:240px;overflow-y:auto}
+.sync-log-entries::-webkit-scrollbar{width:3px}
+.sync-log-entries::-webkit-scrollbar-thumb{background:var(--border)}
+.log-line{display:flex;gap:12px}
+.log-time{color:var(--text-s);white-space:nowrap}
+.log-src{padding:0 6px;border-radius:2px;font-size:.65rem;font-weight:700}
+.log-src.bk{background:rgba(59,130,246,.2);color:#60A5FA}
+.log-src.am{background:rgba(139,92,246,.2);color:#A78BFA}
+.log-src.sys{background:rgba(201,168,76,.15);color:var(--gold)}
+.log-src.err{background:rgba(239,68,68,.15);color:var(--danger)}
+.log-msg{color:var(--text-m);flex:1}
+.log-ok{color:var(--success)}
+.log-warn{color:var(--warning)}
+.log-err{color:var(--danger)}
+.btn-refresh{background:none;border:1px solid var(--border);color:var(--text-m);padding:5px 10px;font-size:.65rem;font-family:'Inter',sans-serif;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:5px;letter-spacing:.08em}
+.btn-refresh:hover{border-color:var(--gold);color:var(--gold)}
+
+/* Inventory heatmap */
+.heatmap-section{margin-top:20px}
+.heatmap-title{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-s);margin-bottom:12px}
+.heatmap-grid{display:grid;grid-template-columns:80px repeat(14,1fr);gap:2px;font-size:.6rem}
+.hm-label{color:var(--text-s);display:flex;align-items:center;padding:2px 4px}
+.hm-date{color:var(--text-s);text-align:center;padding:2px}
+.hm-cell{height:22px;border-radius:2px;transition:all .2s;cursor:default;position:relative}
+.hm-cell:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--navy-card);border:1px solid var(--border);padding:4px 8px;white-space:nowrap;font-size:.62rem;color:var(--text);z-index:10;pointer-events:none}
+
+/* ── HISTORY PANE ── */
+.hist-content{flex:1;overflow-y:auto;padding:16px 20px}
+.hist-table{width:100%;border-collapse:collapse}
+.hist-table th{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-s);padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;font-weight:400}
+.hist-table td{padding:12px;border-bottom:1px solid rgba(201,168,76,.06);font-size:.78rem;vertical-align:middle}
+.hist-table tr:hover td{background:rgba(201,168,76,.03)}
+.ref-badge{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold);letter-spacing:.05em}
+.status-badge{font-size:.6rem;padding:3px 8px;border-radius:20px;font-weight:600}
+.status-badge.confirmed{background:rgba(16,185,129,.15);color:var(--success);border:1px solid rgba(16,185,129,.25)}
+.status-badge.pending{background:rgba(245,158,11,.15);color:var(--warning);border:1px solid rgba(245,158,11,.25)}
+.status-badge.cancelled{background:rgba(239,68,68,.12);color:var(--danger);border:1px solid rgba(239,68,68,.2)}
+
+/* ── BOOKING MODAL ── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(4,13,28,.92);backdrop-filter:blur(14px);z-index:500;align-items:center;justify-content:center}
+.modal-ov.active{display:flex}
+.modal{background:var(--navy-mid);border:1px solid var(--border);padding:40px 44px;width:100%;max-width:460px;position:relative;animation:modalIn .35s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-m);font-size:.9rem;cursor:pointer;transition:color .3s;padding:6px}
+.modal-close:hover{color:var(--gold)}
+.modal-eyebrow{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:6px}
+.modal-sub{font-size:.78rem;color:var(--text-m);margin-bottom:28px}
+.modal-form .sf-row{margin-bottom:14px}
+.modal-form .sf-label{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-s);display:block;margin-bottom:6px}
+.modal-form input,.modal-form select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-size:.82rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s;-webkit-appearance:none}
+.modal-form input:focus,.modal-form select:focus{border-color:var(--gold)}
+.modal-form input::placeholder{color:var(--text-s)}
+.modal-form select option{background:var(--navy-mid)}
+.modal-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.source-toggle{display:flex;gap:6px;margin-bottom:20px}
+.source-btn{flex:1;padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--text-m);font-size:.68rem;font-family:'Inter',sans-serif;cursor:pointer;transition:all .3s;letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:5px}
+.source-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.08)}
+.modal-summary{background:rgba(201,168,76,.05);border:1px solid var(--border);padding:14px 16px;margin-bottom:22px}
+.sum-row{display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:6px}
+.sum-row:last-child{margin-bottom:0;padding-top:8px;border-top:1px solid var(--border);font-weight:600}
+.sum-label{color:var(--text-m)}
+.sum-val{color:var(--text)}
+.sum-val.gold{color:var(--gold);font-family:'Playfair Display',serif;font-size:.9rem}
+.btn-confirm{width:100%;background:var(--gold);color:var(--navy);border:none;padding:13px;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-confirm:hover{background:var(--gold-l)}
+.btn-confirm:disabled{opacity:.5;cursor:not-allowed}
+
+/* Success overlay */
+.success-overlay{display:none;text-align:center;padding:20px 0}
+.success-overlay.active{display:block}
+.success-icon{width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.5rem;color:var(--success)}
+.success-ref{font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:var(--gold);letter-spacing:.1em;margin:12px 0}
+.success-title{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:8px}
+.success-sub{font-size:.82rem;color:var(--text-m);line-height:1.7}
+
+/* Toast */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:600;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--navy-card);border:1px solid var(--border);padding:12px 18px;min-width:280px;display:flex;align-items:center;gap:12px;font-size:.78rem;animation:toastIn .3s ease;pointer-events:all;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast.success .toast-icon{color:var(--success)}
+.toast.error .toast-icon{color:var(--danger)}
+.toast.info .toast-icon{color:var(--info)}
+.toast-msg{flex:1;color:var(--text-m)}
+.toast-msg strong{color:var(--text);display:block;margin-bottom:2px}
+
+/* ===== RESPONSIVE ===== */
+.mob-sb-btn{display:none}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(4,13,28,.7);z-index:90;backdrop-filter:blur(4px)}
+.sidebar-backdrop.active{display:block}
+
+@media(max-width:768px){
+  .topnav{padding:0 12px;gap:8px}
+  .nav-subtitle{display:none}
+  .nav-right{gap:6px}
+  .nav-btn span{display:none}
+  .mob-sb-btn{display:flex;width:36px;height:36px;background:none;border:1px solid var(--border);color:var(--text-m);cursor:pointer;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;transition:all .3s}
+  .mob-sb-btn:hover{border-color:var(--gold);color:var(--gold)}
+  .sidebar{position:fixed;left:-280px;top:56px;height:calc(100vh - 56px);z-index:100;transition:left .3s cubic-bezier(.25,.1,.25,1);overflow-y:auto}
+  .sidebar.mob-open{left:0}
+  .layout{height:calc(100vh - 56px)}
+  .main{min-width:0}
+  .cm-status-grid{grid-template-columns:1fr 1fr}
+  .room-row{grid-template-columns:1fr auto;gap:6px}
+  .room-avail,.room-source{display:none}
+  .room-rate{text-align:left}
+  .heatmap-grid{grid-template-columns:60px repeat(7,1fr)}
+  .hist-content{overflow-x:auto}
+  .hist-table{min-width:700px}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR BACKDROP -->
+<div class="sidebar-backdrop" id="resSidebarBackdrop" onclick="closeResSidebar()"></div>
+
+<!-- TOPNAV -->
+<nav class="topnav">
+  <button class="mob-sb-btn" onclick="toggleResSidebar()" aria-label="Filtres"><i class="fas fa-sliders-h"></i></button>
+  <a href="dashboard.html" class="nav-back"><i class="fas fa-chevron-left"></i> Dashboard</a>
+  <div class="nav-logo-wrap">
+    <div class="nav-logo-mark"><span>E</span></div>
+    <div>
+      <div class="nav-logo">THE ESTATE</div>
+      <div class="nav-subtitle">Réservations & Channel Manager</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="vouchers.html" class="nav-btn"><i class="fas fa-ticket-alt"></i> Vouchers</a>
+    <a href="map.html" class="nav-btn"><i class="fas fa-globe-europe"></i> Carte</a>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- ──────── SIDEBAR ──────── -->
+  <aside class="sidebar" id="resSidebar">
+
+    <!-- Search Form -->
+    <div class="sb-section-title">Recherche de disponibilité</div>
+    <div class="search-form">
+      <div class="sf-row">
+        <label class="sf-label">Hôtel / Ville</label>
+        <input class="sf-input" id="searchQuery" type="text" placeholder="Paris, Tokyo, New York…">
+      </div>
+      <div class="sf-row-2">
+        <div>
+          <label class="sf-label">Arrivée</label>
+          <input class="sf-input" id="checkIn" type="date">
+        </div>
+        <div>
+          <label class="sf-label">Départ</label>
+          <input class="sf-input" id="checkOut" type="date">
+        </div>
+      </div>
+      <div class="sf-row">
+        <label class="sf-label">Adultes</label>
+        <select class="sf-select" id="adults">
+          <option value="1">1 adulte</option>
+          <option value="2" selected>2 adultes</option>
+          <option value="3">3 adultes</option>
+          <option value="4">4 adultes</option>
+        </select>
+      </div>
+      <button class="btn-search" id="btnSearch" onclick="searchAvailability()">
+        <i class="fas fa-search"></i> Vérifier les disponibilités
+      </button>
+    </div>
+
+    <!-- Group Filters -->
+    <div class="sb-section-title">Groupes hôteliers</div>
+    <div class="grp-filters" id="groupFilters"></div>
+
+    <!-- Vouchers -->
+    <div class="sb-section-title">Mes vouchers</div>
+    <div class="vouchers-panel" id="vouchersPanel"></div>
+
+  </aside>
+
+  <!-- ──────── MAIN ──────── -->
+  <div class="main">
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" data-tab="availability" onclick="switchTab('availability',this)">
+        <i class="fas fa-calendar-check"></i> Disponibilités <span class="tab-badge" id="availCount">0</span>
+      </div>
+      <div class="tab" data-tab="channel" onclick="switchTab('channel',this)">
+        <i class="fas fa-network-wired"></i> Channel Manager
+      </div>
+      <div class="tab" data-tab="history" onclick="switchTab('history',this)">
+        <i class="fas fa-history"></i> Historique <span class="tab-badge" id="histCount">0</span>
+      </div>
+    </div>
+
+    <!-- ── AVAILABILITY PANE ── -->
+    <div class="pane active" id="pane-availability">
+      <div class="avail-header">
+        <div>
+          <div class="avail-title">Disponibilités en temps réel</div>
+          <div class="avail-meta" id="availMeta">Sélectionnez des dates pour lancer la recherche</div>
+        </div>
+        <div class="status-indicator">
+          <div class="status-dot live" id="apiStatus"></div>
+          <span id="apiStatusText">APIs connectées</span>
+        </div>
+      </div>
+      <div class="avail-grid" id="availGrid">
+        <div class="avail-placeholder" id="availPlaceholder">
+          <i class="fas fa-search"></i>
+          <p>Lancez une recherche pour voir les disponibilités<br>en temps réel depuis Booking.com et Amadeus</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHANNEL MANAGER PANE ── -->
+    <div class="pane" id="pane-channel">
+      <div class="cm-content" id="cmContent">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:4px">Statut des canaux de distribution</div>
+            <div style="font-size:.68rem;color:var(--text-m)" id="cmTimestamp">Mis à jour à —</div>
+          </div>
+          <button class="btn-refresh" onclick="refreshChannelManager()"><i class="fas fa-sync-alt"></i> Rafraîchir</button>
+        </div>
+        <div class="cm-status-grid" id="cmGrid"><div class="skeleton skel-card" style="height:120px"></div><div class="skeleton skel-card" style="height:120px"></div><div class="skeleton skel-card" style="height:120px"></div><div class="skeleton skel-card" style="height:120px"></div><div class="skeleton skel-card" style="height:120px"></div><div class="skeleton skel-card" style="height:120px"></div></div>
+        <div class="sync-log">
+          <div class="sync-log-title">
+            <span>Journal de synchronisation</span>
+            <button class="btn-refresh" onclick="clearLog()"><i class="fas fa-trash-alt"></i> Vider</button>
+          </div>
+          <div class="sync-log-entries" id="syncLog"></div>
+        </div>
+        <div class="heatmap-section">
+          <div class="heatmap-title">Disponibilité globale — 14 prochains jours</div>
+          <div class="heatmap-grid" id="heatmapGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY PANE ── -->
+    <div class="pane" id="pane-history">
+      <div class="hist-content">
+        <table class="hist-table" id="histTable">
+          <thead>
+            <tr>
+              <th>Référence</th>
+              <th>Hôtel</th>
+              <th>Client</th>
+              <th>Arrivée</th>
+              <th>Départ</th>
+              <th>Type</th>
+              <th>Voucher</th>
+              <th>Source</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody id="histBody"></tbody>
+        </table>
+        <div id="histEmpty" style="display:none;text-align:center;padding:60px;opacity:.4">
+          <i class="fas fa-history" style="font-size:2rem;color:var(--gold);display:block;margin-bottom:12px"></i>
+          <div style="font-size:.88rem;color:var(--text-m)">Aucune réservation effectuée dans cette session</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ──────── BOOKING MODAL ──────── -->
+<div class="modal-ov" id="bookingModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeBookingModal()"><i class="fas fa-times"></i></button>
+
+    <div id="bookingForm">
+      <div class="modal-eyebrow">Confirmation de réservation</div>
+      <div class="modal-title" id="modalHotelName">—</div>
+      <div class="modal-sub" id="modalRoomType">—</div>
+
+      <div class="source-toggle">
+        <button class="source-btn active" onclick="setSource('booking',this)"><i class="fas fa-b" style="font-size:.6rem"></i> Booking.com</button>
+        <button class="source-btn" onclick="setSource('amadeus',this)"><i class="fas fa-a" style="font-size:.6rem"></i> Amadeus GDS</button>
+      </div>
+
+      <div class="modal-form">
+        <div class="sf-row">
+          <label class="sf-label">Nom du client</label>
+          <input type="text" id="guestName" placeholder="Prénom Nom">
+        </div>
+        <div class="modal-form-row">
+          <div>
+            <label class="sf-label">Arrivée</label>
+            <input type="date" id="modalCheckIn">
+          </div>
+          <div>
+            <label class="sf-label">Départ</label>
+            <input type="date" id="modalCheckOut">
+          </div>
+        </div>
+        <div class="sf-row">
+          <label class="sf-label">Voucher (optionnel)</label>
+          <select id="modalVoucher">
+            <option value="">— Sans voucher —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-summary" id="modalSummary">
+        <div class="sum-row"><span class="sum-label">Hôtel</span><span class="sum-val" id="sumHotel">—</span></div>
+        <div class="sum-row"><span class="sum-label">Chambre</span><span class="sum-val" id="sumRoom">—</span></div>
+        <div class="sum-row"><span class="sum-label">Nuits</span><span class="sum-val" id="sumNights">—</span></div>
+        <div class="sum-row"><span class="sum-label">Tarif / nuit</span><span class="sum-val gold" id="sumRate">—</span></div>
+        <div class="sum-row"><span class="sum-label">Source</span><span class="sum-val" id="sumSource">Booking.com</span></div>
+      </div>
+
+      <button class="btn-confirm" id="btnConfirm" onclick="confirmBooking()">
+        <i class="fas fa-lock"></i> Confirmer la réservation
+      </button>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+      <div class="success-icon"><i class="fas fa-check"></i></div>
+      <div class="success-title">Réservation confirmée</div>
+      <div class="success-ref" id="successRef">—</div>
+      <div class="success-sub" id="successDetails">—</div>
+      <button class="btn-confirm" style="margin-top:24px" onclick="closeBookingModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ── State ── */
+const state = {
+  hotels: [],
+  selectedGroups: new Set(),
+  currentBooking: null,
+  bookingSource: 'booking',
+  history: [],
+  apiReady: false,
+};
+
+const GROUP_COLORS = {
+  Accor:'#C41E3A',Hilton:'#1E3A6E',Marriott:'#8B1A1A',
+  Hyatt:'#2E7D32','Four Seasons':'#1B4332',Mandarin:'#6D4C41',
+  Aman:'#78909C',IHG:'#1565C0'
+};
+
+/* ── Init ── */
+async function init() {
+  setDefaultDates();
+
+  // Init API
+  try {
+    const status = await TheEstateAPI.init();
+    state.apiReady = true;
+    showToast('info', 'APIs connectées', `Booking.com & Amadeus ${status.booking === 'connected' ? 'opérationnels' : 'partiellement connectés'}`);
+  } catch(e) {
+    showToast('error', 'Erreur API', 'Connexion en mode dégradé');
+  }
+
+  // Load portfolio
+  const portfolio = await TheEstateAPI.getPortfolio();
+  state.hotels = portfolio.hotels;
+
+  renderGroupFilters();
+  renderVouchers();
+  renderHeatmap();
+  loadChannelManager();
+  setInterval(loadChannelManager, 30000);
+  setInterval(addSyncLogEntry, 4000);
+}
+
+function setDefaultDates() {
+  const today = new Date();
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+  const dayAfter = new Date(today); dayAfter.setDate(today.getDate() + 3);
+  const fmt = d => d.toISOString().split('T')[0];
+  document.getElementById('checkIn').value = fmt(tomorrow);
+  document.getElementById('checkOut').value = fmt(dayAfter);
+}
+
+/* ── Group Filters ── */
+function renderGroupFilters() {
+  const groups = [...new Set(state.hotels.map(h => h.group))];
+  groups.forEach(g => state.selectedGroups.add(g));
+  const container = document.getElementById('groupFilters');
+  container.innerHTML = groups.map(g => `
+    <div class="grp-item" id="grp_${g.replace(/\s/g,'_')}" onclick="toggleGroup('${g}')">
+      <input type="checkbox" checked>
+      <div class="grp-cb"></div>
+      <div class="grp-dot" style="background:${GROUP_COLORS[g]||'#888'}"></div>
+      <span class="grp-name">${g}</span>
+      <span class="grp-count">${state.hotels.filter(h=>h.group===g).length}</span>
+    </div>
+  `).join('');
+  // Check all initially
+  container.querySelectorAll('input').forEach(cb => cb.checked = true);
+}
+
+function toggleGroup(group) {
+  if (state.selectedGroups.has(group)) state.selectedGroups.delete(group);
+  else state.selectedGroups.add(group);
+  const el = document.getElementById('grp_'+group.replace(/\s/g,'_'));
+  const cb = el.querySelector('input');
+  cb.checked = state.selectedGroups.has(group);
+}
+
+/* ── Vouchers ── */
+function renderVouchers() {
+  const panel = document.getElementById('vouchersPanel');
+  const voucherSelect = document.getElementById('modalVoucher');
+  let html = '', opts = '<option value="">— Sans voucher —</option>';
+
+  Object.keys(TheEstateAPI.VOUCHERS).forEach(vid => {
+    const v = TheEstateAPI.getVoucher(vid);
+    const hotel = v.hotel;
+    const remaining = v.remainingNights;
+    const tagClass = v.isExpired ? 'exp' : v.isFullyUsed ? 'used' : 'avail';
+    const tagLabel = v.isExpired ? 'Expiré' : v.isFullyUsed ? 'Épuisé' : `${remaining} nuit${remaining>1?'s':''} disponibles`;
+
+    html += `
+      <div class="v-card" id="vcard_${vid}" onclick="selectVoucher('${vid}')">
+        <div class="v-id">${vid}</div>
+        <div class="v-hotel">${hotel?.name || '—'}</div>
+        <div class="v-nights">${v.nights}<small>nuits totales</small></div>
+        <div class="v-meta">
+          <span class="v-tag ${tagClass}">${tagLabel}</span>
+          <span class="v-tag avail">${v.type}</span>
+        </div>
+      </div>`;
+    if (!v.isExpired && !v.isFullyUsed) {
+      opts += `<option value="${vid}">${vid} — ${hotel?.name} (${remaining}N dispo)</option>`;
+    }
+  });
+
+  panel.innerHTML = html;
+  voucherSelect.innerHTML = opts;
+}
+
+function selectVoucher(vid) {
+  document.querySelectorAll('.v-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('vcard_' + vid)?.classList.add('selected');
+  document.getElementById('modalVoucher').value = vid;
+}
+
+/* ── Search Availability ── */
+async function searchAvailability() {
+  const query = document.getElementById('searchQuery').value.toLowerCase();
+  const checkIn = document.getElementById('checkIn').value;
+  const checkOut = document.getElementById('checkOut').value;
+
+  if (!checkIn || !checkOut) { showToast('error', 'Dates manquantes', 'Veuillez sélectionner les dates'); return; }
+  if (checkIn >= checkOut) { showToast('error', 'Dates invalides', 'La date de départ doit être postérieure'); return; }
+
+  const btn = document.getElementById('btnSearch');
+  btn.classList.add('loading');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recherche…';
+
+  const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000);
+  document.getElementById('availMeta').textContent = `${checkIn} → ${checkOut} · ${nights} nuit${nights>1?'s':''} · Interrogation Booking.com & Amadeus…`;
+
+  // Filter hotels
+  let filtered = state.hotels.filter(h => state.selectedGroups.has(h.group));
+  if (query) filtered = filtered.filter(h =>
+    h.name.toLowerCase().includes(query) || h.city.toLowerCase().includes(query) || h.country.toLowerCase().includes(query)
+  );
+
+  const grid = document.getElementById('availGrid');
+  document.getElementById('availPlaceholder')?.remove();
+
+  // Show skeletons
+  grid.innerHTML = filtered.map(()=>`<div class="skeleton skel-card"></div>`).join('');
+
+  // Fetch availability for each hotel
+  let totalResults = 0;
+  const results = await Promise.allSettled(filtered.map(h => TheEstateAPI.checkAvailability(h.id, checkIn, checkOut)));
+
+  grid.innerHTML = '';
+  results.forEach((res, i) => {
+    const hotel = filtered[i];
+    if (res.status === 'fulfilled') {
+      totalResults++;
+      grid.innerHTML += renderHotelAvailCard(hotel, res.value, checkIn, checkOut);
+    }
+  });
+
+  if (!grid.innerHTML) {
+    grid.innerHTML = `<div class="avail-placeholder"><i class="fas fa-search-minus"></i><p>Aucun résultat pour cette recherche</p></div>`;
+  }
+
+  document.getElementById('availCount').textContent = totalResults;
+  document.getElementById('availMeta').textContent = `${totalResults} hôtel${totalResults>1?'s':''} · ${checkIn} → ${checkOut} · ${nights} nuit${nights>1?'s':''}`;
+
+  btn.classList.remove('loading');
+  btn.innerHTML = '<i class="fas fa-search"></i> Vérifier les disponibilités';
+  document.getElementById('apiStatusText').textContent = 'Synchronisé';
+}
+
+function renderHotelAvailCard(hotel, avail, checkIn, checkOut) {
+  const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000);
+  const total = avail.totalAvailable;
+  const availClass = total > 3 ? 'high' : total > 0 ? 'med' : 'low';
+  const availLabel = total > 3 ? `${total} disponibles` : total > 0 ? `${total} restante${total>1?'s':''}` : 'Complet';
+
+  const rooms = avail.roomTypes.map(r => {
+    const total = (r.rate * nights).toFixed(0);
+    const availC = r.available > 2 ? 'ok' : r.available > 0 ? 'warn' : 'none';
+    const availTxt = r.available > 0 ? r.available + ' ch.' : 'Complet';
+    const src = r.source === 'booking.com' ? 'BKG' : r.source === 'amadeus' ? 'AMD' : 'EST';
+    const canBook = r.available > 0;
+    return `
+      <div class="room-row">
+        <div class="room-name">${r.roomType}</div>
+        <div class="room-avail ${availC}">${availTxt}</div>
+        <div class="room-rate">${r.currency} ${r.rate.toLocaleString('fr-FR')}<br><small style="font-family:Inter,sans-serif;font-size:.6rem;color:var(--text-s)">/nuit</small></div>
+        <div class="room-source"><span>${src}</span></div>
+        <div>${canBook ? `<button class="btn-book" onclick="openBookingModal('${hotel.id}','${r.roomType}',${r.rate},'${r.currency}')">Réserver</button>` : '<span style="font-size:.65rem;color:var(--danger)">Indisponible</span>'}</div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="ha-card" id="ha_${hotel.id}">
+      <div class="ha-header" onclick="toggleHotelCard('${hotel.id}')">
+        <div class="ha-group-dot" style="background:${GROUP_COLORS[hotel.group]||'#888'}"></div>
+        <div class="ha-info">
+          <div class="ha-name">${hotel.name}</div>
+          <div class="ha-sub">${hotel.brand} · ${hotel.city}, ${hotel.country} · ${hotel.stars}★</div>
+        </div>
+        <span class="ha-avail-badge ${availClass}">${availLabel}</span>
+        <i class="fas fa-chevron-down ha-expand"></i>
+      </div>
+      <div class="ha-rooms">
+        <div style="display:grid;grid-template-columns:1fr 80px 100px 110px 120px;gap:8px;padding:8px 0 4px;border-bottom:1px solid rgba(201,168,76,.12)">
+          <span style="font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-s)">Type</span>
+          <span style="font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-s);text-align:center">Dispo</span>
+          <span style="font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-s);text-align:right">Tarif</span>
+          <span style="font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-s);text-align:center">Source</span>
+          <span></span>
+        </div>
+        ${rooms}
+      </div>
+    </div>`;
+}
+
+function toggleHotelCard(id) {
+  document.getElementById('ha_' + id)?.classList.toggle('open');
+}
+
+/* ── Channel Manager ── */
+async function loadChannelManager() {
+  const status = await TheEstateAPI.getChannelStatus();
+  const grid = document.getElementById('cmGrid');
+  document.getElementById('cmTimestamp').textContent = `Mis à jour à ${new Date().toLocaleTimeString('fr-FR')}`;
+
+  grid.innerHTML = status.channels.map(ch => {
+    const statusClass = ch.status.toLowerCase();
+    const latencyColor = ch.latency < 300 ? 'var(--success)' : ch.latency < 500 ? 'var(--warning)' : 'var(--danger)';
+    const lastSync = new Date(ch.lastSync).toLocaleTimeString('fr-FR');
+    return `
+      <div class="cm-channel">
+        <div class="cm-ch-header">
+          <div>
+            <div class="cm-ch-name">${ch.name}</div>
+            <div class="cm-ch-code">${ch.code}</div>
+          </div>
+          <span class="cm-status-pill ${statusClass}">${ch.status}</span>
+        </div>
+        <div class="cm-latency" style="color:${latencyColor}">${ch.latency}<small> ms</small></div>
+        <div class="cm-meta">
+          <span>${ch.hotelsConnected} hôtels</span>
+          <span>Sync ${lastSync}</span>
+        </div>
+        <div class="cm-bar ${statusClass}"></div>
+      </div>`;
+  }).join('');
+
+  addSyncLogEntry(status);
+}
+
+const LOG_TEMPLATES = [
+  { src:'bk', msg:'Availability pulled for H001-H005', cls:'ok' },
+  { src:'am', msg:'Hotel offers refreshed — 19 properties', cls:'ok' },
+  { src:'bk', msg:'Rate parity check passed', cls:'ok' },
+  { src:'sys', msg:'Inventory cache invalidated', cls:'log-warn' },
+  { src:'am', msg:'PNR sync — 3 bookings reconciled', cls:'ok' },
+  { src:'bk', msg:'Restriction update: LOS min=2 applied', cls:'ok' },
+  { src:'sys', msg:'Health check — all channels nominal', cls:'ok' },
+  { src:'am', msg:'GDS distribution rate pushed', cls:'ok' },
+  { src:'bk', msg:'Stop-sell lifted: Waldorf Astoria NY', cls:'ok' },
+  { src:'sys', msg:'Token refresh — Amadeus OAuth2', cls:'ok' },
+];
+let logIdx = 0;
+
+function addSyncLogEntry(status) {
+  const log = document.getElementById('syncLog');
+  if (!log) return;
+  const entry = LOG_TEMPLATES[logIdx % LOG_TEMPLATES.length];
+  logIdx++;
+  const time = new Date().toLocaleTimeString('fr-FR');
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.innerHTML = `<span class="log-time">${time}</span><span class="log-src ${entry.src}">${entry.src.toUpperCase()}</span><span class="log-msg ${entry.cls}">${entry.msg}</span>`;
+  log.prepend(line);
+  while (log.children.length > 40) log.removeChild(log.lastChild);
+}
+
+function clearLog() { document.getElementById('syncLog').innerHTML = ''; }
+
+function refreshChannelManager() { loadChannelManager(); showToast('info', 'Channel Manager', 'Statut rafraîchi'); }
+
+/* ── Heatmap ── */
+function renderHeatmap() {
+  const grid = document.getElementById('heatmapGrid');
+  const groups = ['Accor','Hilton','Marriott','Hyatt','Four Seasons','Mandarin','Aman','IHG'];
+  const today = new Date();
+  const dates = Array.from({length:14},(_,i)=>{const d=new Date(today);d.setDate(today.getDate()+i+1);return d;});
+
+  // Header dates
+  let html = '<div></div>';
+  dates.forEach(d => { html += `<div class="hm-date">${d.getDate()}/${d.getMonth()+1}</div>`; });
+
+  // Rows per group
+  groups.forEach(g => {
+    html += `<div class="hm-label">${g}</div>`;
+    dates.forEach(d => {
+      const avail = Math.random();
+      const bg = avail > 0.7 ? 'rgba(16,185,129,.6)' : avail > 0.3 ? 'rgba(245,158,11,.5)' : 'rgba(239,68,68,.5)';
+      const pct = Math.floor(avail * 100);
+      html += `<div class="hm-cell" style="background:${bg}" data-tip="${g} · ${d.getDate()}/${d.getMonth()+1} · ${pct}% dispo"></div>`;
+    });
+  });
+
+  grid.innerHTML = html;
+}
+
+/* ── Booking Modal ── */
+let currentHotelId, currentRoomType, currentRate, currentCurrency;
+
+function openBookingModal(hotelId, roomType, rate, currency) {
+  const hotel = state.hotels.find(h => h.id === hotelId);
+  const checkIn = document.getElementById('checkIn').value;
+  const checkOut = document.getElementById('checkOut').value;
+  const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000);
+
+  currentHotelId = hotelId;
+  currentRoomType = roomType;
+  currentRate = rate;
+  currentCurrency = currency;
+
+  document.getElementById('modalHotelName').textContent = hotel?.name || hotelId;
+  document.getElementById('modalRoomType').textContent = `${roomType} · ${hotel?.city}, ${hotel?.country}`;
+  document.getElementById('modalCheckIn').value = checkIn;
+  document.getElementById('modalCheckOut').value = checkOut;
+  document.getElementById('sumHotel').textContent = hotel?.name || '—';
+  document.getElementById('sumRoom').textContent = roomType;
+  document.getElementById('sumNights').textContent = nights + ' nuit' + (nights>1?'s':'');
+  document.getElementById('sumRate').textContent = `${currency} ${rate.toLocaleString('fr-FR')}`;
+  document.getElementById('bookingForm').style.display = 'block';
+  document.getElementById('successOverlay').classList.remove('active');
+  document.getElementById('bookingModal').classList.add('active');
+}
+
+function closeBookingModal() {
+  document.getElementById('bookingModal').classList.remove('active');
+}
+
+function setSource(src, btn) {
+  state.bookingSource = src;
+  document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sumSource').textContent = src === 'booking' ? 'Booking.com' : 'Amadeus GDS';
+}
+
+async function confirmBooking() {
+  const guestName = document.getElementById('guestName').value.trim();
+  const checkIn = document.getElementById('modalCheckIn').value;
+  const checkOut = document.getElementById('modalCheckOut').value;
+  const voucherId = document.getElementById('modalVoucher').value;
+
+  if (!guestName) { showToast('error', 'Client requis', 'Veuillez saisir le nom du client'); return; }
+
+  const btn = document.getElementById('btnConfirm');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours…';
+
+  try {
+    const result = await TheEstateAPI.bookRoom({
+      hotelId: currentHotelId,
+      checkIn, checkOut,
+      roomType: currentRoomType,
+      guestName,
+      voucherId: voucherId || undefined,
+      source: state.bookingSource,
+    });
+
+    // Success
+    const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000);
+    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('successRef').textContent = result.bookingRef;
+    document.getElementById('successDetails').innerHTML = `
+      <strong>${result.hotel.name}</strong><br>
+      ${guestName} · ${currentRoomType}<br>
+      ${checkIn} → ${checkOut} · ${nights} nuit${nights>1?'s':''}<br>
+      Via ${result.source === 'amadeus' ? 'Amadeus GDS' : 'Booking.com'}
+      ${voucherId ? `<br><span style="color:var(--gold)">Voucher ${voucherId} utilisé</span>` : ''}
+    `;
+    document.getElementById('successOverlay').classList.add('active');
+    addToHistory(result, guestName, checkIn, checkOut, currentRoomType, voucherId);
+    showToast('success', 'Réservation confirmée', `Réf. ${result.bookingRef}`);
+
+  } catch (e) {
+    showToast('error', 'Erreur de réservation', e.message);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-lock"></i> Confirmer la réservation';
+  }
+}
+
+/* ── History ── */
+function addToHistory(result, guestName, checkIn, checkOut, roomType, voucherId) {
+  const hotel = state.hotels.find(h => h.id === result.hotel?.id || h.name === result.hotel?.name);
+  state.history.unshift({ result, guestName, checkIn, checkOut, roomType, voucherId, hotel });
+  renderHistory();
+  document.getElementById('histCount').textContent = state.history.length;
+}
+
+function renderHistory() {
+  const tbody = document.getElementById('histBody');
+  const empty = document.getElementById('histEmpty');
+
+  if (!state.history.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = state.history.map(entry => {
+    const { result, guestName, checkIn, checkOut, roomType, voucherId, hotel } = entry;
+    const srcLabel = result.source === 'amadeus' ? 'Amadeus' : 'Booking.com';
+    const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000);
+    return `
+      <tr>
+        <td><span class="ref-badge">${result.bookingRef}</span></td>
+        <td>${hotel?.name || '—'}</td>
+        <td>${guestName}</td>
+        <td>${checkIn}</td>
+        <td>${checkOut} <span style="font-size:.65rem;color:var(--text-s)">(${nights}N)</span></td>
+        <td style="font-size:.72rem">${roomType}</td>
+        <td style="font-size:.7rem;color:var(--gold)">${voucherId || '—'}</td>
+        <td style="font-size:.68rem;color:var(--text-m)">${srcLabel}</td>
+        <td><span class="status-badge confirmed">CONFIRMÉE</span></td>
+      </tr>`;
+  }).join('');
+}
+
+/* ── Tabs ── */
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pane-' + name).classList.add('active');
+}
+
+/* ── Toast ── */
+function showToast(type, title, msg) {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icons = { success:'check-circle', error:'exclamation-circle', info:'info-circle' };
+  t.innerHTML = `<i class="fas fa-${icons[type]||'info-circle'} toast-icon"></i><div class="toast-msg"><strong>${title}</strong>${msg}</div>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0';t.style.transform='translateX(20px)';t.style.transition='all .3s';setTimeout(()=>t.remove(),300); }, 4000);
+}
+
+/* ── Keyboard ── */
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBookingModal(); });
+document.getElementById('bookingModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeBookingModal(); });
+document.getElementById('searchQuery').addEventListener('keydown', e => { if (e.key === 'Enter') searchAvailability(); });
+
+init();
+
+// Mobile sidebar
+function toggleResSidebar(){
+  const sb=document.getElementById('resSidebar');
+  const bd=document.getElementById('resSidebarBackdrop');
+  if(!sb)return;
+  const open=sb.classList.toggle('mob-open');
+  if(bd)bd.classList.toggle('active',open);
+}
+function closeResSidebar(){
+  const sb=document.getElementById('resSidebar');
+  const bd=document.getElementById('resSidebarBackdrop');
+  if(sb)sb.classList.remove('mob-open');
+  if(bd)bd.classList.remove('active');
+}
+</script>
+</body>
+</html>

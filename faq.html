@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE ESTATE — FAQ & Guide</title>
+<meta name="description" content="THE ESTATE — FAQ — Guide d'utilisation de la plateforme de gestion hôtelière de luxe.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#040D1C">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="THE ESTATE">
+<meta property="og:title" content="THE ESTATE — FAQ & Guide">
+<meta property="og:description" content="Guide d'utilisation de la plateforme de gestion hôtelière de luxe.">
+<meta property="og:url" content="https://the-estate.app/faq.html">
+<meta property="og:image" content="https://the-estate.app/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="THE ESTATE — FAQ & Guide">
+<meta name="twitter:description" content="Guide d'utilisation de la plateforme de gestion hôtelière de luxe.">
+<meta name="twitter:image" content="https://the-estate.app/og-cover.jpg">
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');</script>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-l:#E8D5A3;--gold-d:#8B6914;
+  --navy:#040D1C;--navy-mid:#071528;--navy-l:#0A1E38;--navy-card:#0D2240;
+  --text:#F5F0E8;--text-m:rgba(245,240,232,.6);--text-s:rgba(245,240,232,.3);
+  --border:rgba(201,168,76,.18);--border-h:rgba(201,168,76,.45);
+}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:22px 64px;transition:all .4s;background:rgba(4,13,28,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;letter-spacing:.1em;color:var(--text);text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:24px}
+.nav-back{color:var(--text-m);text-decoration:none;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;transition:color .3s;display:flex;align-items:center;gap:8px}
+.nav-back:hover{color:var(--gold)}
+.lang-btns{display:flex;gap:4px}
+.lb{background:none;border:1px solid transparent;color:var(--text-s);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.lb.active,.lb:hover{border-color:var(--border-h);color:var(--gold)}
+
+/* HERO BANNER */
+.faq-hero{padding:130px 64px 80px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.faq-hero::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 65%);pointer-events:none}
+.faq-hero-ew{font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:22px}
+.faq-hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,4vw,3.8rem);font-weight:400;line-height:1.15;margin-bottom:20px}
+.faq-hero-title em{font-style:italic;color:var(--gold)}
+.faq-hero-sub{color:var(--text-m);font-size:1rem;max-width:560px;margin:0 auto 36px;line-height:1.8}
+.concierge-banner{display:inline-flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.06));border:1px solid var(--border-h);padding:16px 28px;cursor:pointer;transition:all .3s;text-decoration:none}
+.concierge-banner:hover{background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.1));transform:translateY(-2px);box-shadow:0 20px 50px rgba(201,168,76,.15)}
+.cb-icon{width:44px;height:44px;border-radius:50%;overflow:hidden;border:1px solid var(--border-h);flex-shrink:0}
+.cb-icon img{width:100%;height:100%;object-fit:cover}
+.cb-text .cb-title{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:500;color:var(--text)}
+.cb-text .cb-sub{font-size:.7rem;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+.cb-arrow{color:var(--gold);font-size:.8rem;margin-left:8px}
+
+/* SEARCH */
+.faq-search-wrap{max-width:640px;margin:0 auto;padding:0 64px 56px;position:relative;z-index:1}
+.faq-search{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:15px 20px 15px 50px;font-family:'Inter',sans-serif;font-size:.9rem;outline:none;transition:border-color .3s;margin-top:32px}
+.faq-search:focus{border-color:var(--border-h)}
+.faq-search::placeholder{color:var(--text-s)}
+.faq-search-icon{position:absolute;left:84px;top:50%;transform:translateY(-50%);color:var(--text-s);font-size:.85rem;margin-top:16px}
+
+/* LAYOUT */
+.faq-layout{max-width:1300px;margin:0 auto;padding:0 64px 120px;display:grid;grid-template-columns:260px 1fr;gap:60px;align-items:start}
+.faq-sidebar{position:sticky;top:90px}
+.faq-sidebar h3{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.faq-nav-list{list-style:none;display:flex;flex-direction:column;gap:2px}
+.faq-nav-item a{display:flex;align-items:center;gap:10px;padding:10px 14px;color:var(--text-m);text-decoration:none;font-size:.8rem;transition:all .25s;border-left:2px solid transparent}
+.faq-nav-item a:hover,.faq-nav-item a.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,168,76,.04);padding-left:18px}
+.faq-nav-item a i{width:16px;text-align:center;font-size:.75rem}
+
+/* CONTENT */
+.faq-content{display:flex;flex-direction:column;gap:60px}
+.faq-section{scroll-margin-top:90px}
+.sec-hd{margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}
+.sec-hd-icon{width:42px;height:42px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.9rem;flex-shrink:0}
+.sec-hd h2{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:500}
+.sec-hd .sec-count{font-size:.65rem;color:var(--text-s);letter-spacing:.18em;text-transform:uppercase;margin-top:3px}
+
+/* ACCORDION */
+.faq-item{border-bottom:1px solid rgba(201,168,76,.1)}
+.faq-q{width:100%;background:none;border:none;color:var(--text);padding:20px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;text-align:left;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;transition:color .25s}
+.faq-q:hover{color:var(--gold)}
+.faq-q .q-arrow{color:var(--gold);font-size:.75rem;transition:transform .3s;flex-shrink:0;opacity:.6}
+.faq-q.open .q-arrow{transform:rotate(180deg);opacity:1}
+.faq-q.open{color:var(--gold)}
+.faq-a{display:none;padding:0 0 22px;color:var(--text-m);font-size:.875rem;line-height:1.85;animation:fade-in .25s ease}
+@keyframes fade-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.faq-a.open{display:block}
+.faq-a strong{color:var(--text);font-weight:600}
+.faq-a code{background:rgba(201,168,76,.1);color:var(--gold);padding:2px 7px;font-size:.8rem;font-family:'Inter',sans-serif;border-radius:2px}
+.faq-a ul{margin:12px 0 12px 18px;display:flex;flex-direction:column;gap:6px}
+.faq-a ul li{color:var(--text-m)}
+.faq-a .tip{background:rgba(201,168,76,.07);border:1px solid var(--border);padding:14px 18px;margin-top:12px;display:flex;gap:12px;align-items:flex-start;font-size:.82rem}
+.faq-a .tip i{color:var(--gold);margin-top:2px;flex-shrink:0}
+
+/* CONCIERGE CTA (bottom) */
+.faq-concierge-cta{background:linear-gradient(135deg,var(--navy-mid),var(--navy-l));border:1px solid var(--border-h);padding:52px;text-align:center;position:relative;overflow:hidden;margin-top:20px}
+.faq-concierge-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.08),transparent 65%);pointer-events:none}
+.faq-concierge-cta h3{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:400;margin-bottom:12px;position:relative}
+.faq-concierge-cta h3 em{font-style:italic;color:var(--gold)}
+.faq-concierge-cta p{color:var(--text-m);max-width:480px;margin:0 auto 28px;line-height:1.8;font-size:.9rem;position:relative}
+.btn-gold{background:var(--gold);color:var(--navy);border:none;padding:15px 42px;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:all .3s;text-decoration:none;display:inline-block;position:relative}
+.btn-gold:hover{background:var(--gold-l);transform:translateY(-2px);box-shadow:0 20px 50px rgba(201,168,76,.25)}
+
+/* FOOTER */
+.footer{padding:30px 64px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:'Playfair Display',serif;font-size:.9rem;letter-spacing:.1em;text-decoration:none;color:var(--text)}
+.footer-logo span{color:var(--gold)}
+.footer-cp{font-size:.65rem;color:var(--text-s)}
+
+/* Responsive */
+@media(max-width:900px){
+  .faq-layout{grid-template-columns:1fr;padding:0 24px 80px}
+  .faq-sidebar{display:none}
+  .faq-hero,.faq-search-wrap{padding-left:24px;padding-right:24px}
+  .nav{padding:18px 24px}
+  .footer{padding:24px;flex-direction:column;gap:8px;text-align:center}
+}
+@media(max-width:600px){
+  .nav{padding:14px 16px}
+  .nav-logo{font-size:.95rem}
+  .nav-right{gap:10px}
+  .faq-hero{padding:110px 16px 60px}
+  .faq-search-wrap{padding:0 16px 40px}
+  .faq-layout{padding:0 16px 64px;gap:32px}
+  .faq-hero-title{font-size:clamp(1.8rem,6vw,2.6rem)}
+  .concierge-banner{padding:12px 18px;flex-wrap:wrap;gap:10px;justify-content:center;text-align:center}
+  .cb-arrow{display:none}
+  .faq-concierge-cta{padding:32px 20px}
+  .footer{padding:20px 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-back"><i class="fas fa-chevron-left"></i><span data-i18n="back">Retour</span></a>
+  <a href="index.html" class="nav-logo">THE <span>ESTATE</span></a>
+  <div class="nav-right">
+    <div class="lang-btns">
+      <button class="lb active" onclick="setLang('fr')">FR</button>
+      <button class="lb" onclick="setLang('en')">EN</button>
+      <button class="lb" onclick="setLang('es')">ES</button>
+    </div>
+    <a href="dashboard.html" class="nav-back" style="margin-left:8px"><i class="fas fa-th-large"></i></a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="faq-hero">
+  <span class="faq-hero-ew" data-i18n="hero_ew">Guide & Aide</span>
+  <h1 class="faq-hero-title" data-i18n="hero_title">Questions <em>fréquentes</em></h1>
+  <p class="faq-hero-sub" data-i18n="hero_sub">Tout ce que vous devez savoir pour tirer le meilleur parti de votre plateforme The Estate.</p>
+  <a href="concierge.html" class="concierge-banner">
+    <div class="cb-icon"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80&auto=format&fit=crop&crop=face" alt="Aria"></div>
+    <div class="cb-text">
+      <div class="cb-title" data-i18n="aria_title">Poser une question à Aria</div>
+      <div class="cb-sub" data-i18n="aria_sub">Concierge IA vocal — FR / EN / ES</div>
+    </div>
+    <i class="fas fa-chevron-right cb-arrow"></i>
+  </a>
+</div>
+
+<!-- SEARCH -->
+<div class="faq-search-wrap">
+  <div style="position:relative">
+    <i class="fas fa-search faq-search-icon"></i>
+    <input type="text" class="faq-search" id="faqSearch" data-i18n-placeholder="search_placeholder" placeholder="Rechercher dans la FAQ..." oninput="searchFAQ(this.value)">
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="faq-layout">
+  <!-- SIDEBAR NAV -->
+  <div class="faq-sidebar">
+    <h3 data-i18n="categories">Catégories</h3>
+    <ul class="faq-nav-list" id="sidebarNav"></ul>
+  </div>
+
+  <!-- FAQ CONTENT -->
+  <div class="faq-content" id="faqContent"></div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <a href="index.html" class="footer-logo">THE <span>ESTATE</span></a>
+  <div class="footer-cp" data-i18n="footer_cp">© 2026 The Estate — Confidentiel & Réservé aux membres</div>
+  <div class="footer-cp">AES-256 · MFA · Souverain</div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════
+   FAQ DATA (multilingual)
+═══════════════════════════════════ */
+const FAQ_DATA = {
+  fr: {
+    ui: {
+      back:'Retour', hero_ew:'Guide & Aide', hero_title:'Questions <em>fréquentes</em>',
+      hero_sub:'Tout ce que vous devez savoir pour tirer le meilleur parti de votre plateforme The Estate.',
+      aria_title:'Poser une question à Aria', aria_sub:'Concierge IA vocal — FR / EN / ES',
+      search_placeholder:'Rechercher dans la FAQ...',
+      categories:'Catégories', footer_cp:'© 2026 The Estate — Confidentiel & Réservé aux membres',
+      concierge_cta_title:'Besoin d\'aide <em>personnalisée</em> ?',
+      concierge_cta_sub:'Aria, votre concierge IA, peut vous guider vocalement sur chaque fonctionnalité, vous aider à réserver, gérer vos vouchers et bien plus.',
+      concierge_cta_btn:'Parler à Aria',
+    },
+    sections: [
+      {
+        id:'getting-started', icon:'fa-play-circle', title:'Premiers pas',
+        items:[
+          {q:'Comment accéder à la plateforme The Estate ?', a:'Rendez-vous sur la page d\'accueil et cliquez sur <strong>Accéder au Dashboard</strong>. Entrez vos identifiants (email + mot de passe) fournis par votre administrateur. Pour les nouveaux membres, un lien d\'activation vous est envoyé par votre Family Office.'},
+          {q:'Puis-je utiliser la plateforme sur mobile ?', a:'Oui. The Estate est entièrement responsive et fonctionne sur smartphone et tablette. Le <strong>Concierge IA Aria</strong> est disponible en mode "app companion" depuis un raccourci sur votre écran d\'accueil (PWA).'},
+          {q:'Quels navigateurs sont supportés ?', a:'Chrome, Safari, Firefox et Edge dans leurs versions récentes. Pour la <strong>reconnaissance vocale</strong> du Concierge Aria, nous recommandons Chrome ou Safari pour une expérience optimale.'},
+          {q:'Comment configurer la biométrie (Face ID / empreinte) ?', a:'Dans le Dashboard → onglet <strong>Configuration</strong> → section "Sécurité Avancée" → cliquez sur "Configurer la biométrie". La fonctionnalité utilise le standard WebAuthn et s\'intègre à votre authentificateur biométrique natif (iOS Face ID, Android, Windows Hello).'},
+        ]
+      },
+      {
+        id:'portfolio', icon:'fa-building', title:'Mon Portfolio',
+        items:[
+          {q:'Comment ajouter un hôtel nouvellement acquis ?', a:'Vous pouvez le faire de deux façons :<ul><li><strong>Via le Dashboard</strong> → onglet Portfolio → bouton "+ Ajouter une propriété"</li><li><strong>Via Aria</strong> (recommandé) : dites "J\'ai acheté une chambre" et Aria vous guidera vocalement pour renseigner tous les champs, valider l\'hôtel en le visualisant, et confirmer l\'intégration.</li></ul>'},
+          {q:'Comment modifier les informations d\'un hôtel existant ?', a:'Dans l\'onglet <strong>Portfolio</strong>, cliquez sur la carte de l\'hôtel pour ouvrir le panneau de détail, puis sur le bouton d\'édition (icône crayon). Vous pouvez modifier l\'ADR, le type de chambre, les conditions contractuelles et les documents associés.'},
+          {q:'La carte mondiale est-elle mise à jour en temps réel ?', a:'La <strong>Carte Mondiale Interactive</strong> (map.html) affiche votre portefeuille avec des filtres par groupe hôtelier, ville et disponibilité. Les données de disponibilité sont synchronisées via l\'API Booking.com et Amadeus.'},
+          {q:'Puis-je avoir plusieurs unités dans le même hôtel ?', a:'Oui. Chaque unité est enregistrée séparément avec son propre contrat, ADR et historique de performance. Le tableau de bord consolide automatiquement les revenus par propriété et par hôtel.'},
+        ]
+      },
+      {
+        id:'reservations', icon:'fa-calendar-check', title:'Réservations',
+        items:[
+          {q:'Comment réserver un séjour pour moi ou un invité ?', a:'<strong>Via Aria (recommandé)</strong> : dites simplement "Réserver un hôtel" — Aria vérifiera vos vouchers disponibles, demandera les dates et les préférences, et enverra la demande directement à l\'hôtel par email.<br><br><strong>Via le Dashboard</strong> : onglet "Voyages" → bouton "Nouvelle réservation".'},
+          {q:'Comment annuler ou modifier une réservation ?', a:'Rendez-vous dans l\'onglet <strong>Voyages</strong> → trouvez la réservation → cliquez sur "Modifier" ou "Annuler". Les conditions d\'annulation dépendent de votre contrat Side Letter. Aria peut vérifier ces conditions pour vous.'},
+          {q:'La plateforme envoie-t-elle automatiquement l\'email à l\'hôtel ?', a:'Oui. Après confirmation de votre récapitulatif (étape de validation finale), The Estate génère un email professionnel standardisé et le transmet directement au service réservations de l\'hôtel. Vous en conservez une copie dans vos archives.<div class="tip"><i class="fas fa-info-circle"></i>L\'hôtel reçoit l\'email au nom de votre Family Office, garantissant une confidentialité totale.</div>'},
+          {q:'Peut-on réserver en utilisant un voucher du même groupe hôtelier ?', a:'Absolument. Dans l\'onglet <strong>Explorer Booking</strong>, les hôtels du même groupe que vos propriétés sont identifiés par un badge "Voucher [Groupe]". Cliquez sur "Utiliser un Voucher" pour déclencher le wizard de réservation avec le bon automatiquement pré-sélectionné.'},
+        ]
+      },
+      {
+        id:'vouchers', icon:'fa-ticket-alt', title:'Vouchers & Invités',
+        items:[
+          {q:'Qu\'est-ce qu\'un voucher The Estate ?', a:'Un voucher est un <strong>bon d\'accès numérique sécurisé</strong> lié à votre unité. Il permet à un tiers d\'utiliser vos nuits disponibles sans que son identité soit révélée à l\'hôtel. L\'hôtel ne voit que votre Family Office en tant qu\'intermédiaire.'},
+          {q:'Comment envoyer un voucher à un contact ?', a:'Via Aria : "Envoyer un voucher" → sélectionnez le voucher et le destinataire → ajoutez un message personnel (optionnel) → validez. Le destinataire reçoit un email avec le QR code d\'accès et les instructions.<br><br>Via le Dashboard → onglet "Vouchers" → bouton "Attribuer".'},
+          {q:'Une Guest Card est-elle différente d\'un voucher ?', a:'Oui. Une <strong>Guest Card</strong> est une carte d\'identité numérique pour un invité spécifique, incluant ses privilèges personnalisés (room upgrade, crédit F&B, accès spa, etc.). Le voucher est le bon de nuitée. Les deux peuvent être utilisés ensemble ou séparément.'},
+          {q:'Combien de temps est valable un voucher ?', a:'La durée de validité est définie par votre contrat. Elle est visible dans l\'onglet Vouchers sous "Date d\'expiration". Aria peut vous alerter proactivement lorsqu\'un voucher approche de son expiration.'},
+          {q:'Puis-je envoyer un voucher à quelqu\'un qui n\'est pas membre ?', a:'Oui. Vous pouvez entrer n\'importe quelle adresse email lors de l\'envoi. La personne recevra un lien sécurisé pour accéder à son voucher sans avoir besoin de compte The Estate.'},
+        ]
+      },
+      {
+        id:'revenue', icon:'fa-chart-line', title:'Revenus & Performance',
+        items:[
+          {q:'Comment fonctionne le calcul de reversement ?', a:'The Estate calcule votre reversement selon la formule : <code>ADR × nuits occupées × taux contractuel (50-60%)</code>. Le taux est extrait automatiquement de votre Side Letter. Le tableau de bord <strong>Revenue Intelligence</strong> vous montre en temps réel l\'écart entre le théorique et le réalisé.'},
+          {q:'Qu\'est-ce que l\'ADR ?', a:'L\'<strong>ADR (Average Daily Rate)</strong> est le tarif journalier moyen pratiqué par l\'hôtel pour votre type de chambre. Il varie selon la saison, les événements et les algorithmes de yield management de l\'hôtel. The Estate surveille ces variations et vous alerte.'},
+          {q:'Comment interpréter les alertes de monétisation ?', a:'Les alertes apparaissent dans l\'onglet <strong>Alertes</strong> et dans le widget de la sidebar. Elles signalent :<ul><li><strong>ADR sous-performant</strong> : tarif en dessous du seuil contractuel</li><li><strong>Chambre vide sur haute saison</strong> : opportunité de revenus non saisie</li><li><strong>Voucher expirant</strong> : bon bientôt périmé</li></ul>'},
+          {q:'Le Channel Manager est-il connecté aux OTAs ?', a:'Le <strong>Channel Manager</strong> simule la connexion aux principales OTAs (Booking.com, Expedia, Airbnb Luxe). Il vous donne une vue de la distribution de votre chambre et permet de gérer les restrictions tarifaires directement depuis la plateforme.'},
+        ]
+      },
+      {
+        id:'concierge', icon:'fa-robot', title:'Concierge IA Aria',
+        items:[
+          {q:'Qu\'est-ce que le Concierge IA Aria ?', a:'Aria est votre <strong>assistante personnelle vocale</strong> intégrée à The Estate. Elle comprend vos demandes en français, anglais et espagnol, et peut :<ul><li>Réserver un hôtel de A à Z</li><li>Intégrer une nouvelle acquisition</li><li>Envoyer des vouchers et Guest Cards</li><li>Anticiper vos besoins (voyages, vouchers expirés...)</li><li>Répondre à toutes vos questions sur la plateforme</li></ul>'},
+          {q:'Comment activer la reconnaissance vocale ?', a:'Cliquez sur le bouton <strong>micro</strong> dans l\'interface du Concierge. Votre navigateur demandera l\'autorisation d\'accès au microphone — acceptez. Parlez naturellement, Aria comprendra votre demande. La reconnaissance fonctionne en FR, EN et ES selon la langue sélectionnée.'},
+          {q:'Aria peut-elle vraiment envoyer des emails à ma place ?', a:'Oui. Après chaque action (réservation, envoi de voucher, création de Guest Card), Aria présente un <strong>récapitulatif de validation</strong> complet. Vous confirmez, et la plateforme exécute l\'action — y compris l\'envoi de l\'email à l\'hôtel ou au destinataire.'},
+          {q:'Comment ajouter Aria en raccourci sur mon téléphone ?', a:'Sur iOS (Safari) : ouvrez <code>concierge.html</code> → bouton Partager → "Sur l\'écran d\'accueil". Sur Android (Chrome) : menu ⋮ → "Ajouter à l\'écran d\'accueil". L\'application s\'ouvrira en mode plein écran comme une app native.<div class="tip"><i class="fas fa-star"></i>L\'icône The Estate apparaîtra sur votre écran d\'accueil.</div>'},
+          {q:'Aria fonctionne-t-elle hors ligne ?', a:'L\'interface Aria est disponible hors ligne grâce au cache du navigateur. Cependant, la <strong>synthèse et la reconnaissance vocale</strong> nécessitent une connexion internet, tout comme les actions de réservation et d\'envoi d\'email.'},
+        ]
+      },
+      {
+        id:'security', icon:'fa-shield-alt', title:'Sécurité & Confidentialité',
+        items:[
+          {q:'Quel niveau de sécurité offre The Estate ?', a:'The Estate est construit sur une architecture <strong>banque privée</strong> :<ul><li>Chiffrement <code>AES-256</code> bout en bout</li><li>Authentification 2FA (code 6 chiffres) + biométrie WebAuthn</li><li>Session sécurisée de 8 heures avec déconnexion automatique</li><li>Hébergement souverain (données hors USA/Chine)</li></ul>'},
+          {q:'Qui peut voir mes données sur la plateforme ?', a:'Uniquement vous et les membres que vous avez explicitement ajoutés dans <strong>Configuration → Membres & Partage</strong>. L\'hôtel ne voit que les informations strictement nécessaires à la réservation, jamais le détail de votre portefeuille.'},
+          {q:'Comment partager des voyages avec les membres de mon Family Office ?', a:'Dans l\'onglet <strong>Voyages</strong>, ouvrez la sidebar gauche pour afficher les membres. Cliquez sur le bouton ⤴ d\'un voyage pour choisir avec qui le partager. Chaque membre ne voit que les voyages que vous avez décidé de lui montrer.'},
+          {q:'Que se passe-t-il si je perds accès à mon compte ?', a:'Contactez votre gestionnaire de compte Family Office. Une procédure de récupération sécurisée est disponible, impliquant une vérification d\'identité par votre conseiller désigné. Le 2FA peut être réinitialisé dans <strong>Configuration → Sécurité Avancée</strong>.'},
+        ]
+      },
+    ]
+  },
+  en: {
+    ui: {
+      back:'Back', hero_ew:'Guide & Help', hero_title:'Frequently <em>asked questions</em>',
+      hero_sub:'Everything you need to know to get the most out of your The Estate platform.',
+      aria_title:'Ask Aria a question', aria_sub:'AI Voice Concierge — FR / EN / ES',
+      search_placeholder:'Search the FAQ...',
+      categories:'Categories', footer_cp:'© 2026 The Estate — Confidential & Members Only',
+      concierge_cta_title:'Need <em>personalized</em> help?',
+      concierge_cta_sub:'Aria, your AI concierge, can guide you vocally through every feature, help you book, manage your vouchers and much more.',
+      concierge_cta_btn:'Talk to Aria',
+    },
+    sections: [
+      {
+        id:'getting-started', icon:'fa-play-circle', title:'Getting Started',
+        items:[
+          {q:'How do I access The Estate platform?', a:'Go to the homepage and click <strong>Access Dashboard</strong>. Enter the credentials (email + password) provided by your administrator. For new members, an activation link is sent by your Family Office.'},
+          {q:'Can I use the platform on mobile?', a:'Yes. The Estate is fully responsive and works on smartphones and tablets. The <strong>AI Concierge Aria</strong> is available as a companion app via a shortcut on your home screen (PWA).'},
+          {q:'Which browsers are supported?', a:'Chrome, Safari, Firefox and Edge in their recent versions. For the Concierge Aria <strong>voice recognition</strong>, we recommend Chrome or Safari for the best experience.'},
+          {q:'How do I set up biometrics (Face ID / fingerprint)?', a:'In Dashboard → <strong>Configuration</strong> tab → "Advanced Security" section → click "Set up biometrics". The feature uses the WebAuthn standard and integrates with your native biometric authenticator (iOS Face ID, Android, Windows Hello).'},
+        ]
+      },
+      {
+        id:'portfolio', icon:'fa-building', title:'My Portfolio',
+        items:[
+          {q:'How do I add a newly acquired hotel?', a:'You can do this two ways:<ul><li><strong>Via Dashboard</strong> → Portfolio tab → "+ Add Property" button</li><li><strong>Via Aria</strong> (recommended): say "I bought a room" and Aria will guide you vocally to fill in all fields, validate the hotel visually, and confirm the integration.</li></ul>'},
+          {q:'How do I edit an existing hotel\'s information?', a:'In the <strong>Portfolio</strong> tab, click on the hotel card to open the detail panel, then click the edit button (pencil icon). You can modify the ADR, room type, contractual conditions and associated documents.'},
+          {q:'Is the world map updated in real time?', a:'The <strong>Interactive World Map</strong> displays your portfolio with filters by hotel group, city and availability. Availability data is synced via the Booking.com and Amadeus APIs.'},
+          {q:'Can I have multiple units in the same hotel?', a:'Yes. Each unit is registered separately with its own contract, ADR and performance history. The dashboard automatically consolidates revenues by property and hotel.'},
+        ]
+      },
+      {
+        id:'reservations', icon:'fa-calendar-check', title:'Reservations',
+        items:[
+          {q:'How do I book a stay for myself or a guest?', a:'<strong>Via Aria (recommended)</strong>: simply say "Book a hotel" — Aria will check your available vouchers, ask for dates and preferences, and send the request directly to the hotel by email.<br><br><strong>Via Dashboard</strong>: "Trips" tab → "New Reservation" button.'},
+          {q:'How do I cancel or modify a reservation?', a:'Go to the <strong>Trips</strong> tab → find the reservation → click "Modify" or "Cancel". Cancellation conditions depend on your Side Letter contract. Aria can check these conditions for you.'},
+          {q:'Does the platform automatically send the email to the hotel?', a:'Yes. After confirming your summary (final validation step), The Estate generates a standardized professional email and sends it directly to the hotel\'s reservations department. You keep a copy in your archives.<div class="tip"><i class="fas fa-info-circle"></i>The hotel receives the email in your Family Office\'s name, ensuring complete confidentiality.</div>'},
+          {q:'Can I book using a voucher from the same hotel group?', a:'Absolutely. In the <strong>Explorer Booking</strong> tab, hotels from the same group as your properties are identified with a "Voucher [Group]" badge. Click "Use a Voucher" to trigger the booking wizard with the voucher automatically pre-selected.'},
+        ]
+      },
+      {
+        id:'vouchers', icon:'fa-ticket-alt', title:'Vouchers & Guests',
+        items:[
+          {q:'What is a The Estate voucher?', a:'A voucher is a <strong>secure digital access pass</strong> linked to your unit. It allows a third party to use your available nights without their identity being revealed to the hotel. The hotel only sees your Family Office as intermediary.'},
+          {q:'How do I send a voucher to a contact?', a:'Via Aria: "Send a voucher" → select the voucher and recipient → add a personal message (optional) → confirm. The recipient receives an email with the access QR code and instructions.<br><br>Via Dashboard → "Vouchers" tab → "Assign" button.'},
+          {q:'Is a Guest Card different from a voucher?', a:'Yes. A <strong>Guest Card</strong> is a digital identity card for a specific guest, including their personalized privileges (room upgrade, F&B credit, spa access, etc.). The voucher is the night pass. Both can be used together or separately.'},
+          {q:'How long is a voucher valid?', a:'The validity period is defined by your contract. It is visible in the Vouchers tab under "Expiry Date". Aria can proactively alert you when a voucher is approaching expiration.'},
+          {q:'Can I send a voucher to someone who is not a member?', a:'Yes. You can enter any email address when sending. The person will receive a secure link to access their voucher without needing a The Estate account.'},
+        ]
+      },
+      {
+        id:'revenue', icon:'fa-chart-line', title:'Revenue & Performance',
+        items:[
+          {q:'How does revenue sharing calculation work?', a:'The Estate calculates your revenue share using: <code>ADR × occupied nights × contractual rate (50-60%)</code>. The rate is automatically extracted from your Side Letter. The <strong>Revenue Intelligence</strong> dashboard shows you in real time the gap between theoretical and actual revenue.'},
+          {q:'What is ADR?', a:'<strong>ADR (Average Daily Rate)</strong> is the average daily rate charged by the hotel for your room type. It varies with season, events and the hotel\'s yield management algorithms. The Estate monitors these variations and alerts you.'},
+          {q:'How do I interpret monetization alerts?', a:'Alerts appear in the <strong>Alerts</strong> tab and the sidebar widget. They flag:<ul><li><strong>Underperforming ADR</strong>: rate below contractual threshold</li><li><strong>Empty room in peak season</strong>: missed revenue opportunity</li><li><strong>Expiring voucher</strong>: pass about to expire</li></ul>'},
+          {q:'Is the Channel Manager connected to OTAs?', a:'The <strong>Channel Manager</strong> simulates connection to major OTAs (Booking.com, Expedia, Airbnb Luxe). It gives you a view of your room\'s distribution and lets you manage rate restrictions directly from the platform.'},
+        ]
+      },
+      {
+        id:'concierge', icon:'fa-robot', title:'AI Concierge Aria',
+        items:[
+          {q:'What is AI Concierge Aria?', a:'Aria is your <strong>personal voice assistant</strong> integrated into The Estate. She understands your requests in French, English and Spanish, and can:<ul><li>Book a hotel from A to Z</li><li>Integrate a new acquisition</li><li>Send vouchers and Guest Cards</li><li>Anticipate your needs (trips, expiring vouchers...)</li><li>Answer any platform question</li></ul>'},
+          {q:'How do I activate voice recognition?', a:'Click the <strong>microphone</strong> button in the Concierge interface. Your browser will ask for microphone access permission — accept it. Speak naturally, Aria will understand your request. Recognition works in FR, EN and ES depending on the selected language.'},
+          {q:'Can Aria really send emails on my behalf?', a:'Yes. After each action (booking, voucher sending, Guest Card creation), Aria presents a full <strong>validation summary</strong>. You confirm, and the platform executes the action — including sending the email to the hotel or recipient.'},
+          {q:'How do I add Aria as a shortcut on my phone?', a:'On iOS (Safari): open <code>concierge.html</code> → Share button → "Add to Home Screen". On Android (Chrome): ⋮ menu → "Add to Home Screen". The app will open in full-screen mode like a native app.<div class="tip"><i class="fas fa-star"></i>The Estate icon will appear on your home screen.</div>'},
+          {q:'Does Aria work offline?', a:'The Aria interface is available offline via browser cache. However, <strong>speech synthesis and recognition</strong> require an internet connection, as do booking and email actions.'},
+        ]
+      },
+      {
+        id:'security', icon:'fa-shield-alt', title:'Security & Privacy',
+        items:[
+          {q:'What level of security does The Estate offer?', a:'The Estate is built on a <strong>private banking</strong> architecture:<ul><li>End-to-end <code>AES-256</code> encryption</li><li>2FA authentication (6-digit code) + WebAuthn biometrics</li><li>8-hour secure session with automatic logout</li><li>Sovereign hosting (data outside US/China)</li></ul>'},
+          {q:'Who can see my data on the platform?', a:'Only you and members you have explicitly added in <strong>Configuration → Members & Sharing</strong>. The hotel only sees the information strictly necessary for the reservation, never the details of your portfolio.'},
+          {q:'How do I share trips with members of my Family Office?', a:'In the <strong>Trips</strong> tab, open the left sidebar to display members. Click the ⤴ button on a trip to choose who to share it with. Each member only sees the trips you\'ve decided to show them.'},
+          {q:'What happens if I lose access to my account?', a:'Contact your Family Office account manager. A secure recovery procedure is available, involving identity verification by your designated advisor. 2FA can be reset in <strong>Configuration → Advanced Security</strong>.'},
+        ]
+      },
+    ]
+  },
+  es: {
+    ui: {
+      back:'Volver', hero_ew:'Guía y Ayuda', hero_title:'Preguntas <em>frecuentes</em>',
+      hero_sub:'Todo lo que necesita saber para aprovechar al máximo su plataforma The Estate.',
+      aria_title:'Hacer una pregunta a Aria', aria_sub:'Concierge IA vocal — FR / EN / ES',
+      search_placeholder:'Buscar en las FAQ...',
+      categories:'Categorías', footer_cp:'© 2026 The Estate — Confidencial & Solo para miembros',
+      concierge_cta_title:'¿Necesita ayuda <em>personalizada</em>?',
+      concierge_cta_sub:'Aria, su concierge IA, puede guiarle vocalmente por cada función, ayudarle a reservar, gestionar sus vouchers y mucho más.',
+      concierge_cta_btn:'Hablar con Aria',
+    },
+    sections: [
+      {
+        id:'getting-started', icon:'fa-play-circle', title:'Primeros pasos',
+        items:[
+          {q:'¿Cómo accedo a la plataforma The Estate?', a:'Vaya a la página de inicio y haga clic en <strong>Acceder al Dashboard</strong>. Introduzca sus credenciales (email + contraseña) proporcionadas por su administrador. Para nuevos miembros, su Family Office le enviará un enlace de activación.'},
+          {q:'¿Puedo usar la plataforma en móvil?', a:'Sí. The Estate es totalmente responsive y funciona en smartphones y tabletas. El <strong>Concierge IA Aria</strong> está disponible como app de compañía desde un acceso directo en su pantalla de inicio (PWA).'},
+          {q:'¿Qué navegadores son compatibles?', a:'Chrome, Safari, Firefox y Edge en sus versiones recientes. Para el <strong>reconocimiento de voz</strong> del Concierge Aria, recomendamos Chrome o Safari para una experiencia óptima.'},
+          {q:'¿Cómo configuro la biometría (Face ID / huella)?', a:'En Dashboard → pestaña <strong>Configuración</strong> → sección "Seguridad Avanzada" → clic en "Configurar biometría". La función utiliza el estándar WebAuthn y se integra con su autenticador biométrico nativo (iOS Face ID, Android, Windows Hello).'},
+        ]
+      },
+      {
+        id:'portfolio', icon:'fa-building', title:'Mi Portafolio',
+        items:[
+          {q:'¿Cómo añado un hotel recién adquirido?', a:'Puede hacerlo de dos formas:<ul><li><strong>Desde el Dashboard</strong> → pestaña Portafolio → botón "+ Añadir propiedad"</li><li><strong>Desde Aria</strong> (recomendado): diga "Compré una habitación" y Aria le guiará vocalmente para rellenar todos los campos, validar el hotel visualmente y confirmar la integración.</li></ul>'},
+          {q:'¿Cómo modifico la información de un hotel existente?', a:'En la pestaña <strong>Portafolio</strong>, haga clic en la tarjeta del hotel para abrir el panel de detalles, luego en el botón de edición (icono lápiz). Puede modificar el ADR, tipo de habitación, condiciones contractuales y documentos asociados.'},
+          {q:'¿El mapa mundial se actualiza en tiempo real?', a:'El <strong>Mapa Mundial Interactivo</strong> muestra su portafolio con filtros por grupo hotelero, ciudad y disponibilidad. Los datos de disponibilidad se sincronizan a través de las APIs de Booking.com y Amadeus.'},
+          {q:'¿Puedo tener varias unidades en el mismo hotel?', a:'Sí. Cada unidad se registra por separado con su propio contrato, ADR e historial de rendimiento. El dashboard consolida automáticamente los ingresos por propiedad y hotel.'},
+        ]
+      },
+      {
+        id:'reservations', icon:'fa-calendar-check', title:'Reservas',
+        items:[
+          {q:'¿Cómo reservo una estancia para mí o un invitado?', a:'<strong>A través de Aria (recomendado)</strong>: diga simplemente "Reservar un hotel" — Aria verificará sus vouchers disponibles, pedirá las fechas y preferencias, y enviará la solicitud directamente al hotel por email.<br><br><strong>Desde el Dashboard</strong>: pestaña "Viajes" → botón "Nueva Reserva".'},
+          {q:'¿Cómo cancelo o modifico una reserva?', a:'Vaya a la pestaña <strong>Viajes</strong> → encuentre la reserva → haga clic en "Modificar" o "Cancelar". Las condiciones de cancelación dependen de su contrato Side Letter. Aria puede verificar estas condiciones por usted.'},
+          {q:'¿La plataforma envía automáticamente el email al hotel?', a:'Sí. Tras confirmar su resumen (paso de validación final), The Estate genera un email profesional estandarizado y lo envía directamente al departamento de reservas del hotel. Usted conserva una copia en sus archivos.<div class="tip"><i class="fas fa-info-circle"></i>El hotel recibe el email en nombre de su Family Office, garantizando total confidencialidad.</div>'},
+          {q:'¿Puedo reservar usando un voucher del mismo grupo hotelero?', a:'Absolutamente. En la pestaña <strong>Explorer Booking</strong>, los hoteles del mismo grupo que sus propiedades se identifican con una insignia "Voucher [Grupo]". Haga clic en "Usar un Voucher" para activar el asistente de reserva con el voucher preseleccionado automáticamente.'},
+        ]
+      },
+      {
+        id:'vouchers', icon:'fa-ticket-alt', title:'Vouchers e Invitados',
+        items:[
+          {q:'¿Qué es un voucher de The Estate?', a:'Un voucher es un <strong>pase de acceso digital seguro</strong> vinculado a su unidad. Permite a un tercero usar sus noches disponibles sin que su identidad sea revelada al hotel. El hotel solo ve su Family Office como intermediario.'},
+          {q:'¿Cómo envío un voucher a un contacto?', a:'A través de Aria: "Enviar un voucher" → seleccione el voucher y destinatario → añada un mensaje personal (opcional) → confirme. El destinatario recibe un email con el código QR de acceso e instrucciones.<br><br>Desde el Dashboard → pestaña "Vouchers" → botón "Asignar".'},
+          {q:'¿Es una Guest Card diferente de un voucher?', a:'Sí. Una <strong>Guest Card</strong> es un documento de identidad digital para un invitado específico, con sus privilegios personalizados (room upgrade, crédito F&B, acceso spa, etc.). El voucher es el bono de noche. Ambos pueden usarse juntos o por separado.'},
+          {q:'¿Cuánto tiempo es válido un voucher?', a:'El período de validez está definido por su contrato. Es visible en la pestaña Vouchers bajo "Fecha de vencimiento". Aria puede alertarle proactivamente cuando un voucher esté próximo a expirar.'},
+          {q:'¿Puedo enviar un voucher a alguien que no es miembro?', a:'Sí. Puede introducir cualquier dirección de email al enviar. La persona recibirá un enlace seguro para acceder a su voucher sin necesidad de tener una cuenta en The Estate.'},
+        ]
+      },
+      {
+        id:'revenue', icon:'fa-chart-line', title:'Ingresos & Rendimiento',
+        items:[
+          {q:'¿Cómo funciona el cálculo de participación en ingresos?', a:'The Estate calcula su participación usando: <code>ADR × noches ocupadas × tasa contractual (50-60%)</code>. La tasa se extrae automáticamente de su Side Letter. El dashboard <strong>Revenue Intelligence</strong> le muestra en tiempo real la brecha entre lo teórico y lo realizado.'},
+          {q:'¿Qué es el ADR?', a:'El <strong>ADR (Average Daily Rate)</strong> es la tarifa diaria media que cobra el hotel por su tipo de habitación. Varía según la temporada, eventos y los algoritmos de yield management del hotel. The Estate monitoriza estas variaciones y le alerta.'},
+          {q:'¿Cómo interpreto las alertas de monetización?', a:'Las alertas aparecen en la pestaña <strong>Alertas</strong> y en el widget de la barra lateral. Señalan:<ul><li><strong>ADR bajo rendimiento</strong>: tarifa por debajo del umbral contractual</li><li><strong>Habitación vacía en temporada alta</strong>: oportunidad de ingresos no aprovechada</li><li><strong>Voucher próximo a expirar</strong>: bono a punto de caducar</li></ul>'},
+          {q:'¿Está el Channel Manager conectado a las OTAs?', a:'El <strong>Channel Manager</strong> simula la conexión con las principales OTAs (Booking.com, Expedia, Airbnb Luxe). Le ofrece una vista de la distribución de su habitación y le permite gestionar las restricciones de tarifas directamente desde la plataforma.'},
+        ]
+      },
+      {
+        id:'concierge', icon:'fa-robot', title:'Concierge IA Aria',
+        items:[
+          {q:'¿Qué es el Concierge IA Aria?', a:'Aria es su <strong>asistente personal de voz</strong> integrada en The Estate. Comprende sus solicitudes en francés, inglés y español, y puede:<ul><li>Reservar un hotel de principio a fin</li><li>Integrar una nueva adquisición</li><li>Enviar vouchers y Guest Cards</li><li>Anticipar sus necesidades (viajes, vouchers próximos a expirar...)</li><li>Responder cualquier pregunta sobre la plataforma</li></ul>'},
+          {q:'¿Cómo activo el reconocimiento de voz?', a:'Haga clic en el botón del <strong>micrófono</strong> en la interfaz del Concierge. Su navegador pedirá permiso de acceso al micrófono — acéptelo. Hable con naturalidad, Aria entenderá su solicitud. El reconocimiento funciona en FR, EN y ES según el idioma seleccionado.'},
+          {q:'¿Puede Aria realmente enviar emails en mi nombre?', a:'Sí. Después de cada acción (reserva, envío de voucher, creación de Guest Card), Aria presenta un <strong>resumen de validación</strong> completo. Usted confirma y la plataforma ejecuta la acción, incluyendo el envío del email al hotel o destinatario.'},
+          {q:'¿Cómo añado Aria como acceso directo en mi teléfono?', a:'En iOS (Safari): abra <code>concierge.html</code> → botón Compartir → "Añadir a pantalla de inicio". En Android (Chrome): menú ⋮ → "Añadir a pantalla de inicio". La app se abrirá en modo pantalla completa como una app nativa.<div class="tip"><i class="fas fa-star"></i>El icono de The Estate aparecerá en su pantalla de inicio.</div>'},
+          {q:'¿Funciona Aria sin conexión?', a:'La interfaz de Aria está disponible sin conexión gracias a la caché del navegador. Sin embargo, la <strong>síntesis y el reconocimiento de voz</strong> requieren conexión a internet, al igual que las acciones de reserva y envío de email.'},
+        ]
+      },
+      {
+        id:'security', icon:'fa-shield-alt', title:'Seguridad & Privacidad',
+        items:[
+          {q:'¿Qué nivel de seguridad ofrece The Estate?', a:'The Estate está construido sobre una arquitectura de <strong>banca privada</strong>:<ul><li>Cifrado <code>AES-256</code> de extremo a extremo</li><li>Autenticación 2FA (código 6 dígitos) + biometría WebAuthn</li><li>Sesión segura de 8 horas con cierre automático</li><li>Alojamiento soberano (datos fuera de EEUU/China)</li></ul>'},
+          {q:'¿Quién puede ver mis datos en la plataforma?', a:'Solo usted y los miembros que haya añadido explícitamente en <strong>Configuración → Miembros & Compartición</strong>. El hotel solo ve la información estrictamente necesaria para la reserva, nunca los detalles de su portafolio.'},
+          {q:'¿Cómo comparto viajes con los miembros de mi Family Office?', a:'En la pestaña <strong>Viajes</strong>, abra la barra lateral izquierda para mostrar los miembros. Haga clic en el botón ⤴ de un viaje para elegir con quién compartirlo. Cada miembro solo ve los viajes que usted ha decidido mostrarle.'},
+          {q:'¿Qué ocurre si pierdo el acceso a mi cuenta?', a:'Contacte con su gestor de cuenta del Family Office. Hay disponible un procedimiento de recuperación seguro, con verificación de identidad por su asesor designado. El 2FA se puede restablecer en <strong>Configuración → Seguridad Avanzada</strong>.'},
+        ]
+      },
+    ]
+  }
+};
+
+/* ═══════════════════════════════════
+   STATE
+═══════════════════════════════════ */
+let currentLang = 'fr';
+
+/* ═══════════════════════════════════
+   LANG
+═══════════════════════════════════ */
+function setLang(l) {
+  currentLang = l;
+  document.querySelectorAll('.lb').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === l));
+  renderAll();
+}
+
+function renderAll() {
+  const data = FAQ_DATA[currentLang];
+  const ui = data.ui;
+
+  // UI strings
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    if(ui[k] !== undefined) el.innerHTML = ui[k];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const k = el.dataset.i18nPlaceholder;
+    if(ui[k]) el.placeholder = ui[k];
+  });
+
+  renderSidebar(data.sections);
+  renderContent(data.sections, ui);
+}
+
+/* ═══════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════ */
+function renderSidebar(sections) {
+  const nav = document.getElementById('sidebarNav');
+  nav.innerHTML = '';
+  sections.forEach(s => {
+    const li = document.createElement('li');
+    li.className = 'faq-nav-item';
+    li.innerHTML = `<a href="#${s.id}"><i class="fas ${s.icon}"></i>${s.title}</a>`;
+    nav.appendChild(li);
+  });
+
+  // Highlight active on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting) {
+        document.querySelectorAll('.faq-nav-item a').forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#'+e.target.id);
+        });
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  document.querySelectorAll('.faq-section').forEach(s => observer.observe(s));
+}
+
+/* ═══════════════════════════════════
+   CONTENT
+═══════════════════════════════════ */
+function renderContent(sections, ui) {
+  const content = document.getElementById('faqContent');
+  content.innerHTML = '';
+
+  sections.forEach(s => {
+    const sec = document.createElement('div');
+    sec.className = 'faq-section';
+    sec.id = s.id;
+
+    sec.innerHTML = `<div class="sec-hd">
+      <div class="sec-hd-icon"><i class="fas ${s.icon}"></i></div>
+      <div><h2>${s.title}</h2><div class="sec-count">${s.items.length} ${currentLang==='fr'?'questions':currentLang==='es'?'preguntas':'questions'}</div></div>
+    </div>`;
+
+    s.items.forEach((item, i) => {
+      const div = document.createElement('div');
+      div.className = 'faq-item';
+      const id = `${s.id}-${i}`;
+      div.innerHTML = `
+        <button class="faq-q" onclick="toggleFAQ('${id}', this)" id="q-${id}">
+          <span>${item.q}</span>
+          <i class="fas fa-chevron-down q-arrow"></i>
+        </button>
+        <div class="faq-a" id="a-${id}">${item.a}</div>`;
+      sec.appendChild(div);
+    });
+
+    content.appendChild(sec);
+  });
+
+  // CTA
+  const cta = document.createElement('div');
+  cta.className = 'faq-concierge-cta';
+  cta.innerHTML = `
+    <h3>${ui.concierge_cta_title}</h3>
+    <p>${ui.concierge_cta_sub}</p>
+    <a href="concierge.html" class="btn-gold">${ui.concierge_cta_btn}</a>`;
+  content.appendChild(cta);
+}
+
+/* ═══════════════════════════════════
+   ACCORDION
+═══════════════════════════════════ */
+function toggleFAQ(id, btn) {
+  const answer = document.getElementById('a-' + id);
+  const isOpen = answer.classList.contains('open');
+
+  // Close all
+  document.querySelectorAll('.faq-a.open').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.faq-q.open').forEach(q => q.classList.remove('open'));
+
+  if(!isOpen) {
+    answer.classList.add('open');
+    btn.classList.add('open');
+    setTimeout(() => answer.scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+  }
+}
+
+/* ═══════════════════════════════════
+   SEARCH
+═══════════════════════════════════ */
+function searchFAQ(q) {
+  if(!q.trim()) { renderContent(FAQ_DATA[currentLang].sections, FAQ_DATA[currentLang].ui); return; }
+  const lower = q.toLowerCase();
+  const filtered = FAQ_DATA[currentLang].sections.map(s => ({
+    ...s,
+    items: s.items.filter(item => item.q.toLowerCase().includes(lower) || item.a.toLowerCase().includes(lower))
+  })).filter(s => s.items.length > 0);
+  renderContent(filtered, FAQ_DATA[currentLang].ui);
+  // Open all on search
+  document.querySelectorAll('.faq-a').forEach(a => a.classList.add('open'));
+  document.querySelectorAll('.faq-q').forEach(q => q.classList.add('open'));
+}
+
+/* ═══════════════════════════════════
+   INIT
+═══════════════════════════════════ */
+window.addEventListener('load', () => {
+  renderAll();
+  // Open from hash
+  const hash = location.hash;
+  if(hash) setTimeout(() => document.querySelector(hash)?.scrollIntoView({behavior:'smooth'}), 300);
+});
+</script>
+</body>
+</html>

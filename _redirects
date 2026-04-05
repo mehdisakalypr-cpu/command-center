@@ -1,0 +1,3 @@
+# THE ESTATE — Redirects Netlify
+# Redirect HTTP → HTTPS (fallback si netlify.toml non lu)
+http://:host/*  https://:host/:splat  301!

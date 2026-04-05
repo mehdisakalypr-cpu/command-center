@@ -4,8 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THE ESTATE — Private Hotel Portfolio Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta name="description" content="THE ESTATE — Plateforme privée de gestion de portefeuille hôtelier de luxe. Suivi des propriétés, revenus, réservations et vouchers.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#040D1C">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="THE ESTATE">
+<meta property="og:title" content="THE ESTATE — Private Hotel Portfolio Management">
+<meta property="og:description" content="Plateforme privée de gestion de portefeuille hôtelier de luxe. Suivi des propriétés, revenus, réservations et vouchers.">
+<meta property="og:url" content="https://the-estate.app/">
+<meta property="og:image" content="https://the-estate.app/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="THE ESTATE — Private Hotel Portfolio Management">
+<meta name="twitter:description" content="Plateforme privée de gestion de portefeuille hôtelier de luxe.">
+<meta name="twitter:image" content="https://the-estate.app/og-cover.jpg">
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');</script>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/css/font-awesome.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -141,6 +156,54 @@ body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;ove
 .modal-foot{text-align:center;margin-top:22px;font-size:.76rem;color:var(--text-m)}
 .modal-foot a{color:var(--gold);text-decoration:none}
 .modal-foot a:hover{text-decoration:underline}
+
+/* ===== RESPONSIVE ===== */
+.mob-nav-toggle{display:none}
+.mob-nav-overlay{display:none;position:fixed;inset:0;background:rgba(4,13,28,.98);backdrop-filter:blur(24px);z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:30px}
+.mob-nav-overlay.open{display:flex}
+.mob-nav-close{position:absolute;top:22px;right:22px;background:none;border:none;color:var(--text-m);font-size:1.4rem;cursor:pointer;transition:color .3s}
+.mob-nav-close:hover{color:var(--gold)}
+.mob-nav-link{font-family:'Playfair Display',serif;font-size:1.35rem;letter-spacing:.06em;color:var(--text-m);text-decoration:none;transition:color .3s}
+.mob-nav-link:hover{color:var(--gold)}
+.mob-nav-sep{width:40px;height:1px;background:var(--border)}
+
+@media(max-width:900px){
+  .nav-links,.nav-cta{display:none}
+  .mob-nav-toggle{display:flex;width:38px;height:38px;background:none;border:1px solid var(--border);color:var(--text-m);cursor:pointer;align-items:center;justify-content:center;font-size:1rem;transition:all .3s}
+  .mob-nav-toggle:hover{border-color:var(--gold);color:var(--gold)}
+}
+
+@media(max-width:768px){
+  .nav{padding:16px 20px}
+  .nav.scrolled{padding:13px 20px}
+  .hero-content{padding:0 20px}
+  .hero-ew{font-size:.6rem;gap:12px}
+  .hero-ew::before,.hero-ew::after{width:24px}
+  .hero-btns{flex-direction:column;align-items:center;gap:12px}
+  .btn-p,.btn-s{width:100%;max-width:300px;text-align:center;padding:15px 24px}
+  .stats-bar{grid-template-columns:repeat(2,1fr);padding:32px 20px}
+  .stat-div:nth-child(2){border-right:none}
+  .stat-div:nth-child(3){border-top:1px solid var(--border);border-right:1px solid var(--border)}
+  .stat-div:nth-child(4){border-top:1px solid var(--border)}
+  .stat-val{font-size:2.2rem}
+  .features{padding:64px 20px}
+  .sec-hd{margin-bottom:52px}
+  .feat-grid{grid-template-columns:1fr}
+  .feat-card{padding:36px 24px}
+  .showcase{padding:64px 20px}
+  .showcase-in{grid-template-columns:1fr;gap:40px}
+  .showcase-text .sec-hd{text-align:center}
+  .showcase-vis img{height:260px}
+  .groups{padding:56px 20px}
+  .grp-grid{display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--border);flex-wrap:unset;gap:0}
+  .grp-item{flex:none;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:24px 16px}
+  .grp-item:nth-child(2n){border-right:none}
+  .grp-item:nth-child(7),.grp-item:nth-child(8){border-bottom:none}
+  .cta-sec{padding:64px 20px}
+  .footer{padding:24px 20px;flex-direction:column;gap:8px;text-align:center}
+  .modal{padding:36px 24px;max-width:calc(100vw - 32px)}
+  .modal-ov{padding:0 16px}
+}
 </style>
 </head>
 <body>
@@ -151,9 +214,28 @@ body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;ove
     <li><a href="#features">Fonctionnalités</a></li>
     <li><a href="#groups">Groupes</a></li>
     <li><a href="#showcase">La Plateforme</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+    <li><a href="concierge.html" style="color:var(--gold)"><i class="fas fa-robot" style="margin-right:5px"></i>Concierge IA</a></li>
   </ul>
   <a href="dashboard.html" class="nav-cta">Accéder au Dashboard</a>
+  <button class="mob-nav-toggle" onclick="openMobNav()" aria-label="Menu"><i class="fas fa-bars"></i></button>
 </nav>
+
+<!-- MOBILE NAV OVERLAY -->
+<div class="mob-nav-overlay" id="mobNavOverlay">
+  <button class="mob-nav-close" onclick="closeMobNav()" aria-label="Fermer"><i class="fas fa-times"></i></button>
+  <a href="#features" class="mob-nav-link" onclick="closeMobNav()">Fonctionnalités</a>
+  <div class="mob-nav-sep"></div>
+  <a href="#groups" class="mob-nav-link" onclick="closeMobNav()">Groupes</a>
+  <div class="mob-nav-sep"></div>
+  <a href="#showcase" class="mob-nav-link" onclick="closeMobNav()">La Plateforme</a>
+  <div class="mob-nav-sep"></div>
+  <a href="faq.html" class="mob-nav-link" onclick="closeMobNav()">FAQ</a>
+  <div class="mob-nav-sep"></div>
+  <a href="concierge.html" class="mob-nav-link" style="color:var(--gold)" onclick="closeMobNav()"><i class="fas fa-robot" style="margin-right:8px"></i>Concierge IA</a>
+  <div class="mob-nav-sep"></div>
+  <a href="dashboard.html" class="btn-p mob-nav-cta">Accéder au Dashboard</a>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -325,6 +407,11 @@ const obs=new IntersectionObserver(entries=>{
   });
 },{threshold:.5});
 document.querySelectorAll('[data-target]').forEach(el=>obs.observe(el));
+
+// Mobile nav
+function openMobNav(){document.getElementById('mobNavOverlay').classList.add('open');document.body.style.overflow='hidden'}
+function closeMobNav(){document.getElementById('mobNavOverlay').classList.remove('open');document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMobNav()}});
 
 // Modal
 function openModal(e){e&&e.preventDefault();document.getElementById('loginModal').classList.add('active')}

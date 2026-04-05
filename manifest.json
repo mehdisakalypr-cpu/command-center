@@ -1,0 +1,59 @@
+{
+  "name": "THE ESTATE",
+  "short_name": "Estate",
+  "description": "Plateforme privée de gestion de portefeuille hôtelier de luxe",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#040D1C",
+  "theme_color": "#040D1C",
+  "orientation": "any",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tableau de bord",
+      "short_name": "Dashboard",
+      "description": "Portfolio, revenus, contrats et alertes",
+      "url": "/dashboard.html",
+      "icons": [{ "src": "favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Carte des hôtels",
+      "short_name": "Carte",
+      "description": "Carte mondiale interactive",
+      "url": "/map.html",
+      "icons": [{ "src": "favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Aria — Concierge IA",
+      "short_name": "Aria",
+      "description": "Concierge IA vocal",
+      "url": "/concierge.html",
+      "icons": [{ "src": "favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Hotel Scout",
+      "short_name": "Scout",
+      "description": "Explorer et capturer des hôtels depuis Booking.com",
+      "url": "/scout.html",
+      "icons": [{ "src": "favicon.svg", "sizes": "any" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "og-cover.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "THE ESTATE — Dashboard"
+    }
+  ]
+}

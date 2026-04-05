@@ -1,0 +1,64 @@
+# ══════════════════════════════════════════════
+#  THE ESTATE — Configuration Apache (.htaccess)
+#  Compatible : cPanel, OVH mutualisé, LWS, etc.
+# ══════════════════════════════════════════════
+
+Options -Indexes
+
+# ── Redirect HTTP → HTTPS ─────────────────────
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ── Redirect www → apex ───────────────────────
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+# ── En-têtes de sécurité ─────────────────────
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(self), geolocation=(), payment=()"
+    Header always set X-XSS-Protection "1; mode=block"
+    # Supprime le header qui expose la version du serveur
+    Header unset X-Powered-By
+    Header always unset X-Powered-By
+</IfModule>
+
+# ── Compression Gzip ─────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript
+    AddOutputFilterByType DEFLATE application/json text/xml image/svg+xml
+</IfModule>
+
+# ── Cache navigateur ──────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    # HTML : jamais mis en cache (session auth côté client)
+    <FilesMatch "\.(html|htm)$">
+        ExpiresDefault "access plus 0 seconds"
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+    </FilesMatch>
+    # JS / CSS : 1 an
+    <FilesMatch "\.(js|css)$">
+        ExpiresDefault "access plus 1 year"
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    # Images / fonts : 6 mois
+    <FilesMatch "\.(ico|jpg|jpeg|png|gif|svg|webp|woff|woff2|ttf|eot)$">
+        ExpiresDefault "access plus 6 months"
+        Header set Cache-Control "public, max-age=15552000"
+    </FilesMatch>
+</IfModule>
+
+# ── Bloquer l'accès aux fichiers sensibles ────
+<FilesMatch "(\.git|\.env|composer\.(json|lock)|package\.json)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ── Page d'erreur personnalisée ───────────────
+ErrorDocument 404 /index.html

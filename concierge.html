@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Estate AI">
+<meta name="theme-color" content="#040D1C">
+<title>THE ESTATE — AI Concierge</title>
+<meta name="description" content="THE ESTATE — Aria, votre concierge IA vocal. Réservations, voyages, vouchers et guest cards en mode conversationnel.">
+<link rel="manifest" href="manifest.json">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="THE ESTATE">
+<meta property="og:title" content="THE ESTATE — Aria, Concierge IA">
+<meta property="og:description" content="Aria, votre concierge IA vocal. Réservations, voyages, vouchers et guest cards en mode conversationnel.">
+<meta property="og:url" content="https://the-estate.app/concierge.html">
+<meta property="og:image" content="https://the-estate.app/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="THE ESTATE — Aria, Concierge IA">
+<meta name="twitter:description" content="Aria, votre concierge IA vocal. Réservations, voyages, vouchers et guest cards en mode conversationnel.">
+<meta name="twitter:image" content="https://the-estate.app/og-cover.jpg">
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');</script>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-l:#E8D5A3;--gold-d:#8B6914;--gold-glow:rgba(201,168,76,.18);
+  --navy:#040D1C;--navy-mid:#071528;--navy-l:#0A1E38;--navy-card:#0D2240;
+  --text:#F5F0E8;--text-m:rgba(245,240,232,.6);--text-s:rgba(245,240,232,.3);
+  --border:rgba(201,168,76,.18);--border-h:rgba(201,168,76,.5);
+  --green:#2ECC71;--red:#E74C3C;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;display:flex;flex-direction:column}
+
+/* ── HEADER ── */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:rgba(4,13,28,.95);backdrop-filter:blur(20px);position:relative;z-index:50;flex-shrink:0}
+.hdr-logo{font-family:'Playfair Display',serif;font-size:.95rem;letter-spacing:.12em;color:var(--text);text-decoration:none}
+.hdr-logo span{color:var(--gold)}
+.hdr-badge{display:flex;align-items:center;gap:8px;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-m)}
+.hdr-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(46,204,113,.4)}50%{box-shadow:0 0 0 5px rgba(46,204,113,0)}}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.lang-sel{display:flex;gap:4px}
+.lang-btn{background:none;border:1px solid transparent;color:var(--text-s);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.lang-btn.active,.lang-btn:hover{border-color:var(--border-h);color:var(--gold)}
+.hdr-back{background:none;border:none;color:var(--text-m);font-size:.72rem;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;transition:color .2s;letter-spacing:.08em;text-transform:uppercase}
+.hdr-back:hover{color:var(--gold)}
+
+/* ── AVATAR AREA ── */
+.avatar-zone{display:flex;flex-direction:column;align-items:center;padding:24px 24px 12px;flex-shrink:0;position:relative}
+.avatar-ring{position:relative;width:88px;height:88px}
+.avatar-svg{position:absolute;inset:0;width:100%;height:100%}
+.avatar-inner{position:absolute;inset:10px;border-radius:50%;background:radial-gradient(135deg,var(--navy-l) 0%,var(--navy-card) 100%);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.avatar-img{width:100%;height:100%;object-fit:cover;border-radius:50%;opacity:.9}
+.avatar-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:500;margin-top:10px;letter-spacing:.06em}
+.avatar-title{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-top:3px}
+.avatar-status{font-size:.7rem;color:var(--text-m);margin-top:6px;min-height:18px;text-align:center;font-style:italic;font-family:'Cormorant Garamond',serif;font-size:.95rem;transition:opacity .3s;padding:0 32px}
+
+/* Voix orbe animé */
+.orb-container{position:relative;width:88px;height:88px}
+.orb-ring{position:absolute;inset:-8px;border-radius:50%;border:1px solid transparent;transition:all .3s}
+.orb-ring.ring1{animation:none}
+.orb-ring.ring2{inset:-16px;opacity:.5}
+.orb-ring.ring3{inset:-24px;opacity:.25}
+.speaking .orb-ring{border-color:var(--gold) !important;animation:orb-pulse 1.2s ease-in-out infinite}
+.speaking .orb-ring.ring2{animation-delay:.15s}
+.speaking .orb-ring.ring3{animation-delay:.3s}
+.listening .orb-ring{border-color:var(--green) !important;animation:orb-pulse 0.6s ease-in-out infinite}
+.listening .orb-ring.ring2{animation-delay:.08s}
+.listening .orb-ring.ring3{animation-delay:.16s}
+@keyframes orb-pulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.06);opacity:1}}
+
+/* ── MESSAGES ── */
+.messages{flex:1;overflow-y:auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.messages::-webkit-scrollbar{width:3px}
+.messages::-webkit-scrollbar-track{background:transparent}
+.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.msg{display:flex;gap:10px;animation:msgIn .35s ease both}
+@keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse}
+.msg-bubble{max-width:78%;padding:13px 17px;font-size:.875rem;line-height:1.65;position:relative}
+.msg.ai .msg-bubble{background:var(--navy-card);border:1px solid var(--border);border-radius:0 12px 12px 12px;color:var(--text)}
+.msg.user .msg-bubble{background:linear-gradient(135deg,var(--gold-d),var(--gold));color:var(--navy);border-radius:12px 0 12px 12px;font-weight:500}
+.msg-avatar{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);overflow:hidden;flex-shrink:0;margin-top:2px}
+.msg-avatar img{width:100%;height:100%;object-fit:cover}
+.msg-avatar.user-av{background:var(--navy-l);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--gold)}
+
+/* Typing indicator */
+.typing-bubble{display:flex;align-items:center;gap:5px;padding:13px 17px;background:var(--navy-card);border:1px solid var(--border);border-radius:0 12px 12px 12px}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.4;animation:tydot 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes tydot{0%,100%{opacity:.2;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}
+
+/* Hotel card in chat */
+.hotel-card-msg{background:var(--navy-l);border:1px solid var(--border);overflow:hidden;border-radius:4px;margin-top:8px;cursor:pointer;transition:border-color .3s}
+.hotel-card-msg:hover{border-color:var(--border-h)}
+.hotel-card-msg img{width:100%;height:110px;object-fit:cover;opacity:.85}
+.hotel-card-msg-body{padding:10px 12px}
+.hotel-card-msg-name{font-family:'Playfair Display',serif;font-size:.9rem;font-weight:500}
+.hotel-card-msg-loc{font-size:.7rem;color:var(--text-m);margin-top:2px;display:flex;align-items:center;gap:5px}
+.hotel-card-msg-adr{font-size:.75rem;color:var(--gold);margin-top:5px;font-weight:600}
+
+/* Options chips */
+.chips{display:flex;flex-wrap:wrap;gap:7px;padding:4px 0 0 40px}
+.chip{background:transparent;border:1px solid var(--border);color:var(--text-m);font-size:.72rem;letter-spacing:.08em;padding:7px 14px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;text-align:left;line-height:1.4}
+.chip:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.06)}
+.chip.primary{border-color:var(--gold);color:var(--gold)}
+
+/* Validation block */
+.validation-block{background:var(--navy-l);border:1px solid var(--border-h);padding:16px;margin-top:8px;border-radius:2px}
+.validation-block h4{font-family:'Playfair Display',serif;font-size:.9rem;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.validation-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(201,168,76,.1);font-size:.8rem}
+.validation-row:last-child{border:none}
+.validation-row .lbl{color:var(--text-m)}
+.validation-row .val{color:var(--text);font-weight:500;text-align:right;max-width:60%}
+.val-btns{display:flex;gap:8px;margin-top:12px}
+.val-btn{flex:1;padding:10px;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:none;font-family:'Inter',sans-serif;font-weight:600;transition:all .25s}
+.val-btn.confirm{background:var(--gold);color:var(--navy)}
+.val-btn.confirm:hover{background:var(--gold-l)}
+.val-btn.cancel{background:transparent;border:1px solid var(--border);color:var(--text-m)}
+.val-btn.cancel:hover{border-color:var(--red);color:var(--red)}
+
+/* ── INPUT BAR ── */
+.input-bar{padding:12px 16px 20px;border-top:1px solid var(--border);background:var(--navy-mid);flex-shrink:0;padding-bottom:max(20px, env(safe-area-inset-bottom))}
+.input-row{display:flex;gap:10px;align-items:center}
+.input-text{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:12px 16px;font-family:'Inter',sans-serif;font-size:.875rem;outline:none;transition:border-color .3s;border-radius:2px}
+.input-text:focus{border-color:var(--border-h)}
+.input-text::placeholder{color:var(--text-s)}
+.mic-btn{width:48px;height:48px;border-radius:50%;border:1px solid var(--border);background:var(--navy-l);color:var(--gold);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;flex-shrink:0;position:relative}
+.mic-btn:hover{border-color:var(--border-h);background:var(--navy-card)}
+.mic-btn.recording{background:rgba(231,76,60,.15);border-color:var(--red);color:var(--red);animation:mic-pulse .8s infinite}
+@keyframes mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.3)}50%{box-shadow:0 0 0 8px rgba(231,76,60,0)}}
+.send-btn{width:48px;height:48px;border:none;background:var(--gold);color:var(--navy);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;flex-shrink:0}
+.send-btn:hover{background:var(--gold-l);transform:scale(1.05)}
+
+/* ── HOTEL PICKER PANEL ── */
+.hotel-panel{position:fixed;inset:0;background:rgba(4,13,28,.97);backdrop-filter:blur(20px);z-index:200;display:none;flex-direction:column}
+.hotel-panel.open{display:flex}
+.hotel-panel-hdr{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.hotel-panel-hdr h3{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold)}
+.close-panel{background:none;border:none;color:var(--text-m);font-size:1.1rem;cursor:pointer;transition:color .2s}
+.close-panel:hover{color:var(--gold)}
+.hotel-search{margin:12px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-size:.85rem;outline:none;width:calc(100% - 32px);transition:border-color .3s;font-family:'Inter',sans-serif}
+.hotel-search:focus{border-color:var(--border-h)}
+.hotel-list{flex:1;overflow-y:auto;padding:8px 16px}
+.hotel-list-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(201,168,76,.08);cursor:pointer;transition:all .25s;align-items:center}
+.hotel-list-item:hover{padding-left:4px}
+.hotel-list-item:hover .hli-name{color:var(--gold)}
+.hli-img{width:64px;height:48px;object-fit:cover;flex-shrink:0;opacity:.8}
+.hli-info .hli-name{font-size:.88rem;font-weight:500;font-family:'Playfair Display',serif}
+.hli-info .hli-sub{font-size:.7rem;color:var(--text-m);margin-top:3px}
+.hli-info .hli-grp{font-size:.65rem;color:var(--gold);margin-top:2px;letter-spacing:.1em;text-transform:uppercase}
+
+/* ── VOICE WAVE ── */
+.voice-wave{display:flex;align-items:center;justify-content:center;gap:3px;height:24px;margin-top:6px;opacity:0;transition:opacity .3s}
+.voice-wave.active{opacity:1}
+.wave-bar{width:3px;background:var(--gold);border-radius:2px;animation:wave-anim 0.8s ease-in-out infinite;height:8px}
+.wave-bar:nth-child(1){animation-delay:0s}
+.wave-bar:nth-child(2){animation-delay:0.1s;height:14px}
+.wave-bar:nth-child(3){animation-delay:0.2s;height:20px}
+.wave-bar:nth-child(4){animation-delay:0.3s;height:14px}
+.wave-bar:nth-child(5){animation-delay:0.4s;height:8px}
+.wave-bar:nth-child(6){animation-delay:0.1s;height:12px}
+.wave-bar:nth-child(7){animation-delay:0.25s;height:18px}
+@keyframes wave-anim{0%,100%{transform:scaleY(0.4)}50%{transform:scaleY(1)}}
+
+/* ── SUGGESTIONS ── */
+.suggestions{display:flex;gap:7px;overflow-x:auto;padding:8px 16px 0;flex-shrink:0}
+.suggestions::-webkit-scrollbar{display:none}
+.sug-chip{background:transparent;border:1px solid var(--border);color:var(--text-s);font-size:.68rem;letter-spacing:.06em;padding:6px 12px;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0}
+.sug-chip:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── TRIP CARD ── */
+.trip-card-msg{background:var(--navy-l);border:1px solid var(--border);padding:12px 14px;border-radius:2px;margin-top:6px;cursor:pointer;transition:border-color .3s}
+.trip-card-msg:hover{border-color:var(--border-h)}
+.tcm-hotel{font-family:'Playfair Display',serif;font-size:.9rem;font-weight:500}
+.tcm-dates{font-size:.75rem;color:var(--gold);margin-top:3px}
+.tcm-voucher{font-size:.7rem;color:var(--text-m);margin-top:4px;display:flex;align-items:center;gap:5px}
+
+/* ── OVERLAY CONFIRM ── */
+.confirm-overlay{position:fixed;inset:0;background:rgba(4,13,28,.97);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center}
+.confirm-overlay.open{display:flex}
+.confirm-overlay .co-icon{font-size:3rem;color:var(--gold);margin-bottom:20px}
+.confirm-overlay h2{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:12px}
+.confirm-overlay p{color:var(--text-m);font-size:.9rem;line-height:1.8;max-width:340px;margin-bottom:28px}
+.co-btns{display:flex;gap:12px;width:100%;max-width:340px}
+.co-btn{flex:1;padding:14px;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;transition:all .25s;border:none}
+.co-btn.ok{background:var(--gold);color:var(--navy)}
+.co-btn.ok:hover{background:var(--gold-l)}
+.co-btn.no{background:transparent;border:1px solid var(--border);color:var(--text-m)}
+.co-btn.no:hover{border-color:var(--border-h);color:var(--text)}
+
+/* Success state */
+.success-anim{position:fixed;inset:0;background:rgba(4,13,28,.97);z-index:400;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px}
+.success-anim.open{display:flex}
+.success-ring{width:100px;height:100px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:var(--gold);margin-bottom:24px;animation:success-pop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes success-pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-anim h2{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:10px}
+.success-anim p{color:var(--text-m);font-size:.9rem;line-height:1.8;max-width:320px}
+.success-anim .sub-action{margin-top:24px;color:var(--gold);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border:1px solid var(--border-h);padding:12px 28px;transition:all .3s}
+.success-anim .sub-action:hover{background:rgba(201,168,76,.1)}
+
+/* ── SETTINGS BUTTON ── */
+.settings-btn{background:none;border:1px solid var(--border);color:var(--text-s);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .25s;flex-shrink:0}
+.settings-btn:hover{border-color:var(--border-h);color:var(--gold)}
+
+/* ── SETTINGS OVERLAY ── */
+.settings-ov{position:fixed;inset:0;background:rgba(4,13,28,.92);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(12px);padding:16px}
+.settings-ov.open{display:flex}
+.settings-panel{background:var(--navy-mid);border:1px solid var(--border-h);width:100%;max-width:540px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.sp-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sp-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold);display:flex;align-items:center;gap:10px}
+.sp-close{background:none;border:1px solid var(--border);color:var(--text-m);width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:all .2s}
+.sp-close:hover{border-color:var(--gold);color:var(--gold)}
+.sp-body{flex:1;overflow-y:auto;padding:0}
+.sp-body::-webkit-scrollbar{width:3px}
+.sp-body::-webkit-scrollbar-thumb{background:var(--border)}
+.sp-section{padding:16px 20px;border-bottom:1px solid var(--border)}
+.sp-section:last-child{border-bottom:none}
+.sp-section-title{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.sp-desc{font-size:.74rem;color:var(--text-m);line-height:1.6;margin-bottom:12px}
+.sp-link{color:var(--gold);text-decoration:none}
+.sp-link:hover{text-decoration:underline}
+.sp-field{margin-bottom:10px}
+.sp-label{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-s);margin-bottom:6px}
+.sp-input-row{display:flex;gap:6px}
+.sp-input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-size:.78rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .25s}
+.sp-input:focus{border-color:var(--gold)}
+.sp-input::placeholder{color:var(--text-s)}
+.sp-eye{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-s);width:36px;cursor:pointer;font-size:.75rem;transition:all .2s;flex-shrink:0}
+.sp-eye:hover{border-color:var(--border-h);color:var(--gold)}
+.sp-status{font-size:.7rem;min-height:16px;color:var(--text-m)}
+.sp-status.ok{color:var(--green)}
+.sp-status.err{color:var(--red)}
+
+/* Voice comparison cards */
+.sp-voice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.sp-voice-card{position:relative;border:1px solid var(--border);padding:12px;cursor:pointer;transition:all .25s;display:block}
+.sp-voice-card:hover{border-color:var(--border-h)}
+.sp-voice-card input{position:absolute;opacity:0;pointer-events:none}
+.sp-voice-card input:checked ~ *{color:var(--text)}
+.sp-voice-card:has(input:checked){border-color:var(--gold);background:rgba(201,168,76,.06)}
+.svc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.svc-name{font-size:.8rem;font-weight:600;color:var(--text)}
+.svc-badge{font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:2px;font-weight:700}
+.svc-badge.free{background:rgba(46,204,113,.15);color:var(--green);border:1px solid rgba(46,204,113,.3)}
+.svc-badge.best{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4)}
+.svc-badge.premium{background:rgba(100,160,255,.15);color:#88b8ff;border:1px solid rgba(100,160,255,.3)}
+.svc-badge.off{background:rgba(255,255,255,.06);color:var(--text-s);border:1px solid var(--border)}
+.svc-quality{height:3px;background:rgba(255,255,255,.08);margin-bottom:8px;border-radius:1px}
+.svc-bar{height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold));border-radius:1px;transition:width .4s}
+.svc-desc{font-size:.66rem;color:var(--text-m);line-height:1.5}
+
+/* Voice select chips */
+.sp-voice-select-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.sp-v-chip{background:none;border:1px solid var(--border);color:var(--text-m);font-size:.66rem;padding:5px 10px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;text-align:left}
+.sp-v-chip:hover{border-color:var(--border-h);color:var(--text)}
+.sp-v-chip.active{background:rgba(201,168,76,.1);border-color:var(--gold);color:var(--gold)}
+.sp-v-chip small{display:block;font-size:.55rem;color:var(--text-s);margin-top:1px}
+
+/* Browser info badge */
+.sp-browser-info{font-size:.68rem;padding:8px 12px;border:1px solid var(--border);color:var(--text-m);margin-top:8px;background:rgba(255,255,255,.02)}
+
+.sp-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0}
+.sp-btn-cancel{background:none;border:1px solid var(--border);color:var(--text-m);padding:10px 20px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.sp-btn-cancel:hover{border-color:var(--border-h);color:var(--text)}
+.sp-btn-save{background:var(--gold);color:var(--navy);border:none;padding:10px 22px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:7px}
+.sp-btn-save:hover{background:var(--gold-l)}
+
+/* Responsive */
+@media(max-width:600px){
+  .hdr{padding:12px 16px}
+  .hdr-logo{font-size:.85rem}
+  .lang-sel .lang-btn{padding:4px 7px;font-size:.58rem}
+  .avatar-zone{padding:14px 16px 6px}
+  .avatar-ring,.orb-container{width:72px;height:72px}
+  .avatar-status{font-size:.82rem;padding:0 16px}
+  .messages{padding:10px 10px 6px;gap:8px}
+  .msg-bubble{max-width:88%;font-size:.82rem;padding:10px 13px}
+  .chips{padding:4px 0 0 34px;gap:5px}
+  .chip{font-size:.68rem;padding:6px 10px}
+  .suggestions{padding:6px 10px 0}
+  .input-bar{padding:10px 12px 16px;padding-bottom:max(16px, env(safe-area-inset-bottom))}
+  .input-text{padding:10px 12px;font-size:.82rem}
+  .mic-btn,.send-btn{width:42px;height:42px}
+  .validation-block{padding:12px}
+  .hotel-panel-hdr{padding:14px 14px 12px}
+  .hotel-list{padding:6px 12px}
+}
+@media(max-width:480px){
+  .sp-voice-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <a href="index.html" class="hdr-back"><i class="fas fa-chevron-left"></i><span data-i18n="back">Retour</span></a>
+  <a href="index.html" class="hdr-logo">THE <span>ESTATE</span></a>
+  <div class="hdr-right">
+    <div class="lang-sel">
+      <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('es')">ES</button>
+    </div>
+    <div class="hdr-badge">
+      <div class="dot"></div>
+      <span data-i18n="online">En ligne</span>
+    </div>
+    <button class="settings-btn" onclick="openSettings()" title="Paramètres voix & IA"><i class="fas fa-sliders-h"></i></button>
+  </div>
+</div>
+
+<!-- AVATAR ZONE -->
+<div class="avatar-zone" id="avatarZone">
+  <div class="orb-container" id="orbContainer">
+    <div class="avatar-ring">
+      <svg class="avatar-svg" viewBox="0 0 88 88">
+        <circle cx="44" cy="44" r="38" fill="none" stroke="rgba(201,168,76,.2)" stroke-width="1"/>
+        <circle cx="44" cy="44" r="38" fill="none" stroke="var(--gold)" stroke-width="1.5"
+          stroke-dasharray="60 180" stroke-linecap="round" id="orbArc">
+          <animateTransform attributeName="transform" type="rotate" from="0 44 44" to="360 44 44" dur="8s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="44" cy="44" r="34" fill="none" stroke="rgba(201,168,76,.08)" stroke-width="1"/>
+      </svg>
+      <div class="avatar-inner">
+        <img class="avatar-img" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80&auto=format&fit=crop&crop=face" alt="Aria">
+      </div>
+    </div>
+    <div class="orb-ring ring1"></div>
+    <div class="orb-ring ring2"></div>
+    <div class="orb-ring ring3"></div>
+  </div>
+  <div class="avatar-name">Aria</div>
+  <div class="avatar-title" data-i18n="concierge_title">Concierge IA — The Estate</div>
+  <div class="avatar-status" id="avatarStatus"></div>
+  <div class="voice-wave" id="voiceWave">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+  </div>
+</div>
+
+<!-- SUGGESTIONS -->
+<div class="suggestions" id="suggestions"></div>
+
+<!-- MESSAGES -->
+<div class="messages" id="messages"></div>
+
+<!-- INPUT BAR -->
+<div class="input-bar">
+  <div class="input-row">
+    <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="Voice input">
+      <i class="fas fa-microphone" id="micIcon"></i>
+    </button>
+    <input type="text" class="input-text" id="userInput" placeholder="" data-i18n-placeholder="input_placeholder" onkeydown="if(event.key==='Enter')sendMessage()">
+    <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<!-- HOTEL PICKER PANEL -->
+<div class="hotel-panel" id="hotelPanel">
+  <div class="hotel-panel-hdr">
+    <h3 data-i18n="select_hotel">Sélectionner un hôtel</h3>
+    <button class="close-panel" onclick="closeHotelPanel()"><i class="fas fa-times"></i></button>
+  </div>
+  <input type="text" class="hotel-search" id="hotelSearch" placeholder="Rechercher un hôtel..." oninput="filterHotels(this.value)">
+  <div class="hotel-list" id="hotelList"></div>
+</div>
+
+<!-- CONFIRM OVERLAY -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="co-icon"><i class="fas fa-envelope-open-text"></i></div>
+  <h2 id="co-title"></h2>
+  <p id="co-desc"></p>
+  <div class="co-btns">
+    <button class="co-btn no" onclick="closeConfirm(false)" data-i18n="cancel">Annuler</button>
+    <button class="co-btn ok" id="co-ok" onclick="closeConfirm(true)" data-i18n="confirm">Confirmer</button>
+  </div>
+</div>
+
+<!-- SETTINGS OVERLAY -->
+<div class="settings-ov" id="settingsOv">
+  <div class="settings-panel">
+    <div class="sp-hdr">
+      <div class="sp-title"><i class="fas fa-sliders-h"></i> Paramètres Aria</div>
+      <button class="sp-close" onclick="closeSettings()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="sp-body">
+
+      <!-- Claude API -->
+      <div class="sp-section">
+        <div class="sp-section-title"><i class="fas fa-brain"></i> Intelligence — Claude API</div>
+        <div class="sp-desc">Clé API Anthropic pour activer la conversation naturelle avec Claude au lieu des scénarios prédéfinis. <a href="https://console.anthropic.com" target="_blank" class="sp-link">console.anthropic.com →</a></div>
+        <div class="sp-field">
+          <label class="sp-label">Clé API Claude (Anthropic)</label>
+          <div class="sp-input-row">
+            <input type="password" class="sp-input" id="sp-claude-key" placeholder="sk-ant-api03-...">
+            <button class="sp-eye" onclick="toggleVisibility('sp-claude-key')"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+        <div class="sp-status" id="sp-claude-status"></div>
+      </div>
+
+      <!-- TTS -->
+      <div class="sp-section">
+        <div class="sp-section-title"><i class="fas fa-volume-up"></i> Voix synthétique — Benchmark</div>
+        <div class="sp-voice-grid">
+          <label class="sp-voice-card">
+            <input type="radio" name="tts-provider" value="browser" onchange="onTTSProviderChange('browser')">
+            <div class="svc-hdr"><span class="svc-name">Navigateur</span><span class="svc-badge free">Gratuit</span></div>
+            <div class="svc-quality"><div class="svc-bar" style="width:30%"></div></div>
+            <div class="svc-desc">Voix système du navigateur. Qualité basique, fonctionne hors-ligne.</div>
+          </label>
+          <label class="sp-voice-card">
+            <input type="radio" name="tts-provider" value="elevenlabs" onchange="onTTSProviderChange('elevenlabs')">
+            <div class="svc-hdr"><span class="svc-name">ElevenLabs</span><span class="svc-badge best">Meilleure</span></div>
+            <div class="svc-quality"><div class="svc-bar" style="width:97%"></div></div>
+            <div class="svc-desc">Voix ultra-réalistes, émotions naturelles, multilingue. 10 000 chars/mois gratuits.</div>
+          </label>
+          <label class="sp-voice-card">
+            <input type="radio" name="tts-provider" value="openai" onchange="onTTSProviderChange('openai')">
+            <div class="svc-hdr"><span class="svc-name">OpenAI TTS-HD</span><span class="svc-badge premium">HD</span></div>
+            <div class="svc-quality"><div class="svc-bar" style="width:88%"></div></div>
+            <div class="svc-desc">Modèle tts-1-hd, voix naturelles, faible latence. $15/million de caractères.</div>
+          </label>
+          <label class="sp-voice-card">
+            <input type="radio" name="tts-provider" value="off" onchange="onTTSProviderChange('off')">
+            <div class="svc-hdr"><span class="svc-name">Désactivée</span><span class="svc-badge off">Silencieux</span></div>
+            <div class="svc-quality"><div class="svc-bar" style="width:0%"></div></div>
+            <div class="svc-desc">Texte uniquement, aucune synthèse vocale.</div>
+          </label>
+        </div>
+        <div id="sp-tts-key-zone" style="display:none;margin-top:12px">
+          <div class="sp-field">
+            <label class="sp-label" id="sp-tts-key-label">Clé API</label>
+            <div class="sp-input-row">
+              <input type="password" class="sp-input" id="sp-tts-key" placeholder="sk-...">
+              <button class="sp-eye" onclick="toggleVisibility('sp-tts-key')"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+        </div>
+        <div id="sp-el-voices" style="display:none;margin-top:10px">
+          <label class="sp-label">Choisir la voix ElevenLabs</label>
+          <div class="sp-voice-select-grid" id="sp-el-voice-list"></div>
+        </div>
+        <div id="sp-oai-voices" style="display:none;margin-top:10px">
+          <label class="sp-label">Choisir la voix OpenAI</label>
+          <div class="sp-voice-select-grid" id="sp-oai-voice-list"></div>
+        </div>
+      </div>
+
+      <!-- STT Firefox -->
+      <div class="sp-section">
+        <div class="sp-section-title"><i class="fas fa-microphone-alt"></i> Reconnaissance vocale — Firefox & compatibilité</div>
+        <div class="sp-desc">Firefox ne supporte pas l'API vocale native. Fournissez une clé <strong>OpenAI Whisper</strong> pour activer la dictée sur tous les navigateurs. La même clé OpenAI suffit pour Whisper + TTS.</div>
+        <div class="sp-field">
+          <label class="sp-label">Clé API OpenAI (Whisper STT)</label>
+          <div class="sp-input-row">
+            <input type="password" class="sp-input" id="sp-stt-key" placeholder="sk-...">
+            <button class="sp-eye" onclick="toggleVisibility('sp-stt-key')"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+        <div class="sp-browser-info" id="sp-browser-info"></div>
+      </div>
+
+    </div>
+    <div class="sp-footer">
+      <button class="sp-btn-cancel" onclick="closeSettings()">Annuler</button>
+      <button class="sp-btn-save" onclick="saveSettings()"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-anim" id="successOverlay">
+  <div class="success-ring"><i class="fas fa-check"></i></div>
+  <h2 id="success-title"></h2>
+  <p id="success-desc"></p>
+  <div class="sub-action" onclick="closeSuccess()" data-i18n="back_chat">Retour au concierge</div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   I18N — TRANSLATIONS
+═══════════════════════════════════════════════ */
+const I18N = {
+  fr: {
+    back: 'Retour',
+    online: 'En ligne',
+    concierge_title: 'Concierge IA — The Estate',
+    input_placeholder: 'Écrivez ou utilisez le micro...',
+    select_hotel: 'Sélectionner un hôtel',
+    cancel: 'Annuler',
+    confirm: 'Confirmer',
+    back_chat: 'Retour au concierge',
+    welcome: `Bonsoir. Je suis **Aria**, votre concierge privé The Estate. Je suis ici pour vous accompagner avec tout ce dont vous avez besoin — réservations, gestion de vos actifs hôteliers, voyages à venir, ou simplement une question sur la plateforme.\n\nComment puis-je vous être utile ce soir ?`,
+    suggestions: ["J'ai acheté une chambre", "Réserver un hôtel", "Mes voyages à venir", "Envoyer un voucher", "Ajouter un guest", "Questions sur la plateforme"],
+    confirm_send_email: "Envoyer l'e-mail de réservation",
+    confirm_email_desc: (hotel, dates, guest) => `Confirmer l'envoi de la demande de réservation à **${hotel}** pour **${guest}** du ${dates} ?`,
+    email_sent: "Demande envoyée",
+    email_sent_desc: (hotel) => `Votre demande de réservation a été transmise à ${hotel}. Vous recevrez une confirmation sous 24h.`,
+    voucher_sent: "Voucher envoyé",
+    voucher_sent_desc: (contact) => `Le voucher a été transmis avec succès à ${contact}.`,
+  },
+  en: {
+    back: 'Back',
+    online: 'Online',
+    concierge_title: 'AI Concierge — The Estate',
+    input_placeholder: 'Type or use the microphone...',
+    select_hotel: 'Select a hotel',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    back_chat: 'Back to concierge',
+    welcome: `Good evening. I am **Aria**, your private Estate concierge. I am here to assist you with everything you need — reservations, hotel asset management, upcoming trips, or any question about the platform.\n\nHow may I be of service?`,
+    suggestions: ["I bought a room", "Book a hotel", "Upcoming trips", "Send a voucher", "Add a guest", "Platform questions"],
+    confirm_send_email: "Send reservation email",
+    confirm_email_desc: (hotel, dates, guest) => `Confirm sending the reservation request to **${hotel}** for **${guest}** from ${dates}?`,
+    email_sent: "Request sent",
+    email_sent_desc: (hotel) => `Your reservation request has been sent to ${hotel}. You will receive a confirmation within 24 hours.`,
+    voucher_sent: "Voucher sent",
+    voucher_sent_desc: (contact) => `The voucher has been successfully sent to ${contact}.`,
+  },
+  es: {
+    back: 'Volver',
+    online: 'En línea',
+    concierge_title: 'Concierge IA — The Estate',
+    input_placeholder: 'Escriba o use el micrófono...',
+    select_hotel: 'Seleccionar un hotel',
+    cancel: 'Cancelar',
+    confirm: 'Confirmar',
+    back_chat: 'Volver al concierge',
+    welcome: `Buenas tardes. Soy **Aria**, su concierge privado de The Estate. Estoy aquí para asistirle con todo lo que necesite — reservas, gestión de activos hoteleros, próximos viajes o cualquier pregunta sobre la plataforma.\n\n¿En qué puedo ayudarle hoy?`,
+    suggestions: ["Compré una habitación", "Reservar un hotel", "Próximos viajes", "Enviar un voucher", "Añadir un invitado", "Preguntas sobre la plataforma"],
+    confirm_send_email: "Enviar email de reserva",
+    confirm_email_desc: (hotel, dates, guest) => `¿Confirmar el envío de la solicitud de reserva al **${hotel}** para **${guest}** del ${dates}?`,
+    email_sent: "Solicitud enviada",
+    email_sent_desc: (hotel) => `Su solicitud de reserva ha sido enviada a ${hotel}. Recibirá una confirmación en 24 horas.`,
+    voucher_sent: "Voucher enviado",
+    voucher_sent_desc: (contact) => `El voucher ha sido enviado con éxito a ${contact}.`,
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════ */
+const ALL_HOTELS = [
+  {id:1,name:'Four Seasons George V',city:'Paris',country:'France',group:'Four Seasons',adr:'€1,600',img:'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&q=80&auto=format&fit=crop'},
+  {id:2,name:'Ritz Paris',city:'Paris',country:'France',group:'Indépendant',adr:'€1,450',img:'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80&auto=format&fit=crop'},
+  {id:3,name:'Mandarin Oriental Paris',city:'Paris',country:'France',group:'Mandarin Oriental',adr:'€1,100',img:'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&q=80&auto=format&fit=crop'},
+  {id:4,name:'La Mamounia',city:'Marrakech',country:'Maroc',group:'Indépendant',adr:'€780',img:'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&q=80&auto=format&fit=crop'},
+  {id:5,name:'Royal Mansour',city:'Marrakech',country:'Maroc',group:'Indépendant',adr:'€1,650',img:'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=400&q=80&auto=format&fit=crop'},
+  {id:6,name:'Burj Al Arab',city:'Dubai',country:'EAU',group:'Indépendant',adr:'€3,200',img:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&q=80&auto=format&fit=crop'},
+  {id:7,name:'Park Hyatt Tokyo',city:'Tokyo',country:'Japon',group:'Hyatt',adr:'€1,025',img:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&q=80&auto=format&fit=crop'},
+  {id:8,name:'Four Seasons Bora Bora',city:'Bora Bora',country:'Polynésie',group:'Four Seasons',adr:'€3,834',img:'https://images.unsplash.com/photo-1589979481223-deb893043163?w=400&q=80&auto=format&fit=crop'},
+  {id:9,name:'Amangiri',city:'Canyon Point',country:'USA',group:'Aman',adr:'€2,600',img:'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&q=80&auto=format&fit=crop'},
+  {id:10,name:'Bvlgari London',city:'Londres',country:'UK',group:'Bvlgari',adr:'€995',img:'https://images.unsplash.com/photo-1543168256-418811576931?w=400&q=80&auto=format&fit=crop'},
+];
+
+const VOUCHERS = [
+  {id:'V-2891',hotel:'Four Seasons George V',group:'Four Seasons',nights:3,expiry:'31/12/2026',used:false},
+  {id:'V-2892',hotel:'La Mamounia',group:'Indépendant',nights:5,expiry:'30/06/2027',used:false},
+  {id:'V-3101',hotel:'Park Hyatt Tokyo',group:'Hyatt',nights:2,expiry:'31/03/2027',used:false},
+];
+
+const UPCOMING_TRIPS = [
+  {hotel:'Four Seasons George V',dates:'12-15 Mai 2026',voucher:'V-2891',status:'Confirmé',img:'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&q=80&auto=format&fit=crop'},
+  {hotel:'La Mamounia',dates:'3-8 Juillet 2026',voucher:'V-2892',status:'En attente',img:'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&q=80&auto=format&fit=crop'},
+];
+
+const CONTACTS = [
+  {name:'Alexandra Morel',email:'a.morel@familyoffice.fr',initials:'AM'},
+  {name:'Pierre-Emmanuel Blanc',email:'pe.blanc@familyoffice.fr',initials:'PB'},
+  {name:'Thomas Duval',email:'t.duval@familyoffice.fr',initials:'TD'},
+  {name:'Sophie Martin',email:'s.martin@gmail.com',initials:'SM'},
+  {name:'Jean-Paul Lévy',email:'jp.levy@group.com',initials:'JL'},
+];
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+let lang = 'fr';
+let isRecording = false;
+let isSpeaking = false;
+let recognition = null;
+let mediaRec = null;
+let currentAudio = null;
+let synth = window.speechSynthesis;
+let confirmCallback = null;
+let conversationHistory = []; // Claude message history
+let conversationState = { flow: null, step: 0, data: {} };
+
+/* ── SETTINGS (localStorage) ── */
+const SETTINGS = {
+  get claudeKey()  { return localStorage.getItem('aria_claude_key') || ''; },
+  set claudeKey(v) { localStorage.setItem('aria_claude_key', v); },
+  get ttsProvider(){ return localStorage.getItem('aria_tts_provider') || 'browser'; },
+  set ttsProvider(v){ localStorage.setItem('aria_tts_provider', v); },
+  get ttsKey()     { return localStorage.getItem('aria_tts_key') || ''; },
+  set ttsKey(v)    { localStorage.setItem('aria_tts_key', v); },
+  get elVoiceId()  { return localStorage.getItem('aria_el_voice') || '9BWtsMINqrJLrRacOk9x'; },
+  set elVoiceId(v) { localStorage.setItem('aria_el_voice', v); },
+  get oaiVoice()   { return localStorage.getItem('aria_oai_voice') || 'nova'; },
+  set oaiVoice(v)  { localStorage.setItem('aria_oai_voice', v); },
+  get sttKey()     { return localStorage.getItem('aria_stt_key') || ''; },
+  set sttKey(v)    { localStorage.setItem('aria_stt_key', v); },
+  get ttsOn()      { return localStorage.getItem('aria_tts_on') !== 'false'; },
+  set ttsOn(v)     { localStorage.setItem('aria_tts_on', String(v)); },
+};
+
+/* ═══════════════════════════════════════════════
+   LANGUAGE
+═══════════════════════════════════════════════ */
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent === l.toUpperCase()));
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    if(I18N[l][k]) el.textContent = I18N[l][k];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const k = el.dataset.i18nPlaceholder;
+    if(I18N[l][k]) el.placeholder = I18N[l][k];
+  });
+  renderSuggestions();
+}
+
+/* ═══════════════════════════════════════════════
+   AVATAR STATE
+═══════════════════════════════════════════════ */
+function setAvatarState(state, text='') {
+  const orb = document.getElementById('orbContainer');
+  const wave = document.getElementById('voiceWave');
+  const status = document.getElementById('avatarStatus');
+  orb.className = 'orb-container ' + state;
+  wave.classList.toggle('active', state === 'listening');
+  status.textContent = text;
+}
+
+/* ═══════════════════════════════════════════════
+   MESSAGES
+═══════════════════════════════════════════════ */
+function scrollBottom() {
+  const m = document.getElementById('messages');
+  setTimeout(() => m.scrollTop = m.scrollHeight, 50);
+}
+
+function addMessage(role, content, extras) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+
+  const av = document.createElement('div');
+  av.className = 'msg-avatar' + (role==='user' ? ' user-av' : '');
+  if(role === 'ai') {
+    av.innerHTML = '<img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80&auto=format&fit=crop&crop=face" alt="Aria">';
+  } else {
+    av.innerHTML = '<i class="fas fa-user"></i>';
+  }
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+
+  // Parse markdown bold
+  const formatted = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g,'<br>');
+  bubble.innerHTML = formatted;
+
+  // Extras: hotel card, chips, validation, trips
+  if(extras) {
+    if(extras.hotelCard) bubble.appendChild(buildHotelCard(extras.hotelCard));
+    if(extras.chips) bubble.appendChild(buildChips(extras.chips));
+    if(extras.validation) bubble.appendChild(buildValidation(extras.validation));
+    if(extras.tripCards) extras.tripCards.forEach(t => bubble.appendChild(buildTripCard(t)));
+  }
+
+  if(role === 'user') { div.appendChild(bubble); div.appendChild(av); }
+  else { div.appendChild(av); div.appendChild(bubble); }
+
+  msgs.appendChild(div);
+  scrollBottom();
+  return bubble;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.id = 'typing-indicator';
+  const av = document.createElement('div');
+  av.className = 'msg-avatar';
+  av.innerHTML = '<img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80&auto=format&fit=crop&crop=face" alt="Aria">';
+  const b = document.createElement('div');
+  b.className = 'typing-bubble';
+  b.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  div.appendChild(av); div.appendChild(b);
+  msgs.appendChild(div);
+  scrollBottom();
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if(t) t.remove();
+}
+
+/* ═══════════════════════════════════════════════
+   BUILDERS
+═══════════════════════════════════════════════ */
+function buildHotelCard(h) {
+  const d = document.createElement('div');
+  d.className = 'hotel-card-msg';
+  d.innerHTML = `<img src="${h.img}" alt="${h.name}">
+  <div class="hotel-card-msg-body">
+    <div class="hotel-card-msg-name">${h.name}</div>
+    <div class="hotel-card-msg-loc"><i class="fas fa-map-marker-alt" style="color:var(--gold);font-size:.65rem"></i>${h.city}, ${h.country} — ${h.group}</div>
+    <div class="hotel-card-msg-adr">ADR ${h.adr} / nuit</div>
+  </div>`;
+  return d;
+}
+
+function buildChips(chips) {
+  const w = document.createElement('div');
+  w.className = 'chips';
+  chips.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (c.primary ? ' primary' : '');
+    btn.textContent = c.label;
+    btn.onclick = () => { handleChip(c); };
+    w.appendChild(btn);
+  });
+  return w;
+}
+
+function buildValidation(rows) {
+  const d = document.createElement('div');
+  d.className = 'validation-block';
+  const title = {fr:'Récapitulatif',en:'Summary',es:'Resumen'};
+  d.innerHTML = `<h4><i class="fas fa-clipboard-check"></i>${title[lang]}</h4>`;
+  rows.forEach(r => {
+    d.innerHTML += `<div class="validation-row"><span class="lbl">${r.label}</span><span class="val">${r.value}</span></div>`;
+  });
+  const btns = document.createElement('div');
+  btns.className = 'val-btns';
+  const confirmTxt = {fr:'Confirmer & Envoyer',en:'Confirm & Send',es:'Confirmar y Enviar'};
+  const modifyTxt = {fr:'Modifier',en:'Modify',es:'Modificar'};
+  btns.innerHTML = `<button class="val-btn cancel" onclick="handleValidationModify()">${modifyTxt[lang]}</button>
+  <button class="val-btn confirm" onclick="handleValidationConfirm()">${confirmTxt[lang]}</button>`;
+  d.appendChild(btns);
+  return d;
+}
+
+function buildTripCard(t) {
+  const d = document.createElement('div');
+  d.className = 'trip-card-msg';
+  const status_color = t.status === 'Confirmé' ? 'var(--green)' : 'var(--gold)';
+  d.innerHTML = `<div class="tcm-hotel">${t.hotel}</div>
+  <div class="tcm-dates"><i class="fas fa-calendar-alt" style="margin-right:5px"></i>${t.dates}</div>
+  <div class="tcm-voucher"><i class="fas fa-ticket-alt" style="color:var(--gold)"></i>Voucher ${t.voucher} · <span style="color:${status_color}">${t.status}</span></div>`;
+  return d;
+}
+
+/* ═══════════════════════════════════════════════
+   SUGGESTIONS
+═══════════════════════════════════════════════ */
+function renderSuggestions() {
+  const container = document.getElementById('suggestions');
+  container.innerHTML = '';
+  (I18N[lang].suggestions || []).forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'sug-chip';
+    btn.textContent = s;
+    btn.onclick = () => processUserInput(s);
+    container.appendChild(btn);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   VOICE — MULTI-PROVIDER (Chrome/Edge natif + Firefox Whisper)
+═══════════════════════════════════════════════ */
+function toggleMic() {
+  // Si en train de parler → stop
+  if(isSpeaking) { stopSpeaking(); return; }
+  // Si en train d'enregistrer → stop
+  if(isRecording) { stopRecording(); return; }
+
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(SpeechRec) {
+    startNativeSTT(SpeechRec);
+  } else if(SETTINGS.sttKey) {
+    startWhisperSTT();
+  } else {
+    const msgs = {
+      fr: '🎙️ La reconnaissance vocale native n\'est pas disponible sur ce navigateur (Firefox). Ouvrez les **Paramètres ⚙️** pour configurer une clé OpenAI Whisper, ou utilisez Edge/Chrome.',
+      en: '🎙️ Native voice recognition is not available in this browser (Firefox). Open **Settings ⚙️** to configure an OpenAI Whisper key, or use Edge/Chrome.',
+      es: '🎙️ El reconocimiento de voz nativo no está disponible (Firefox). Abra los **Ajustes ⚙️** para configurar una clave OpenAI Whisper, o use Edge/Chrome.'
+    };
+    addMessage('ai', msgs[lang]);
+  }
+}
+
+function stopRecording() {
+  isRecording = false;
+  document.getElementById('micBtn').classList.remove('recording');
+  document.getElementById('micIcon').className = 'fas fa-microphone';
+  setAvatarState('', '');
+  if(recognition) { try { recognition.stop(); } catch(e){} }
+  if(mediaRec && mediaRec.state !== 'inactive') { try { mediaRec.stop(); } catch(e){} }
+}
+
+function stopSpeaking() {
+  if(currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if(synth) synth.cancel();
+  isSpeaking = false;
+  setAvatarState('', '');
+}
+
+function startNativeSTT(SpeechRec) {
+  recognition = new SpeechRec();
+  recognition.lang = lang === 'fr' ? 'fr-FR' : lang === 'es' ? 'es-ES' : 'en-US';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onstart = () => {
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('recording');
+    document.getElementById('micIcon').className = 'fas fa-stop';
+    const l = {fr:'Je vous écoute...',en:'Listening...',es:'Le escucho...'};
+    setAvatarState('listening', l[lang]);
+  };
+  recognition.onresult = (e) => {
+    document.getElementById('userInput').value = e.results[0][0].transcript;
+  };
+  recognition.onend = () => {
+    isRecording = false;
+    document.getElementById('micBtn').classList.remove('recording');
+    document.getElementById('micIcon').className = 'fas fa-microphone';
+    setAvatarState('', '');
+    const val = document.getElementById('userInput').value.trim();
+    if(val) sendMessage();
+  };
+  recognition.onerror = (e) => {
+    isRecording = false;
+    document.getElementById('micBtn').classList.remove('recording');
+    document.getElementById('micIcon').className = 'fas fa-microphone';
+    setAvatarState('', '');
+    if(e.error === 'not-allowed') {
+      const m = {fr:'Microphone refusé. Autorisez l\'accès dans les paramètres du navigateur.',en:'Microphone denied.',es:'Micrófono denegado.'};
+      addMessage('ai', m[lang]);
+    }
+  };
+  recognition.start();
+}
+
+async function startWhisperSTT() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+                   : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg;codecs=opus';
+    mediaRec = new MediaRecorder(stream, { mimeType });
+    const chunks = [];
+    mediaRec.ondataavailable = (e) => { if(e.data.size > 0) chunks.push(e.data); };
+    mediaRec.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      isRecording = false;
+      document.getElementById('micBtn').classList.remove('recording');
+      document.getElementById('micIcon').className = 'fas fa-microphone';
+      const proc = {fr:'Transcription...',en:'Transcribing...',es:'Transcribiendo...'};
+      setAvatarState('', proc[lang]);
+      try {
+        const ext = mimeType.includes('ogg') ? 'ogg' : 'webm';
+        const blob = new Blob(chunks, { type: mimeType });
+        const form = new FormData();
+        form.append('file', blob, 'audio.' + ext);
+        form.append('model', 'whisper-1');
+        form.append('language', lang);
+        const resp = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+          method: 'POST', headers: { 'Authorization': 'Bearer ' + SETTINGS.sttKey }, body: form
+        });
+        const data = await resp.json();
+        setAvatarState('', '');
+        if(data.text) { document.getElementById('userInput').value = data.text; sendMessage(); }
+      } catch(err) { setAvatarState('', ''); console.error('Whisper:', err); }
+    };
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('recording');
+    document.getElementById('micIcon').className = 'fas fa-stop';
+    const l = {fr:'Enregistrement... (cliquez ■ pour arrêter)',en:'Recording... (click ■ to stop)',es:'Grabando... (clic ■ para detener)'};
+    setAvatarState('listening', l[lang]);
+    mediaRec.start();
+    setTimeout(() => { if(isRecording) stopRecording(); }, 30000);
+  } catch(e) {
+    const m = {fr:'Impossible d\'accéder au microphone.',en:'Cannot access microphone.',es:'No se puede acceder al micrófono.'};
+    addMessage('ai', m[lang]);
+  }
+}
+
+/* ── TTS MULTI-PROVIDER ── */
+async function speakText(text) {
+  if(!SETTINGS.ttsOn || SETTINGS.ttsProvider === 'off') return;
+  const clean = text.replace(/\*\*(.*?)\*\*/g,'$1').replace(/<[^>]*>/g,'')
+                    .replace(/[═─]/g,'').replace(/\n/g,' ').replace(/\s+/g,' ').trim();
+  if(!clean) return;
+  const statusTxt = {fr:'En train de parler...',en:'Speaking...',es:'Hablando...'};
+  if(SETTINGS.ttsProvider === 'elevenlabs' && SETTINGS.ttsKey) {
+    await speakElevenLabs(clean, statusTxt[lang]);
+  } else if(SETTINGS.ttsProvider === 'openai' && SETTINGS.ttsKey) {
+    await speakOpenAI(clean, statusTxt[lang]);
+  } else {
+    speakBrowser(clean, statusTxt[lang]);
+  }
+}
+
+function speakBrowser(text, statusTxt) {
+  if(!synth) return;
+  synth.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = lang === 'fr' ? 'fr-FR' : lang === 'es' ? 'es-ES' : 'en-US';
+  utt.rate = 0.92; utt.pitch = 1.05;
+  utt.onstart = () => { isSpeaking = true; setAvatarState('speaking', statusTxt); };
+  utt.onend   = () => { isSpeaking = false; setAvatarState('', ''); };
+  utt.onerror = () => { isSpeaking = false; setAvatarState('', ''); };
+  const voices = synth.getVoices();
+  const lc = utt.lang;
+  const match = voices.find(v => v.lang === lc) || voices.find(v => v.lang.startsWith(lc.slice(0,2)));
+  if(match) utt.voice = match;
+  synth.speak(utt);
+}
+
+async function speakElevenLabs(text, statusTxt) {
+  try {
+    setAvatarState('speaking', statusTxt); isSpeaking = true;
+    const resp = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + SETTINGS.elVoiceId, {
+      method: 'POST',
+      headers: { 'Accept': 'audio/mpeg', 'Content-Type': 'application/json', 'xi-api-key': SETTINGS.ttsKey },
+      body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2',
+        voice_settings: { stability: 0.68, similarity_boost: 0.80, style: 0.22, use_speaker_boost: true } })
+    });
+    if(!resp.ok) throw new Error('ElevenLabs ' + resp.status);
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    currentAudio = new Audio(url);
+    currentAudio.onended = () => { isSpeaking = false; setAvatarState('', ''); URL.revokeObjectURL(url); currentAudio = null; };
+    currentAudio.onerror = () => { isSpeaking = false; setAvatarState('', ''); currentAudio = null; };
+    await currentAudio.play();
+  } catch(e) {
+    console.warn('ElevenLabs TTS:', e); isSpeaking = false; setAvatarState('', '');
+    speakBrowser(text, statusTxt);
+  }
+}
+
+async function speakOpenAI(text, statusTxt) {
+  try {
+    setAvatarState('speaking', statusTxt); isSpeaking = true;
+    const resp = await fetch('https://api.openai.com/v1/audio/speech', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + SETTINGS.ttsKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'tts-1-hd', input: text, voice: SETTINGS.oaiVoice, speed: 0.95 })
+    });
+    if(!resp.ok) throw new Error('OpenAI TTS ' + resp.status);
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    currentAudio = new Audio(url);
+    currentAudio.onended = () => { isSpeaking = false; setAvatarState('', ''); URL.revokeObjectURL(url); currentAudio = null; };
+    currentAudio.onerror = () => { isSpeaking = false; setAvatarState('', ''); currentAudio = null; };
+    await currentAudio.play();
+  } catch(e) {
+    console.warn('OpenAI TTS:', e); isSpeaking = false; setAvatarState('', '');
+    speakBrowser(text, statusTxt);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   SEND / PROCESS
+═══════════════════════════════════════════════ */
+function sendMessage() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  processUserInput(text);
+}
+
+async function processUserInput(text) {
+  addMessage('user', text);
+  showTyping();
+  if(SETTINGS.claudeKey) {
+    try {
+      const reply = await callClaude(text);
+      removeTyping();
+      addMessage('ai', reply);
+      speakText(reply);
+    } catch(err) {
+      removeTyping();
+      const errMsg = {
+        fr: '⚠️ Erreur Claude API : ' + (err.message || 'Vérifiez votre clé dans les paramètres ⚙️'),
+        en: '⚠️ Claude API error: ' + (err.message || 'Check your key in settings ⚙️'),
+        es: '⚠️ Error Claude API: ' + (err.message || 'Verifique su clave en ajustes ⚙️')
+      };
+      addMessage('ai', errMsg[lang]);
+      // Fallback to intent engine
+      handleIntent(text.toLowerCase());
+    }
+  } else {
+    setTimeout(() => {
+      removeTyping();
+      handleIntent(text.toLowerCase());
+    }, 800 + Math.random() * 600);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   CLAUDE API — Conversation naturelle
+═══════════════════════════════════════════════ */
+async function callClaude(userMessage) {
+  conversationHistory.push({ role: 'user', content: userMessage });
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': SETTINGS.claudeKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 700,
+      system: buildSystemPrompt(),
+      messages: conversationHistory.slice(-24)
+    })
+  });
+  if(!resp.ok) {
+    const e = await resp.json().catch(() => ({}));
+    throw new Error(e.error?.message || 'HTTP ' + resp.status);
+  }
+  const data = await resp.json();
+  const reply = data.content[0].text;
+  conversationHistory.push({ role: 'assistant', content: reply });
+  return reply;
+}
+
+function buildSystemPrompt() {
+  const d = new Date().toLocaleDateString('fr-FR', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const langName = lang === 'fr' ? 'français' : lang === 'es' ? 'espagnol' : 'anglais';
+  return `Tu es **Aria**, concierge IA de **THE ESTATE** — plateforme de gestion de portefeuille hôtelier de luxe.
+Utilisateur : **Georges Dupont**, Investisseur Principal, Family Office. Date : ${d}.
+Langue : Répond TOUJOURS en **${langName}**.
+
+═══ PORTEFEUILLE (8 hôtels possédés) ═══
+• Sofitel Le Faubourg, Paris — 2 suites — ADR €815 — Rev. €42 500/mois
+• Waldorf Astoria, Dubai — 3 suites — ADR AED 1867 — Rev. €98 000/mois
+• Conrad Maldives Rangali — 3 villas overwater — ADR $3 834 — Rev. €134 000/mois
+• Four Seasons Bora Bora — 2 villas — ADR XPF 460 000 (~€3 834)
+• Mandarin Oriental Bangkok — 2 suites — ADR THB 18 000 (~€473)
+• Bvlgari London — 1 suite — ADR £850 — Rev. €56 000/mois
+• Alila Jabal Akhdar, Oman — 1 villa — ADR OMR 280 (~€667)
+• Raffles Le Royal Monceau, Paris — 1 suite — ADR €2 200
+Valeur totale portefeuille : €48,8M | Rev. mensuel total : ~€462 000
+
+═══ VOUCHERS DISPONIBLES ═══
+• V-2891 : Four Seasons George V Paris — 3 nuits — expire 31/12/2026
+• V-2892 : La Mamounia, Marrakech — 5 nuits — expire 30/06/2027
+• V-3101 : Park Hyatt Tokyo — 2 nuits — expire 31/03/2027
+
+═══ VOYAGES À VENIR ═══
+• Four Seasons George V — 12-15 Mai 2026 — Confirmé (V-2891)
+• La Mamounia — 3-8 Juillet 2026 — En attente (V-2892)
+
+═══ MEMBRES FAMILY OFFICE ═══
+Alexandra Morel (a.morel@familyoffice.fr), Pierre-Emmanuel Blanc (pe.blanc@familyoffice.fr), Thomas Duval (t.duval@familyoffice.fr)
+
+═══ PLATEFORME THE ESTATE ═══
+Dashboard : Portefeuille CRM, Revenue Intelligence & ADR, Contrats, Channel Manager, Guest Cards, Voyages, Statut Hôtelier, Alertes, Explorer Booking, Configuration.
+Vouchers : bons d'accès numériques transmissibles (groupes hôteliers : Four Seasons, Hyatt, Indépendant).
+
+═══ INSTRUCTIONS ═══
+• Style élégant, grand concierge palace — chaleureux mais jamais familier
+• Réponses concises pour la voix (3-5 phrases) sauf si analyse détaillée demandée
+• Connaissances expertes : hôtellerie de luxe mondiale, finance hôtelière, droit immobilier, destinations
+• Pour les actions concrètes (réservation, voucher, guest card), guider étape par étape
+• Tu peux conseiller sur l'optimisation du portefeuille, les opportunités d'acquisition, la fiscalité hôtelière
+• Ne jamais être évasif — toujours proposer une action, une recommandation ou une information précise`;
+}
+
+
+/* ═══════════════════════════════════════════════
+   INTENT ENGINE
+═══════════════════════════════════════════════ */
+function handleIntent(text) {
+  // Continue active flow
+  if(conversationState.flow) {
+    continueFlow(text);
+    return;
+  }
+
+  // Detect intent
+  const intent = detectIntent(text);
+  switch(intent) {
+    case 'purchase': startPurchaseFlow(); break;
+    case 'book': startBookFlow(); break;
+    case 'trips': startTripsFlow(); break;
+    case 'voucher': startVoucherFlow(); break;
+    case 'guest': startGuestFlow(); break;
+    case 'faq': handleFAQ(text); break;
+    default: handleGeneral(text);
+  }
+}
+
+function detectIntent(text) {
+  const buy_kw = {fr:['acheté','achat','venait d\'acheter','je viens','acquis','propriété','chambre'],en:['bought','purchased','acquired','just bought','room','property'],es:['compré','comprado','adquirí','habitación','propiedad']};
+  const book_kw = {fr:['réserver','réservation','faire une résa','booker','voyage','séjour'],en:['book','reservation','stay','trip'],es:['reservar','reserva','estancia','viaje']};
+  const trips_kw = {fr:['voyages','mes voyages','à venir','planning','prochains séjours'],en:['trips','upcoming','next stays','schedule'],es:['viajes','próximos','planificación']};
+  const voucher_kw = {fr:['voucher','bon','envoyer','partager','transmettre'],en:['voucher','send','share','gift'],es:['voucher','enviar','compartir']};
+  const guest_kw = {fr:['guest','invité','ajouter','guest card','accompagnant'],en:['guest','add guest','companion','invite'],es:['invitado','añadir','acompañante']};
+  const faq_kw = {fr:['comment','qu\'est-ce','aide','help','faq','explique','fonctions','utiliser'],en:['how','what is','help','faq','explain','features'],es:['cómo','qué es','ayuda','explica','funciones']};
+
+  const all = (kw) => Object.values(kw).flat().some(k => text.includes(k));
+  if(all(buy_kw)) return 'purchase';
+  if(all(trips_kw)) return 'trips';
+  if(all(book_kw)) return 'book';
+  if(all(voucher_kw)) return 'voucher';
+  if(all(guest_kw)) return 'guest';
+  if(all(faq_kw)) return 'faq';
+  return 'general';
+}
+
+/* ═══════════════════════════════════════════════
+   FLOW: PURCHASE (new room acquisition)
+═══════════════════════════════════════════════ */
+function startPurchaseFlow() {
+  conversationState = {flow:'purchase', step:1, data:{}};
+  const msgs = {
+    fr: `Félicitations pour cette belle acquisition ! Je vais vous aider à intégrer votre nouvelle chambre dans The Estate.\n\nCommençons : **dans quel hôtel avez-vous acquis votre unité ?**`,
+    en: `Congratulations on this fine acquisition! I will help you integrate your new room into The Estate.\n\nLet's begin: **in which hotel did you acquire your unit?**`,
+    es: `¡Felicidades por esta magnífica adquisición! Le ayudaré a integrar su nueva habitación en The Estate.\n\nEmpecemos: **¿en qué hotel adquirió su unidad?**`
+  };
+  const bubble = addMessage('ai', msgs[lang]);
+  setTimeout(() => {
+    bubble.appendChild(buildChips([
+      {label:'Four Seasons George V'},{label:'La Mamounia'},{label:'Park Hyatt Tokyo'},
+      {label:'Royal Mansour'},{label:'Burj Al Arab'},{label:{fr:'Autre hôtel',en:'Another hotel',es:'Otro hotel'}[lang]}
+    ]));
+  }, 100);
+  speakText(msgs[lang]);
+}
+
+function continueFlow(text) {
+  const flow = conversationState.flow;
+  const step = conversationState.step;
+
+  if(flow === 'purchase') continuePurchase(text, step);
+  else if(flow === 'book') continueBook(text, step);
+  else if(flow === 'voucher') continueVoucher(text, step);
+  else if(flow === 'guest') continueGuest(text, step);
+}
+
+function continuePurchase(text, step) {
+  if(step === 1) {
+    // Hotel identification
+    const hotel = ALL_HOTELS.find(h => text.toLowerCase().includes(h.name.toLowerCase().split(' ')[0].toLowerCase()) || text.toLowerCase().includes(h.name.toLowerCase()));
+    const hotelName = hotel ? hotel.name : capitalizeFirst(text);
+    conversationState.data.hotel = hotelName;
+    conversationState.data.hotelObj = hotel;
+    conversationState.step = 2;
+
+    const validation_q = {
+      fr: `Parfait. Est-ce bien **${hotelName}** que vous souhaitez ajouter ?`,
+      en: `Perfect. Is **${hotelName}** the property you wish to add?`,
+      es: `Perfecto. ¿Es **${hotelName}** la propiedad que desea añadir?`
+    };
+
+    const msg = addMessage('ai', validation_q[lang]);
+    if(hotel) {
+      setTimeout(() => msg.appendChild(buildHotelCard(hotel)), 100);
+    }
+    setTimeout(() => {
+      const yes = {fr:'Oui, c\'est bien cet hôtel',en:'Yes, that\'s correct',es:'Sí, es correcto'};
+      const no = {fr:'Non, autre hôtel',en:'No, different hotel',es:'No, otro hotel'};
+      const choose = {fr:'Choisir dans la liste',en:'Choose from list',es:'Elegir de la lista'};
+      msg.appendChild(buildChips([
+        {label:yes[lang],primary:true,action:'confirm_hotel'},
+        {label:no[lang],action:'reject_hotel'},
+        {label:choose[lang],action:'open_hotel_picker'}
+      ]));
+    }, 200);
+    speakText(validation_q[lang]);
+  }
+  else if(step === 2) {
+    if(text.includes('oui') || text.includes('yes') || text.includes('sí') || text.includes('correct') || text.includes('bien')) {
+      conversationState.step = 3;
+      askRoomType();
+    } else {
+      openHotelPanel((hotel) => {
+        conversationState.data.hotel = hotel.name;
+        conversationState.data.hotelObj = hotel;
+        conversationState.step = 3;
+        const confirmed = {fr:`Excellent ! **${hotel.name}** sélectionné. Maintenant, quel est le **type de chambre** acquise ?`,en:`Excellent! **${hotel.name}** selected. Now, what is the **room type** you acquired?`,es:`¡Excelente! **${hotel.name}** seleccionado. Ahora, ¿cuál es el **tipo de habitación** adquirida?`};
+        addMessage('ai', confirmed[lang]);
+        speakText(confirmed[lang]);
+        setTimeout(() => askRoomType(), 500);
+      });
+    }
+  }
+  else if(step === 3) {
+    conversationState.data.roomType = capitalizeFirst(text.replace(/\b(une?|the|la|le|un)\b/gi,'').trim()) || text;
+    conversationState.step = 4;
+    const msgs = {
+      fr:`Noté — **${conversationState.data.roomType}**. Quel est le **numéro de contrat ou référence** associé à cette acquisition ? (ou dites "passer" pour l'ajouter plus tard)`,
+      en:`Noted — **${conversationState.data.roomType}**. What is the **contract number or reference** for this acquisition? (or say "skip" to add later)`,
+      es:`Anotado — **${conversationState.data.roomType}**. ¿Cuál es el **número de contrato o referencia** de esta adquisición? (o diga "omitir" para añadir más tarde)`
+    };
+    addMessage('ai', msgs[lang]);
+    speakText(msgs[lang]);
+  }
+  else if(step === 4) {
+    conversationState.data.contractRef = (text.includes('passer') || text.includes('skip') || text.includes('omitir')) ? '—' : capitalizeFirst(text);
+    conversationState.step = 5;
+    const msgs = {
+      fr:`Parfait. Quel est le **montant de l'ADR (tarif journalier moyen)** pour cette chambre ?`,
+      en:`Perfect. What is the **ADR (Average Daily Rate)** for this room?`,
+      es:`Perfecto. ¿Cuál es el **ADR (Tarifa Diaria Media)** de esta habitación?`
+    };
+    addMessage('ai', msgs[lang]);
+    speakText(msgs[lang]);
+  }
+  else if(step === 5) {
+    conversationState.data.adr = text.replace(/[^0-9€$£,.]/g,'') || text;
+    showPurchaseValidation();
+  }
+}
+
+function askRoomType() {
+  const msgs = {
+    fr:`Excellent choix. Quel est le **type de chambre** que vous avez acquis ?`,
+    en:`Excellent choice. What **type of room** did you acquire?`,
+    es:`Excelente elección. ¿Qué **tipo de habitación** adquirió?`
+  };
+  const msg = addMessage('ai', msgs[lang]);
+  setTimeout(() => {
+    const types = {fr:['Suite Junior','Suite Deluxe','Suite Présidentielle','Chambre Supérieure','Villa Privée'],en:['Junior Suite','Deluxe Suite','Presidential Suite','Superior Room','Private Villa'],es:['Suite Junior','Suite Deluxe','Suite Presidencial','Habitación Superior','Villa Privada']};
+    msg.appendChild(buildChips(types[lang].map(t => ({label:t}))));
+  }, 100);
+  speakText(msgs[lang]);
+}
+
+function showPurchaseValidation() {
+  conversationState.step = 6;
+  const d = conversationState.data;
+  const titles = {fr:'Récapitulatif de l\'acquisition',en:'Acquisition Summary',es:'Resumen de la Adquisición'};
+  const labels = {
+    fr:{hotel:'Hôtel',room:'Chambre',ref:'Référence contrat',adr:'ADR'},
+    en:{hotel:'Hotel',room:'Room type',ref:'Contract reference',adr:'ADR'},
+    es:{hotel:'Hotel',room:'Tipo de habitación',ref:'Referencia contrato',adr:'ADR'}
+  };
+  const l = labels[lang];
+  const rows = [
+    {label:l.hotel, value:d.hotel||'—'},
+    {label:l.room, value:d.roomType||'—'},
+    {label:l.ref, value:d.contractRef||'—'},
+    {label:l.adr, value:d.adr||'—'},
+  ];
+  const msg_txt = {
+    fr:`Voici un récapitulatif de votre acquisition. Tout est correct ?`,
+    en:`Here is a summary of your acquisition. Does everything look correct?`,
+    es:`Aquí tiene un resumen de su adquisición. ¿Todo es correcto?`
+  };
+  const msg = addMessage('ai', msg_txt[lang]);
+  setTimeout(() => msg.appendChild(buildValidation(rows)), 100);
+  speakText(msg_txt[lang]);
+}
+
+/* ═══════════════════════════════════════════════
+   FLOW: BOOK A HOTEL
+═══════════════════════════════════════════════ */
+function startBookFlow() {
+  conversationState = {flow:'book', step:1, data:{}};
+
+  // Check vouchers
+  const available = VOUCHERS.filter(v => !v.used);
+  const msgs = {
+    fr:`Bien sûr ! Je suis là pour vous aider.\n\nVous disposez de **${available.length} voucher(s) actif(s)**. Souhaitez-vous les utiliser pour cette réservation, ou réserver sans voucher ?`,
+    en:`Of course! I'm here to help.\n\nYou have **${available.length} active voucher(s)**. Would you like to use them for this booking, or book without a voucher?`,
+    es:`¡Por supuesto! Estoy aquí para ayudarle.\n\nTiene **${available.length} voucher(s) activo(s)**. ¿Desea usarlos para esta reserva o reservar sin voucher?`
+  };
+  const msg = addMessage('ai', msgs[lang]);
+  setTimeout(() => {
+    const chips_data = available.map(v => ({label:`${v.hotel} — ${v.nights}N (${v.id})`}));
+    const no_voucher = {fr:'Réserver sans voucher',en:'Book without voucher',es:'Reservar sin voucher'};
+    chips_data.push({label:no_voucher[lang]});
+    msg.appendChild(buildChips(chips_data));
+  }, 100);
+  speakText(msgs[lang]);
+}
+
+function continueBook(text, step) {
+  if(step === 1) {
+    const voucher = VOUCHERS.find(v => text.toLowerCase().includes(v.id.toLowerCase()) || text.toLowerCase().includes(v.hotel.toLowerCase().split(' ')[0].toLowerCase()));
+    if(voucher && !text.includes('sans') && !text.includes('without') && !text.includes('sin')) {
+      conversationState.data.voucher = voucher;
+      conversationState.data.hotel = voucher.hotel;
+    }
+    conversationState.step = 2;
+
+    const hotel_q = {
+      fr: conversationState.data.hotel ? `Parfait, voucher **${conversationState.data.voucher?.id}** sélectionné pour **${conversationState.data.hotel}**.\n\nPour **quelle dates** souhaitez-vous réserver ? (ex: "du 10 au 14 juin")` : `Entendu ! **Dans quel hôtel** souhaitez-vous séjourner ?`,
+      en: conversationState.data.hotel ? `Perfect, voucher **${conversationState.data.voucher?.id}** selected for **${conversationState.data.hotel}**.\n\nFor **which dates** would you like to book? (e.g., "June 10 to 14")` : `Understood! **Which hotel** would you like to stay at?`,
+      es: conversationState.data.hotel ? `Perfecto, voucher **${conversationState.data.voucher?.id}** seleccionado para **${conversationState.data.hotel}**.\n\nPara **qué fechas** desea reservar? (ej: "del 10 al 14 de junio")` : `¡Entendido! **¿En qué hotel** desea hospedarse?`
+    };
+    addMessage('ai', hotel_q[lang]);
+    speakText(hotel_q[lang]);
+    if(!conversationState.data.hotel) conversationState.step = 1.5;
+  }
+  else if(step === 1.5) {
+    const hotel = ALL_HOTELS.find(h => text.toLowerCase().includes(h.name.toLowerCase().split(' ')[0].toLowerCase()));
+    conversationState.data.hotel = hotel ? hotel.name : capitalizeFirst(text);
+    conversationState.data.hotelObj = hotel;
+    conversationState.step = 2;
+    const dates_q = {fr:`Pour **quelle dates** souhaitez-vous séjourner au **${conversationState.data.hotel}** ?`,en:`For **which dates** would you like to stay at **${conversationState.data.hotel}**?`,es:`¿Para **qué fechas** desea hospedarse en **${conversationState.data.hotel}**?`};
+    addMessage('ai', dates_q[lang]);
+    speakText(dates_q[lang]);
+  }
+  else if(step === 2) {
+    conversationState.data.dates = capitalizeFirst(text);
+    conversationState.step = 3;
+    const guest_q = {fr:`Parfait — **du ${text}**.\n\nCombien de personnes séjourneront, et y a-t-il un **nom principal** pour la réservation ?`,en:`Perfect — **${text}**.\n\nHow many guests will be staying, and is there a **lead name** for the booking?`,es:`Perfecto — **${text}**.\n\n¿Cuántas personas se hospedarán y hay un **nombre principal** para la reserva?`};
+    addMessage('ai', guest_q[lang]);
+    speakText(guest_q[lang]);
+  }
+  else if(step === 3) {
+    conversationState.data.guest = capitalizeFirst(text);
+    conversationState.step = 4;
+    const special_q = {fr:`Très bien. Avez-vous des **demandes spéciales** ? (vue, étage, lit king, allergies, surprises...) ou dites "aucune".`,en:`Very well. Do you have any **special requests**? (view, floor, king bed, allergies, surprises...) or say "none".`,es:`Muy bien. ¿Tiene alguna **solicitud especial**? (vista, piso, cama king, alergias, sorpresas...) o diga "ninguna".`};
+    addMessage('ai', special_q[lang]);
+    speakText(special_q[lang]);
+  }
+  else if(step === 4) {
+    const none_kw = ['aucune','rien','none','no','ninguna','nothing'];
+    conversationState.data.special = none_kw.some(k => text.includes(k)) ? '—' : capitalizeFirst(text);
+    showBookValidation();
+  }
+}
+
+function showBookValidation() {
+  conversationState.step = 5;
+  const d = conversationState.data;
+  const l = {
+    fr:{hotel:'Hôtel',dates:'Dates',guest:'Réservation au nom de',special:'Demandes spéciales',voucher:'Voucher utilisé'},
+    en:{hotel:'Hotel',dates:'Dates',guest:'Booking name',special:'Special requests',voucher:'Voucher used'},
+    es:{hotel:'Hotel',dates:'Fechas',guest:'Nombre de reserva',special:'Solicitudes especiales',voucher:'Voucher utilizado'}
+  }[lang];
+  const rows = [
+    {label:l.hotel,value:d.hotel||'—'},
+    {label:l.dates,value:d.dates||'—'},
+    {label:l.guest,value:d.guest||'—'},
+    {label:l.special,value:d.special||'—'},
+    {label:l.voucher,value:d.voucher?d.voucher.id:'Aucun'},
+  ];
+  const msg_txt = {
+    fr:`Voici votre récapitulatif de réservation. Je suis prêt à envoyer la demande à l'hôtel. Tout est correct ?`,
+    en:`Here is your booking summary. I am ready to send the request to the hotel. Does everything look correct?`,
+    es:`Aquí tiene su resumen de reserva. Estoy listo para enviar la solicitud al hotel. ¿Todo es correcto?`
+  };
+  const msg = addMessage('ai', msg_txt[lang]);
+  setTimeout(() => msg.appendChild(buildValidation(rows)), 100);
+  speakText(msg_txt[lang]);
+}
+
+/* ═══════════════════════════════════════════════
+   FLOW: TRIPS
+═══════════════════════════════════════════════ */
+function startTripsFlow() {
+  const msgs = {
+    fr: `Voici vos **${UPCOMING_TRIPS.length} voyages** à venir. Je peux vous proposer des options supplémentaires selon vos vouchers disponibles.`,
+    en: `Here are your **${UPCOMING_TRIPS.length} upcoming trips**. I can suggest additional options based on your available vouchers.`,
+    es: `Aquí están sus **${UPCOMING_TRIPS.length} próximos viajes**. Puedo sugerirle opciones adicionales según sus vouchers disponibles.`
+  };
+  addMessage('ai', msgs[lang], {tripCards: UPCOMING_TRIPS});
+
+  setTimeout(() => {
+    const proactive = {
+      fr: `Vous avez également le voucher **V-3101** (Park Hyatt Tokyo, 2 nuits) non utilisé. Souhaitez-vous que je vous trouve des disponibilités à Tokyo ?`,
+      en: `You also have voucher **V-3101** (Park Hyatt Tokyo, 2 nights) unused. Shall I find availability in Tokyo for you?`,
+      es: `También tiene el voucher **V-3101** (Park Hyatt Tokyo, 2 noches) sin usar. ¿Desea que busque disponibilidad en Tokio para usted?`
+    };
+    const msg = addMessage('ai', proactive[lang]);
+    const yes = {fr:'Oui, trouver des dates à Tokyo',en:'Yes, find Tokyo dates',es:'Sí, buscar fechas en Tokio'};
+    const no = {fr:'Non merci',en:'No thank you',es:'No, gracias'};
+    setTimeout(() => msg.appendChild(buildChips([{label:yes[lang],primary:true},{label:no[lang]}])), 100);
+    speakText(proactive[lang]);
+  }, 1200);
+}
+
+/* ═══════════════════════════════════════════════
+   FLOW: VOUCHER
+═══════════════════════════════════════════════ */
+function startVoucherFlow() {
+  conversationState = {flow:'voucher', step:1, data:{}};
+  const msgs = {
+    fr:`Vous souhaitez envoyer un voucher. Lequel souhaitez-vous transmettre ?`,
+    en:`You'd like to send a voucher. Which one would you like to share?`,
+    es:`Desea enviar un voucher. ¿Cuál desea compartir?`
+  };
+  const msg = addMessage('ai', msgs[lang]);
+  setTimeout(() => {
+    msg.appendChild(buildChips(VOUCHERS.filter(v=>!v.used).map(v=>({label:`${v.id} — ${v.hotel} (${v.nights}N)`}))));
+  }, 100);
+  speakText(msgs[lang]);
+}
+
+function continueVoucher(text, step) {
+  if(step === 1) {
+    const voucher = VOUCHERS.find(v => text.toLowerCase().includes(v.id.toLowerCase()) || text.toLowerCase().includes(v.hotel.toLowerCase().split(' ')[0].toLowerCase()));
+    conversationState.data.voucher = voucher || {id: text, hotel: text};
+    conversationState.step = 2;
+    const contact_q = {fr:`Parfait — voucher **${conversationState.data.voucher.id}**. **À qui** souhaitez-vous l'envoyer ?`,en:`Perfect — voucher **${conversationState.data.voucher.id}**. **To whom** would you like to send it?`,es:`Perfecto — voucher **${conversationState.data.voucher.id}**. **¿A quién** desea enviarlo?`};
+    const msg = addMessage('ai', contact_q[lang]);
+    setTimeout(() => msg.appendChild(buildChips(CONTACTS.map(c=>({label:c.name})))), 100);
+    speakText(contact_q[lang]);
+  }
+  else if(step === 2) {
+    const contact = CONTACTS.find(c => text.toLowerCase().includes(c.name.toLowerCase().split(' ')[0].toLowerCase()));
+    conversationState.data.contact = contact || {name: capitalizeFirst(text), email: text.includes('@') ? text : 'contact@email.com'};
+    conversationState.step = 3;
+    const msg_q = {fr:`Un message personnel ? (ou dites "passer")`,en:`A personal message? (or say "skip")`,es:`¿Un mensaje personal? (o diga "omitir")`};
+    addMessage('ai', msg_q[lang]);
+    speakText(msg_q[lang]);
+  }
+  else if(step === 3) {
+    conversationState.data.message = (text.includes('passer')||text.includes('skip')||text.includes('omitir')) ? '' : text;
+    showVoucherValidation();
+  }
+}
+
+function showVoucherValidation() {
+  conversationState.step = 4;
+  const d = conversationState.data;
+  const l = {fr:{voucher:'Voucher',recipient:'Destinataire',email:'Email',msg:'Message'},en:{voucher:'Voucher',recipient:'Recipient',email:'Email',msg:'Message'},es:{voucher:'Voucher',recipient:'Destinatario',email:'Email',msg:'Mensaje'}}[lang];
+  const rows = [
+    {label:l.voucher,value:`${d.voucher?.id} — ${d.voucher?.hotel||''}`},
+    {label:l.recipient,value:d.contact?.name||'—'},
+    {label:l.email,value:d.contact?.email||'—'},
+    {label:l.msg,value:d.message||'—'},
+  ];
+  const msg_txt = {fr:`Récapitulatif de l'envoi. Tout est correct ?`,en:`Send summary. Everything correct?`,es:`Resumen del envío. ¿Todo correcto?`};
+  const msg = addMessage('ai', msg_txt[lang]);
+  setTimeout(() => msg.appendChild(buildValidation(rows)), 100);
+  speakText(msg_txt[lang]);
+}
+
+/* ═══════════════════════════════════════════════
+   FLOW: GUEST
+═══════════════════════════════════════════════ */
+function startGuestFlow() {
+  conversationState = {flow:'guest', step:1, data:{}};
+  const msgs = {fr:`Je vais vous aider à créer une **Guest Card**. Quel est le **nom complet** de votre invité ?`,en:`I'll help you create a **Guest Card**. What is your guest's **full name**?`,es:`Le ayudaré a crear una **Guest Card**. ¿Cuál es el **nombre completo** de su invitado?`};
+  addMessage('ai', msgs[lang]);
+  speakText(msgs[lang]);
+}
+
+function continueGuest(text, step) {
+  if(step === 1) {
+    conversationState.data.guestName = capitalizeFirst(text);
+    conversationState.step = 2;
+    const email_q = {fr:`Parfait. Quelle est l'**adresse email** de ${conversationState.data.guestName} ?`,en:`Perfect. What is ${conversationState.data.guestName}'s **email address**?`,es:`Perfecto. ¿Cuál es la **dirección email** de ${conversationState.data.guestName}?`};
+    addMessage('ai', email_q[lang]);
+    speakText(email_q[lang]);
+  }
+  else if(step === 2) {
+    conversationState.data.guestEmail = text.includes('@') ? text : `${text.toLowerCase().replace(/\s+/g,'.')}@guest.com`;
+    conversationState.step = 3;
+    const hotel_q = {fr:`Pour **quel hôtel** souhaitez-vous associer la Guest Card ?`,en:`For **which hotel** would you like to associate the Guest Card?`,es:`¿Para **qué hotel** desea asociar la Guest Card?`};
+    const msg = addMessage('ai', hotel_q[lang]);
+    setTimeout(() => msg.appendChild(buildChips(ALL_HOTELS.slice(0,5).map(h=>({label:h.name})))), 100);
+    speakText(hotel_q[lang]);
+  }
+  else if(step === 3) {
+    const hotel = ALL_HOTELS.find(h => text.toLowerCase().includes(h.name.toLowerCase().split(' ')[0].toLowerCase()));
+    conversationState.data.hotel = hotel ? hotel.name : capitalizeFirst(text);
+    conversationState.step = 4;
+    const privs_q = {fr:`Quels **privilèges** souhaitez-vous accorder ? (Room upgrade, F&B crédit, Spa, Accès VIP...)`,en:`What **privileges** would you like to grant? (Room upgrade, F&B credit, Spa, VIP access...)`,es:`¿Qué **privilegios** desea conceder? (Room upgrade, crédito F&B, Spa, Acceso VIP...)`};
+    const msg = addMessage('ai', privs_q[lang]);
+    const privs = {fr:['Room Upgrade','Crédit F&B 200€','Accès Spa','Welcome Amenity','Late Checkout'],en:['Room Upgrade','F&B Credit €200','Spa Access','Welcome Amenity','Late Checkout'],es:['Room Upgrade','Crédito F&B €200','Acceso Spa','Amenity de Bienvenida','Late Checkout']};
+    setTimeout(() => msg.appendChild(buildChips(privs[lang].map(p=>({label:p})))), 100);
+    speakText(privs_q[lang]);
+  }
+  else if(step === 4) {
+    conversationState.data.privileges = capitalizeFirst(text);
+    showGuestValidation();
+  }
+}
+
+function showGuestValidation() {
+  conversationState.step = 5;
+  const d = conversationState.data;
+  const l = {fr:{name:'Nom',email:'Email',hotel:'Hôtel',privs:'Privilèges'},en:{name:'Name',email:'Email',hotel:'Hotel',privs:'Privileges'},es:{name:'Nombre',email:'Email',hotel:'Hotel',privs:'Privilegios'}}[lang];
+  const rows = [{label:l.name,value:d.guestName||'—'},{label:l.email,value:d.guestEmail||'—'},{label:l.hotel,value:d.hotel||'—'},{label:l.privs,value:d.privileges||'—'}];
+  const msg_txt = {fr:`Guest Card prête à être générée. Tout est correct ?`,en:`Guest Card ready to be generated. Everything correct?`,es:`Guest Card lista para ser generada. ¿Todo correcto?`};
+  const msg = addMessage('ai', msg_txt[lang]);
+  setTimeout(() => msg.appendChild(buildValidation(rows)), 100);
+  speakText(msg_txt[lang]);
+}
+
+/* ═══════════════════════════════════════════════
+   VALIDATION HANDLERS
+═══════════════════════════════════════════════ */
+function handleValidationConfirm() {
+  const flow = conversationState.flow;
+  const d = conversationState.data;
+
+  if(flow === 'purchase') {
+    const msgs = {fr:`Votre chambre a été intégrée avec succès au portefeuille The Estate. Vous pouvez la retrouver dans votre **Dashboard** sous l'onglet Portfolio.`,en:`Your room has been successfully added to The Estate portfolio. You can find it in your **Dashboard** under the Portfolio tab.`,es:`Su habitación ha sido integrada con éxito en el portafolio de The Estate. Puede encontrarla en su **Dashboard** en la pestaña Portafolio.`};
+    conversationState = {flow:null,step:0,data:{}};
+    showSuccessOverlay('✓', {fr:'Acquisition intégrée',en:'Acquisition integrated',es:'Adquisición integrada'}[lang], msgs[lang]);
+    speakText(msgs[lang]);
+  }
+  else if(flow === 'book') {
+    const title = I18N[lang].confirm_send_email;
+    const desc = I18N[lang].confirm_email_desc(d.hotel||'l\'hôtel', d.dates||'...', d.guest||'le membre');
+    showConfirmOverlay(title, desc.replace(/\*\*/g,''), () => {
+      const done = I18N[lang].email_sent_desc(d.hotel||'l\'hôtel');
+      conversationState = {flow:null,step:0,data:{}};
+      showSuccessOverlay('📧', I18N[lang].email_sent, done);
+      speakText(done);
+    });
+  }
+  else if(flow === 'voucher') {
+    const done = I18N[lang].voucher_sent_desc(d.contact?.name||'le destinataire');
+    conversationState = {flow:null,step:0,data:{}};
+    showSuccessOverlay('🎟', I18N[lang].voucher_sent, done);
+    speakText(done);
+  }
+  else if(flow === 'guest') {
+    const msgs = {fr:`La Guest Card de **${d.guestName}** a été créée et transmise à ${d.hotel}. Votre invité recevra les informations d'accueil par email.`,en:`**${d.guestName}'s** Guest Card has been created and sent to ${d.hotel}. Your guest will receive the welcome information by email.`,es:`La Guest Card de **${d.guestName}** ha sido creada y enviada a ${d.hotel}. Su invitado recibirá la información de bienvenida por email.`};
+    conversationState = {flow:null,step:0,data:{}};
+    showSuccessOverlay('🎴', {fr:'Guest Card créée',en:'Guest Card created',es:'Guest Card creada'}[lang], msgs[lang]);
+    speakText(msgs[lang]);
+  }
+}
+
+function handleValidationModify() {
+  conversationState = {flow:null,step:0,data:{}};
+  const msgs = {fr:`Pas de problème. Dites-moi ce que vous souhaitez modifier, et nous reprendrons depuis le début.`,en:`No problem. Tell me what you'd like to change, and we'll start over.`,es:`Sin problema. Dígame qué desea modificar y comenzaremos de nuevo.`};
+  addMessage('ai', msgs[lang]);
+  speakText(msgs[lang]);
+}
+
+/* ═══════════════════════════════════════════════
+   FAQ / GENERAL
+═══════════════════════════════════════════════ */
+function handleFAQ(text) {
+  const answers = {
+    fr: {
+      dashboard: `Le **Dashboard** est votre centre de contrôle principal. Il regroupe vos onglets Portfolio, Revenus, Contrats, Vouchers, Channel Manager, Guest Cards, Voyages et Configuration.`,
+      voucher: `Les **vouchers** sont des bons d'accès numériques liés à votre chambre. Vous pouvez les attribuer à des invités ou les utiliser pour vos propres séjours dans votre hôtel ou dans les hôtels du même groupe.`,
+      revenue: `Le **Revenue Intelligence** suit votre ADR quotidien, calcule votre reversement (50-60% selon contrat), et génère des alertes lorsque votre chambre n'est pas optimisée.`,
+      security: `The Estate utilise un chiffrement **AES-256**, une authentification multi-facteurs (2FA + biométrie), et un hébergement souverain. Vos données sont protégées au niveau bancaire.`,
+      default: `Je suis là pour vous aider avec la plateforme The Estate. Vous pouvez me demander d'**ajouter un hôtel**, de **faire une réservation**, de **gérer vos vouchers** ou de vous expliquer n'importe quelle fonctionnalité.`
+    },
+    en: {
+      dashboard: `The **Dashboard** is your main control center. It includes Portfolio, Revenue, Contracts, Vouchers, Channel Manager, Guest Cards, Trips and Configuration tabs.`,
+      voucher: `**Vouchers** are digital access passes linked to your room. You can assign them to guests or use them for your own stays at your hotel or hotels within the same group.`,
+      revenue: `**Revenue Intelligence** tracks your daily ADR, calculates your revenue share (50-60% per contract), and generates alerts when your room is not optimized.`,
+      security: `The Estate uses **AES-256** encryption, multi-factor authentication (2FA + biometrics), and sovereign hosting. Your data is protected at banking level.`,
+      default: `I'm here to help you with The Estate platform. You can ask me to **add a hotel**, **make a reservation**, **manage your vouchers**, or explain any feature.`
+    },
+    es: {
+      dashboard: `El **Dashboard** es su centro de control principal. Incluye las pestañas de Portafolio, Ingresos, Contratos, Vouchers, Channel Manager, Guest Cards, Viajes y Configuración.`,
+      voucher: `Los **vouchers** son pases de acceso digital vinculados a su habitación. Puede asignarlos a invitados o usarlos para sus propias estancias en su hotel o en hoteles del mismo grupo.`,
+      revenue: `**Revenue Intelligence** rastrea su ADR diario, calcula su participación en ingresos (50-60% según contrato), y genera alertas cuando su habitación no está optimizada.`,
+      security: `The Estate usa cifrado **AES-256**, autenticación multifactor (2FA + biometría), y alojamiento soberano. Sus datos están protegidos a nivel bancario.`,
+      default: `Estoy aquí para ayudarle con la plataforma The Estate. Puede pedirme que **añada un hotel**, **haga una reserva**, **gestione sus vouchers** o explique cualquier función.`
+    }
+  };
+
+  const ans = answers[lang];
+  let response = ans.default;
+  if(text.includes('dashboard') || text.includes('tableau')) response = ans.dashboard;
+  else if(text.includes('voucher') || text.includes('bon')) response = ans.voucher;
+  else if(text.includes('revenu') || text.includes('adr') || text.includes('revenue')) response = ans.revenue;
+  else if(text.includes('sécurité') || text.includes('security') || text.includes('seguridad') || text.includes('chiffr')) response = ans.security;
+
+  addMessage('ai', response);
+  speakText(response);
+}
+
+function handleGeneral(text) {
+  const responses = {
+    fr: [
+      `Je comprends. Puis-je vous guider vers une action spécifique ? Je peux vous aider à **réserver**, gérer vos **vouchers**, intégrer un **nouvel hôtel**, ou répondre à toutes vos questions sur la plateforme.`,
+      `Bien sûr. Pour mieux vous aider, dites-moi exactement ce que vous souhaitez faire — je suis ici pour vous accompagner de A à Z.`,
+      `Je suis là. Souhaitez-vous que je vous montre les **disponibilités** pour vos prochains voyages, ou y a-t-il autre chose que je puisse faire pour vous ?`
+    ],
+    en: [
+      `I understand. May I guide you toward a specific action? I can help you **book**, manage your **vouchers**, add a **new hotel**, or answer any platform questions.`,
+      `Of course. To better assist you, tell me exactly what you'd like to do — I'm here to accompany you from start to finish.`,
+      `I'm here. Would you like me to show you **availability** for your upcoming trips, or is there anything else I can do for you?`
+    ],
+    es: [
+      `Entiendo. ¿Puedo guiarle hacia una acción específica? Puedo ayudarle a **reservar**, gestionar sus **vouchers**, integrar un **nuevo hotel** o responder cualquier pregunta sobre la plataforma.`,
+      `Por supuesto. Para ayudarle mejor, dígame exactamente qué desea hacer — estoy aquí para acompañarle de principio a fin.`,
+      `Estoy aquí. ¿Desea que le muestre la **disponibilidad** para sus próximos viajes, o hay algo más que pueda hacer por usted?`
+    ]
+  };
+  const arr = responses[lang];
+  const response = arr[Math.floor(Math.random() * arr.length)];
+  addMessage('ai', response);
+  speakText(response);
+}
+
+/* ═══════════════════════════════════════════════
+   CHIP HANDLER
+═══════════════════════════════════════════════ */
+function handleChip(chip) {
+  const label = typeof chip.label === 'object' ? chip.label[lang] : chip.label;
+  if(chip.action === 'open_hotel_picker') {
+    openHotelPanel((hotel) => {
+      conversationState.data.hotel = hotel.name;
+      conversationState.data.hotelObj = hotel;
+      conversationState.step = 3;
+      const m = {fr:`**${hotel.name}** sélectionné. Quel est le type de chambre ?`,en:`**${hotel.name}** selected. What is the room type?`,es:`**${hotel.name}** seleccionado. ¿Cuál es el tipo de habitación?`};
+      addMessage('ai', m[lang]);
+      speakText(m[lang]);
+      setTimeout(() => askRoomType(), 600);
+    });
+    return;
+  }
+  processUserInput(label);
+}
+
+/* ═══════════════════════════════════════════════
+   HOTEL PANEL
+═══════════════════════════════════════════════ */
+let hotelPanelCallback = null;
+
+function openHotelPanel(callback) {
+  hotelPanelCallback = callback;
+  document.getElementById('hotelPanel').classList.add('open');
+  renderHotelList(ALL_HOTELS);
+  document.getElementById('hotelSearch').value = '';
+  document.getElementById('hotelSearch').focus();
+}
+
+function closeHotelPanel() {
+  document.getElementById('hotelPanel').classList.remove('open');
+  hotelPanelCallback = null;
+}
+
+function filterHotels(q) {
+  const filtered = ALL_HOTELS.filter(h => h.name.toLowerCase().includes(q.toLowerCase()) || h.city.toLowerCase().includes(q.toLowerCase()) || h.group.toLowerCase().includes(q.toLowerCase()));
+  renderHotelList(filtered);
+}
+
+function renderHotelList(hotels) {
+  const list = document.getElementById('hotelList');
+  list.innerHTML = '';
+  hotels.forEach(h => {
+    const item = document.createElement('div');
+    item.className = 'hotel-list-item';
+    item.innerHTML = `<img class="hli-img" src="${h.img}" alt="${h.name}">
+    <div class="hli-info">
+      <div class="hli-name">${h.name}</div>
+      <div class="hli-sub">${h.city}, ${h.country}</div>
+      <div class="hli-grp">${h.group}</div>
+    </div>`;
+    item.onclick = () => {
+      closeHotelPanel();
+      if(hotelPanelCallback) hotelPanelCallback(h);
+    };
+    list.appendChild(item);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   CONFIRM / SUCCESS OVERLAYS
+═══════════════════════════════════════════════ */
+function showConfirmOverlay(title, desc, callback) {
+  document.getElementById('co-title').textContent = title;
+  document.getElementById('co-desc').textContent = desc;
+  confirmCallback = callback;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+
+function closeConfirm(confirmed) {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  if(confirmed && confirmCallback) confirmCallback();
+  confirmCallback = null;
+}
+
+function showSuccessOverlay(icon, title, desc) {
+  document.getElementById('success-title').textContent = title;
+  document.getElementById('success-desc').innerHTML = desc.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  document.querySelector('.success-ring').innerHTML = icon;
+  document.getElementById('successOverlay').classList.add('open');
+  setTimeout(() => closeSuccess(), 5000);
+}
+
+function closeSuccess() {
+  document.getElementById('successOverlay').classList.remove('open');
+  const back = {fr:`Y a-t-il autre chose que je puisse faire pour vous ?`,en:`Is there anything else I can do for you?`,es:`¿Hay algo más que pueda hacer por usted?`};
+  addMessage('ai', back[lang]);
+  speakText(back[lang]);
+}
+
+/* ═══════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════ */
+function capitalizeFirst(str) {
+  if(!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/* ═══════════════════════════════════════════════
+   SETTINGS UI
+═══════════════════════════════════════════════ */
+const EL_VOICES = [
+  { id:'9BWtsMINqrJLrRacOk9x', name:'Aria', desc:'Féminine · Multilingue' },
+  { id:'EXAVITQu4vr4xnSDxMaL', name:'Sarah', desc:'Féminine · Chaleureuse' },
+  { id:'XB0fDUnXU5powFXDhCwa', name:'Charlotte', desc:'Féminine · Sophistiquée' },
+  { id:'21m00Tcm4TlvDq8ikWAM', name:'Rachel', desc:'Féminine · Claire' },
+  { id:'JBFqnCBsd6RMkjVDRZzb', name:'George', desc:'Masculine · Distinction BBC' },
+  { id:'nPczCjzI2devNBz1zQrb', name:'Brian', desc:'Masculine · Profond' },
+];
+const OAI_VOICES = [
+  { id:'nova',    name:'Nova',    desc:'Féminine · Chaleureuse' },
+  { id:'shimmer', name:'Shimmer', desc:'Féminine · Expressive' },
+  { id:'alloy',   name:'Alloy',   desc:'Neutre · Claire' },
+  { id:'echo',    name:'Echo',    desc:'Masculine · Analytique' },
+  { id:'fable',   name:'Fable',   desc:'Masculine · Narratif' },
+  { id:'onyx',    name:'Onyx',    desc:'Masculine · Profond' },
+];
+
+function openSettings() {
+  // Populate fields
+  document.getElementById('sp-claude-key').value = SETTINGS.claudeKey;
+  document.getElementById('sp-tts-key').value = SETTINGS.ttsKey;
+  document.getElementById('sp-stt-key').value = SETTINGS.sttKey;
+
+  // TTS provider radio
+  const prov = SETTINGS.ttsProvider;
+  document.querySelectorAll('input[name="tts-provider"]').forEach(r => {
+    r.checked = r.value === prov;
+    r.closest('.sp-voice-card').style.borderColor = r.checked ? 'var(--gold)' : '';
+  });
+  onTTSProviderChange(prov, false);
+
+  // Browser info
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const bi = document.getElementById('sp-browser-info');
+  if(SpeechRec) {
+    bi.innerHTML = '<i class="fas fa-check-circle" style="color:var(--green);margin-right:5px"></i>Votre navigateur supporte la reconnaissance vocale native — Whisper optionnel.';
+  } else {
+    bi.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:var(--gold);margin-right:5px"></i>Navigateur sans support vocal natif (Firefox). Whisper requis pour la dictée.';
+  }
+
+  document.getElementById('settingsOv').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settingsOv').classList.remove('open');
+}
+
+function saveSettings() {
+  SETTINGS.claudeKey   = document.getElementById('sp-claude-key').value.trim();
+  SETTINGS.ttsKey      = document.getElementById('sp-tts-key').value.trim();
+  SETTINGS.sttKey      = document.getElementById('sp-stt-key').value.trim();
+  const provEl = document.querySelector('input[name="tts-provider"]:checked');
+  if(provEl) SETTINGS.ttsProvider = provEl.value;
+  SETTINGS.ttsOn = SETTINGS.ttsProvider !== 'off';
+  closeSettings();
+  // Confirm
+  const m = {
+    fr: SETTINGS.claudeKey ? '✓ Paramètres sauvegardés. Claude activé — conversation naturelle disponible.' : '✓ Paramètres sauvegardés. Ajoutez une clé Claude pour activer l\'IA.',
+    en: SETTINGS.claudeKey ? '✓ Settings saved. Claude enabled — natural conversation available.' : '✓ Settings saved. Add a Claude key to enable AI.',
+    es: SETTINGS.claudeKey ? '✓ Ajustes guardados. Claude activado.' : '✓ Ajustes guardados. Añada una clave Claude para activar la IA.'
+  };
+  addMessage('ai', m[lang]);
+}
+
+function onTTSProviderChange(prov, fromUI = true) {
+  const keyZone = document.getElementById('sp-tts-key-zone');
+  const elVoices = document.getElementById('sp-el-voices');
+  const oaiVoices = document.getElementById('sp-oai-voices');
+  const keyLabel = document.getElementById('sp-tts-key-label');
+
+  keyZone.style.display = (prov === 'elevenlabs' || prov === 'openai') ? '' : 'none';
+  elVoices.style.display = prov === 'elevenlabs' ? '' : 'none';
+  oaiVoices.style.display = prov === 'openai' ? '' : 'none';
+
+  if(prov === 'elevenlabs') {
+    keyLabel.textContent = 'Clé API ElevenLabs';
+    document.getElementById('sp-tts-key').placeholder = 'xi_...';
+    renderVoiceChips('sp-el-voice-list', EL_VOICES, SETTINGS.elVoiceId, (id) => { SETTINGS.elVoiceId = id; });
+  } else if(prov === 'openai') {
+    keyLabel.textContent = 'Clé API OpenAI';
+    document.getElementById('sp-tts-key').placeholder = 'sk-...';
+    renderVoiceChips('sp-oai-voice-list', OAI_VOICES, SETTINGS.oaiVoice, (id) => { SETTINGS.oaiVoice = id; });
+  }
+}
+
+function renderVoiceChips(containerId, voices, activeId, onSelect) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  voices.forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'sp-v-chip' + (v.id === activeId ? ' active' : '');
+    btn.innerHTML = v.name + '<small>' + v.desc + '</small>';
+    btn.onclick = () => {
+      onSelect(v.id);
+      c.querySelectorAll('.sp-v-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    c.appendChild(btn);
+  });
+}
+
+function toggleVisibility(inputId) {
+  const el = document.getElementById(inputId);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+function init() {
+  renderSuggestions();
+  setLang('fr');
+
+  // Load voices async (browser TTS)
+  if(window.speechSynthesis) {
+    speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  // Welcome message
+  setTimeout(() => {
+    showTyping();
+    setTimeout(() => {
+      removeTyping();
+      const welcome = I18N[lang].welcome;
+      addMessage('ai', welcome);
+      speakText(welcome);
+      // Hint si pas de clé Claude
+      if(!SETTINGS.claudeKey) {
+        setTimeout(() => {
+          const hint = {
+            fr: '💡 Conseil : ouvrez les **Paramètres ⚙️** (en haut à droite) pour connecter Claude et activer la conversation libre, et choisir une voix plus réaliste (ElevenLabs, OpenAI).',
+            en: '💡 Tip: open **Settings ⚙️** (top right) to connect Claude for free conversation, and choose a more realistic voice (ElevenLabs, OpenAI).',
+            es: '💡 Consejo: abra los **Ajustes ⚙️** (arriba a la derecha) para conectar Claude y elegir una voz más realista.'
+          };
+          addMessage('ai', hint[lang]);
+        }, 3000);
+      }
+    }, 1800);
+  }, 600);
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>

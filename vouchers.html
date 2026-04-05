@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE ESTATE — Vouchers</title>
+<meta name="description" content="THE ESTATE — Gestion des vouchers — Émission, suivi et transfert des nuitées de luxe.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#040D1C">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="THE ESTATE">
+<meta property="og:title" content="THE ESTATE — Vouchers">
+<meta property="og:description" content="Émission, suivi et transfert des nuitées de luxe.">
+<meta property="og:url" content="https://the-estate.app/vouchers.html">
+<meta property="og:image" content="https://the-estate.app/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="THE ESTATE — Vouchers">
+<meta name="twitter:description" content="Émission, suivi et transfert des nuitées de luxe.">
+<meta name="twitter:image" content="https://the-estate.app/og-cover.jpg">
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');</script>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-l:#E8D5A3;--gold-d:#9A7A28;
+  --navy:#040D1C;--navy-mid:#071528;--navy-l:#0A1E38;--navy-card:#0D2545;--navy-h:#102F58;
+  --text:#F5F0E8;--text-m:rgba(245,240,232,.55);--text-s:rgba(245,240,232,.28);
+  --border:rgba(201,168,76,.15);--border-h:rgba(201,168,76,.4);
+  --success:#10B981;--warning:#F59E0B;--danger:#EF4444;
+}
+html,body{min-height:100%;background:var(--navy);color:var(--text);font-family:'Inter',sans-serif}
+body{display:flex;flex-direction:column}
+
+/* NAV */
+.topnav{height:56px;background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;position:sticky;top:0;z-index:200}
+.nav-back{display:flex;align-items:center;gap:8px;color:var(--text-m);text-decoration:none;font-size:.78rem;letter-spacing:.06em;transition:color .3s;white-space:nowrap}
+.nav-back:hover{color:var(--gold)}
+.nav-logo-wrap{display:flex;align-items:center;gap:10px;margin:0 auto}
+.nav-logo-mark{width:30px;height:30px;background:var(--gold);display:flex;align-items:center;justify-content:center}
+.nav-logo-mark span{font-family:'Playfair Display',serif;font-size:.85rem;font-weight:700;color:var(--navy)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;letter-spacing:.12em;color:var(--text)}
+.nav-map-btn{display:flex;align-items:center;gap:7px;color:var(--text-m);text-decoration:none;font-size:.72rem;letter-spacing:.08em;border:1px solid var(--border);padding:7px 14px;transition:all .3s}
+.nav-map-btn:hover{border-color:var(--gold);color:var(--gold)}
+.nav-balance{background:rgba(201,168,76,.08);border:1px solid var(--border);padding:7px 14px;font-size:.72rem;color:var(--text-m);white-space:nowrap}
+.nav-balance strong{color:var(--gold);font-family:'Playfair Display',serif}
+
+/* BALANCE STRIP */
+.balance-strip{background:var(--navy-mid);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;gap:20px;overflow-x:auto;flex-shrink:0}
+.balance-strip::-webkit-scrollbar{height:3px}
+.balance-strip::-webkit-scrollbar-thumb{background:var(--border)}
+.balance-group{flex:1;min-width:140px;background:var(--navy-card);border:1px solid var(--border);padding:12px 14px;transition:border-color .3s}
+.balance-group:hover{border-color:var(--border-h)}
+.bg-header{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.bg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.bg-name{font-size:.68rem;font-weight:500;color:var(--text-m);letter-spacing:.04em;flex:1}
+.bg-nights{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gold);line-height:1;margin-bottom:4px}
+.bg-bar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.bg-bar-fill{height:100%;border-radius:2px;transition:width .5s ease}
+.bg-value{font-size:.6rem;color:var(--text-s)}
+
+/* MAIN */
+.main-content{flex:1;padding:24px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.page-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:500}
+.page-subtitle{font-size:.75rem;color:var(--text-m);margin-top:3px}
+.new-voucher-btn{background:var(--gold);color:var(--navy);border:none;padding:10px 22px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;display:flex;align-items:center;gap:8px;transition:all .3s}
+.new-voucher-btn:hover{background:var(--gold-l);transform:translateY(-1px)}
+
+/* FILTERS */
+.filters-row{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-tab{padding:8px 16px;font-size:.68rem;letter-spacing:.08em;background:transparent;border:1px solid var(--border);color:var(--text-m);cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.filter-tab:hover{border-color:var(--border-h);color:var(--text)}
+.filter-tab.active{background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold)}
+.filter-spacer{flex:1}
+.search-input-wrap{position:relative}
+.search-input{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:8px 12px 8px 34px;font-size:.75rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s;width:220px}
+.search-input:focus{border-color:var(--gold)}
+.search-input::placeholder{color:var(--text-s)}
+.search-input-wrap i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-s);font-size:.75rem}
+.status-filter{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-m);padding:8px 12px;font-size:.72rem;font-family:'Inter',sans-serif;outline:none;cursor:pointer;transition:border-color .3s}
+.status-filter:focus{border-color:var(--gold)}
+.status-filter option{background:var(--navy-l)}
+
+/* VOUCHER GRID */
+.voucher-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.no-results{text-align:center;padding:60px 20px;color:var(--text-m)}
+.no-results i{font-size:2rem;color:var(--text-s);margin-bottom:12px;display:block}
+
+/* VOUCHER CARD */
+.voucher-card{background:var(--navy-card);border:1px solid var(--border);overflow:hidden;transition:all .35s;position:relative}
+.voucher-card:hover{border-color:var(--border-h);transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.vc-img{position:relative;height:120px;overflow:hidden}
+.vc-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.voucher-card:hover .vc-img img{transform:scale(1.05)}
+.vc-img::after{content:'';position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to top,rgba(13,37,69,.95),transparent)}
+.vc-code{position:absolute;bottom:8px;left:12px;font-family:'Playfair Display',serif;font-size:.82rem;color:var(--gold);letter-spacing:.08em;z-index:1}
+.vc-status{position:absolute;top:8px;right:8px;padding:3px 9px;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;z-index:1}
+.vc-active{background:rgba(16,185,129,.2);color:#10B981;border:1px solid rgba(16,185,129,.3)}
+.vc-expiring{background:rgba(245,158,11,.2);color:#F59E0B;border:1px solid rgba(245,158,11,.3)}
+.vc-used{background:rgba(239,68,68,.15);color:#EF4444;border:1px solid rgba(239,68,68,.25)}
+.vc-resold{background:rgba(139,92,246,.15);color:#8B5CF6;border:1px solid rgba(139,92,246,.25)}
+.vc-group-badge{position:absolute;top:8px;left:8px;padding:3px 9px;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;z-index:1}
+.vc-body{padding:12px 14px 14px}
+.vc-hotel{font-family:'Playfair Display',serif;font-size:.9rem;font-weight:500;margin-bottom:1px;line-height:1.3}
+.vc-sub{font-size:.68rem;color:var(--text-m);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.vc-guest-row{display:flex;align-items:center;gap:6px;font-size:.7rem;color:var(--text-m);margin-bottom:10px;min-height:18px}
+.vc-guest-row i{font-size:.65rem;color:var(--text-s)}
+.vc-unassigned{color:var(--text-s);font-style:italic}
+.vc-progress-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px}
+.vc-nights-big{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold);line-height:1}
+.vc-nights-meta{text-align:right}
+.vc-nights-lbl{font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-s)}
+.vc-nights-used{font-size:.62rem;color:var(--text-m);margin-top:1px}
+.vc-bar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.vc-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold));border-radius:2px;transition:width .5s}
+.vc-expiry{font-size:.65rem;color:var(--text-m);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.vc-expiry i{font-size:.6rem}
+.vc-expiry.soon{color:var(--warning)}
+.vc-footer{display:flex;gap:6px;padding-top:10px;border-top:1px solid var(--border)}
+.vc-btn{flex:1;padding:7px 8px;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;transition:all .3s;border:1px solid var(--border);background:transparent;color:var(--text-m);display:flex;align-items:center;justify-content:center;gap:5px}
+.vc-btn:hover{border-color:var(--gold);color:var(--gold)}
+.vc-btn.assign{color:var(--success);border-color:rgba(16,185,129,.35)}
+.vc-btn.assign:hover{background:rgba(16,185,129,.1);border-color:var(--success)}
+.vc-btn.resell{color:#8B5CF6;border-color:rgba(139,92,246,.35)}
+.vc-btn.resell:hover{background:rgba(139,92,246,.1);border-color:#8B5CF6}
+.vc-btn:disabled,.vc-btn[disabled]{opacity:.35;cursor:not-allowed;pointer-events:none}
+
+/* MODAL BASE */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(4,13,28,.93);backdrop-filter:blur(18px);z-index:800;align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:var(--navy-mid);border:1px solid var(--border);width:100%;max-width:600px;animation:slideUp .35s ease;margin:auto}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:500}
+.modal-close{background:none;border:none;color:var(--text-m);cursor:pointer;font-size:.95rem;width:30px;height:30px;display:flex;align-items:center;justify-content:center;transition:color .3s}
+.modal-close:hover{color:var(--gold)}
+.modal-body{padding:24px 28px}
+.modal-footer{padding:16px 28px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.btn-cancel{background:transparent;border:1px solid var(--border);color:var(--text-m);padding:10px 22px;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;transition:all .3s}
+.btn-cancel:hover{border-color:var(--border-h);color:var(--text)}
+.btn-confirm{padding:10px 26px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;border:none;transition:all .3s}
+.btn-confirm.green{background:var(--success);color:#fff}
+.btn-confirm.green:hover{background:#0d9e6e}
+.btn-confirm.purple{background:#8B5CF6;color:#fff}
+.btn-confirm.purple:hover{background:#7c3aed}
+.btn-confirm.gold{background:var(--gold);color:var(--navy)}
+.btn-confirm.gold:hover{background:var(--gold-l)}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-m)}
+.form-input{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-size:.82rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s;width:100%}
+.form-input:focus{border-color:var(--gold)}
+.form-input::placeholder{color:var(--text-s)}
+textarea.form-input{resize:vertical;min-height:70px}
+
+/* VOUCHER INFO BOX */
+.voucher-info-box{background:rgba(201,168,76,.05);border:1px solid var(--border);border-left:2px solid var(--gold);padding:14px 18px;margin-bottom:18px;display:flex;gap:16px;flex-wrap:wrap}
+.vib-item{display:flex;flex-direction:column;gap:3px}
+.vib-lbl{font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-s)}
+.vib-val{font-size:.82rem;color:var(--text);font-weight:500}
+.vib-val.gold{color:var(--gold);font-family:'Playfair Display',serif}
+
+/* VOUCHER PREVIEW */
+.voucher-preview{background:var(--navy-card);border:1px solid var(--gold);padding:18px 20px;margin-top:16px;position:relative;overflow:hidden}
+.voucher-preview::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(201,168,76,.12),transparent 70%)}
+.vp-label{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.vp-hotel{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:2px}
+.vp-guest{font-size:.72rem;color:var(--text-m);margin-bottom:10px}
+.vp-row{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-m);margin-bottom:3px}
+.vp-row span:last-child{color:var(--text)}
+.vp-nights{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--gold);line-height:1;margin-top:10px}
+.vp-nights-lbl{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-s)}
+
+/* RESELL MODAL */
+.resell-card{background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.25);padding:20px 24px;margin-bottom:16px;text-align:center}
+.resell-amount-lbl{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(139,92,246,.8);margin-bottom:6px}
+.resell-amount{font-family:'Playfair Display',serif;font-size:2.4rem;color:#8B5CF6;line-height:1;margin-bottom:4px}
+.resell-sub{font-size:.7rem;color:var(--text-m)}
+.resell-breakdown{display:flex;justify-content:center;gap:20px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(139,92,246,.15)}
+.rsb-item{text-align:center}
+.rsb-val{font-size:.9rem;font-weight:600;color:var(--text)}
+.rsb-lbl{font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-s);margin-top:3px}
+
+/* SLIDER */
+.slider-wrap{margin:12px 0 16px}
+.slider-lbl-row{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-m);margin-bottom:8px}
+.slider-lbl-row strong{color:var(--gold);font-family:'Playfair Display',serif}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:rgba(255,255,255,.1);border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--navy);box-shadow:0 0 0 3px rgba(201,168,76,.25)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--navy)}
+
+/* COMPARISON TABLE */
+.compare-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:.72rem}
+.compare-table th{padding:9px 12px;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-s);text-align:center;border-bottom:1px solid var(--border);font-weight:400}
+.compare-table td{padding:10px 12px;text-align:center;border-bottom:1px solid var(--border);color:var(--text-m)}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table td.highlight{color:var(--gold);font-weight:600;font-family:'Playfair Display',serif}
+.compare-table td.highlight-purple{color:#8B5CF6;font-weight:600;font-family:'Playfair Display',serif}
+.compare-table th:first-child,.compare-table td:first-child{text-align:left}
+.col-sell{color:#8B5CF6!important}
+
+/* RESELL DETAILS */
+.resell-details{background:var(--navy-l);border:1px solid var(--border);padding:14px 16px;margin-bottom:16px}
+.rd-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(201,168,76,.06);font-size:.78rem}
+.rd-row:last-child{border-bottom:none;padding-top:8px;margin-top:3px}
+.rd-lbl{color:var(--text-m)}
+.rd-val{color:var(--text);font-weight:500}
+.rd-val.gold{color:var(--gold);font-family:'Playfair Display',serif;font-size:.95rem}
+.rd-val.purple{color:#8B5CF6}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:1000;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:var(--navy-mid);border:1px solid var(--border);border-left:3px solid var(--gold);padding:14px 18px;min-width:260px;max-width:380px;animation:toastIn .35s ease;pointer-events:all;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.toast.green{border-left-color:var(--success)}
+.toast.purple{border-left-color:#8B5CF6}
+@keyframes toastIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
+.toast.out{animation:toastOut .3s ease forwards}
+.toast-title{font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:3px}
+.toast-msg{font-size:.7rem;color:var(--text-m)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2)}
+
+/* HISTORY TAB */
+.tab-nav{display:flex;border-bottom:1px solid var(--border);margin-bottom:0;background:var(--navy-mid)}
+.vnav-btn{padding:14px 24px;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-m);cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;font-family:'Inter',sans-serif;transition:all .3s;display:flex;align-items:center;gap:8px}
+.vnav-btn:hover{color:var(--text)}
+.vnav-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.vtab-content{display:none}
+.vtab-content.active{display:block}
+
+/* History */
+.hist-filterbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.hist-select{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-size:.75rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s;cursor:pointer}
+.hist-select:focus{border-color:var(--gold)}
+.hist-select option{background:#071528}
+.hist-search{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:8px 32px 8px 12px;font-size:.75rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s;min-width:200px}
+.hist-search:focus{border-color:var(--gold)}
+.hist-search::placeholder{color:rgba(245,240,232,.28)}
+.hist-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.hs-stat{background:rgba(255,255,255,.03);border:1px solid var(--border);padding:16px 18px;text-align:center}
+.hs-val{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold);line-height:1;margin-bottom:6px}
+.hs-lbl{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,240,232,.3)}
+.hist-timeline{display:flex;flex-direction:column;gap:0}
+.hist-month-group{margin-bottom:28px}
+.hist-month-label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,240,232,.3);padding:0 0 12px;border-bottom:1px solid rgba(201,168,76,.1);margin-bottom:16px}
+.hist-entry{display:grid;grid-template-columns:120px 36px 1fr auto;gap:0 16px;align-items:start;padding:14px 0;border-bottom:1px solid rgba(201,168,76,.06);transition:background .2s;cursor:default}
+.hist-entry:hover{background:rgba(201,168,76,.03)}
+.hist-date{font-size:.7rem;color:rgba(245,240,232,.4);padding-top:3px;line-height:1.4}
+.hist-icon-col{display:flex;flex-direction:column;align-items:center;padding-top:2px}
+.hist-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.hist-icon.attribution{background:rgba(16,185,129,.15);color:#10B981}
+.hist-icon.revente{background:rgba(139,92,246,.15);color:#8B5CF6}
+.hist-icon.utilisation{background:rgba(201,168,76,.15);color:#C9A84C}
+.hist-icon.creation{background:rgba(30,58,110,.3);color:#8cacdf}
+.hist-line-v{flex:1;width:1px;background:rgba(201,168,76,.08);margin-top:6px}
+.hist-content{padding-top:2px}
+.hist-action-label{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.hist-action-label.attribution{color:#10B981}
+.hist-action-label.revente{color:#8B5CF6}
+.hist-action-label.utilisation{color:#C9A84C}
+.hist-action-label.creation{color:#8cacdf}
+.hist-hotel{font-size:.85rem;font-weight:500;color:var(--text);margin-bottom:3px}
+.hist-detail{font-size:.72rem;color:rgba(245,240,232,.55);line-height:1.5}
+.hist-beneficiary{display:flex;align-items:center;gap:8px;margin-top:6px;background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.1);padding:6px 10px;width:fit-content}
+.hist-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#8B6914,#C9A84C);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#040D1C;flex-shrink:0}
+.hist-ben-name{font-size:.72rem;font-weight:500;color:var(--text)}
+.hist-ben-email{font-size:.62rem;color:rgba(245,240,232,.4)}
+.hist-amount{text-align:right;padding-top:4px}
+.hist-amount-val{font-family:'Playfair Display',serif;font-size:1rem;color:#8B5CF6;white-space:nowrap}
+.hist-amount-lbl{font-size:.58rem;color:rgba(245,240,232,.3);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.hist-nights-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);color:var(--gold);font-size:.62rem;padding:2px 8px;margin-top:4px}
+.hist-no-results{text-align:center;padding:56px;color:rgba(245,240,232,.4);font-size:.85rem}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .topnav{padding:0 12px;gap:8px}
+  .nav-balance{display:none}
+  .nav-map-btn span{display:none}
+  .balance-strip{padding:10px 12px;gap:10px}
+  .balance-group{min-width:120px}
+  .main-content{padding:16px}
+  .voucher-grid{grid-template-columns:1fr}
+  .filters-row{gap:6px}
+  .filter-spacer{display:none}
+  .search-input{width:100%}
+  .search-input-wrap{flex:1}
+  .page-header{flex-direction:column;align-items:flex-start}
+  .form-grid{grid-template-columns:1fr}
+  .form-full{grid-column:1}
+  .modal{max-width:calc(100vw - 24px)}
+  .modal-body{padding:16px 18px}
+  .modal-header{padding:16px 18px}
+  .modal-footer{padding:12px 18px 16px}
+  .compare-table{font-size:.62rem}
+  .resell-breakdown{gap:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPNAV -->
+<nav class="topnav">
+  <a href="dashboard.html" class="nav-back"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  <div class="nav-logo-wrap">
+    <div class="nav-logo-mark"><span>E</span></div>
+    <div class="nav-logo">THE ESTATE</div>
+  </div>
+  <a href="map.html" class="nav-map-btn"><i class="fas fa-map-marked-alt"></i> Carte</a>
+  <div class="nav-balance" id="globalBalance">
+    <strong id="totalNights">–</strong> nuits disponibles · Valeur potentielle <strong id="totalValue">–</strong>
+  </div>
+</nav>
+
+<!-- BALANCE STRIP -->
+<div class="balance-strip" id="balanceStrip"></div>
+
+<!-- MAIN -->
+<div class="main-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Gestion des Vouchers</div>
+      <div class="page-subtitle">Attribuez, utilisez ou revendez vos nuitées contractuelles</div>
+    </div>
+    <button class="new-voucher-btn" onclick="openNewVoucher()"><i class="fas fa-plus"></i> Nouveau Voucher</button>
+  </div>
+
+  <!-- ONGLETS -->
+  <div class="tab-nav">
+    <button class="vnav-btn active" onclick="switchVTab('vouchers',this)"><i class="fas fa-ticket-alt"></i> Vouchers Actifs</button>
+    <button class="vnav-btn" onclick="switchVTab('history',this)"><i class="fas fa-history"></i> Historique & Attributions</button>
+  </div>
+
+  <!-- TAB VOUCHERS (contenu existant) -->
+  <div id="vtab-vouchers" class="vtab-content active">
+    <!-- FILTERS -->
+    <div class="filters-row" id="filterRow" style="margin-top:20px">
+      <button class="filter-tab active" data-group="all" onclick="setGroupFilter(this,'all')">Tous</button>
+      <button class="filter-tab" data-group="Accor" onclick="setGroupFilter(this,'Accor')">Accor</button>
+      <button class="filter-tab" data-group="Hilton" onclick="setGroupFilter(this,'Hilton')">Hilton</button>
+      <button class="filter-tab" data-group="Marriott" onclick="setGroupFilter(this,'Marriott')">Marriott</button>
+      <button class="filter-tab" data-group="Hyatt" onclick="setGroupFilter(this,'Hyatt')">Hyatt</button>
+      <button class="filter-tab" data-group="Four Seasons" onclick="setGroupFilter(this,'Four Seasons')">Four Seasons</button>
+      <button class="filter-tab" data-group="Mandarin Oriental" onclick="setGroupFilter(this,'Mandarin Oriental')">Mandarin Oriental</button>
+      <div class="filter-spacer"></div>
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input class="search-input" id="voucherSearch" type="text" placeholder="Rechercher..." oninput="renderVouchers()">
+      </div>
+      <select class="status-filter" id="statusFilter" onchange="renderVouchers()">
+        <option value="all">Tous statuts</option>
+        <option value="active">Actifs</option>
+        <option value="expiring">Expirants</option>
+        <option value="used">Épuisés</option>
+        <option value="resold">Revendus</option>
+      </select>
+    </div>
+
+    <!-- VOUCHER GRID -->
+    <div class="voucher-grid" id="voucherGrid"></div>
+  </div>
+
+  <!-- TAB HISTORIQUE -->
+  <div id="vtab-history" class="vtab-content">
+    <!-- Summary stats -->
+    <div class="hist-summary" style="margin-top:24px;padding:0 32px">
+      <div class="hs-stat"><div class="hs-val" id="hsTotalActions"></div><div class="hs-lbl">Actions totales</div></div>
+      <div class="hs-stat"><div class="hs-val" id="hsTotalAttributions"></div><div class="hs-lbl">Attributions</div></div>
+      <div class="hs-stat"><div class="hs-val" id="hsReventes"></div><div class="hs-lbl">Revendus</div></div>
+      <div class="hs-stat"><div class="hs-val" id="hsTotalRevente" style="color:#8B5CF6"></div><div class="hs-lbl">Revenus reventes</div></div>
+    </div>
+    <!-- Filtres historique -->
+    <div class="hist-filterbar" style="padding:16px 32px;border-bottom:1px solid var(--border)">
+      <select class="hist-select" id="histActionFilter" onchange="renderHistory()">
+        <option value="all">Toutes les actions</option>
+        <option value="attribution">Attributions</option>
+        <option value="revente">Reventes</option>
+        <option value="utilisation">Utilisations</option>
+        <option value="creation">Créations</option>
+      </select>
+      <select class="hist-select" id="histHotelFilter" onchange="renderHistory()">
+        <option value="all">Tous les hôtels</option>
+      </select>
+      <select class="hist-select" id="histYearFilter" onchange="renderHistory()">
+        <option value="all">Toutes les années</option>
+        <option value="2026">2026</option>
+        <option value="2025">2025</option>
+      </select>
+      <input class="hist-search" type="text" id="histSearch" placeholder="Bénéficiaire, hôtel, ID voucher..." oninput="renderHistory()">
+      <span id="histCount" style="font-size:.7rem;color:rgba(245,240,232,.4);margin-left:auto"></span>
+    </div>
+    <!-- Timeline -->
+    <div style="padding:24px 32px" id="histTimeline"></div>
+  </div>
+</div>
+
+<!-- ASSIGN MODAL -->
+<div class="modal-overlay" id="assignModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fas fa-user-plus" style="color:var(--success);margin-right:8px"></i>Attribuer le voucher <span id="assignVoucherId" style="color:var(--gold)"></span></h3>
+      <button class="modal-close" onclick="closeModal('assignModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="voucher-info-box" id="assignInfoBox"></div>
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label class="form-label">Nombre de nuitées à attribuer</label>
+          <input class="form-input" id="assignNights" type="number" min="1" placeholder="Ex: 3" oninput="updateAssignPreview()">
+          <span style="font-size:.65rem;color:var(--text-s);margin-top:3px" id="assignMaxHint"></span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prénom & Nom</label>
+          <input class="form-input" id="assignName" type="text" placeholder="Alexandra Morel" oninput="updateAssignPreview()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="assignEmail" type="email" placeholder="email@example.com" oninput="updateAssignPreview()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Téléphone</label>
+          <input class="form-input" id="assignPhone" type="text" placeholder="+33 6 00 00 00 00">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Note (optionnel)</label>
+          <textarea class="form-input" id="assignNote" placeholder="Instructions spéciales, occasion..."></textarea>
+        </div>
+      </div>
+      <!-- LIVE PREVIEW -->
+      <div class="voucher-preview" id="assignPreview">
+        <div class="vp-label">Aperçu du Voucher</div>
+        <div class="vp-hotel" id="pvHotel">—</div>
+        <div class="vp-guest" id="pvGuest" style="color:var(--text-s);font-style:italic">Bénéficiaire non renseigné</div>
+        <div class="vp-row"><span>Chambre</span><span id="pvRoom">—</span></div>
+        <div class="vp-row"><span>ADR</span><span id="pvAdr">—</span></div>
+        <div class="vp-nights" id="pvNights">—</div>
+        <div class="vp-nights-lbl">Nuitées attribuées</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('assignModal')">Annuler</button>
+      <button class="btn-confirm green" onclick="confirmAssign()"><i class="fas fa-paper-plane"></i> Confirmer & Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESELL MODAL -->
+<div class="modal-overlay" id="resellModal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <h3><i class="fas fa-exchange-alt" style="color:#8B5CF6;margin-right:8px"></i>Simulateur de Revente</h3>
+      <button class="modal-close" onclick="closeModal('resellModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="voucher-info-box" id="resellInfoBox"></div>
+
+      <!-- SLIDER -->
+      <div class="slider-wrap">
+        <div class="slider-lbl-row">
+          <span>Nuitées à revendre</span>
+          <strong id="sliderVal">1</strong>
+        </div>
+        <input type="range" id="resellSlider" min="1" max="10" value="1" oninput="updateResellCalc()">
+      </div>
+
+      <!-- RESELL CARD -->
+      <div class="resell-card">
+        <div class="resell-amount-lbl">Valeur de revente estimée</div>
+        <div class="resell-amount" id="resellAmount">€0</div>
+        <div class="resell-sub" id="resellSub">0 nuits × €0/nuit × 0%</div>
+        <div class="resell-breakdown">
+          <div class="rsb-item"><div class="rsb-val" id="rsNominal">€0</div><div class="rsb-lbl">Valeur nominale</div></div>
+          <div class="rsb-item"><div class="rsb-val" id="rsGain" style="color:var(--warning)">0%</div><div class="rsb-lbl">Gain liquidité</div></div>
+          <div class="rsb-item"><div class="rsb-val" id="rsTaux">0%</div><div class="rsb-lbl">Taux de rachat</div></div>
+        </div>
+      </div>
+
+      <!-- DETAILS -->
+      <div class="resell-details" id="resellDetails"></div>
+
+      <!-- COMPARISON -->
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Scénario</th>
+            <th class="col-sell">Revente maintenant</th>
+            <th>Garder pour invité</th>
+            <th>Utiliser soi-même</th>
+          </tr>
+        </thead>
+        <tbody id="compareBody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('resellModal')">Annuler</button>
+      <button class="btn-confirm purple" onclick="confirmResell()"><i class="fas fa-check"></i> Confirmer la revente</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ===== DATA ===== */
+const hotels = [
+  {id:1,name:"Sofitel Le Faubourg",group:"Accor",subBrand:"Sofitel",city:"Paris",country:"France",flag:"🇫🇷",lat:48.870,lng:2.321,category:"Palace",stars:5,roomsOwned:2,rooms:[{num:"715",floor:7,type:"Suite Prestige",sqm:95,adr:850},{num:"716",floor:7,type:"Suite Deluxe",sqm:80,adr:780}],adr:815,revenueMonthly:42500,revenueSplit:55,availability:"available",occupancy:78,image:"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80&auto=format&fit=crop",amenities:["Spa Kos","Gastronomie","Bar Blossom","Concierge 24/7","Fitness"],totalValue:2800000,nightsAvail:125,nightsUsed:42},
+  {id:2,name:"Waldorf Astoria",group:"Hilton",subBrand:"Waldorf Astoria",city:"Dubai",country:"UAE",flag:"🇦🇪",lat:25.204,lng:55.271,category:"Ultra-Luxe",stars:5,roomsOwned:3,rooms:[{num:"3201",floor:32,type:"Suite Royale",sqm:220,adr:2200},{num:"3202",floor:32,type:"Suite Panorama",sqm:180,adr:1900},{num:"2801",floor:28,type:"Suite Deluxe",sqm:140,adr:1500}],adr:1867,revenueMonthly:98000,revenueSplit:60,availability:"occupied",occupancy:94,image:"https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&q=80&auto=format&fit=crop",amenities:["Infinity Pool","Spa","5 Restaurants","Beach Club","Butler Privé"],totalValue:8400000,nightsAvail:60,nightsUsed:88},
+  {id:3,name:"Ritz-Carlton Central Park",group:"Marriott",subBrand:"Ritz-Carlton",city:"New York",country:"USA",flag:"🇺🇸",lat:40.764,lng:-73.973,category:"Palace",stars:5,roomsOwned:1,rooms:[{num:"1510",floor:15,type:"Suite Central Park",sqm:160,adr:1800}],adr:1800,revenueMonthly:52000,revenueSplit:55,availability:"available",occupancy:65,image:"https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?w=800&q=80&auto=format&fit=crop",amenities:["Spa RC","Club Lounge","Restaurant","Fitness Elite"],totalValue:3800000,nightsAvail:145,nightsUsed:28},
+  {id:4,name:"Four Seasons Resort",group:"Four Seasons",subBrand:"Four Seasons",city:"Bora Bora",country:"Polynésie Fr.",flag:"🇵🇫",lat:-16.500,lng:-151.742,category:"Resort",stars:5,roomsOwned:4,rooms:[{num:"OW-12",floor:1,type:"Villa Overwater",sqm:320,adr:4200},{num:"OW-13",floor:1,type:"Villa Overwater",sqm:320,adr:4200},{num:"BV-05",floor:1,type:"Villa Beach",sqm:280,adr:3600},{num:"BV-06",floor:1,type:"Villa Beach Premium",sqm:350,adr:3900}],adr:3975,revenueMonthly:142000,revenueSplit:60,availability:"partial",occupancy:82,image:"https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=800&q=80&auto=format&fit=crop",amenities:["Lagoon Privé","Spa 3000m²","4 Restaurants","Water Sports","Butler"],totalValue:12200000,nightsAvail:80,nightsUsed:64},
+  {id:5,name:"Park Hyatt",group:"Hyatt",subBrand:"Park Hyatt",city:"Tokyo",country:"Japon",flag:"🇯🇵",lat:35.687,lng:139.694,category:"Urban Luxe",stars:5,roomsOwned:2,rooms:[{num:"4701",floor:47,type:"Suite Fuji View",sqm:120,adr:1100},{num:"4802",floor:48,type:"Suite Tokyo View",sqm:100,adr:950}],adr:1025,revenueMonthly:48000,revenueSplit:55,availability:"available",occupancy:71,image:"https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80&auto=format&fit=crop",amenities:["Pool 47e étage","Spa","New York Bar","Restaurant","Fitness"],totalValue:2100000,nightsAvail:110,nightsUsed:52},
+  {id:6,name:"Mandarin Oriental",group:"Mandarin Oriental",subBrand:"Mandarin Oriental",city:"Londres",country:"UK",flag:"🇬🇧",lat:51.502,lng:-0.161,category:"Palace",stars:5,roomsOwned:2,rooms:[{num:"801",floor:8,type:"Suite Hyde Park",sqm:180,adr:1800},{num:"802",floor:8,type:"Suite Garden",sqm:150,adr:1500}],adr:1650,revenueMonthly:72000,revenueSplit:58,availability:"occupied",occupancy:88,image:"https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80&auto=format&fit=crop",amenities:["Spa Award Winning","Pool","Dinner by Heston","Bar","Concierge"],totalValue:5200000,nightsAvail:72,nightsUsed:76},
+  {id:7,name:"Raffles Le Royal Monceau",group:"Accor",subBrand:"Raffles",city:"Paris",country:"France",flag:"🇫🇷",lat:48.876,lng:2.303,category:"Palace",stars:5,roomsOwned:1,rooms:[{num:"201",floor:2,type:"Suite Prestige Jardin",sqm:200,adr:2200}],adr:2200,revenueMonthly:56000,revenueSplit:55,availability:"available",occupancy:60,image:"https://images.unsplash.com/photo-1551882547-ff40c63fe2e2?w=800&q=80&auto=format&fit=crop",amenities:["Spa My Blend","Piscine","Cinéma Privé","Carita","Art Gallery","Butler"],totalValue:4800000,nightsAvail:160,nightsUsed:22},
+  {id:8,name:"Conrad Rangali Island",group:"Hilton",subBrand:"Conrad",city:"Maldives",country:"Maldives",flag:"🇲🇻",lat:3.688,lng:72.741,category:"Resort Overwater",stars:5,roomsOwned:3,rooms:[{num:"OW-01",floor:1,type:"Ocean Villa",sqm:290,adr:3500},{num:"OW-02",floor:1,type:"Two-Bedroom Ocean Villa",sqm:450,adr:5200},{num:"LA-01",floor:1,type:"Lagoon Villa",sqm:250,adr:2800}],adr:3833,revenueMonthly:134000,revenueSplit:60,availability:"partial",occupancy:76,image:"https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&q=80&auto=format&fit=crop",amenities:["Restaurant Sous-Marin","Spa 2000m²","Plongée","Water Sports","Butler","Hydravion"],totalValue:11500000,nightsAvail:90,nightsUsed:58}
+];
+
+const groupColors = {
+  'Accor':'#C41E3A','Hilton':'#1E3A6E','Marriott':'#8B1A1A',
+  'Hyatt':'#2E7D32','Four Seasons':'#1B4332','Mandarin Oriental':'#6D4C41'
+};
+
+const resellRates = {
+  'Accor': 0.75, 'Hilton': 0.80, 'Marriott': 0.72,
+  'Hyatt': 0.78, 'Four Seasons': 0.85, 'Mandarin Oriental': 0.82
+};
+
+// Mutable nights state keyed by hotel id
+const nightsState = {};
+hotels.forEach(h => { nightsState[h.id] = h.nightsAvail; });
+
+let vouchers = [
+  {id:'V001',hotelId:4,hotel:'Four Seasons Resort',group:'Four Seasons',city:'Bora Bora',room:'OW-12',roomType:'Villa Overwater',adr:4200,guest:'Alexandra Morel',email:'a.morel@privateclient.com',phone:'+33 6 12 34 56 78',nights:7,nightsUsed:2,expiry:'2026-12-31',status:'active',created:'2026-01-10',note:'Séjour anniversaire'},
+  {id:'V002',hotelId:2,hotel:'Waldorf Astoria',group:'Hilton',city:'Dubai',room:'3201',roomType:'Suite Royale',adr:2200,guest:'Pierre-Emmanuel Blanc',email:'pe.blanc@family.office',phone:'+33 1 42 00 00 00',nights:5,nightsUsed:0,expiry:'2026-06-30',status:'active',created:'2026-02-14',note:"Voyage d'affaires"},
+  {id:'V003',hotelId:8,hotel:'Conrad Rangali',group:'Hilton',city:'Maldives',room:'OW-01',roomType:'Ocean Villa',adr:3500,guest:'Isabelle Fontaine',email:'i.fontaine@cpm.fr',phone:'+33 6 98 76 54 32',nights:10,nightsUsed:10,expiry:'2026-03-15',status:'used',created:'2025-12-01',note:'Lune de miel'},
+  {id:'V004',hotelId:6,hotel:'Mandarin Oriental',group:'Mandarin Oriental',city:'Londres',room:'801',roomType:'Suite Hyde Park',adr:1800,guest:'Thomas & Clara Duval',email:'tduval@estate.co.uk',phone:'+44 7700 900000',nights:4,nightsUsed:1,expiry:'2026-04-30',status:'expiring',created:'2026-01-20',note:''},
+  {id:'V005',hotelId:3,hotel:'Ritz-Carlton',group:'Marriott',city:'New York',room:'1510',roomType:'Suite Central Park',adr:1800,guest:'',email:'',phone:'',nights:3,nightsUsed:0,expiry:'2026-09-30',status:'active',created:'2026-03-01',note:''},
+  {id:'V006',hotelId:7,hotel:'Raffles Le Royal Monceau',group:'Accor',city:'Paris',room:'201',roomType:'Suite Prestige Jardin',adr:2200,guest:'Famille Bertrand',email:'famille.bertrand@vip.fr',phone:'+33 1 44 00 00 00',nights:6,nightsUsed:3,expiry:'2026-11-30',status:'active',created:'2026-02-05',note:'Accès spa My Blend inclus'},
+];
+
+let groupFilter = 'all';
+let activeVoucher = null;
+
+/* ===== BALANCE ===== */
+function updateBalance() {
+  // Compute per-group totals from nightsState
+  const groups = {};
+  hotels.forEach(h => {
+    if (!groups[h.group]) groups[h.group] = { nights: 0, maxNights: 0, adr: h.adr };
+    groups[h.group].nights += nightsState[h.id] || 0;
+    groups[h.group].maxNights += h.nightsAvail;
+    groups[h.group].adr = (groups[h.group].adr + h.adr) / 2;
+  });
+
+  // Compute total
+  let totalNights = 0;
+  let totalValue = 0;
+  Object.entries(groups).forEach(([grp, data]) => {
+    totalNights += data.nights;
+    // Estimate value using avg ADR * resell rate
+    const avgAdr = hotels.filter(h => h.group === grp).reduce((s,h) => s + h.adr, 0) /
+                   hotels.filter(h => h.group === grp).length;
+    totalValue += data.nights * avgAdr * (resellRates[grp] || 0.75);
+  });
+
+  document.getElementById('totalNights').textContent = totalNights;
+  document.getElementById('totalValue').textContent = '€' + Math.round(totalValue).toLocaleString('fr-FR');
+
+  // Render balance strip
+  const strip = document.getElementById('balanceStrip');
+  const maxNightsOverall = Math.max(...Object.values(groups).map(g => g.maxNights));
+  strip.innerHTML = Object.entries(groups).map(([grp, data]) => {
+    const pct = data.maxNights > 0 ? Math.round((data.nights / data.maxNights) * 100) : 0;
+    const avgAdr = hotels.filter(h => h.group === grp).reduce((s,h) => s + h.adr, 0) /
+                   hotels.filter(h => h.group === grp).length;
+    const resellVal = Math.round(data.nights * avgAdr * (resellRates[grp] || 0.75));
+    const color = groupColors[grp] || '#C9A84C';
+    return `
+      <div class="balance-group">
+        <div class="bg-header">
+          <div class="bg-dot" style="background:${color}"></div>
+          <div class="bg-name">${grp}</div>
+        </div>
+        <div class="bg-nights" id="balNights_${grp.replace(/\s/g,'_')}">${data.nights}</div>
+        <div class="bg-bar"><div class="bg-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <div class="bg-value">Revente estimée · €${resellVal.toLocaleString('fr-FR')}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ===================== VOUCHER HISTORY DATA =====================
+const voucherHistory = [
+  // 2026
+  {id:'H001',date:'2026-03-15',action:'attribution',voucherId:'V005',hotelId:3,hotel:'Ritz-Carlton Central Park',city:'New York',roomType:'Suite Central Park',nights:3,guest:'Marc Delacroix',email:'m.delacroix@mfo.com',phone:'+33 6 88 77 66 55',amount:0,note:'Séjour professionnel'},
+  {id:'H002',date:'2026-03-10',action:'revente',voucherId:'V008',hotelId:5,hotel:'Park Hyatt Tokyo',city:'Tokyo',roomType:'Suite Fuji View',nights:4,guest:'—',email:'',phone:'',amount:32240,note:'Rachat Hyatt Hotels Corp.'},
+  {id:'H003',date:'2026-02-28',action:'utilisation',voucherId:'V001',hotelId:4,hotel:'Four Seasons Resort',city:'Bora Bora',roomType:'Villa Overwater',nights:2,guest:'Alexandra Morel',email:'a.morel@privateclient.com',phone:'+33 6 12 34 56 78',amount:0,note:'Séjour anniversaire — check-out confirmé'},
+  {id:'H004',date:'2026-02-20',action:'attribution',voucherId:'V002',hotelId:2,hotel:'Waldorf Astoria',city:'Dubai',roomType:'Suite Royale',nights:5,guest:'Pierre-Emmanuel Blanc',email:'pe.blanc@family.office',phone:'+33 1 42 00 00 00',amount:0,note:'Voyage d\'affaires DIFC'},
+  {id:'H005',date:'2026-02-12',action:'revente',voucherId:'V009',hotelId:8,hotel:'Conrad Rangali Island',city:'Maldives',roomType:'Lagoon Villa',nights:6,guest:'—',email:'',phone:'',amount:134400,note:'Rachat Conrad Hotels — taux préférentiel 80%'},
+  {id:'H006',date:'2026-02-05',action:'attribution',voucherId:'V006',hotelId:7,hotel:'Raffles Le Royal Monceau',city:'Paris',roomType:'Suite Prestige Jardin',nights:6,guest:'Famille Bertrand',email:'famille.bertrand@vip.fr',phone:'+33 1 44 00 00 00',amount:0,note:'Séjour famille — accès spa My Blend inclus'},
+  {id:'H007',date:'2026-01-28',action:'utilisation',voucherId:'V004',hotelId:6,hotel:'Mandarin Oriental',city:'Londres',roomType:'Suite Hyde Park',nights:1,guest:'Thomas & Clara Duval',email:'tduval@estate.co.uk',phone:'+44 7700 900000',amount:0,note:'Première nuit consommée'},
+  {id:'H008',date:'2026-01-20',action:'attribution',voucherId:'V004',hotelId:6,hotel:'Mandarin Oriental',city:'Londres',roomType:'Suite Hyde Park',nights:4,guest:'Thomas & Clara Duval',email:'tduval@estate.co.uk',phone:'+44 7700 900000',amount:0,note:''},
+  {id:'H009',date:'2026-01-15',action:'attribution',voucherId:'V006',hotelId:7,hotel:'Raffles Le Royal Monceau',city:'Paris',roomType:'Suite Prestige Jardin',nights:6,guest:'Famille Bertrand',email:'famille.bertrand@vip.fr',phone:'+33 1 44 00 00 00',amount:0,note:''},
+  {id:'H010',date:'2026-01-10',action:'attribution',voucherId:'V001',hotelId:4,hotel:'Four Seasons Resort',city:'Bora Bora',roomType:'Villa Overwater',nights:7,guest:'Alexandra Morel',email:'a.morel@privateclient.com',phone:'+33 6 12 34 56 78',amount:0,note:'Séjour anniversaire'},
+  {id:'H011',date:'2026-01-03',action:'creation',voucherId:'V005',hotelId:3,hotel:'Ritz-Carlton Central Park',city:'New York',roomType:'Suite Central Park',nights:3,guest:'',email:'',phone:'',amount:0,note:'Voucher créé — en attente d\'attribution'},
+  // 2025
+  {id:'H012',date:'2025-12-20',action:'utilisation',voucherId:'V004',hotelId:6,hotel:'Mandarin Oriental',city:'Londres',roomType:'Suite Garden',nights:1,guest:'Thomas & Clara Duval',email:'tduval@estate.co.uk',phone:'+44 7700 900000',amount:0,note:''},
+  {id:'H013',date:'2025-12-10',action:'revente',voucherId:'V010',hotelId:1,hotel:'Sofitel Le Faubourg',city:'Paris',roomType:'Suite Prestige',nights:8,guest:'—',email:'',phone:'',amount:54400,note:'Rachat Accor Hotels — taux 75%'},
+  {id:'H014',date:'2025-11-28',action:'attribution',voucherId:'V011',hotelId:7,hotel:'Raffles Le Royal Monceau',city:'Paris',roomType:'Suite Prestige Jardin',nights:4,guest:'Isabelle & François Martin',email:'imartin@studio.io',phone:'+33 6 55 44 33 22',amount:0,note:'Cadeau d\'anniversaire de mariage'},
+  {id:'H015',date:'2025-11-15',action:'attribution',voucherId:'V012',hotelId:5,hotel:'Park Hyatt Tokyo',city:'Tokyo',roomType:'Suite Fuji View',nights:5,guest:'Sophie & Antoine Renard',email:'s.renard@conseil.fr',phone:'+33 6 77 88 99 00',amount:0,note:'Voyage de noces'},
+  {id:'H016',date:'2025-11-01',action:'revente',voucherId:'V013',hotelId:4,hotel:'Four Seasons Resort',city:'Bora Bora',roomType:'Villa Beach Premium',nights:7,guest:'—',email:'',phone:'',amount:231525,note:'Rachat Four Seasons — taux 85%'},
+  {id:'H017',date:'2025-10-20',action:'attribution',voucherId:'V014',hotelId:2,hotel:'Waldorf Astoria',city:'Dubai',roomType:'Suite Panorama',nights:4,guest:'Christophe & Marie Lefort',email:'clefort@hf-invest.com',phone:'+33 1 45 00 00 00',amount:0,note:'Séjour d\'exception'},
+  {id:'H018',date:'2025-10-05',action:'attribution',voucherId:'V015',hotelId:4,hotel:'Four Seasons Resort',city:'Bora Bora',roomType:'Villa Overwater',nights:6,guest:'Christophe & Marie Lefort',email:'clefort@hf-invest.com',phone:'+33 1 45 00 00 00',amount:0,note:''},
+  {id:'H019',date:'2025-09-22',action:'revente',voucherId:'V016',hotelId:2,hotel:'Waldorf Astoria',city:'Dubai',roomType:'Suite Royale',nights:3,guest:'—',email:'',phone:'',amount:52800,note:'Rachat Hilton — taux 80%'},
+  {id:'H020',date:'2025-09-10',action:'attribution',voucherId:'V017',hotelId:8,hotel:'Conrad Rangali Island',city:'Maldives',roomType:'Two-Bedroom Ocean Villa',nights:10,guest:'Jean-Paul & Hélène Morin',email:'jpmorin@privatebank.com',phone:'+41 22 000 00 00',amount:0,note:'Voyage pour les 20 ans de mariage'},
+  {id:'H021',date:'2025-08-15',action:'utilisation',voucherId:'V015',hotelId:4,hotel:'Four Seasons Resort',city:'Bora Bora',roomType:'Villa Overwater',nights:3,guest:'Christophe & Marie Lefort',email:'clefort@hf-invest.com',phone:'+33 1 45 00 00 00',amount:0,note:'3 nuits consommées'},
+  {id:'H022',date:'2025-08-01',action:'attribution',voucherId:'V018',hotelId:6,hotel:'Mandarin Oriental',city:'Londres',roomType:'Suite Hyde Park',nights:3,guest:'Nicolas & Aurélie Gauthier',email:'ngauthier@capfund.fr',phone:'+33 6 10 20 30 40',amount:0,note:'Séjour Art Week London'},
+  {id:'H023',date:'2025-07-12',action:'revente',voucherId:'V019',hotelId:3,hotel:'Ritz-Carlton Central Park',city:'New York',roomType:'Suite Central Park',nights:5,guest:'—',email:'',phone:'',amount:64800,note:'Rachat Marriott — taux 72%'},
+  {id:'H024',date:'2025-06-20',action:'attribution',voucherId:'V020',hotelId:1,hotel:'Sofitel Le Faubourg',city:'Paris',roomType:'Suite Prestige',nights:4,guest:'Ambre & Tristan Vidal',email:'tvidal@architecture.com',phone:'+33 6 23 45 67 89',amount:0,note:'Séjour Fashion Week'},
+];
+
+/* ===== RENDER VOUCHERS ===== */
+function renderVouchers() {
+  const search = document.getElementById('voucherSearch').value.toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  const grid = document.getElementById('voucherGrid');
+
+  const filtered = vouchers.filter(v => {
+    if (groupFilter !== 'all' && v.group !== groupFilter) return false;
+    if (statusF !== 'all' && v.status !== statusF) return false;
+    if (search && !v.hotel.toLowerCase().includes(search) && !v.guest.toLowerCase().includes(search) && !v.id.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><i class="fas fa-ticket-alt"></i><div>Aucun voucher trouvé</div></div>`;
+    return;
+  }
+
+  const hotelImg = {};
+  hotels.forEach(h => { hotelImg[h.id] = h.image; });
+
+  grid.innerHTML = filtered.map(v => {
+    const remaining = v.nights - v.nightsUsed;
+    const pct = v.nights > 0 ? Math.round((v.nightsUsed / v.nights) * 100) : 0;
+    const img = hotelImg[v.hotelId] || '';
+    const color = groupColors[v.group] || '#C9A84C';
+    const statusLabel = {active:'Actif',expiring:'Expire bientôt',used:'Épuisé',resold:'Revendu'}[v.status] || v.status;
+    const statusClass = 'vc-' + v.status;
+    const expDate = new Date(v.expiry);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const daysLeft = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+    const expirySoon = daysLeft <= 30 && daysLeft > 0;
+    const expired = daysLeft < 0;
+    const canAction = v.status !== 'used' && v.status !== 'resold';
+
+    return `
+      <div class="voucher-card">
+        <div class="vc-img">
+          <img src="${img}" alt="${v.hotel}">
+          <div class="vc-group-badge" style="background:${color}33;border:1px solid ${color}88;color:#fff">${v.group}</div>
+          <div class="vc-code">${v.id}</div>
+          <div class="vc-status ${statusClass}">${statusLabel}</div>
+        </div>
+        <div class="vc-body">
+          <div class="vc-hotel">${v.hotel}</div>
+          <div class="vc-sub"><i class="fas fa-map-marker-alt" style="font-size:.6rem;color:var(--text-s)"></i>${v.city} · ${v.roomType} (${v.room})</div>
+          <div class="vc-guest-row">
+            <i class="fas fa-user"></i>
+            ${v.guest ? `<span>${v.guest}</span>` : '<span class="vc-unassigned">Non attribué</span>'}
+          </div>
+          <div class="vc-progress-row">
+            <div>
+              <div class="vc-nights-big">${remaining}</div>
+              <div class="vc-nights-lbl">nuits restantes</div>
+            </div>
+            <div class="vc-nights-meta">
+              <div class="vc-nights-lbl">${v.nightsUsed}/${v.nights} utilisées</div>
+              <div style="font-size:.7rem;color:var(--gold);margin-top:3px;font-family:'Playfair Display',serif">€${v.adr.toLocaleString('fr-FR')}/nuit</div>
+            </div>
+          </div>
+          <div class="vc-bar"><div class="vc-bar-fill" style="width:${pct}%"></div></div>
+          <div class="vc-expiry${expirySoon ? ' soon' : ''}">
+            <i class="fas fa-calendar-alt"></i>
+            Expire le ${formatDate(v.expiry)}
+            ${expirySoon ? ` · <strong style="color:var(--warning)">${daysLeft}j</strong>` : ''}
+            ${expired && v.status !== 'used' && v.status !== 'resold' ? ' <strong style="color:var(--danger)">(Expiré)</strong>' : ''}
+          </div>
+          <div class="vc-footer">
+            ${canAction ? `
+              <button class="vc-btn assign" onclick="openAssign('${v.id}')"><i class="fas fa-user-plus"></i> Attribuer</button>
+              <button class="vc-btn resell" onclick="openResell('${v.id}')"><i class="fas fa-exchange-alt"></i> Revendre</button>
+            ` : `
+              <button class="vc-btn" disabled style="grid-column:1/-1;flex:2">
+                ${v.status === 'used' ? '<i class="fas fa-check-circle"></i> Épuisé' : '<i class="fas fa-handshake"></i> Revendu'}
+              </button>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function formatDate(str) {
+  const d = new Date(str);
+  return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+}
+
+/* ===== GROUP FILTER ===== */
+function setGroupFilter(btn, grp) {
+  groupFilter = grp;
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderVouchers();
+}
+
+/* ===== ASSIGN MODAL ===== */
+function openAssign(vId) {
+  activeVoucher = vouchers.find(v => v.id === vId);
+  if (!activeVoucher) return;
+  const remaining = activeVoucher.nights - activeVoucher.nightsUsed;
+
+  document.getElementById('assignVoucherId').textContent = vId;
+  document.getElementById('assignMaxHint').textContent = `Maximum : ${remaining} nuit${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''}`;
+  document.getElementById('assignNights').max = remaining;
+  document.getElementById('assignNights').value = '';
+  document.getElementById('assignName').value = activeVoucher.guest || '';
+  document.getElementById('assignEmail').value = activeVoucher.email || '';
+  document.getElementById('assignPhone').value = activeVoucher.phone || '';
+  document.getElementById('assignNote').value = activeVoucher.note || '';
+
+  document.getElementById('assignInfoBox').innerHTML = `
+    <div class="vib-item"><div class="vib-lbl">Hôtel</div><div class="vib-val">${activeVoucher.hotel}</div></div>
+    <div class="vib-item"><div class="vib-lbl">Chambre</div><div class="vib-val">${activeVoucher.roomType} (${activeVoucher.room})</div></div>
+    <div class="vib-item"><div class="vib-lbl">Nuits restantes</div><div class="vib-val gold">${remaining}</div></div>
+    <div class="vib-item"><div class="vib-lbl">ADR</div><div class="vib-val gold">€${activeVoucher.adr.toLocaleString('fr-FR')}/nuit</div></div>
+  `;
+
+  updateAssignPreview();
+  openModal('assignModal');
+}
+
+function updateAssignPreview() {
+  if (!activeVoucher) return;
+  const n = parseInt(document.getElementById('assignNights').value) || 0;
+  const name = document.getElementById('assignName').value.trim();
+  const email = document.getElementById('assignEmail').value.trim();
+
+  document.getElementById('pvHotel').textContent = activeVoucher.hotel;
+  document.getElementById('pvGuest').textContent = name || 'Bénéficiaire non renseigné';
+  document.getElementById('pvGuest').style.fontStyle = name ? 'normal' : 'italic';
+  document.getElementById('pvGuest').style.color = name ? 'var(--text-m)' : 'var(--text-s)';
+  document.getElementById('pvRoom').textContent = `${activeVoucher.roomType} · Chambre ${activeVoucher.room}`;
+  document.getElementById('pvAdr').textContent = `€${activeVoucher.adr.toLocaleString('fr-FR')}/nuit`;
+  document.getElementById('pvNights').textContent = n > 0 ? n : '—';
+}
+
+function confirmAssign() {
+  const n = parseInt(document.getElementById('assignNights').value);
+  const name = document.getElementById('assignName').value.trim();
+  const email = document.getElementById('assignEmail').value.trim();
+  const phone = document.getElementById('assignPhone').value.trim();
+  const note = document.getElementById('assignNote').value.trim();
+
+  if (!n || n < 1) { showToast('Erreur', 'Veuillez renseigner le nombre de nuitées.', 'gold'); return; }
+  const remaining = activeVoucher.nights - activeVoucher.nightsUsed;
+  if (n > remaining) { showToast('Erreur', `Maximum ${remaining} nuit${remaining>1?'s':''} disponibles.`, 'gold'); return; }
+
+  // Update voucher
+  const v = vouchers.find(x => x.id === activeVoucher.id);
+  v.nightsUsed += n;
+  if (name) v.guest = name;
+  if (email) v.email = email;
+  if (phone) v.phone = phone;
+  if (note) v.note = note;
+  if (v.nightsUsed >= v.nights) v.status = 'used';
+
+  // Update nightsState
+  nightsState[v.hotelId] = Math.max(0, nightsState[v.hotelId] - n);
+
+  closeModal('assignModal');
+  updateBalance();
+  renderVouchers();
+
+  const dest = name ? `${name}${email ? ' — ' + email : ''}` : 'le bénéficiaire';
+  showToast('Voucher envoyé', `${n} nuit${n>1?'s':''} attribuée${n>1?'s':''} à ${dest}`, 'green');
+}
+
+/* ===== RESELL MODAL ===== */
+function openResell(vId) {
+  activeVoucher = vouchers.find(v => v.id === vId);
+  if (!activeVoucher) return;
+  const remaining = activeVoucher.nights - activeVoucher.nightsUsed;
+
+  const slider = document.getElementById('resellSlider');
+  slider.min = 1;
+  slider.max = remaining;
+  slider.value = Math.min(1, remaining);
+
+  document.getElementById('resellInfoBox').innerHTML = `
+    <div class="vib-item"><div class="vib-lbl">Hôtel</div><div class="vib-val">${activeVoucher.hotel}</div></div>
+    <div class="vib-item"><div class="vib-lbl">Groupe</div><div class="vib-val">${activeVoucher.group}</div></div>
+    <div class="vib-item"><div class="vib-lbl">Nuits restantes</div><div class="vib-val gold">${remaining}</div></div>
+    <div class="vib-item"><div class="vib-lbl">ADR Contractuel</div><div class="vib-val gold">€${activeVoucher.adr.toLocaleString('fr-FR')}/nuit</div></div>
+  `;
+
+  updateResellCalc();
+  openModal('resellModal');
+}
+
+function updateResellCalc() {
+  if (!activeVoucher) return;
+  const n = parseInt(document.getElementById('resellSlider').value);
+  const rate = resellRates[activeVoucher.group] || 0.75;
+  const adr = activeVoucher.adr;
+  const nominal = n * adr;
+  const resellVal = Math.round(nominal * rate);
+  const gainPct = Math.round((rate - 1) * 100);
+
+  document.getElementById('sliderVal').textContent = n;
+  document.getElementById('resellAmount').textContent = '€' + resellVal.toLocaleString('fr-FR');
+  document.getElementById('resellSub').textContent = `${n} nuit${n>1?'s':''} × €${adr.toLocaleString('fr-FR')}/nuit × ${Math.round(rate*100)}%`;
+  document.getElementById('rsNominal').textContent = '€' + nominal.toLocaleString('fr-FR');
+  document.getElementById('rsGain').textContent = gainPct + '%';
+  document.getElementById('rsGain').style.color = gainPct >= 0 ? 'var(--success)' : 'var(--warning)';
+  document.getElementById('rsTaux').textContent = Math.round(rate*100) + '%';
+
+  document.getElementById('resellDetails').innerHTML = `
+    <div class="rd-row"><div class="rd-lbl">ADR contractuel</div><div class="rd-val">€${adr.toLocaleString('fr-FR')} / nuit</div></div>
+    <div class="rd-row"><div class="rd-lbl">Taux de rachat ${activeVoucher.group}</div><div class="rd-val">${Math.round(rate*100)}%</div></div>
+    <div class="rd-row"><div class="rd-lbl">Nuits sélectionnées</div><div class="rd-val">${n}</div></div>
+    <div class="rd-row"><div class="rd-lbl">Valeur nominale</div><div class="rd-val">€${nominal.toLocaleString('fr-FR')}</div></div>
+    <div class="rd-row"><div class="rd-lbl"><strong>Valeur de revente estimée</strong></div><div class="rd-val gold">€${resellVal.toLocaleString('fr-FR')}</div></div>
+  `;
+
+  // Self-use value (full ADR)
+  const selfVal = nominal;
+  // Guest gift value
+  const guestVal = Math.round(nominal * 0.9); // 10% discount for gifting estimation
+
+  document.getElementById('compareBody').innerHTML = `
+    <tr>
+      <td>Liquidité immédiate</td>
+      <td class="highlight-purple">€${resellVal.toLocaleString('fr-FR')}</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Valeur d'usage</td>
+      <td class="col-sell">—</td>
+      <td class="highlight">€${guestVal.toLocaleString('fr-FR')}</td>
+      <td class="highlight">€${selfVal.toLocaleString('fr-FR')}</td>
+    </tr>
+    <tr>
+      <td>Délai</td>
+      <td class="col-sell">Immédiat</td>
+      <td>À planifier</td>
+      <td>Flexible</td>
+    </tr>
+    <tr>
+      <td>Relation client</td>
+      <td class="col-sell">—</td>
+      <td style="color:var(--success)">Cadeau haut de gamme</td>
+      <td style="color:var(--gold)">Usage personnel</td>
+    </tr>
+  `;
+}
+
+function confirmResell() {
+  const n = parseInt(document.getElementById('resellSlider').value);
+  const rate = resellRates[activeVoucher.group] || 0.75;
+  const resellVal = Math.round(n * activeVoucher.adr * rate);
+
+  const v = vouchers.find(x => x.id === activeVoucher.id);
+  v.nightsUsed += n;
+  v.status = 'resold';
+
+  nightsState[v.hotelId] = Math.max(0, nightsState[v.hotelId] - n);
+
+  closeModal('resellModal');
+  updateBalance();
+  renderVouchers();
+  showToast('Revente confirmée', `${n} nuit${n>1?'s':''} revendue${n>1?'s':''} — Montant : €${resellVal.toLocaleString('fr-FR')}`, 'purple');
+}
+
+/* ===== SWITCH TAB ===== */
+function switchVTab(tabId, btn) {
+  document.querySelectorAll('.vtab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.vnav-btn').forEach(b => b.classList.remove('active'));
+  const tab = document.getElementById('vtab-' + tabId);
+  if (tab) tab.classList.add('active');
+  btn.classList.add('active');
+  if (tabId === 'history') renderHistory();
+}
+
+/* ===== RENDER HISTORY ===== */
+function renderHistory() {
+  const actionF = document.getElementById('histActionFilter').value;
+  const hotelF  = document.getElementById('histHotelFilter').value;
+  const yearF   = document.getElementById('histYearFilter').value;
+  const search  = (document.getElementById('histSearch').value || '').toLowerCase();
+
+  // Populate hotel dropdown once
+  const hotelSel = document.getElementById('histHotelFilter');
+  if (hotelSel.options.length <= 1) {
+    [...new Set(voucherHistory.map(h => h.hotel))].sort().forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      hotelSel.appendChild(opt);
+    });
+  }
+
+  const filtered = voucherHistory.filter(h => {
+    if (actionF !== 'all' && h.action !== actionF) return false;
+    if (hotelF  !== 'all' && h.hotel  !== hotelF)  return false;
+    if (yearF   !== 'all' && !h.date.startsWith(yearF)) return false;
+    if (search && !h.hotel.toLowerCase().includes(search) &&
+        !h.guest.toLowerCase().includes(search) &&
+        !(h.voucherId||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('histCount').textContent =
+    `${filtered.length} résultat${filtered.length !== 1 ? 's' : ''}`;
+
+  // Summary stats (over full dataset, not filtered)
+  document.getElementById('hsTotalActions').textContent = voucherHistory.length;
+  document.getElementById('hsTotalAttributions').textContent = voucherHistory.filter(h => h.action === 'attribution').length;
+  document.getElementById('hsReventes').textContent = voucherHistory.filter(h => h.action === 'revente').length;
+  document.getElementById('hsTotalRevente').textContent = '€' +
+    voucherHistory.filter(h => h.action === 'revente')
+      .reduce((s, h) => s + h.amount, 0).toLocaleString('fr-FR');
+
+  if (!filtered.length) {
+    document.getElementById('histTimeline').innerHTML =
+      '<div class="hist-no-results">Aucun résultat pour ces filtres</div>';
+    return;
+  }
+
+  // Group by month desc
+  const byMonth = {};
+  filtered.forEach(h => {
+    const d = new Date(h.date);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!byMonth[key]) byMonth[key] = {
+      label: d.toLocaleDateString('fr-FR', {month:'long',year:'numeric'}),
+      entries: []
+    };
+    byMonth[key].entries.push(h);
+  });
+
+  const icons  = {attribution:'fa-user-plus',revente:'fa-exchange-alt',utilisation:'fa-calendar-check',creation:'fa-plus-circle'};
+  const labels = {attribution:'Attribution',revente:'Revente',utilisation:'Utilisation',creation:'Création'};
+
+  let html = '';
+  Object.keys(byMonth).sort((a,b) => b.localeCompare(a)).forEach(key => {
+    const {label, entries} = byMonth[key];
+    html += `<div class="hist-month-group"><div class="hist-month-label">${label}</div>`;
+    entries.forEach((h, i) => {
+      const d = new Date(h.date);
+      const dateStr = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) + '<br>' + (h.time||'');
+      const isLast = i === entries.length - 1;
+      const amountHtml = h.amount > 0
+        ? `<div class="hist-amount"><div class="hist-amount-val">€${h.amount.toLocaleString('fr-FR')}</div><div class="hist-amount-lbl">Montant</div></div>`
+        : h.nights > 0
+          ? `<div class="hist-amount"><div class="hist-nights-badge"><i class="fas fa-moon" style="font-size:.55rem"></i> ${h.nights} nuit${h.nights>1?'s':''}</div></div>`
+          : '';
+      const beneficiary = h.guest && h.guest !== '—'
+        ? `<div class="hist-beneficiary">
+            <div class="hist-avatar">${h.guest.split(' ').map(n=>n[0]||'').join('').slice(0,2).toUpperCase()}</div>
+            <div><div class="hist-ben-name">${h.guest}</div>${h.email?`<div class="hist-ben-email">${h.email}</div>`:''}</div>
+          </div>` : '';
+      html += `
+        <div class="hist-entry">
+          <div class="hist-date">${dateStr}</div>
+          <div class="hist-icon-col">
+            <div class="hist-icon ${h.action}"><i class="fas ${icons[h.action]||'fa-circle'}"></i></div>
+            ${!isLast ? '<div class="hist-line-v"></div>' : ''}
+          </div>
+          <div class="hist-content">
+            <div class="hist-action-label ${h.action}">${labels[h.action]||h.action} · ${h.voucherId}</div>
+            <div class="hist-hotel">${h.hotel}</div>
+            <div class="hist-detail">${h.city} · ${h.roomType} · ${h.nights} nuit${h.nights>1?'s':''}${h.note?'<br><em>'+h.note+'</em>':''}</div>
+            ${beneficiary}
+          </div>
+          ${amountHtml}
+        </div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('histTimeline').innerHTML = html;
+}
+
+/* ===== NEW VOUCHER ===== */
+function openNewVoucher() {
+  const firstHotel = hotels[0];
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.id = 'newVoucherOverlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <h3><i class="fas fa-plus-circle" style="color:var(--gold);margin-right:8px"></i>Nouveau Voucher</h3>
+        <button class="modal-close" onclick="closeNewVoucher()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Hôtel</label>
+            <select class="form-input" id="nv-hotel" onchange="nvUpdateRooms()">
+              ${hotels.map(h=>`<option value="${h.id}">${h.name} — ${h.city}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Chambre</label>
+            <select class="form-input" id="nv-room">
+              ${firstHotel.rooms.map(r=>`<option value="${r.num}">${r.type} · N°${r.num} · €${r.adr.toLocaleString('fr-FR')}/nuit</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Prénom & Nom</label>
+            <input class="form-input" id="nv-guest" type="text" placeholder="Alexandra Morel">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" id="nv-email" type="email" placeholder="email@exemple.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Téléphone</label>
+            <input class="form-input" id="nv-phone" type="text" placeholder="+33 6 00 00 00 00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nombre de nuitées</label>
+            <input class="form-input" id="nv-nights" type="number" min="1" max="60" placeholder="Ex: 5">
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">Date d'expiration</label>
+            <input class="form-input" id="nv-expiry" type="date" value="2026-12-31">
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">Note (optionnel)</label>
+            <textarea class="form-input" id="nv-note" placeholder="Ex: Séjour anniversaire, voyage de noces..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeNewVoucher()">Annuler</button>
+        <button class="btn-confirm gold" onclick="submitNewVoucher()"><i class="fas fa-paper-plane"></i> Créer le Voucher</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeNewVoucher(); });
+}
+
+function nvUpdateRooms() {
+  const hotelId = +document.getElementById('nv-hotel').value;
+  const h = hotels.find(x => x.id === hotelId);
+  if (!h) return;
+  document.getElementById('nv-room').innerHTML =
+    h.rooms.map(r => `<option value="${r.num}">${r.type} · N°${r.num} · €${r.adr.toLocaleString('fr-FR')}/nuit</option>`).join('');
+}
+
+function closeNewVoucher() {
+  const overlay = document.getElementById('newVoucherOverlay');
+  if (overlay) overlay.remove();
+}
+
+function submitNewVoucher() {
+  const hotelId = +document.getElementById('nv-hotel').value;
+  const roomNum = document.getElementById('nv-room').value;
+  const guest   = document.getElementById('nv-guest').value.trim();
+  const email   = document.getElementById('nv-email').value.trim();
+  const phone   = document.getElementById('nv-phone').value.trim();
+  const nights  = +document.getElementById('nv-nights').value;
+  const expiry  = document.getElementById('nv-expiry').value;
+  const note    = document.getElementById('nv-note').value.trim();
+
+  if (!nights || nights < 1) { showToast('Erreur', 'Indiquez le nombre de nuitées.', 'gold'); return; }
+  if (!expiry) { showToast('Erreur', 'Sélectionnez une date d\'expiration.', 'gold'); return; }
+
+  const h = hotels.find(x => x.id === hotelId);
+  const r = h ? h.rooms.find(x => x.num === roomNum) : null;
+  const newId = 'V' + String(vouchers.length + 1).padStart(3, '0');
+
+  vouchers.push({
+    id: newId, hotelId, hotel: h ? h.name : '', group: h ? h.group : '',
+    city: h ? h.city : '', room: roomNum, roomType: r ? r.type : '',
+    adr: r ? r.adr : 0, guest, email, phone, nights, nightsUsed: 0,
+    expiry, status: 'active', created: new Date().toISOString().split('T')[0], note
+  });
+
+  // Reflect in nightsState if not already depleted
+  if (nightsState[hotelId] !== undefined) nightsState[hotelId] += nights;
+
+  closeNewVoucher();
+  updateBalance();
+  renderVouchers();
+  showToast('Voucher créé', `${newId} — ${nights} nuit${nights>1?'s':''} à ${h?h.name:'l\'hôtel'}`, 'green');
+}
+
+/* ===== MODAL UTILS ===== */
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+  activeVoucher = null;
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(ov => {
+  ov.addEventListener('click', e => {
+    if (e.target === ov) closeModal(ov.id);
+  });
+});
+
+/* ===== TOAST ===== */
+function showToast(title, msg, type = 'gold') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<div class="toast-title">${title}</div><div class="toast-msg">${msg}</div>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('out');
+    setTimeout(() => toast.remove(), 350);
+  }, 4000);
+}
+
+/* ===== INIT ===== */
+updateBalance();
+renderVouchers();
+</script>
+</body>
+</html>

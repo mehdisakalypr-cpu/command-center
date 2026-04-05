@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE ESTATE — Carte & Explorateur Hôtelier</title>
+<meta name="description" content="THE ESTATE — Explorateur cartographique — Visualisez vos hôtels de luxe sur la carte mondiale.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#040D1C">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="THE ESTATE">
+<meta property="og:title" content="THE ESTATE — Carte Mondiale">
+<meta property="og:description" content="Explorez vos hôtels de luxe sur la carte mondiale interactive.">
+<meta property="og:url" content="https://the-estate.app/map.html">
+<meta property="og:image" content="https://the-estate.app/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="THE ESTATE — Carte Mondiale">
+<meta name="twitter:description" content="Explorez vos hôtels de luxe sur la carte mondiale interactive.">
+<meta name="twitter:image" content="https://the-estate.app/og-cover.jpg">
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');</script>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/css/maplibre-gl.css">
+<script src="assets/js/maplibre-gl.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-l:#E8D5A3;--gold-d:#9A7A28;
+  --navy:#040D1C;--navy-mid:#071528;--navy-l:#0A1E38;--navy-card:#0D2545;--navy-h:#102F58;
+  --text:#F5F0E8;--text-m:rgba(245,240,232,.55);--text-s:rgba(245,240,232,.28);
+  --border:rgba(201,168,76,.15);--border-h:rgba(201,168,76,.4);
+  --success:#10B981;--warning:#F59E0B;--danger:#EF4444;
+}
+html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);font-family:'Inter',sans-serif}
+
+/* TOPNAV */
+.topnav{height:56px;background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;z-index:200;position:relative}
+.nav-back{display:flex;align-items:center;gap:8px;color:var(--text-m);text-decoration:none;font-size:.78rem;letter-spacing:.06em;transition:color .3s;white-space:nowrap}
+.nav-back:hover{color:var(--gold)}
+.nav-back i{font-size:.8rem}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;letter-spacing:.12em;color:var(--text);white-space:nowrap}
+.nav-logo-wrap{display:flex;align-items:center;gap:10px;margin:0 auto}
+.nav-logo-mark{width:30px;height:30px;background:var(--gold);display:flex;align-items:center;justify-content:center}
+.nav-logo-mark span{font-family:'Playfair Display',serif;font-size:.85rem;font-weight:700;color:var(--navy)}
+.nav-kpis{display:flex;align-items:center;gap:20px;margin-left:auto}
+.nav-kpi{text-align:center}
+.nav-kpi-val{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold);line-height:1}
+.nav-kpi-lbl{font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-s);margin-top:2px}
+.nav-sep{width:1px;height:30px;background:var(--border)}
+
+/* LAYOUT */
+.layout{display:flex;height:calc(100vh - 56px)}
+
+/* SIDEBAR */
+.sidebar{width:300px;min-width:300px;background:var(--navy-mid);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:100}
+.sb-search{padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-search-wrap{position:relative}
+.sb-search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-s);font-size:.75rem;z-index:1}
+.sb-search-input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);padding:9px 12px 9px 34px;font-size:.78rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s}
+.sb-search-input:focus{border-color:var(--gold)}
+.sb-search-input::placeholder{color:var(--text-s)}
+
+/* STAR FILTER */
+.sb-filters{padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-filter-lbl{font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-s);margin-bottom:7px}
+.sb-stars{display:flex;gap:4px;flex-wrap:wrap}
+.star-pill{background:none;border:1px solid var(--border);color:var(--text-s);padding:3px 8px;font-size:.68rem;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;letter-spacing:.5px}
+.star-pill:hover{border-color:var(--border-h);color:var(--gold)}
+.star-pill.active{background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold)}
+
+/* OWNED TOGGLE */
+.sb-owned-wrap{padding:9px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.owned-toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;padding:7px 10px;border:1px solid var(--border);transition:all .3s;background:rgba(255,255,255,.02)}
+.owned-toggle-row:hover{border-color:var(--border-h);background:rgba(201,168,76,.04)}
+.owned-toggle-row.active{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.owned-check{width:16px;height:16px;border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .3s}
+.owned-toggle-row.active .owned-check{border-color:var(--gold)}
+.owned-check-inner{width:8px;height:8px;background:var(--gold);display:none}
+.owned-toggle-row.active .owned-check-inner{display:block}
+.owned-toggle-row i{font-size:.7rem;color:var(--text-s);transition:color .3s}
+.owned-toggle-row.active i{color:var(--gold)}
+.owned-toggle-row span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-m);transition:color .3s}
+.owned-toggle-row.active span{color:var(--gold)}
+.owned-count-badge{margin-left:auto;background:rgba(201,168,76,.15);color:var(--gold);font-size:.58rem;padding:2px 7px;letter-spacing:.06em;border:1px solid rgba(201,168,76,.3)}
+
+/* GROUP PILLS */
+.sb-group-filters{padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-pills{display:flex;flex-wrap:wrap;gap:4px}
+.pill{padding:3px 8px;font-size:.6rem;letter-spacing:.06em;border:1px solid var(--border);background:transparent;color:var(--text-m);cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.pill:hover{border-color:var(--border-h);color:var(--text)}
+.pill.active{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold)}
+.pill.grp-pill.active-Accor{background:rgba(196,30,58,.15);border-color:#C41E3A;color:#C41E3A}
+.pill.grp-pill.active-Hilton{background:rgba(30,58,110,.25);border-color:#5a7abf;color:#8cacdf}
+.pill.grp-pill.active-Marriott{background:rgba(139,26,26,.2);border-color:#8B1A1A;color:#d96060}
+.pill.grp-pill.active-Hyatt{background:rgba(46,125,50,.15);border-color:#2E7D32;color:#5bb561}
+.pill.grp-pill.active-Four_Seasons{background:rgba(27,67,50,.2);border-color:#1B4332;color:#3fb37b}
+.pill.grp-pill.active-Mandarin_Oriental{background:rgba(109,76,65,.2);border-color:#6D4C41;color:#c49b8e}
+.pill.grp-pill.active-Aman{background:rgba(180,150,90,.15);border-color:#B4965A;color:#d4ba82}
+.pill.grp-pill.active-IHG{background:rgba(50,80,160,.15);border-color:#4a70c0;color:#8aacdf}
+
+/* HOTEL COUNT */
+.sb-count-bar{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;flex-shrink:0;border-bottom:1px solid var(--border)}
+.sb-count-txt{font-size:.62rem;color:var(--text-s);letter-spacing:.06em}
+.sb-count-txt strong{color:var(--gold)}
+.sb-clear-btn{font-size:.6rem;color:var(--text-s);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:color .3s;text-decoration:underline;text-underline-offset:2px}
+.sb-clear-btn:hover{color:var(--gold)}
+
+/* ZONES SIDEBAR — 50/50 */
+.sb-criteria{flex:0 0 50%;overflow-y:auto;display:flex;flex-direction:column;border-bottom:2px solid var(--border-h)}
+.sb-criteria::-webkit-scrollbar{width:3px}
+.sb-criteria::-webkit-scrollbar-thumb{background:var(--border)}
+.sb-list-zone{flex:0 0 50%;display:flex;flex-direction:column;overflow:hidden}
+.sb-list-hdr{padding:8px 14px 6px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.sb-list-hdr-lbl{font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-s)}
+/* HOTEL LIST */
+.sb-list{flex:1;overflow-y:auto;padding:4px 0}
+.sb-list::-webkit-scrollbar{width:3px}
+.sb-list::-webkit-scrollbar-thumb{background:var(--border)}
+.sb-hotel-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:all .25s;border-left:2px solid transparent;position:relative}
+.sb-hotel-item:hover{background:rgba(201,168,76,.04);border-left-color:rgba(201,168,76,.3)}
+.sb-hotel-item.active{background:rgba(201,168,76,.07);border-left-color:var(--gold)}
+.sb-thumb{width:46px;height:34px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)}
+.sb-info{flex:1;min-width:0}
+.sb-name{font-size:.75rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.sb-city{font-size:.62rem;color:var(--text-m);margin-top:1px;display:flex;align-items:center;gap:5px}
+.sb-stars-mini{color:var(--gold);font-size:.55rem;letter-spacing:.5px}
+.sb-owned-dot{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);flex-shrink:0;margin-left:2px}
+.sb-avail-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-available{background:var(--success)}
+.dot-occupied{background:var(--danger)}
+.dot-partial{background:var(--warning)}
+.dot-api{background:var(--text-s)}
+
+/* SCOUT CITY SECTION — admin only */
+.scout-city-section{padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:rgba(139,92,246,.03)}
+.scout-city-section .sb-filter-lbl{color:var(--text-s);display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.scout-city-section .sb-filter-lbl i{color:#8B5CF6;font-size:.65rem}
+.scout-city-btn{background:#8B5CF6;color:#fff;border:none;padding:0 12px;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;height:100%;transition:background .2s}
+.scout-city-btn:hover{background:#7C3AED}
+.scout-city-btn:disabled{background:rgba(139,92,246,.4);cursor:not-allowed}
+
+/* MAP CONTAINER */
+.map-container{flex:1;position:relative;overflow:hidden}
+#map{width:100%;height:100%}
+
+/* MAP CONTROLS */
+.map-controls{position:absolute;top:16px;right:16px;z-index:10;display:flex;flex-direction:column;gap:8px}
+.map-ctrl-btn{width:36px;height:36px;background:rgba(4,13,28,.88);border:1px solid var(--border);color:var(--text-m);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .3s;backdrop-filter:blur(10px)}
+.map-ctrl-btn:hover,.map-ctrl-btn.active{border-color:var(--gold);color:var(--gold)}
+
+/* MAP LEGEND */
+.map-legend{position:absolute;bottom:32px;right:16px;background:rgba(4,13,28,.92);backdrop-filter:blur(10px);border:1px solid var(--border);padding:12px 16px;z-index:10}
+.legend-title{font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-s);margin-bottom:8px}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:.63rem;color:var(--text-m);margin-bottom:5px}
+.legend-item:last-child{margin-bottom:0}
+.legend-diamond{width:10px;height:10px;transform:rotate(45deg);flex-shrink:0}
+.legend-circle{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:2px solid var(--gold)}
+
+/* CUSTOM MARKERS — taille fixe obligatoire pour éviter le drift au zoom MapLibre */
+.marker-wrap{
+  cursor:pointer;
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  /* Les dimensions sont forcées en JS selon owned/non-owned */
+  flex-shrink:0;
+  will-change:transform; /* force un compositing layer stable */
+}
+.marker-wrap:hover .marker-pin{transform:rotate(45deg) scale(1.22);border-color:rgba(255,255,255,.7)!important;box-shadow:0 4px 18px rgba(0,0,0,.7)}
+.marker-pin{width:14px;height:14px;transform:rotate(45deg);border:2px solid rgba(255,255,255,.25);box-shadow:0 2px 8px rgba(0,0,0,.5);transition:transform .22s,border-color .22s,box-shadow .22s;flex-shrink:0}
+.marker-wrap.selected .marker-pin{border-color:#fff!important;box-shadow:0 0 0 3px rgba(255,255,255,.25),0 4px 20px rgba(0,0,0,.7)}
+.marker-wrap.non-owned .marker-pin{opacity:.55}
+.marker-wrap.non-owned:hover .marker-pin{opacity:1}
+.marker-owned-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(45deg);width:22px;height:22px;border:1.5px solid var(--gold);opacity:.65;pointer-events:none}
+
+/* DETAIL PANEL */
+.detail-panel{position:absolute;left:-440px;top:0;bottom:0;width:420px;background:var(--navy-mid);border-right:1px solid var(--border);z-index:20;overflow-y:auto;transition:left .4s cubic-bezier(.25,.1,.25,1);display:flex;flex-direction:column}
+.detail-panel.open{left:0}
+.detail-panel::-webkit-scrollbar{width:3px}
+.detail-panel::-webkit-scrollbar-thumb{background:var(--border)}
+.dp-close-btn{position:absolute;top:12px;right:12px;width:32px;height:32px;background:rgba(4,13,28,.7);border:1px solid var(--border);color:var(--text-m);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;z-index:5;transition:all .3s;backdrop-filter:blur(6px)}
+.dp-close-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* DETAIL - HERO */
+.dp-hero{position:relative;height:220px;flex-shrink:0;overflow:hidden}
+.dp-hero img{width:100%;height:100%;object-fit:cover;transition:transform 8s ease}
+.detail-panel:hover .dp-hero img{transform:scale(1.04)}
+.dp-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to top,var(--navy-mid),transparent)}
+.dp-group-badge{position:absolute;bottom:14px;left:16px;padding:4px 10px;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;z-index:1}
+.dp-owned-badge{position:absolute;top:14px;right:52px;background:rgba(201,168,76,.92);color:#040D1C;font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px}
+
+/* DETAIL - GALLERY */
+.dp-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;flex-shrink:0}
+.dp-gal-img{height:80px;overflow:hidden;cursor:pointer;position:relative;background:var(--navy-card)}
+.dp-gal-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s,filter .3s}
+.dp-gal-img:hover img{transform:scale(1.08);filter:brightness(1.15)}
+.dp-gal-img::after{content:'';position:absolute;inset:0;background:rgba(4,13,28,.25);transition:background .3s}
+.dp-gal-img:hover::after{background:rgba(4,13,28,0)}
+.dp-gal-expand{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;font-size:.7rem;color:#fff;z-index:1}
+.dp-gal-img:hover .dp-gal-expand{opacity:1}
+
+/* DETAIL - BODY */
+.dp-body{padding:16px 20px;flex:1}
+.dp-name{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:500;margin-bottom:3px;line-height:1.3}
+.dp-stars{color:var(--gold);font-size:.72rem;letter-spacing:2px;margin-bottom:4px}
+.dp-loc{font-size:.73rem;color:var(--text-m);display:flex;align-items:center;gap:5px;margin-bottom:14px}
+.dp-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin:0 -20px;padding:0 20px;margin-bottom:18px}
+.dp-kpi{text-align:center;padding:12px 6px;background:var(--navy-mid)}
+.dp-kpi-val{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold);line-height:1;margin-bottom:3px}
+.dp-kpi-lbl{font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-s)}
+.dp-section-title{font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-s);margin-bottom:9px;margin-top:16px}
+.dp-description{font-size:.75rem;color:var(--text-m);line-height:1.75;margin-bottom:4px}
+.amenity-list{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
+.amenity-tag{background:rgba(201,168,76,.07);border:1px solid var(--border);padding:4px 9px;font-size:.62rem;color:var(--text-m)}
+.dp-rooms{display:flex;flex-direction:column;gap:7px;margin-bottom:4px}
+.dp-room{background:var(--navy-l);border:1px solid var(--border);padding:10px 13px;display:flex;justify-content:space-between;align-items:center}
+.dp-room-name{font-size:.76rem;font-weight:500;color:var(--text)}
+.dp-room-num{font-size:.6rem;color:var(--text-m);margin-top:2px}
+.dp-room-adr{font-family:'Playfair Display',serif;color:var(--gold);font-size:.9rem}
+.dp-room-lbl{font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-s);text-align:right;margin-top:2px}
+
+/* DETAIL - FOOTER BUTTONS */
+.dp-footer{padding:16px 20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.dp-bk-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;transition:all .3s;text-decoration:none;font-weight:600}
+.dp-bk-btn:hover{background:var(--gold);color:var(--navy)}
+.dp-voucher-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;background:var(--gold);color:var(--navy);border:none;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;transition:all .3s;text-decoration:none}
+.dp-voucher-btn:hover{background:var(--gold-l)}
+
+/* POPUP */
+.maplibregl-popup-content{background:var(--navy-l)!important;border:1px solid var(--border)!important;border-radius:0!important;padding:0!important;color:var(--text)!important;font-family:'Inter',sans-serif!important;box-shadow:0 10px 40px rgba(0,0,0,.6)!important}
+.maplibregl-popup-tip{border-top-color:var(--navy-l)!important}
+.maplibregl-popup-close-button{color:var(--text-m)!important;font-size:16px!important;padding:6px 8px!important}
+.maplibregl-popup-close-button:hover{color:var(--gold)!important;background:transparent!important}
+.popup-inner{padding:12px 16px}
+.popup-name{font-family:'Playfair Display',serif;font-size:.92rem;font-weight:500;margin-bottom:2px}
+.popup-loc{font-size:.66rem;color:var(--text-m);margin-bottom:8px}
+.popup-badge{display:inline-block;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:2px 7px;margin-bottom:8px}
+.popup-row{display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-m);margin-bottom:3px}
+.popup-row span:last-child{color:var(--gold);font-weight:500}
+.popup-btn{width:100%;margin-top:8px;padding:7px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;transition:all .3s}
+.popup-btn:hover{background:var(--gold);color:var(--navy)}
+
+/* LIGHTBOX */
+.lightbox-ov{display:none;position:fixed;inset:0;background:rgba(4,13,28,.97);z-index:9000;align-items:center;justify-content:center;flex-direction:column;backdrop-filter:blur(12px)}
+.lightbox-ov.open{display:flex}
+.lightbox-img{max-width:90vw;max-height:80vh;object-fit:contain;border:1px solid var(--border);box-shadow:0 30px 80px rgba(0,0,0,.8)}
+.lightbox-close{position:absolute;top:20px;right:20px;width:40px;height:40px;background:rgba(255,255,255,.1);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.lightbox-close:hover{border-color:var(--gold);color:var(--gold)}
+.lightbox-caption{margin-top:16px;font-size:.7rem;color:var(--text-m);letter-spacing:.08em}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.lightbox-nav:hover{border-color:var(--gold);color:var(--gold)}
+#lbPrev{left:20px}#lbNext{right:20px}
+
+/* LANG SWITCHER */
+.lang-switcher{display:flex;align-items:center;gap:2px;margin-left:16px;flex-shrink:0}
+.lang-btn{background:none;border:1px solid var(--border);color:var(--text-s);font-size:.58rem;font-family:'Inter',sans-serif;letter-spacing:.12em;padding:4px 7px;cursor:pointer;transition:all .22s;text-transform:uppercase;line-height:1}
+.lang-btn:hover{border-color:var(--border-h);color:var(--text)}
+.lang-btn.active{background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2)}
+
+/* ===== RESPONSIVE ===== */
+.mob-sb-btn{display:none}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(4,13,28,.7);z-index:90;backdrop-filter:blur(4px)}
+.sidebar-backdrop.active{display:block}
+
+@media(max-width:768px){
+  .topnav{padding:0 12px;gap:10px}
+  .nav-kpis{display:none}
+  .nav-sep{display:none}
+  .mob-sb-btn{display:flex;width:36px;height:36px;background:none;border:1px solid var(--border);color:var(--text-m);cursor:pointer;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;transition:all .3s}
+  .mob-sb-btn:hover{border-color:var(--gold);color:var(--gold)}
+  .sidebar{position:fixed;left:-300px;top:56px;height:calc(100vh - 56px);z-index:100;transition:left .3s cubic-bezier(.25,.1,.25,1)}
+  .sidebar.mob-open{left:0}
+  .layout{height:calc(100vh - 56px)}
+  .detail-panel{width:100%;left:-100%;z-index:110}
+  .detail-panel.open{left:0}
+  .dp-close-btn{top:8px;right:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPNAV -->
+<nav class="topnav">
+  <button class="mob-sb-btn" onclick="toggleMapSidebar()" aria-label="Filtres"><i class="fas fa-sliders-h"></i></button>
+  <a href="dashboard.html" class="nav-back"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  <div class="nav-logo-wrap">
+    <div class="nav-logo-mark"><span>E</span></div>
+    <div class="nav-logo">THE ESTATE</div>
+  </div>
+  <div class="nav-kpis">
+    <div class="nav-kpi"><div class="nav-kpi-val" id="navOwned">8</div><div class="nav-kpi-lbl" data-i18n="nav_owned">Possédés</div></div>
+    <div class="nav-sep"></div>
+    <div class="nav-kpi"><div class="nav-kpi-val" id="navTotal">21</div><div class="nav-kpi-lbl" data-i18n="nav_hotels">Hôtels dispo.</div></div>
+    <div class="nav-sep"></div>
+    <div class="nav-kpi"><div class="nav-kpi-val" id="navUnits">18</div><div class="nav-kpi-lbl" data-i18n="nav_units">Unités</div></div>
+    <div class="nav-sep"></div>
+    <div class="nav-kpi"><div class="nav-kpi-val" style="font-size:.85rem">€48.8M</div><div class="nav-kpi-lbl" data-i18n="nav_value">Valeur</div></div>
+  </div>
+  <div class="lang-switcher" id="langSwitcher">
+    <button class="lang-btn" id="lbFR" onclick="setLang('fr')">FR</button>
+    <button class="lang-btn" id="lbEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="lbES" onclick="setLang('es')">ES</button>
+  </div>
+</nav>
+
+<!-- SIDEBAR BACKDROP -->
+<div class="sidebar-backdrop" id="mapSidebarBackdrop" onclick="closeMapSidebar()"></div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="mapSidebar">
+
+    <!-- ZONE HAUTE : Critères de recherche (50%) -->
+    <div class="sb-criteria">
+      <!-- Search -->
+      <div class="sb-search">
+        <div class="sb-search-wrap">
+          <i class="fas fa-search"></i>
+          <input class="sb-search-input" id="sidebarSearch" type="text" placeholder="Hôtel, ville, pays..." data-i18n-ph="search_ph" oninput="applyFilters()">
+        </div>
+      </div>
+
+      <!-- Star filter -->
+      <div class="sb-filters">
+        <div class="sb-filter-lbl" data-i18n="filter_stars">Étoiles</div>
+        <div class="sb-stars">
+          <button class="star-pill" data-s="all" onclick="setStarFilter(this,'all')" data-i18n="filter_all">Tous</button>
+          <button class="star-pill active" data-s="5" onclick="setStarFilter(this,'5')">★★★★★</button>
+          <button class="star-pill" data-s="4" onclick="setStarFilter(this,'4')">★★★★</button>
+          <button class="star-pill" data-s="3" onclick="setStarFilter(this,'3')">★★★</button>
+        </div>
+      </div>
+
+      <!-- Owned toggle -->
+      <div class="sb-owned-wrap">
+        <div class="owned-toggle-row" id="ownedToggleRow" onclick="toggleOwned()">
+          <div class="owned-check"><div class="owned-check-inner"></div></div>
+          <i class="fas fa-key"></i>
+          <span data-i18n="filter_owned">Possédés uniquement</span>
+          <div class="owned-count-badge">8</div>
+        </div>
+      </div>
+
+      <!-- Group filter -->
+      <div class="sb-group-filters">
+        <div class="sb-filter-lbl" data-i18n="filter_group">Groupe hôtelier</div>
+        <div class="sb-pills" id="groupPills">
+          <button class="pill active" data-group="all" onclick="filterGroup(this,'all')" data-i18n="filter_all">Tous</button>
+          <button class="pill grp-pill" data-group="Accor" onclick="filterGroup(this,'Accor')">Accor</button>
+          <button class="pill grp-pill" data-group="Hilton" onclick="filterGroup(this,'Hilton')">Hilton</button>
+          <button class="pill grp-pill" data-group="Marriott" onclick="filterGroup(this,'Marriott')">Marriott</button>
+          <button class="pill grp-pill" data-group="Hyatt" onclick="filterGroup(this,'Hyatt')">Hyatt</button>
+          <button class="pill grp-pill" data-group="Four Seasons" onclick="filterGroup(this,'Four Seasons')">Four Seasons</button>
+          <button class="pill grp-pill" data-group="Mandarin Oriental" onclick="filterGroup(this,'Mandarin Oriental')">Mandarin Or.</button>
+          <button class="pill grp-pill" data-group="Aman" onclick="filterGroup(this,'Aman')">Aman</button>
+          <button class="pill grp-pill" data-group="IHG" onclick="filterGroup(this,'IHG')">IHG</button>
+          <button class="pill grp-pill" data-group="Indépendant" onclick="filterGroup(this,'Indépendant')">Indép.</button>
+        </div>
+      </div>
+
+      <!-- City Panel -->
+      <div class="city-panel" id="cityPanel">
+        <div class="cp-hdr">
+          <span class="cp-flag" id="cpFlag"></span>
+          <span class="cp-city" id="cpCity"></span>
+          <button class="cp-close" onclick="closeCityPanel()" title="Fermer"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cp-stars-row" id="cpStarsRow"></div>
+        <div class="cp-synth" id="cpSynth"></div>
+        <div class="cp-groups" id="cpGroups"></div>
+      </div>
+
+      <!-- SCOUT CITY — Admin uniquement -->
+      <div class="scout-city-section" id="scoutCitySection" style="display:none">
+        <div class="sb-filter-lbl"><i class="fas fa-search-location"></i>Remplir depuis une ville</div>
+        <div style="display:flex;gap:6px;margin-bottom:7px;height:32px">
+          <input class="sb-search-input" id="scoutCityInput" type="text" placeholder="Paris, Dubai, New York..." style="padding-left:12px;height:100%"
+            onkeydown="if(event.key==='Enter')startCityScout()">
+          <button class="scout-city-btn" id="scoutCityBtn" onclick="startCityScout()">
+            <i class="fas fa-download"></i> Import
+          </button>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:8px">
+          <label style="display:flex;align-items:center;gap:4px;font-size:.62rem;color:var(--text-m);cursor:pointer">
+            <input type="checkbox" id="scout5stars" checked style="accent-color:#8B5CF6"> 5★
+          </label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:.62rem;color:var(--text-m);cursor:pointer">
+            <input type="checkbox" id="scout4stars" checked style="accent-color:#8B5CF6"> 4★
+          </label>
+        </div>
+        <div id="scoutCityProgress" style="display:none">
+          <div style="background:rgba(255,255,255,.06);border:1px solid var(--border);height:3px;border-radius:2px;margin-bottom:4px">
+            <div id="scoutCityBar" style="height:100%;background:#8B5CF6;width:0%;transition:width .4s;border-radius:2px"></div>
+          </div>
+          <div id="scoutCityStatus" style="font-size:.6rem;color:var(--text-s);line-height:1.5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZONE BASSE : Liste des hôtels (50%) -->
+    <div class="sb-list-zone">
+      <div class="sb-list-hdr">
+        <span class="sb-list-hdr-lbl" data-i18n="list_title">Hôtels</span>
+        <span class="sb-count-txt"><strong id="sbCountNum">21</strong> <span data-i18n="list_shown">affichés</span> &nbsp;<button class="sb-clear-btn" onclick="clearFilters()" data-i18n="list_reset">Réinit.</button></span>
+      </div>
+      <div class="sb-list" id="hotelList"></div>
+    </div>
+
+  </aside>
+
+  <!-- MAP CONTAINER -->
+  <div class="map-container">
+    <div id="map"></div>
+
+    <!-- DETAIL PANEL -->
+    <div class="detail-panel" id="detailPanel">
+      <button class="dp-close-btn" onclick="closeDetail()"><i class="fas fa-times"></i></button>
+
+      <div class="dp-hero">
+        <img id="dpImg" src="" alt="">
+        <div class="dp-group-badge" id="dpGroupBadge"></div>
+        <div class="dp-owned-badge" id="dpOwnedBadge" style="display:none"><i class="fas fa-key" style="margin-right:4px"></i><span data-i18n="dp_owned">Possédé</span></div>
+      </div>
+
+      <div class="dp-gallery" id="dpGallery"></div>
+
+      <div class="dp-body">
+        <div class="dp-stars" id="dpStars"></div>
+        <div class="dp-name" id="dpName"></div>
+        <div class="dp-loc" id="dpLoc"></div>
+        <div class="dp-kpis" id="dpKpis"></div>
+        <div class="dp-section-title" data-i18n="dp_about">À propos</div>
+        <div class="dp-description" id="dpDesc"></div>
+        <div class="dp-section-title" data-i18n="dp_amenities">Équipements</div>
+        <div class="amenity-list" id="dpAmenities"></div>
+        <div id="dpOwnedSection" style="display:none">
+          <div class="dp-section-title" data-i18n="dp_rooms">Vos chambres</div>
+          <div class="dp-rooms" id="dpRooms"></div>
+        </div>
+      </div>
+
+      <div class="dp-footer" id="dpFooter"></div>
+    </div>
+
+    <!-- MAP CONTROLS -->
+    <div class="map-controls">
+      <button class="map-ctrl-btn" id="satelliteBtn" data-i18n-title="ctrl_satellite" title="Vue satellite" onclick="toggleSatellite()"><i class="fas fa-satellite"></i></button>
+      <button class="map-ctrl-btn" data-i18n-title="ctrl_center" title="Recentrer" onclick="fitAll()"><i class="fas fa-compress-arrows-alt"></i></button>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="map-legend">
+      <div class="legend-title" data-i18n="legend_title">Légende</div>
+      <div class="legend-item"><div style="width:18px;height:18px;border-radius:50%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#040D1C;flex-shrink:0">n</div><span style="color:var(--gold)" data-i18n="legend_cluster">Cluster — cliquer pour zoomer</span></div>
+      <div class="legend-item"><div class="legend-diamond" style="background:var(--gold)"></div><span style="color:var(--gold)" data-i18n="legend_owned">Chambre possédée</span></div>
+      <div class="legend-item"><div class="legend-diamond" style="background:rgba(245,240,232,.3)"></div><span data-i18n="legend_booking">Disponible Booking</span></div>
+      <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
+        <div class="legend-item"><div class="legend-diamond" style="background:#C41E3A"></div>Accor</div>
+        <div class="legend-item"><div class="legend-diamond" style="background:#1E3A6E"></div>Hilton</div>
+        <div class="legend-item"><div class="legend-diamond" style="background:#8B1A1A"></div>Marriott</div>
+        <div class="legend-item"><div class="legend-diamond" style="background:#2E7D32"></div>Hyatt</div>
+        <div class="legend-item"><div class="legend-diamond" style="background:#1B4332"></div>Four Seasons</div>
+        <div class="legend-item"><div class="legend-diamond" style="background:#B4965A"></div>Aman / IHG</div>
+        <div class="legend-item"><div class="legend-diamond" style="background:#8B7355"></div>Indépendant</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-ov" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+  <button class="lightbox-nav" id="lbPrev" onclick="event.stopPropagation();lbNav(-1)"><i class="fas fa-chevron-left"></i></button>
+  <img class="lightbox-img" id="lbImg" src="" alt="" onclick="event.stopPropagation()">
+  <button class="lightbox-nav" id="lbNext" onclick="event.stopPropagation();lbNav(1)"><i class="fas fa-chevron-right"></i></button>
+  <div class="lightbox-caption" id="lbCaption"></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   I18N — Traductions FR / EN / ES
+══════════════════════════════════════════════════ */
+const TRANSLATIONS = {
+  fr: {
+    nav_back:'← Dashboard', nav_owned:'Possédés', nav_hotels:'Hôtels dispo.', nav_units:'Unités', nav_value:'Valeur',
+    search_ph:'Hôtel, ville, pays...',
+    filter_stars:'Étoiles', filter_all:'Tous', filter_owned:'Possédés uniquement', filter_group:'Groupe hôtelier',
+    list_title:'Hôtels', list_shown:'affichés', list_reset:'Réinit.',
+    legend_title:'Légende', legend_cluster:'Cluster — cliquer pour zoomer', legend_owned:'Chambre possédée', legend_booking:'Disponible Booking',
+    ctrl_satellite:'Vue satellite', ctrl_center:'Recentrer',
+    dp_about:'À propos', dp_amenities:'Équipements', dp_rooms:'Vos chambres', dp_owned:'Possédé',
+    dp_booking:'Voir sur Booking.com', dp_vouchers:'Gérer les Vouchers',
+    kpi_units:'Unités', kpi_revenue:'Rev. mensuel', kpi_stars:'Étoiles', kpi_avail:'Disponible',
+    popup_owned:'Possédé', popup_category:'Catégorie', popup_adr:'ADR', popup_units:'Unités',
+    popup_room:'chambre', popup_rooms:'chambres', popup_detail:'Voir la fiche →',
+    scope_in_city:'À', scope_in_country:'En',
+    city_found:'nous avons trouvé', city_filter_grp:'Filtrer par groupe',
+    h_singular:'hôtel', h_plural:'hôtels', your_grps:'vos groupes',
+    owned_msg_pre:'Dont', owned_msg_post:'appartenant à des groupes où vous possédez des chambres — statut élite et avantages membre applicables.'
+  },
+  en: {
+    nav_back:'← Dashboard', nav_owned:'Owned', nav_hotels:'Hotels avail.', nav_units:'Units', nav_value:'Value',
+    search_ph:'Hotel, city, country...',
+    filter_stars:'Stars', filter_all:'All', filter_owned:'Owned only', filter_group:'Hotel group',
+    list_title:'Hotels', list_shown:'shown', list_reset:'Reset',
+    legend_title:'Legend', legend_cluster:'Cluster — click to zoom', legend_owned:'Owned room', legend_booking:'Available on Booking',
+    ctrl_satellite:'Satellite view', ctrl_center:'Recenter',
+    dp_about:'About', dp_amenities:'Amenities', dp_rooms:'Your rooms', dp_owned:'Owned',
+    dp_booking:'View on Booking.com', dp_vouchers:'Manage Vouchers',
+    kpi_units:'Units', kpi_revenue:'Monthly rev.', kpi_stars:'Stars', kpi_avail:'Available',
+    popup_owned:'Owned', popup_category:'Category', popup_adr:'ADR', popup_units:'Units',
+    popup_room:'room', popup_rooms:'rooms', popup_detail:'View details →',
+    scope_in_city:'In', scope_in_country:'In',
+    city_found:'we found', city_filter_grp:'Filter by group',
+    h_singular:'hotel', h_plural:'hotels', your_grps:'your groups',
+    owned_msg_pre:'Including', owned_msg_post:'belonging to groups where you own rooms — elite status and member benefits apply.'
+  },
+  es: {
+    nav_back:'← Dashboard', nav_owned:'Poseídos', nav_hotels:'Hoteles disp.', nav_units:'Unidades', nav_value:'Valor',
+    search_ph:'Hotel, ciudad, país...',
+    filter_stars:'Estrellas', filter_all:'Todos', filter_owned:'Solo poseídos', filter_group:'Grupo hotelero',
+    list_title:'Hoteles', list_shown:'mostrados', list_reset:'Reiniciar',
+    legend_title:'Leyenda', legend_cluster:'Cluster — clic para acercar', legend_owned:'Habitación poseída', legend_booking:'Disponible en Booking',
+    ctrl_satellite:'Vista satélite', ctrl_center:'Centrar',
+    dp_about:'Acerca de', dp_amenities:'Servicios', dp_rooms:'Sus habitaciones', dp_owned:'Poseído',
+    dp_booking:'Ver en Booking.com', dp_vouchers:'Gestionar Vouchers',
+    kpi_units:'Unidades', kpi_revenue:'Rev. mensual', kpi_stars:'Estrellas', kpi_avail:'Disponible',
+    popup_owned:'Poseído', popup_category:'Categoría', popup_adr:'ADR', popup_units:'Unidades',
+    popup_room:'habitación', popup_rooms:'habitaciones', popup_detail:'Ver ficha →',
+    scope_in_city:'En', scope_in_country:'En',
+    city_found:'hemos encontrado', city_filter_grp:'Filtrar por grupo',
+    h_singular:'hotel', h_plural:'hoteles', your_grps:'sus grupos',
+    owned_msg_pre:'De los cuales', owned_msg_post:'pertenecen a grupos donde posee habitaciones — estado élite y ventajas de miembro aplicables.'
+  }
+};
+
+/* Langue courante (localStorage → navigateur → fr) */
+let currentLang = (function(){
+  const saved = localStorage.getItem('estate_lang');
+  if (saved && TRANSLATIONS[saved]) return saved;
+  const nav = (navigator.language || navigator.userLanguage || 'fr').slice(0,2).toLowerCase();
+  return TRANSLATIONS[nav] ? nav : 'fr';
+})();
+
+function t(key){ return (TRANSLATIONS[currentLang]||TRANSLATIONS.fr)[key] || key; }
+
+function setLang(lang) {
+  if (!TRANSLATIONS[lang]) return;
+  currentLang = lang;
+  localStorage.setItem('estate_lang', lang);
+  applyLang();
+  /* Rafraîchit les parties dynamiques */
+  renderSidebar();
+}
+
+function applyLang() {
+  const T = TRANSLATIONS[currentLang];
+  /* Boutons actifs */
+  ['FR','EN','ES'].forEach(l => {
+    const btn = document.getElementById('lb'+l);
+    if (btn) btn.classList.toggle('active', l.toLowerCase() === currentLang);
+  });
+  /* data-i18n → textContent */
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (T[key] !== undefined) el.textContent = T[key];
+  });
+  /* data-i18n-ph → placeholder */
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (T[key] !== undefined) el.placeholder = T[key];
+  });
+  /* data-i18n-title → title */
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    if (T[key] !== undefined) el.title = T[key];
+  });
+  /* Panel de détail ouvert → re-render les sections statiques */
+  const dp = document.getElementById('detailPanel');
+  if (dp && dp.classList.contains('open') && selectedHotel) openDetail(selectedHotel);
+}
+
+/* ══════════════════════════════════════════════════
+   HOTEL DATA — Combined: Owned + Booking API
+══════════════════════════════════════════════════ */
+const allHotels = [
+
+  /* ─── OWNED (8 propriétés) ─── */
+  {
+    id:1, owned:true,
+    name:"Sofitel Le Faubourg", group:"Accor", subBrand:"Sofitel",
+    city:"Paris", country:"France", flag:"🇫🇷", lat:48.870, lng:2.321,
+    stars:5, category:"Palace",
+    description:"Joyau de la rue du Faubourg Saint-Honoré, le Sofitel Le Faubourg incarne l'élégance parisienne à son apogée. À quelques pas du Palais de l'Élysée, cet hôtel palace allie architecture haussmannienne et design contemporain signé Pierre-Yves Rochon. Chaque suite offre une vue imprenable sur les toits de Paris.",
+    image:"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["Spa Kos","Bar Blossom","Restaurant Le Faubourg","Concierge 24/7","Fitness Club","Presse internationale"],
+    adr:815, currency:"EUR",
+    roomsOwned:2, revenueSplit:55, revenueMonthly:42500, occupancy:78,
+    availability:"available", totalValue:2800000, nightsAvail:125, nightsUsed:42,
+    rooms:[{num:"715",floor:7,type:"Suite Prestige",sqm:95,adr:850},{num:"716",floor:7,type:"Suite Deluxe",sqm:80,adr:780}]
+  },
+  {
+    id:2, owned:true,
+    name:"Waldorf Astoria", group:"Hilton", subBrand:"Waldorf Astoria",
+    city:"Dubai", country:"UAE", flag:"🇦🇪", lat:25.204, lng:55.271,
+    stars:5, category:"Ultra-Luxe",
+    description:"Dominant le Dubai International Financial Centre depuis ses 56 étages, le Waldorf Astoria Dubai incarne le luxe à l'échelle dubaïote. Avec son architecture futuriste, ses suites panoramiques et son accès privé au beach club, il représente l'investissement hôtelier le plus performant du portefeuille.",
+    image:"https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80"
+    ],
+    amenities:["Infinity Pool","Spa Al Manzil","5 Restaurants","Beach Club Privé","Butler 24/7","Helipad"],
+    adr:1867, currency:"AED",
+    roomsOwned:3, revenueSplit:60, revenueMonthly:98000, occupancy:94,
+    availability:"occupied", totalValue:8400000, nightsAvail:60, nightsUsed:88,
+    rooms:[{num:"3201",floor:32,type:"Suite Royale",sqm:220,adr:2200},{num:"3202",floor:32,type:"Suite Panorama",sqm:180,adr:1900},{num:"2801",floor:28,type:"Suite Deluxe",sqm:140,adr:1500}]
+  },
+  {
+    id:3, owned:true,
+    name:"Ritz-Carlton Central Park", group:"Marriott", subBrand:"Ritz-Carlton",
+    city:"New York", country:"USA", flag:"🇺🇸", lat:40.764, lng:-73.973,
+    stars:5, category:"Palace",
+    description:"Surplombant Central Park depuis 1930, le Ritz-Carlton New York est une institution de l'hospitalité américaine. Sa Suite Central Park, au 15e étage, offre une vue à couper le souffle sur le parc iconique de Manhattan. Le Club Lounge exclusif et le restaurant proposant une cuisine américaine contemporaine en font un investissement de premier ordre.",
+    image:"https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["Spa RC","Club Lounge","Restaurant","Fitness Elite","Concierge","Room Service 24/7"],
+    adr:1800, currency:"USD",
+    roomsOwned:1, revenueSplit:55, revenueMonthly:52000, occupancy:65,
+    availability:"available", totalValue:3800000, nightsAvail:145, nightsUsed:28,
+    rooms:[{num:"1510",floor:15,type:"Suite Central Park",sqm:160,adr:1800}]
+  },
+  {
+    id:4, owned:true,
+    name:"Four Seasons Resort", group:"Four Seasons", subBrand:"Four Seasons",
+    city:"Bora Bora", country:"Polynésie Fr.", flag:"🇵🇫", lat:-16.500, lng:-151.742,
+    stars:5, category:"Resort",
+    description:"Perché sur son propre motu privé dans le lagon turquoise de Bora Bora, ce resort emblématique offre une expérience sans équivalent dans l'océan Pacifique. Les villas overwater permettent de plonger directement dans le lagon depuis votre terrasse privée. Une destination de rêve pour les voyageurs les plus exigeants.",
+    image:"https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=600&q=80"
+    ],
+    amenities:["Lagoon Privé","Spa 3000m²","4 Restaurants","Water Sports","Butler","Plongée sous-marine"],
+    adr:3975, currency:"XPF",
+    roomsOwned:4, revenueSplit:60, revenueMonthly:142000, occupancy:82,
+    availability:"partial", totalValue:12200000, nightsAvail:80, nightsUsed:64,
+    rooms:[{num:"OW-12",floor:1,type:"Villa Overwater",sqm:320,adr:4200},{num:"OW-13",floor:1,type:"Villa Overwater",sqm:320,adr:4200},{num:"BV-05",floor:1,type:"Villa Beach",sqm:280,adr:3600},{num:"BV-06",floor:1,type:"Villa Beach Premium",sqm:350,adr:3900}]
+  },
+  {
+    id:5, owned:true,
+    name:"Park Hyatt", group:"Hyatt", subBrand:"Park Hyatt",
+    city:"Tokyo", country:"Japon", flag:"🇯🇵", lat:35.687, lng:139.694,
+    stars:5, category:"Urban Luxe",
+    description:"Occupant les 14 derniers étages du Shinjuku Park Tower, le Park Hyatt Tokyo est rendu célèbre par le film Lost in Translation. Son New York Bar au 52e étage offre une vue panoramique incomparable sur Tokyo et, par temps clair, sur le mont Fuji. Les suites Vue Fuji constituent un investissement rare et très recherché.",
+    image:"https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1464146072230-91cabc968266?w=600&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80",
+      "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=600&q=80"
+    ],
+    amenities:["Pool 47e étage","Spa","New York Bar","Restaurant","Fitness","Bibliothèque"],
+    adr:1025, currency:"JPY",
+    roomsOwned:2, revenueSplit:55, revenueMonthly:48000, occupancy:71,
+    availability:"available", totalValue:2100000, nightsAvail:110, nightsUsed:52,
+    rooms:[{num:"4701",floor:47,type:"Suite Fuji View",sqm:120,adr:1100},{num:"4802",floor:48,type:"Suite Tokyo View",sqm:100,adr:950}]
+  },
+  {
+    id:6, owned:true,
+    name:"Mandarin Oriental", group:"Mandarin Oriental", subBrand:"Mandarin Oriental",
+    city:"Londres", country:"UK", flag:"🇬🇧", lat:51.502, lng:-0.161,
+    stars:5, category:"Palace",
+    description:"Établi sur Knightsbridge depuis 1902, face à Hyde Park, le Mandarin Oriental London est l'un des grands palaces londoniens. Primé meilleur spa d'Europe, accueillant le restaurant Dinner by Heston Blumenthal avec ses 2 étoiles Michelin, il représente un investissement d'exception dans le marché immobilier hôtelier londonien.",
+    image:"https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1549294413-26f195200c16?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["Spa Award Winning","Pool","Dinner by Heston ★★","Bar","Concierge","Afternoon Tea"],
+    adr:1650, currency:"GBP",
+    roomsOwned:2, revenueSplit:58, revenueMonthly:72000, occupancy:88,
+    availability:"occupied", totalValue:5200000, nightsAvail:72, nightsUsed:76,
+    rooms:[{num:"801",floor:8,type:"Suite Hyde Park",sqm:180,adr:1800},{num:"802",floor:8,type:"Suite Garden",sqm:150,adr:1500}]
+  },
+  {
+    id:7, owned:true,
+    name:"Raffles Le Royal Monceau", group:"Accor", subBrand:"Raffles",
+    city:"Paris", country:"France", flag:"🇫🇷", lat:48.876, lng:2.303,
+    stars:5, category:"Palace",
+    description:"Le Royal Monceau, Raffles Paris se distingue par son alliance unique du luxe et de l'art contemporain. À deux pas des Champs-Élysées, cet hôtel palace accueille une galerie d'art, un cinéma privé de 99 places, un spa Carita et une piscine de 25 mètres. Sa Suite Prestige Jardin avec jardin privatif est l'une des plus prisées de Paris.",
+    image:"https://images.unsplash.com/photo-1551882547-ff40c63fe2e2?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80"
+    ],
+    amenities:["Spa My Blend by Carita","Piscine 25m","Cinéma Privé 99pl","Art Gallery","Butler","Restaurant Il Carpaccio ★"],
+    adr:2200, currency:"EUR",
+    roomsOwned:1, revenueSplit:55, revenueMonthly:56000, occupancy:60,
+    availability:"available", totalValue:4800000, nightsAvail:160, nightsUsed:22,
+    rooms:[{num:"201",floor:2,type:"Suite Prestige Jardin",sqm:200,adr:2200}]
+  },
+  {
+    id:8, owned:true,
+    name:"Conrad Rangali Island", group:"Hilton", subBrand:"Conrad",
+    city:"Maldives", country:"Maldives", flag:"🇲🇻", lat:3.688, lng:72.741,
+    stars:5, category:"Resort Overwater",
+    description:"Étendu sur deux îles reliées par un pont de bois de 500 mètres, le Conrad Maldives Rangali Island abrite le premier restaurant sous-marin du monde. Ses villas overwater avec piscine privée, son spa de 2000m² et son service de butler privatif en font l'une des destinations les plus exclusives au monde.",
+    image:"https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=600&q=80"
+    ],
+    amenities:["Restaurant Ithaa sous-marin","Spa Spa Retreat 2000m²","Plongée","Water Sports","Butler","Hydravion"],
+    adr:3833, currency:"USD",
+    roomsOwned:3, revenueSplit:60, revenueMonthly:134000, occupancy:76,
+    availability:"partial", totalValue:11500000, nightsAvail:90, nightsUsed:58,
+    rooms:[{num:"OW-01",floor:1,type:"Ocean Villa",sqm:290,adr:3500},{num:"OW-02",floor:1,type:"Two-Bedroom Ocean Villa",sqm:450,adr:5200},{num:"LA-01",floor:1,type:"Lagoon Villa",sqm:250,adr:2800}]
+  },
+
+  /* ─── BOOKING.COM API INVENTORY (Non-possédés) ─── */
+  {
+    id:9, owned:false,
+    name:"Raffles Singapore", group:"Accor", subBrand:"Raffles",
+    city:"Singapour", country:"Singapour", flag:"🇸🇬", lat:1.2948, lng:103.8517,
+    stars:5, category:"Palace Historique",
+    description:"Le Raffles Singapore, ouvert en 1887, est l'hôtel le plus emblématique d'Asie du Sud-Est. Classé monument national, il a accueilli Rudyard Kipling, Somerset Maugham et Charlie Chaplin. Le Long Bar, inventeur du Singapore Sling, et ses 103 suites coloniales en font une opportunité d'investissement unique dans le patrimoine mondial.",
+    image:"https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80",
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80"
+    ],
+    amenities:["Long Bar","Palm Court","Raffles Spa","9 Restaurants","Boutiques","Musée"],
+    adr:1450, currency:"SGD", availability:"api"
+  },
+  {
+    id:10, owned:false,
+    name:"Fairmont Le Château Frontenac", group:"Accor", subBrand:"Fairmont",
+    city:"Québec", country:"Canada", flag:"🇨🇦", lat:46.8122, lng:-71.2047,
+    stars:5, category:"Château Historique",
+    description:"Dominant la ville de Québec depuis 1893, ce château féerique classé site du patrimoine mondial de l'UNESCO est le château le plus photographié au monde. Ses tourelles victoriennes, son restaurant étoilé 1608 et son accès au Vieux-Québec en font un investissement alliant patrimoine et rendement exceptionnel.",
+    image:"https://images.unsplash.com/photo-1549294413-26f195200c16?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80",
+      "https://images.unsplash.com/photo-1464146072230-91cabc968266?w=600&q=80"
+    ],
+    amenities:["Spa","Restaurant 1608","Bar Le Sam","Golf","Ski","Concierge"],
+    adr:620, currency:"CAD", availability:"api"
+  },
+  {
+    id:11, owned:false,
+    name:"Bvlgari Hotel", group:"Marriott", subBrand:"Bvlgari",
+    city:"Londres", country:"UK", flag:"🇬🇧", lat:51.5034, lng:-0.1530,
+    stars:5, category:"Ultra-Luxe",
+    description:"Le Bvlgari Hotel London, inauguré en 2012 dans le quartier de Knightsbridge, incarne la philosophie italienne du luxe absolu. Son spa de 2000m² avec piscine de 25 mètres et ses 85 chambres et suites aux matériaux rares — onyx, marbre de Carrare, bois de palissandre — en font l'adresse la plus exclusive de Londres.",
+    image:"https://images.unsplash.com/photo-1551882547-ff40c63fe2e2?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=600&q=80"
+    ],
+    amenities:["Spa 2000m²","Pool 25m","Il Ristorante","Bar","Cinema Privé","Service de Yacht"],
+    adr:2800, currency:"GBP", availability:"api"
+  },
+  {
+    id:12, owned:false,
+    name:"St. Regis Maldives Vommuli", group:"Marriott", subBrand:"St. Regis",
+    city:"Maldives", country:"Maldives", flag:"🇲🇻", lat:3.1645, lng:72.9836,
+    stars:5, category:"Resort Insulaire",
+    description:"Posé sur l'île de Vommuli dans l'atoll de Dhaalu, le St. Regis Maldives Vommuli Resort offre des villas overwater et de plage d'une architecture contemporaine audacieuse. Son Iridium Spa sur deux niveaux, ses restaurants dirigés par des chefs étoilés et son observatoire marin en font le resort le plus novateur de l'archipel.",
+    image:"https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=600&q=80"
+    ],
+    amenities:["Iridium Spa","Observatoire marin","5 Restaurants","Plongée","Excursions","Hydravion"],
+    adr:5500, currency:"USD", availability:"api"
+  },
+  {
+    id:13, owned:false,
+    name:"W Tokyo", group:"Marriott", subBrand:"W Hotels",
+    city:"Tokyo", country:"Japon", flag:"🇯🇵", lat:35.6762, lng:139.7632,
+    stars:5, category:"Design Contemporain",
+    description:"Le W Tokyo, localisé dans le quartier ultra-branché de Minami-Aoyama, est le temple du luxe contemporain à Tokyo. Son design avant-gardiste signé Rockwell Group, son bar WOOBAR iconique et ses suites Spectacular views sur les jardins d'Aoyama attirent une clientèle internationale de créatifs et d'entrepreneurs.",
+    image:"https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1464146072230-91cabc968266?w=600&q=80",
+      "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["WOOBAR","FIT Fitness","Bliss Spa","Restaurant","Rooftop","DJ sets"],
+    adr:780, currency:"JPY", availability:"api"
+  },
+  {
+    id:14, owned:false,
+    name:"Park Hyatt Paris-Vendôme", group:"Hyatt", subBrand:"Park Hyatt",
+    city:"Paris", country:"France", flag:"🇫🇷", lat:48.8697, lng:2.3297,
+    stars:5, category:"Palace",
+    description:"Niché dans un hôtel particulier du XVIIIe siècle entre la Place Vendôme et les Tuileries, le Park Hyatt Paris-Vendôme est le palace le plus confidentiel de Paris. Son architecture néo-classique réinterprétée par Ed Tuttle, son spa de 1000m² et son restaurant Pur' dirigé par Jean-François Rouquette ★★ en font un investissement d'exception.",
+    image:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["Spa 1000m²","Restaurant Pur' ★★","Bar Vendôme","Cave à vins","Bibliothèque","Conciergerie"],
+    adr:1800, currency:"EUR", availability:"api"
+  },
+  {
+    id:15, owned:false,
+    name:"Alila Jabal Akhdar", group:"Hyatt", subBrand:"Alila",
+    city:"Nizwa", country:"Oman", flag:"🇴🇲", lat:23.0523, lng:57.3422,
+    stars:5, category:"Resort de Montagne",
+    description:"Perché à 2000 mètres d'altitude dans les montagnes de Hajar al-Gharbi, l'Alila Jabal Akhdar offre des vues vertigineuses sur les gorges de Wadi Ghul, surnommé le Grand Canyon de l'Arabie. Ses piscines à débordement en porte-à-faux au-dessus des falaises et ses villas en pierre locale en font une destination unique au monde.",
+    image:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
+      "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80"
+    ],
+    amenities:["Pool en porte-à-faux","Spa","Randonnées guidées","Rose Farm","Restaurant","Via ferrata"],
+    adr:920, currency:"OMR", availability:"api"
+  },
+  {
+    id:16, owned:false,
+    name:"Four Seasons George V", group:"Four Seasons", subBrand:"Four Seasons",
+    city:"Paris", country:"France", flag:"🇫🇷", lat:48.8736, lng:2.3009,
+    stars:5, category:"Palace",
+    description:"Le Four Seasons Hotel George V Paris, ouvert en 1928 sur l'avenue George V à deux pas des Champs-Élysées, est le palace parisien le plus primé au monde avec trois restaurants étoilés Michelin. Ses compositions florales monumentales, ses galeries d'art et sa cave comptant plus de 50 000 bouteilles en font une adresse mythique.",
+    image:"https://images.unsplash.com/photo-1551882547-ff40c63fe2e2?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80"
+    ],
+    amenities:["Le Cinq ★★★","Le George","L'Orangerie ★","Spa","Pool","Cave 50 000 bouteilles"],
+    adr:4200, currency:"EUR", availability:"api"
+  },
+  {
+    id:17, owned:false,
+    name:"Four Seasons Bali at Sayan", group:"Four Seasons", subBrand:"Four Seasons",
+    city:"Bali", country:"Indonésie", flag:"🇮🇩", lat:-8.5069, lng:115.2625,
+    stars:5, category:"Resort Jungle",
+    description:"Enveloppé dans la forêt vierge surplombant la rivière Ayung dans la vallée de Sayan, le Four Seasons Resort Bali at Sayan offre une retraite spirituelle et sensorielle unique. Ses villas avec piscines infinies au-dessus du jungle et ses rituels balinais millénaires au spa créent une expérience transformatrice.",
+    image:"https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80"
+    ],
+    amenities:["Spa balinais","Rizières privées","Yoga","Restaurant Ayung Terrace","Pool Villa","Cours de cuisine"],
+    adr:1900, currency:"USD", availability:"api"
+  },
+  {
+    id:18, owned:false,
+    name:"Mandarin Oriental Bangkok", group:"Mandarin Oriental", subBrand:"Mandarin Oriental",
+    city:"Bangkok", country:"Thaïlande", flag:"🇹🇭", lat:13.7249, lng:100.5147,
+    stars:5, category:"Palace Historique",
+    description:"Fondé en 1876 sur les rives du Chao Phraya, le Mandarin Oriental Bangkok est le plus ancien hôtel de luxe de Thaïlande. L'Author's Suite, qui a accueilli Somerset Maugham, Joseph Conrad et Noël Coward, et le Spa Oriental primé comme meilleur spa d'Asie depuis 20 ans en font une adresse légendaire.",
+    image:"https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["Spa Oriental","Author's Suite","Le Normandie ★★","3 Restaurants","Pool","Navette fluviale"],
+    adr:560, currency:"THB", availability:"api"
+  },
+  {
+    id:19, owned:false,
+    name:"Amangiri", group:"Aman", subBrand:"Aman",
+    city:"Canyon Point", country:"Utah, USA", flag:"🇺🇸", lat:37.0042, lng:-111.4498,
+    stars:5, category:"Desert Resort",
+    description:"Émergeant de la roche rouge de l'Utah comme une sculpture naturelle, l'Amangiri est considéré comme le resort le plus exclusif des États-Unis. Son architecture organique de béton brut épouse parfaitement les formations géologiques de 150 millions d'années. Sa Mesa Suite de 1300m² avec piscine chauffée surplombant les canyons est unique au monde.",
+    image:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80"
+    ],
+    amenities:["Pool dans le canyon","Spa","Randonnées canyons","Rafting","Hélitreuillage","Mesa Suite 1300m²"],
+    adr:4800, currency:"USD", availability:"api"
+  },
+  {
+    id:20, owned:false,
+    name:"Aman Venice", group:"Aman", subBrand:"Aman",
+    city:"Venise", country:"Italie", flag:"🇮🇹", lat:45.4363, lng:12.3257,
+    stars:5, category:"Palace Vénitien",
+    description:"Installé dans le Palazzo Papadopoli, un palazzo vénitien du XVIe siècle en bord de Grand Canal, l'Aman Venice ne compte que 24 suites. Ses fresques de Giambattista Tiepolo, ses jardins secrets et son accès privé au Grand Canal par barque en font l'adresse la plus confidentielle et la plus recherchée de Venise.",
+    image:"https://images.unsplash.com/photo-1534259197649-4ade5a0e0219?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["Grand Canal privé","Jardins secrets","Spa","Restaurant","Barque privée","Fresques Tiepolo"],
+    adr:6200, currency:"EUR", availability:"api"
+  },
+  {
+    id:21, owned:false,
+    name:"InterContinental Paris Le Grand", group:"IHG", subBrand:"InterContinental",
+    city:"Paris", country:"France", flag:"🇫🇷", lat:48.8754, lng:2.3307,
+    stars:5, category:"Grand Hôtel",
+    description:"Inauguré en 1862 par Napoléon III face à l'Opéra Garnier, l'InterContinental Paris Le Grand est un monument de l'histoire hôtelière française. Sa salle Opéra, avec son décor Second Empire et sa verrière, est l'une des plus belles salles de banquet au monde. Son Club Lounge privé offre des vues directes sur l'Opéra.",
+    image:"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["Club Lounge","Salle Opéra","Café de la Paix","Bar","Fitness","Concierge Clefs d'Or"],
+    adr:750, currency:"EUR", availability:"api"
+  },
+
+  /* ─── MARRAKECH (12 hôtels — Booking API) ─── */
+  {
+    id:22, owned:false,
+    name:"La Mamounia", group:"Indépendant", subBrand:"La Mamounia",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.6233, lng:-8.0143,
+    stars:5, category:"Palace Légendaire",
+    description:"Inauguré en 1923, La Mamounia est le palace le plus mythique d'Afrique. Entouré de 17 hectares de jardins arabo-andalous, il a accueilli Winston Churchill, Alfred Hitchcock et les Rolling Stones. Ses suites donnant sur les jardins et l'Atlas, son spa et ses restaurants signés Jean-Georges Vongerichten en font une adresse incomparable.",
+    image:"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&q=80",
+      "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=600&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80"
+    ],
+    amenities:["Jardins 17ha","Spa Sisley","3 Piscines","Restaurant JGV","Churchill Bar","Tennis"],
+    adr:8500, currency:"MAD", availability:"api"
+  },
+  {
+    id:23, owned:false,
+    name:"Royal Mansour", group:"Indépendant", subBrand:"Royal Mansour",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.6301, lng:-8.0089,
+    stars:5, category:"Riad Privé Ultra-Luxe",
+    description:"Commandé par le Roi Mohammed VI, le Royal Mansour est une ville dans la ville — 53 riads entièrement privés reliés par des souterrains. Chaque riad est une demeure avec patio intérieur, salon, salle à manger et piscine privée. Ses artisans sont les meilleurs du Maroc, recrutés dans les corporations de Fès et Marrakech.",
+    image:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=600&q=80",
+      "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80",
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80"
+    ],
+    amenities:["53 Riads privés","Spa La Prairie","3 Restaurants","Piscines privées","Artisanat Royal","Butler dédié"],
+    adr:18000, currency:"MAD", availability:"api"
+  },
+  {
+    id:24, owned:false,
+    name:"Four Seasons Marrakech", group:"Four Seasons", subBrand:"Four Seasons",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.6188, lng:-8.0432,
+    stars:5, category:"Resort Urbain",
+    description:"Au cœur du quartier de l'Hivernage, le Four Seasons Marrakech est un havre de paix de 6 hectares avec jardins luxuriants et deux piscines. Ses 141 chambres et suites décorées par des artisans locaux, son spa de 2500m² et son restaurant Solano en font la référence internationale à Marrakech. Accessible avec vos vouchers Four Seasons.",
+    image:"https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=600&q=80"
+    ],
+    amenities:["Jardins 6ha","Spa 2500m²","2 Piscines","Restaurant Solano","Kids For All Seasons","Tennis"],
+    adr:5800, currency:"MAD", availability:"api"
+  },
+  {
+    id:25, owned:false,
+    name:"Mandarin Oriental Marrakech", group:"Mandarin Oriental", subBrand:"Mandarin Oriental",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.6594, lng:-7.9912,
+    stars:5, category:"Resort Palmeraie",
+    description:"Niché dans la Palmeraie, au milieu d'une oliveraie privée de 20 hectares, le Mandarin Oriental Marrakech propose 54 villas et pavillons avec piscines privées. Ses jardins botaniques, son spa signature au cactus et à l'argan, et sa cuisine authentique marocaine réinventée par des chefs étoilés font de cet hôtel l'une des adresses les plus exclusives de la ville.",
+    image:"https://images.unsplash.com/photo-1534259197649-4ade5a0e0219?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=600&q=80",
+      "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80"
+    ],
+    amenities:["Oliveraie 20ha","Spa Argan","54 Villas piscine privée","3 Restaurants","Cours d'équitation","Hammam Royal"],
+    adr:5200, currency:"MAD", availability:"api"
+  },
+  {
+    id:26, owned:false,
+    name:"Amanjena", group:"Aman", subBrand:"Aman",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.5863, lng:-8.0043,
+    stars:5, category:"Desert Resort",
+    description:"Premier Aman Resort d'Afrique, inauguré en 2000 sur la Route de Ouarzazate, l'Amanjena s'inspire de l'architecture de la kasba marocaine. Ses 32 pavillons et maisons regroupés autour d'un bassin central à la mode Alhambra, son restaurant Moroccan, et son accès direct au parcours de golf Robert Trent Jones Jr. en font un refuge de luxe hors du temps.",
+    image:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80"
+    ],
+    amenities:["Golf 18 trous","Bassin central","Spa","Restaurant Moroccan","Tennis","Bibliothèque"],
+    adr:11500, currency:"MAD", availability:"api"
+  },
+  {
+    id:27, owned:false,
+    name:"Sofitel Marrakech Lounge & Spa", group:"Accor", subBrand:"Sofitel",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.6308, lng:-8.0205,
+    stars:5, category:"Palace Contemporain",
+    description:"Le Sofitel Marrakech, au cœur de l'Hivernage, allie art de vivre français et esthétique marocaine. Ses 334 chambres et suites décorées par Christian Lacroix, sa piscine en miroir de 1300m², son Spa So Sofitel de 1200m² et sa programmation culturelle en font l'hôtel le plus animé du quartier diplomatique. Vos statuts Accor s'y appliquent.",
+    image:"https://images.unsplash.com/photo-1551882547-ff40c63fe2e2?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["Piscine 1300m²","Spa So Sofitel","Lacroix Déco","Restaurant","Bar L'Orangeraie","Fitness"],
+    adr:2900, currency:"MAD", availability:"api"
+  },
+  {
+    id:28, owned:false,
+    name:"Fairmont Royal Palm", group:"Accor", subBrand:"Fairmont",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.5714, lng:-8.0115,
+    stars:5, category:"Golf & Spa Resort",
+    description:"À 30 minutes du centre, le Fairmont Royal Palm Marrakech s'étend sur 231 hectares de golf championship et de jardins méditerranéens. Ses 134 suites et résidences privées avec piscines, son spa de 3500m² aux soins argan et rose de Dadès, et ses 11 restaurants et bars en font la plus grande propriété de luxe de la région. Statuts Accor All valides.",
+    image:"https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80",
+      "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80"
+    ],
+    amenities:["Golf 18 trous","Spa 3500m²","11 Restaurants & Bars","4 Piscines","Tennis","Équitation"],
+    adr:3400, currency:"MAD", availability:"api"
+  },
+  {
+    id:29, owned:false,
+    name:"Es Saadi Gardens & Resort", group:"Indépendant", subBrand:"Es Saadi",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.6241, lng:-8.0118,
+    stars:5, category:"Resort Privé",
+    description:"Fondé en 1952, Es Saadi est l'un des premiers palaces de Marrakech et l'adresse préférée des célébrités depuis 70 ans. Son Jardin Perdu de 2 hectares au cœur de la ville, son casino privé, son théâtre de plein air de 2000 places et sa galerie d'art contemporain en font un lieu unique mêlant culture, fête et luxe absolu.",
+    image:"https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80",
+      "https://images.unsplash.com/photo-1534259197649-4ade5a0e0219?w=600&q=80",
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80"
+    ],
+    amenities:["Casino Privé","Théâtre 2000pl","Spa","3 Piscines","Galerie d'art","Restaurant Le Bô"],
+    adr:4500, currency:"MAD", availability:"api"
+  },
+  {
+    id:30, owned:false,
+    name:"Selman Marrakech", group:"Indépendant", subBrand:"Selman",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.6001, lng:-8.0388,
+    stars:5, category:"Haras de Luxe",
+    description:"Le Selman Marrakech est un hôtel haras unique au monde, consacré aux chevaux Arabes de la Famille Royale. Son architecture inspirée du Taj Mahal, sa piscine de 100 mètres en marbre blanc, son équipe de cavaliers professionnels et ses soins spa aux ingrédients équins en font une expérience réservée aux amateurs d'exclusivité absolue.",
+    image:"https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80",
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80"
+    ],
+    amenities:["Haras Arabes","Piscine 100m","Spa Équin","Restaurant","Polo","Atlas View"],
+    adr:5000, currency:"MAD", availability:"api"
+  },
+  {
+    id:31, owned:false,
+    name:"Nobu Hotel Marrakech", group:"Indépendant", subBrand:"Nobu",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.6131, lng:-8.0323,
+    stars:5, category:"Design & Gastronomie",
+    description:"Le Nobu Hotel Marrakech, ouvert en 2019 dans le quartier résidentiel du Bab Atlas, apporte la vision japonaise-péruvienne de Nobu Matsuhisa en terre marocaine. Son architecture par Piero Lissoni réinterprète le riad traditionnel en langage minimaliste contemporain. Le restaurant Nobu et sa terrasse avec vue sur l'Atlas sont devenus les tables les plus courue de la ville.",
+    image:"https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["Restaurant Nobu","Terrasse Atlas","Spa","Piscine","Bar Lounge","Design Piero Lissoni"],
+    adr:3800, currency:"MAD", availability:"api"
+  },
+  {
+    id:32, owned:false,
+    name:"Palais Namaskar", group:"Indépendant", subBrand:"Palais Namaskar",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.6055, lng:-8.0297,
+    stars:5, category:"Palais Privé",
+    description:"Le Palais Namaskar est un véritable palais privé érigé sur 7 hectares de jardins aquatiques. Ses 41 villas et suites avec piscines chauffées, son spa Namaskar aux soins ayurvédiques, ses bassins d'eau à l'infini créant un paysage de miroirs, et son restaurant gastronomique placé parmi les 50 meilleurs du continent font de lui une adresse d'exception hors du temps.",
+    image:"https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&q=80",
+      "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=600&q=80",
+      "https://images.unsplash.com/photo-1534259197649-4ade5a0e0219?w=600&q=80"
+    ],
+    amenities:["41 Villas piscine","Jardins aquatiques 7ha","Spa Ayurvédique","Restaurant Gastronomique","Yoga","Transfert Privé"],
+    adr:7500, currency:"MAD", availability:"api"
+  },
+  {
+    id:33, owned:false,
+    name:"The Pearl Marrakech", group:"Indépendant", subBrand:"The Pearl",
+    city:"Marrakech", country:"Maroc", flag:"🇲🇦", lat:31.6472, lng:-7.9998,
+    stars:4, category:"Boutique 4★",
+    description:"The Pearl Marrakech est un boutique-hôtel de 60 chambres niché dans un riad contemporain à 10 minutes de la Médina. Son design épuré mêlant zellige traditionnel et mobilier scandinave, sa piscine sur le rooftop avec vue sur les toits de la Médina et la Koutoubia, et son hammam privatisable en font l'alternative haut de gamme aux palaces, idéale pour un séjour intimiste.",
+    image:"https://images.unsplash.com/photo-1549294413-26f195200c16?w=800&q=80&auto=format&fit=crop",
+    gallery:[
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+    ],
+    amenities:["Rooftop Pool","Hammam Privatisable","Restaurant","Bar","Conciergerie","Transfert Medina"],
+    adr:2800, currency:"MAD", availability:"api"
+  }
+];
+
+/* ══════════════════════════════════════════════════
+   CONFIGURATION
+══════════════════════════════════════════════════ */
+const groupColors = {
+  'Accor':'#C41E3A','Hilton':'#1E3A6E','Marriott':'#8B1A1A',
+  'Hyatt':'#2E7D32','Four Seasons':'#1B4332','Mandarin Oriental':'#6D4C41',
+  'Aman':'#B4965A','IHG':'#4a70c0','Indépendant':'#8B7355','Bvlgari':'#6B4226'
+};
+
+/* ══════════════════════════════════════════════════
+   FILTER STATE
+══════════════════════════════════════════════════ */
+let activeGroupFilter = 'all';
+let activeStarFilter = '5';
+let showOwnedOnly = false;
+let searchFilter = '';
+let selectedHotel = null;
+let currentPopup = null;
+let satMode = false;
+let visibleHotelIds = allHotels.map(h => h.id);
+let _hotelClickedAt = 0;
+
+/* Current lightbox state */
+let lbImages = [], lbIndex = 0;
+
+/* ══════════════════════════════════════════════════
+   MAP INIT
+══════════════════════════════════════════════════ */
+const map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+  center: [20, 20],
+  zoom: 2,
+  minZoom: 1.5,
+  renderWorldCopies: false,
+  attributionControl: false
+});
+map.addControl(new maplibregl.AttributionControl({compact:true}), 'bottom-left');
+
+map.on('load', () => {
+  initLayers();
+  initScoutLayer();
+
+  /* ── Cluster click : zoom avant pour décluster ── */
+  map.on('click', 'clusters', e => {
+    if (!e.features.length) return;
+    _hotelClickedAt = Date.now();
+    const clusterId = e.features[0].properties.cluster_id;
+    const coords = e.features[0].geometry.coordinates.slice();
+    map.getSource('hotels').getClusterExpansionZoom(clusterId, (err, zoom) => {
+      if (err) return;
+      map.easeTo({ center: coords, zoom: zoom + 0.5, duration: 650 });
+    });
+  });
+  map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = ''; });
+
+  /* Interactions — enregistrées une seule fois */
+  map.on('click', 'hotels-symbols', e => {
+    if (!e.features.length) return;
+    _hotelClickedAt = Date.now();
+    openDetailById(e.features[0].properties.id);
+    if (currentPopup) { currentPopup.remove(); currentPopup = null; }
+  });
+  map.on('mouseenter', 'hotels-symbols', e => {
+    map.getCanvas().style.cursor = 'pointer';
+    if (!e.features.length) return;
+    const h = allHotels.find(x => x.id === e.features[0].properties.id);
+    if (!h || (selectedHotel && selectedHotel.id === h.id)) return;
+    if (currentPopup) { currentPopup.remove(); currentPopup = null; }
+    currentPopup = new maplibregl.Popup({ offset:[0,-10], closeButton:false, closeOnClick:false, maxWidth:'240px' })
+      .setLngLat([h.lng, h.lat]).setHTML(
+        '<div class="popup-inner">' +
+        '<div class="popup-name">' + h.name + '</div>' +
+        '<div class="popup-loc">' + h.flag + ' ' + h.city + ', ' + h.country + '</div>' +
+        (h.owned ? '<span class="popup-badge" style="background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4)"><i class="fas fa-key" style="margin-right:3px"></i>' + t('popup_owned') + '</span>' : '') +
+        '<div class="popup-row"><span>' + t('popup_category') + '</span><span>' + (h.category||'—') + '</span></div>' +
+        '<div class="popup-row"><span>' + t('popup_adr') + '</span><span>' + h.adr.toLocaleString('fr-FR') + ' ' + h.currency + '/nuit</span></div>' +
+        (h.owned ? '<div class="popup-row"><span>' + t('popup_units') + '</span><span>' + h.roomsOwned + ' ' + (h.roomsOwned>1 ? t('popup_rooms') : t('popup_room')) + '</span></div>' : '') +
+        '<button class="popup-btn" onclick="openDetailById(' + h.id + ')">' + t('popup_detail') + '</button>' +
+        '</div>'
+      ).addTo(map);
+  });
+  map.on('mouseleave', 'hotels-symbols', () => {
+    map.getCanvas().style.cursor = '';
+    if (currentPopup) { currentPopup.remove(); currentPopup = null; }
+  });
+  applyLang();
+  renderSidebar();
+  document.getElementById('navTotal').textContent = allHotels.length;
+  document.getElementById('navOwned').textContent = allHotels.filter(h=>h.owned).length;
+  document.getElementById('navUnits').textContent = allHotels.filter(h=>h.owned).reduce((s,h)=>s+h.roomsOwned,0);
+});
+
+/* ══════════════════════════════════════════════════
+   DIAMOND ICON GENERATOR — rendu GPU, zéro drift au zoom
+══════════════════════════════════════════════════ */
+function createDiamondImg(pixelSize, hexColor, alpha) {
+  const pad = 3, full = pixelSize + pad * 2;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = full;
+  const ctx = canvas.getContext('2d');
+  const rv = parseInt(hexColor.slice(1,3),16);
+  const gv = parseInt(hexColor.slice(3,5),16);
+  const bv = parseInt(hexColor.slice(5,7),16);
+  ctx.translate(full/2, full/2);
+  ctx.rotate(Math.PI/4);
+  const half = pixelSize * 0.38;
+  ctx.shadowColor = 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur = 3;
+  ctx.shadowOffsetY = 1.5;
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = 'rgb(' + rv + ',' + gv + ',' + bv + ')';
+  ctx.fillRect(-half, -half, half*2, half*2);
+  ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+  ctx.globalAlpha = 0.28;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(-half, -half, half*2, half*2);
+  return ctx.getImageData(0, 0, full, full);
+}
+
+/* Clé d'image par groupe hôtelier */
+const ICON_KEYS = {};
+Object.entries(groupColors).forEach(function(entry, i) {
+  ICON_KEYS[entry[0]] = { sm: 'd' + i + 's', lg: 'd' + i + 'l', color: entry[1] };
+});
+ICON_KEYS['_def'] = { sm: 'dXs', lg: 'dXl', color: '#8B7355' };
+
+function addDiamondImages() {
+  Object.keys(ICON_KEYS).forEach(function(k) {
+    var ik = ICON_KEYS[k];
+    if (!map.hasImage(ik.sm)) map.addImage(ik.sm, createDiamondImg(10, ik.color, 0.62));
+    if (!map.hasImage(ik.lg)) map.addImage(ik.lg, createDiamondImg(15, ik.color, 1.0));
+  });
+}
+
+/* Features GeoJSON statiques (visibilité gérée via setData) */
+const ALL_FEATURES = allHotels.map(function(h) {
+  return {
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: [h.lng, h.lat] },
+    properties: { id: h.id, owned: h.owned ? 1 : 0, group: h.group }
+  };
+});
+
+/* ══════════════════════════════════════════════════
+   LAYERS — (ré)initialisés au load + après changement de style
+══════════════════════════════════════════════════ */
+function initLayers() {
+  ['cluster-count', 'clusters', 'hotels-halo', 'hotels-owned-ring', 'hotels-symbols'].forEach(function(id) {
+    if (map.getLayer(id)) map.removeLayer(id);
+  });
+  if (map.getSource('hotels')) map.removeSource('hotels');
+
+  map.addSource('hotels', {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: ALL_FEATURES },
+    cluster: true,
+    clusterMaxZoom: 7,   // au-delà du zoom 7 → marqueurs individuels
+    clusterRadius: 48    // pixels pour regrouper
+  });
+
+  /* ── Clusters : cercle doré ── */
+  map.addLayer({
+    id: 'clusters', type: 'circle', source: 'hotels',
+    filter: ['has', 'point_count'],
+    paint: {
+      'circle-color': ['step', ['get', 'point_count'],
+        '#8B6914', 3, '#C9A84C', 8, '#E8D5A3'],
+      'circle-radius': ['step', ['get', 'point_count'],
+        22, 3, 27, 8, 33],
+      'circle-stroke-width': 2,
+      'circle-stroke-color': 'rgba(201,168,76,0.45)',
+      'circle-opacity': 0.92
+    }
+  });
+
+  /* ── Clusters : nombre ── */
+  map.addLayer({
+    id: 'cluster-count', type: 'symbol', source: 'hotels',
+    filter: ['has', 'point_count'],
+    layout: {
+      'text-field': '{point_count_abbreviated}',
+      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold', 'Noto Sans Bold'],
+      'text-size': 13,
+      'text-allow-overlap': true,
+      'text-ignore-placement': true
+    },
+    paint: { 'text-color': '#040D1C' }
+  });
+
+  /* ── Halo blanc — hôtel sélectionné ── */
+  map.addLayer({
+    id: 'hotels-halo', type: 'circle', source: 'hotels',
+    filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'id'], -1]],
+    paint: {
+      'circle-radius': 18,
+      'circle-color': 'rgba(0,0,0,0)', 'circle-opacity': 0,
+      'circle-stroke-width': 2.5, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0.85
+    }
+  });
+
+  /* ── Anneau doré — hôtels possédés ── */
+  map.addLayer({
+    id: 'hotels-owned-ring', type: 'circle', source: 'hotels',
+    filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'owned'], 1]],
+    paint: {
+      'circle-radius': 13,
+      'circle-color': 'rgba(0,0,0,0)', 'circle-opacity': 0,
+      'circle-stroke-width': 1.5, 'circle-stroke-color': '#C9A84C', 'circle-stroke-opacity': 0.7
+    }
+  });
+
+  /* ── Points couleur groupe — hôtels individuels ── */
+  map.addLayer({
+    id: 'hotels-symbols', type: 'circle', source: 'hotels',
+    filter: ['!', ['has', 'point_count']],
+    paint: {
+      'circle-radius': ['case', ['==', ['get', 'owned'], 1], 9, 7],
+      'circle-color': ['match', ['get', 'group'],
+        'Accor',             '#C41E3A',
+        'Hilton',            '#5a7abf',
+        'Marriott',          '#d96060',
+        'Hyatt',             '#5bb561',
+        'Four Seasons',      '#3fb37b',
+        'Mandarin Oriental', '#c49b8e',
+        'Aman',              '#d4ba82',
+        'IHG',               '#8aacdf',
+        'Indépendant',       '#C9A84C',
+        '#C9A84C'
+      ],
+      'circle-opacity': ['case', ['==', ['get', 'owned'], 1], 1.0, 0.72],
+      'circle-stroke-width': 1.5,
+      'circle-stroke-color': 'rgba(255,255,255,0.45)',
+      'circle-stroke-opacity': 1,
+      'circle-pitch-alignment': 'map'
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   SCOUT HOTELS — couche séparée depuis localStorage
+══════════════════════════════════════════════════ */
+function initScoutLayer() {
+  ['scout-symbols','scout-labels'].forEach(id => { if(map.getLayer(id)) map.removeLayer(id); });
+  if(map.getSource('scout-hotels')) map.removeSource('scout-hotels');
+
+  let scouts = [];
+  try { scouts = JSON.parse(localStorage.getItem('estate_v1_scout')||'[]'); } catch(e){}
+  const features = scouts.filter(h => h.lat && h.lng).map(h => ({
+    type:'Feature',
+    geometry:{ type:'Point', coordinates:[parseFloat(h.lng), parseFloat(h.lat)] },
+    properties:{ id:h.id, name:h.name, city:h.city||'', category:h.category, bookingUrl:h.bookingUrl||'' }
+  }));
+  if(!features.length) return;
+
+  map.addSource('scout-hotels', { type:'geojson', data:{ type:'FeatureCollection', features } });
+
+  map.addLayer({
+    id:'scout-symbols', type:'circle', source:'scout-hotels',
+    paint:{
+      'circle-radius': 9,
+      'circle-color': ['match',['get','category'],
+        'portfolio','#10B981',
+        'wishlist','#3B82F6',
+        'potential','#F59E0B',
+        'hotel-list','#8B5CF6',
+        '#C9A84C'],
+      'circle-stroke-width': 2,
+      'circle-stroke-color': '#ffffff',
+      'circle-opacity': 0.95,
+      'circle-pitch-alignment':'map'
+    }
+  });
+
+  map.addLayer({
+    id:'scout-labels', type:'symbol', source:'scout-hotels',
+    layout:{
+      'text-field':['get','name'],
+      'text-size':10,
+      'text-offset':[0,1.4],
+      'text-anchor':'top',
+      'text-optional':true,
+      'text-allow-overlap':false,
+    },
+    paint:{ 'text-color':'#E8E0D0', 'text-halo-color':'rgba(4,13,28,.9)', 'text-halo-width':1.5 }
+  });
+
+  // Clic sur un hôtel scout → popup
+  map.on('click','scout-symbols', e => {
+    if(!e.features.length) return;
+    const p = e.features[0].properties;
+    const catColors = {portfolio:'#10B981', wishlist:'#3B82F6', potential:'#F59E0B'};
+    const catLabels = {portfolio:'Hôtel Portfolio', wishlist:'Travel Wishlist', potential:'Potentiel Invest.'};
+    new maplibregl.Popup({ offset:14, className:'scout-popup' })
+      .setLngLat(e.features[0].geometry.coordinates)
+      .setHTML(`<div style="font-family:Inter,sans-serif;padding:10px 12px;background:#071425;border:1px solid rgba(201,168,76,.2);min-width:180px">
+        <div style="font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:${catColors[p.category]||'#C9A84C'};margin-bottom:5px">${catLabels[p.category]||''}</div>
+        <div style="font-size:.88rem;font-weight:600;color:#E8E0D0;margin-bottom:4px">${p.name}</div>
+        ${p.city?`<div style="font-size:.68rem;color:#9BA8B8">${p.city}</div>`:''}
+        ${p.bookingUrl?`<a href="${p.bookingUrl}" target="_blank" style="display:inline-block;margin-top:8px;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#C9A84C;text-decoration:none;border:1px solid rgba(201,168,76,.3);padding:4px 10px">Booking.com →</a>`:''}
+      </div>`)
+      .addTo(map);
+  });
+  map.on('mouseenter','scout-symbols',()=>{ map.getCanvas().style.cursor='pointer'; });
+  map.on('mouseleave','scout-symbols',()=>{ map.getCanvas().style.cursor=''; });
+}
+
+function applyLayerFilter() {
+  var src = map.getSource('hotels');
+  if (!src) return;
+  var vis = ALL_FEATURES.filter(function(f) { return visibleHotelIds.indexOf(f.properties.id) !== -1; });
+  src.setData({ type: 'FeatureCollection', features: vis });
+}
+
+/* ══════════════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════════════ */
+function renderSidebar() {
+  const list = document.getElementById('hotelList');
+  const search = searchFilter.toLowerCase().trim();
+
+  const filtered = allHotels.filter(h => {
+    if (showOwnedOnly && !h.owned) return false;
+    if (activeGroupFilter !== 'all' && h.group !== activeGroupFilter) return false;
+    if (activeStarFilter !== 'all' && h.stars !== parseInt(activeStarFilter)) return false;
+    if (search) {
+      const haystack = (h.name + h.city + h.country + h.group + h.subBrand).toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('sbCountNum').textContent = filtered.length;
+
+  // City panel: detect if search matches a single city
+  updateCityPanel(search, filtered);
+
+  list.innerHTML = filtered.map(h => {
+    const stars = '★'.repeat(h.stars);
+    const availDot = h.owned
+      ? `<div class="sb-avail-dot dot-${h.availability||'available'}"></div>`
+      : `<div class="sb-avail-dot dot-api" title="Disponible sur Booking.com"></div>`;
+    return `
+      <div class="sb-hotel-item" data-id="${h.id}" onclick="openDetailById(${h.id})">
+        <img class="sb-thumb" src="${h.image}" alt="${h.name}" onerror="this.style.display='none'" loading="lazy">
+        <div class="sb-info">
+          <div class="sb-name">${h.name}</div>
+          <div class="sb-city">
+            ${h.flag} ${h.city}
+            <span class="sb-stars-mini">${stars}</span>
+          </div>
+        </div>
+        ${h.owned ? '<div class="sb-owned-dot" title="Possédé"></div>' : ''}
+        ${availDot}
+      </div>`;
+  }).join('');
+
+  visibleHotelIds = filtered.map(function(h) { return h.id; });
+  applyLayerFilter();
+}
+
+/* ══════════════════════════════════════════════════
+   FILTER HANDLERS
+══════════════════════════════════════════════════ */
+function filterGroup(btn, group) {
+  activeGroupFilter = group;
+  document.querySelectorAll('#groupPills .pill').forEach(p => {
+    p.classList.remove('active');
+    const g = p.dataset.group;
+    if (g && g !== 'all') {
+      p.classList.remove('active-' + g.replace(/\s+/g,'_').replace('é','e'));
+    }
+  });
+  if (group === 'all') {
+    btn.classList.add('active');
+  } else {
+    btn.classList.add('grp-pill', 'active-' + group.replace(/\s+/g,'_').replace('é','e').replace('î','i'));
+  }
+  renderSidebar();
+}
+
+function setStarFilter(btn, val) {
+  activeStarFilter = val;
+  document.querySelectorAll('.star-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  renderSidebar();
+}
+
+function toggleOwned() {
+  showOwnedOnly = !showOwnedOnly;
+  const row = document.getElementById('ownedToggleRow');
+  row.classList.toggle('active', showOwnedOnly);
+  renderSidebar();
+}
+
+function applyFilters() {
+  searchFilter = document.getElementById('sidebarSearch').value;
+  renderSidebar();
+}
+
+function clearFilters() {
+  searchFilter = '';
+  activeGroupFilter = 'all';
+  activeStarFilter = '5';
+  showOwnedOnly = false;
+  document.getElementById('sidebarSearch').value = '';
+  document.querySelectorAll('#groupPills .pill').forEach(p => p.classList.remove('active'));
+  document.querySelector('#groupPills .pill[data-group="all"]').classList.add('active');
+  document.querySelectorAll('.star-pill').forEach(p => p.classList.remove('active'));
+  document.querySelector('.star-pill[data-s="5"]').classList.add('active');
+  document.getElementById('ownedToggleRow').classList.remove('active');
+  document.getElementById('cityPanel').classList.remove('visible');
+  renderSidebar();
+}
+
+/* ══════════════════════════════════════════════════
+   CITY PANEL
+══════════════════════════════════════════════════ */
+const ownedGroups = [...new Set(allHotels.filter(h=>h.owned).map(h=>h.group))];
+
+function updateCityPanel(search, filtered) {
+  const panel = document.getElementById('cityPanel');
+  if (!search || search.length < 2) { panel.classList.remove('visible'); return; }
+
+  // Détection : pays ou ville ?
+  const allCities    = [...new Set(allHotels.map(h=>h.city))];
+  const allCountries = [...new Set(allHotels.map(h=>h.country))];
+
+  // Pays : correspondance prioritaire
+  const matchedCountry = allCountries.find(c=>
+    c.toLowerCase().includes(search) || search.includes(c.toLowerCase().split(',')[0]));
+  // Ville : correspondance secondaire
+  const matchedCity = !matchedCountry && allCities.find(c=>
+    c.toLowerCase().includes(search) || search.includes(c.toLowerCase()));
+
+  if (!matchedCity && !matchedCountry) { panel.classList.remove('visible'); return; }
+
+  const isCountry = !!matchedCountry;
+  const scopeLabel = isCountry ? matchedCountry : matchedCity;
+
+  // Hôtels du périmètre (ville ou pays, toutes les données)
+  const scopeHotels = isCountry
+    ? allHotels.filter(h=>h.country.toLowerCase()===matchedCountry.toLowerCase())
+    : allHotels.filter(h=>h.city.toLowerCase()===matchedCity.toLowerCase());
+
+  const firstHotel  = scopeHotels[0];
+  const scopeFlag   = firstHotel ? firstHotel.flag : '📍';
+  const scopeSubLbl = isCountry ? matchedCountry : (firstHotel ? firstHotel.country : '');
+
+  // Breakdown par étoiles
+  const byStars = {5:[],4:[],3:[]};
+  scopeHotels.forEach(h=>{ if(byStars[h.stars]) byStars[h.stars].push(h); });
+
+  const starsRow = document.getElementById('cpStarsRow');
+  starsRow.innerHTML = [5,4,3].filter(s=>byStars[s].length>0).map(s=>{
+    const inOwned = byStars[s].filter(h=>ownedGroups.includes(h.group));
+    const n = byStars[s].length;
+    return `<div class="cp-star-line">
+      <div class="cp-star-lbl">${'★'.repeat(s)}</div>
+      <div class="cp-star-count">${n} ${n>1?t('h_plural'):t('h_singular')}</div>
+      ${inOwned.length>0?`<div class="cp-star-owned"><i class="fas fa-key" style="font-size:.5rem"></i> ${inOwned.length} ${t('your_grps')}</div>`:''}
+    </div>`;
+  }).join('');
+
+  // Texte synthèse
+  const totalOwned = scopeHotels.filter(h=>ownedGroups.includes(h.group)).length;
+  const five = byStars[5].length, four = byStars[4].length, three = byStars[3].length;
+  let synthParts = [];
+  if(five>0)  synthParts.push(`<strong>${five}</strong> ${five>1?t('h_plural'):t('h_singular')} 5★`);
+  if(four>0)  synthParts.push(`<strong>${four}</strong> ${four>1?t('h_plural'):t('h_singular')} 4★`);
+  if(three>0) synthParts.push(`<strong>${three}</strong> ${three>1?t('h_plural'):t('h_singular')} 3★`);
+  const locLabel = isCountry ? `${t('scope_in_country')} ${scopeLabel}` : `${t('scope_in_city')} ${scopeLabel}`;
+  const synthBase = `${locLabel}, ${t('city_found')} ${synthParts.join(', ')}.`;
+  const synthOwned = totalOwned>0
+    ? ` ${t('owned_msg_pre')} <strong style="color:#10B981">${totalOwned}</strong> ${t('owned_msg_post')}`
+    : '';
+  document.getElementById('cpSynth').innerHTML = synthBase + synthOwned;
+
+  // Boutons de groupe
+  const presentGroups      = [...new Set(scopeHotels.map(h=>h.group))];
+  const ownedPresentGroups = presentGroups.filter(g=>ownedGroups.includes(g));
+  const otherGroups        = presentGroups.filter(g=>!ownedGroups.includes(g));
+  const cpGroups = document.getElementById('cpGroups');
+  cpGroups.innerHTML = `<div style="font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-s);width:100%;margin-bottom:4px">${t('city_filter_grp')}</div>` +
+    ownedPresentGroups.map(g=>`<button class="cp-grp-btn" style="border-color:${groupColors[g]||'var(--border)'};color:${groupColors[g]||'var(--text-m)'}" onclick="cpFilterGroup('${g}')"><i class="fas fa-key" style="font-size:.5rem;margin-right:3px"></i>${g}</button>`).join('') +
+    otherGroups.map(g=>`<button class="cp-grp-btn" onclick="cpFilterGroup('${g}')">${g}</button>`).join('');
+
+  document.getElementById('cpFlag').textContent = scopeFlag;
+  document.getElementById('cpCity').textContent = `${scopeLabel}${isCountry ? '' : ', ' + scopeSubLbl}`;
+  panel.classList.add('visible');
+
+  // FitBounds : centre la carte sur tous les hôtels du périmètre
+  if (scopeHotels.length) {
+    const bounds = new maplibregl.LngLatBounds();
+    scopeHotels.forEach(h => bounds.extend([h.lng, h.lat]));
+    // Pour une ville (hôtels proches) : pas de maxZoom trop haut → laisser le cluster jouer
+    const maxZ = isCountry ? 6 : 10;
+    map.fitBounds(bounds, { padding: 100, maxZoom: maxZ, duration: 900 });
+  }
+}
+
+function cpFilterGroup(g){
+  const btn = document.querySelector(`#groupPills .pill[data-group="${g}"]`);
+  if(btn) filterGroup(btn, g);
+}
+
+function closeCityPanel(){
+  document.getElementById('cityPanel').classList.remove('visible');
+}
+
+/* ══════════════════════════════════════════════════
+   DETAIL PANEL
+══════════════════════════════════════════════════ */
+function openDetailById(id) {
+  const h = allHotels.find(x => x.id === id);
+  if (h) openDetail(h);
+}
+window.openDetailById = openDetailById;
+
+function openDetail(h) {
+  selectedHotel = h;
+
+  document.querySelectorAll('.sb-hotel-item').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.id) === h.id);
+  });
+  if (map.getLayer('hotels-halo')) map.setFilter('hotels-halo', ['all', ['!', ['has', 'point_count']], ['==', ['get', 'id'], h.id]]);
+
+  map.flyTo({ center:[h.lng, h.lat], zoom:Math.max(map.getZoom(), 5), duration:800 });
+
+  // Hero
+  document.getElementById('dpImg').src = h.image;
+  document.getElementById('dpImg').alt = h.name;
+
+  const badge = document.getElementById('dpGroupBadge');
+  const gc = groupColors[h.group] || '#C9A84C';
+  badge.textContent = h.subBrand;
+  badge.style.background = gc + '33';
+  badge.style.border = '1px solid ' + gc + '88';
+  badge.style.color = '#fff';
+
+  const ownedBadge = document.getElementById('dpOwnedBadge');
+  ownedBadge.style.display = h.owned ? '' : 'none';
+
+  // Gallery
+  lbImages = [h.image, ...h.gallery];
+  const gal = document.getElementById('dpGallery');
+  gal.innerHTML = h.gallery.map((src, i) => `
+    <div class="dp-gal-img" onclick="openLightbox(${i+1})">
+      <img src="${src}" alt="${h.name} — photo ${i+2}" loading="lazy" onerror="this.parentElement.style.display='none'">
+      <div class="dp-gal-expand"><i class="fas fa-expand"></i></div>
+    </div>`).join('');
+
+  // Stars
+  document.getElementById('dpStars').textContent = '★'.repeat(h.stars) + '☆'.repeat(5-h.stars);
+
+  // Name & location
+  document.getElementById('dpName').textContent = h.name;
+  document.getElementById('dpLoc').innerHTML = `<span>${h.flag}</span> ${h.city}, ${h.country}`;
+
+  // KPIs
+  if (h.owned) {
+    document.getElementById('dpKpis').innerHTML = `
+      <div class="dp-kpi"><div class="dp-kpi-val">${h.roomsOwned}</div><div class="dp-kpi-lbl">${t('kpi_units')}</div></div>
+      <div class="dp-kpi"><div class="dp-kpi-val">${h.adr.toLocaleString('fr-FR')}</div><div class="dp-kpi-lbl">ADR ${h.currency}</div></div>
+      <div class="dp-kpi"><div class="dp-kpi-val">€${Math.round(h.revenueMonthly/1000)}k</div><div class="dp-kpi-lbl">${t('kpi_revenue')}</div></div>`;
+  } else {
+    document.getElementById('dpKpis').innerHTML = `
+      <div class="dp-kpi"><div class="dp-kpi-val">${h.stars}★</div><div class="dp-kpi-lbl">${t('kpi_stars')}</div></div>
+      <div class="dp-kpi"><div class="dp-kpi-val">${h.adr.toLocaleString('fr-FR')}</div><div class="dp-kpi-lbl">ADR ${h.currency}</div></div>
+      <div class="dp-kpi"><div class="dp-kpi-val" style="font-size:.75rem;color:var(--success)">${t('kpi_avail')}</div><div class="dp-kpi-lbl">Booking.com</div></div>`;
+  }
+
+  // Description
+  document.getElementById('dpDesc').textContent = h.description || '';
+
+  // Amenities
+  document.getElementById('dpAmenities').innerHTML = (h.amenities||[]).map(a =>
+    `<span class="amenity-tag">${a}</span>`).join('');
+
+  // Owned rooms section
+  const ownedSec = document.getElementById('dpOwnedSection');
+  if (h.owned && h.rooms) {
+    ownedSec.style.display = '';
+    document.getElementById('dpRooms').innerHTML = h.rooms.map(r => `
+      <div class="dp-room">
+        <div><div class="dp-room-name">${r.type}</div><div class="dp-room-num">${t('popup_room')[0].toUpperCase()+t('popup_room').slice(1)} ${r.num} · ${r.sqm}m²</div></div>
+        <div style="text-align:right"><div class="dp-room-adr">${r.adr.toLocaleString('fr-FR')} ${h.currency}</div><div class="dp-room-lbl">/ nuit</div></div>
+      </div>`).join('');
+  } else {
+    ownedSec.style.display = 'none';
+  }
+
+  // Footer
+  const bkUrl = buildBookingUrl(h);
+  const footer = document.getElementById('dpFooter');
+  let footerHTML = `<a href="${bkUrl}" target="_blank" rel="noopener noreferrer" class="dp-bk-btn"><i class="fas fa-external-link-alt"></i> ${t('dp_booking')}</a>`;
+  if (h.owned) {
+    footerHTML += `<a href="vouchers.html" class="dp-voucher-btn"><i class="fas fa-ticket-alt"></i> ${t('dp_vouchers')}</a>`;
+  }
+  footer.innerHTML = footerHTML;
+
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function buildBookingUrl(h) {
+  const query = encodeURIComponent(h.name + ' ' + h.city);
+  return `https://www.booking.com/searchresults.html?ss=${query}&dest_type=hotel&lang=fr`;
+}
+
+function closeDetail() {
+  selectedHotel = null;
+  document.getElementById('detailPanel').classList.remove('open');
+  document.querySelectorAll('.sb-hotel-item').forEach(el => el.classList.remove('active'));
+  if (map.getLayer('hotels-halo')) map.setFilter('hotels-halo', ['all', ['!', ['has', 'point_count']], ['==', ['get', 'id'], -1]]);
+}
+window.closeDetail = closeDetail;
+
+/* ══════════════════════════════════════════════════
+   LIGHTBOX
+══════════════════════════════════════════════════ */
+function openLightbox(idx) {
+  lbIndex = idx;
+  const lb = document.getElementById('lightbox');
+  lb.classList.add('open');
+  updateLightbox();
+}
+
+function updateLightbox() {
+  document.getElementById('lbImg').src = lbImages[lbIndex];
+  document.getElementById('lbCaption').textContent = `Photo ${lbIndex+1} / ${lbImages.length}`;
+}
+
+function lbNav(dir) {
+  lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length;
+  updateLightbox();
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('lightbox').classList.contains('open')) {
+    if (e.key === 'ArrowLeft') lbNav(-1);
+    if (e.key === 'ArrowRight') lbNav(1);
+    if (e.key === 'Escape') closeLightbox();
+  } else if (e.key === 'Escape' && selectedHotel) {
+    closeDetail();
+  }
+});
+
+/* ══════════════════════════════════════════════════
+   MAP CONTROLS
+══════════════════════════════════════════════════ */
+function fitAll() {
+  const search = searchFilter.toLowerCase().trim();
+  const visible = allHotels.filter(h => {
+    if (showOwnedOnly && !h.owned) return false;
+    if (activeGroupFilter !== 'all' && h.group !== activeGroupFilter) return false;
+    if (activeStarFilter !== 'all' && h.stars !== parseInt(activeStarFilter)) return false;
+    if (search) {
+      const hay = (h.name+h.city+h.country+h.group).toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+  if (!visible.length) return;
+  const bounds = new maplibregl.LngLatBounds();
+  visible.forEach(h => bounds.extend([h.lng, h.lat]));
+  map.fitBounds(bounds, { padding:80, duration:800 });
+}
+window.fitAll = fitAll;
+
+function toggleSatellite() {
+  satMode = !satMode;
+  const btn = document.getElementById('satelliteBtn');
+  const style = satMode
+    ? 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json'
+    : 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
+  map.setStyle(style);
+  btn.classList.toggle('active', satMode);
+  map.once('styledata', () => {
+    initLayers();
+    applyLayerFilter();
+    if (selectedHotel && map.getLayer('hotels-halo')) {
+      map.setFilter('hotels-halo', ['all', ['!', ['has', 'point_count']], ['==', ['get', 'id'], selectedHotel.id]]);
+    }
+  });
+}
+window.toggleSatellite = toggleSatellite;
+
+map.on('click', () => {
+  if (Date.now() - _hotelClickedAt < 80) return; // évite fermeture immédiate après clic hôtel
+  if (selectedHotel) closeDetail();
+  if (currentPopup) { currentPopup.remove(); currentPopup = null; }
+});
+
+// Mobile sidebar
+function toggleMapSidebar(){
+  const sb=document.getElementById('mapSidebar');
+  const bd=document.getElementById('mapSidebarBackdrop');
+  if(!sb)return;
+  const open=sb.classList.toggle('mob-open');
+  if(bd)bd.classList.toggle('active',open);
+}
+function closeMapSidebar(){
+  const sb=document.getElementById('mapSidebar');
+  const bd=document.getElementById('mapSidebarBackdrop');
+  if(sb)sb.classList.remove('mob-open');
+  if(bd)bd.classList.remove('active');
+}
+window.toggleMapSidebar=toggleMapSidebar;
+window.closeMapSidebar=closeMapSidebar;
+
+/* ══════════════════════════════════════════════════
+   ADMIN — Scout City Import
+══════════════════════════════════════════════════ */
+function isAdmin() {
+  try {
+    const sess = JSON.parse(localStorage.getItem('estate_v1_session') || '{}');
+    const users = JSON.parse(localStorage.getItem('estate_v1_users') || '[]');
+    const u = users.find(x => x.id === sess.userId);
+    return !!(u && u.isAdmin);
+  } catch(e) { return false; }
+}
+
+// Affiche la section admin si l'utilisateur est admin
+if (isAdmin()) {
+  const sec = document.getElementById('scoutCitySection');
+  if (sec) sec.style.display = '';
+}
+
+async function startCityScout() {
+  const city = (document.getElementById('scoutCityInput').value || '').trim();
+  if (!city) { document.getElementById('scoutCityInput').focus(); return; }
+
+  const stars5 = document.getElementById('scout5stars').checked;
+  const stars4 = document.getElementById('scout4stars').checked;
+  if (!stars5 && !stars4) { alert('Choisissez au moins un niveau d\'étoiles'); return; }
+
+  // Construire l'URL Booking.com de recherche
+  let nflt = [];
+  if (stars5) nflt.push('class%3D5');
+  if (stars4) nflt.push('class%3D4');
+  const bookingUrl = `https://www.booking.com/searchresults.fr.html?ss=${encodeURIComponent(city)}&rows=40&nflt=${nflt.join('%3B')}`;
+
+  const btn = document.getElementById('scoutCityBtn');
+  const progress = document.getElementById('scoutCityProgress');
+  const bar = document.getElementById('scoutCityBar');
+  const status = document.getElementById('scoutCityStatus');
+
+  btn.disabled = true;
+  progress.style.display = 'block';
+  bar.style.width = '5%';
+  status.textContent = 'Récupération de la liste Booking.com…';
+
+  let hotelList = [];
+  try {
+    const res = await fetch(`/api/scout-list?url=${encodeURIComponent(bookingUrl)}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    hotelList = data.hotels || [];
+  } catch(e) {
+    status.textContent = '✗ Impossible de charger la liste : ' + e.message;
+    btn.disabled = false;
+    return;
+  }
+
+  if (!hotelList.length) {
+    status.textContent = 'Aucun hôtel trouvé pour cette ville.';
+    btn.disabled = false;
+    return;
+  }
+
+  const total = hotelList.length;
+  let done = 0, added = 0;
+
+  // Charger les données Scout existantes
+  let scoutData = [];
+  try { scoutData = JSON.parse(localStorage.getItem('estate_v1_scout') || '[]'); } catch(e) {}
+  const existingSlugs = new Set(scoutData.map(h => h.slug).filter(Boolean));
+
+  for (const h of hotelList) {
+    status.textContent = `Enrichissement ${done+1}/${total} — ${h.name}`;
+
+    if (!existingSlugs.has(h.slug)) {
+      try {
+        const res = await fetch(`/api/scout?url=${encodeURIComponent(h.url)}`);
+        const data = await res.json();
+        if (!data.error && data.name) {
+          const hotel = {
+            id: 'scout_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+            name: data.name,
+            city: data.city || '', country: data.country || '', address: data.address || '',
+            group: '', notes: '',
+            description: data.description || '', photos: data.photos || [],
+            amenities: data.amenities || [], stars: data.stars || 5, rating: data.rating || '',
+            lat: data.lat || null, lng: data.lng || null,
+            bookingUrl: data.booking_url || h.url, source: data.source || 'auto',
+            slug: h.slug, category: 'hotel-list', addedAt: Date.now(),
+          };
+          scoutData.unshift(hotel);
+          localStorage.setItem('estate_v1_scout', JSON.stringify(scoutData));
+          existingSlugs.add(h.slug);
+          added++;
+        }
+      } catch(e) {}
+    }
+
+    done++;
+    bar.style.width = (done / total * 100) + '%';
+    await new Promise(r => setTimeout(r, 600));
+  }
+
+  // Rafraîchir la couche Scout sur la carte
+  initScoutLayer();
+
+  bar.style.width = '100%';
+  status.textContent = `✓ ${added} hôtels ajoutés à Hotel List · ${city}`;
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>

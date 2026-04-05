@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#040D1C"/>
+      <stop offset="100%" style="stop-color:#0A1E38"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#8B6914"/>
+      <stop offset="40%" style="stop-color:#C9A84C"/>
+      <stop offset="70%" style="stop-color:#E8D5A3"/>
+      <stop offset="100%" style="stop-color:#C9A84C"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Subtle grid pattern -->
+  <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(201,168,76,0.06)" stroke-width="0.5"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Corner ornaments -->
+  <g stroke="url(#gold)" stroke-width="1" fill="none" opacity="0.4">
+    <polyline points="40,40 40,80 80,80"/>
+    <polyline points="1160,40 1160,80 1120,80"/>
+    <polyline points="40,590 40,550 80,550"/>
+    <polyline points="1160,590 1160,550 1120,550"/>
+  </g>
+
+  <!-- Top horizontal line -->
+  <line x1="80" y1="180" x2="1120" y2="180" stroke="url(#gold)" stroke-width="0.5" opacity="0.3"/>
+  <!-- Bottom horizontal line -->
+  <line x1="80" y1="450" x2="1120" y2="450" stroke="url(#gold)" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Diamond ornament top -->
+  <polygon points="600,155 610,165 600,175 590,165" fill="url(#gold)" opacity="0.6"/>
+  <!-- Diamond ornament bottom -->
+  <polygon points="600,455 610,465 600,475 590,465" fill="url(#gold)" opacity="0.6"/>
+
+  <!-- THE ESTATE logotype -->
+  <text x="600" y="300"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="96"
+    font-weight="400"
+    letter-spacing="24"
+    text-anchor="middle"
+    fill="url(#gold)"
+    filter="url(#glow)">THE ESTATE</text>
+
+  <!-- Thin rule under title -->
+  <line x1="340" y1="330" x2="860" y2="330" stroke="url(#gold)" stroke-width="0.8" opacity="0.5"/>
+
+  <!-- Tagline -->
+  <text x="600" y="375"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="22"
+    font-weight="400"
+    letter-spacing="6"
+    text-anchor="middle"
+    fill="rgba(245,240,232,0.55)">PRIVATE HOTEL PORTFOLIO MANAGEMENT</text>
+
+  <!-- Subtle glow orb behind title -->
+  <radialGradient id="orb" cx="50%" cy="50%" r="30%">
+    <stop offset="0%" style="stop-color:rgba(201,168,76,0.08)"/>
+    <stop offset="100%" style="stop-color:rgba(201,168,76,0)"/>
+  </radialGradient>
+  <ellipse cx="600" cy="310" rx="400" ry="200" fill="url(#orb)"/>
+</svg>
