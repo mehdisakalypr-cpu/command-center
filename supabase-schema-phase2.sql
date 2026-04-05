@@ -100,13 +100,19 @@ create policy "Ecriture trips"              on trips       for all    using (tru
 create policy "Lecture publique members"     on members     for select using (true);
 create policy "Ecriture members"             on members     for all    using (true) with check (true);
 
--- ── 7. TRIGGERS updated_at ───────────────────────────────────
+-- ── 7. FONCTION updated_at (si pas encore créée) ────────────
+create or replace function update_updated_at()
+returns trigger as $$
+begin new.updated_at = now(); return new; end;
+$$ language plpgsql;
+
+-- ── 8. TRIGGERS updated_at ───────────────────────────────────
 create trigger guest_cards_updated_at before update on guest_cards
   for each row execute function update_updated_at();
 create trigger alerts_updated_at before update on alerts
   for each row execute function update_updated_at();
 
--- ── 8. SEED DATA ─────────────────────────────────────────────
+-- ── 9. SEED DATA ─────────────────────────────────────────────
 insert into guest_cards (id, guest, email, hotel_id, hotel, tier, num, valid_from, valid_to, status, access, stays, nights_used) values
 ('GC-001','Alexandra Morel','a.morel@privateclient.com',4,'Four Seasons Bora Bora','Platinum','4521 .... .... 7812','2026-01-01','2026-12-31','active','["Spa Premium","Club Lounge","Early Check-in","Late Check-out"]',3,7),
 ('GC-002','Pierre-Emmanuel Blanc','pe.blanc@family.office',2,'Waldorf Astoria Dubai','Gold','4521 .... .... 3094','2026-02-01','2026-06-30','active','["Club Lounge","Pool Access","Room Upgrade"]',1,0),
