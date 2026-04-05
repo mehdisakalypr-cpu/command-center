@@ -1373,6 +1373,25 @@ canvas{max-height:260px}
   .conc-panel{right:16px;bottom:88px;width:calc(100vw - 32px)}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const _sb = supabase.createClient(
+  'https://jebuagyeapkltyjitosm.supabase.co',
+  'sb_publishable_QA2mDxrMIlymC-l7RzZkTg_x6uV4N58'
+);
+function _mapHotel(h){
+  return {id:h.id,name:h.name,group:h.group,subBrand:h.sub_brand,city:h.city,country:h.country,flag:h.flag,lat:h.lat,lng:h.lng,category:h.category,stars:h.stars,roomsOwned:h.rooms_owned,rooms:h.rooms||[],adr:h.adr,revenueMonthly:h.revenue_monthly,revenueSplit:h.revenue_split,availability:h.availability,occupancy:h.occupancy,image:h.image,gallery:h.gallery||[],amenities:h.amenities||[],totalValue:h.total_value,nightsAvail:h.nights_avail,nightsUsed:h.nights_used};
+}
+function _mapVoucher(v){
+  return {id:v.id,hotelId:v.hotel_id,hotel:v.hotel,city:v.city,room:v.room,roomType:v.room_type,guest:v.guest,email:v.email,nights:v.nights,nightsUsed:v.nights_used,expiry:v.expiry,status:v.status,created:v.created,note:v.note||''};
+}
+async function _sbSyncVoucher(v){
+  try{await _sb.from('vouchers').update({nights_used:v.nightsUsed,status:v.status}).eq('id',v.id);}catch(e){}
+}
+async function _sbInsertVoucher(v){
+  try{await _sb.from('vouchers').insert({id:v.id,hotel_id:v.hotelId,hotel:v.hotel,city:v.city,room:v.room,room_type:v.roomType,guest:v.guest,email:v.email,nights:v.nights,nights_used:0,expiry:v.expiry,status:'active',created:v.created,note:v.note||''});}catch(e){}
+}
+</script>
 </head>
 <body>
 
@@ -3847,7 +3866,7 @@ function confirmBooking(){
   if(!calState.start||!calState.end)return;
   const nights=Math.round((new Date(calState.end)-new Date(calState.start))/(86400000));
   const v=vouchers.find(x=>x.id===calState.voucherId);
-  if(v){v.nightsUsed+=nights;if(v.nightsUsed>=v.nights)v.status='used';}
+  if(v){v.nightsUsed+=nights;if(v.nightsUsed>=v.nights)v.status='used';_sbSyncVoucher(v);}
   closeCalModal();renderVouchers();
   const notif=document.createElement('div');
   notif.style.cssText='position:fixed;bottom:32px;right:32px;background:var(--navy-l);border:1px solid var(--gold);padding:18px 26px;z-index:900;font-size:.82rem;display:flex;align-items:center;gap:12px;animation:slideUp .4s ease;box-shadow:0 10px 40px rgba(0,0,0,.5);max-width:360px';
@@ -4202,7 +4221,8 @@ function wizNext(){
       // Finalize
       const h=hotels.find(x=>x.id===wiz.data.hotelId);
       const r=h?h.rooms.find(x=>x.num===wiz.data.roomNum):null;
-      vouchers.push({id:wiz.data.newId,hotelId:wiz.data.hotelId,hotel:h?h.name:'',city:h?h.city:'',room:wiz.data.roomNum,roomType:r?r.type:'',guest:wiz.data.guest,email:wiz.data.email,nights:wiz.data.nights,nightsUsed:0,expiry:wiz.data.expiry,status:'active',created:new Date().toISOString().split('T')[0],note:wiz.data.note});
+      const newV={id:wiz.data.newId,hotelId:wiz.data.hotelId,hotel:h?h.name:'',city:h?h.city:'',room:wiz.data.roomNum,roomType:r?r.type:'',guest:wiz.data.guest,email:wiz.data.email,nights:wiz.data.nights,nightsUsed:0,expiry:wiz.data.expiry,status:'active',created:new Date().toISOString().split('T')[0],note:wiz.data.note};
+      vouchers.push(newV);_sbInsertVoucher(newV);
       showNotif(`<i class="fas fa-ticket-alt" style="color:var(--gold)"></i> Voucher <strong>${wiz.data.newId}</strong> créé et envoyé à ${wiz.data.guest}`,'gold');
       closeWizard();renderVouchers();return;
     }
@@ -4217,14 +4237,14 @@ function wizNext(){
     }
     if(wiz.step===2){
       const v=vouchers.find(x=>x.id===wiz.data.useVoucherId);
-      if(v){v.nightsUsed+=wiz.data.useNights;if(v.nightsUsed>=v.nights)v.status='used';}
+      if(v){v.nightsUsed+=wiz.data.useNights;if(v.nightsUsed>=v.nights)v.status='used';_sbSyncVoucher(v);}
       showNotif(`<i class="fas fa-calendar-check" style="color:#10B981"></i> Réservation confirmée — ${wiz.data.useNights} nuits à ${v?.hotel}`,'success');
       closeWizard();renderVouchers();return;
     }
   } else if(wiz.type==='resell'){
     if(wiz.step===0&&(!wiz.data.resellIds||!wiz.data.resellIds.length))return showWizError('Sélectionnez au moins un voucher');
     if(wiz.step===2){
-      wiz.data.resellIds.forEach(id=>{const v=vouchers.find(x=>x.id===id);if(v)v.status='resold';});
+      wiz.data.resellIds.forEach(id=>{const v=vouchers.find(x=>x.id===id);if(v){v.status='resold';_sbSyncVoucher(v);}});
       showNotif(`<i class="fas fa-exchange-alt" style="color:#8B5CF6"></i> Revente acceptée — <strong>€${(wiz.data.totalOffer||0).toLocaleString()}</strong> en cours de virement`,'purple');
       closeWizard();renderVouchers();return;
     }
@@ -5713,17 +5733,25 @@ function checkAuth(){
   document.getElementById('authOverlay').style.display='flex';
 }
 
-function loadUserData(){
-  // Seul Georges Dupont (U002) possède les données de démonstration
-  const isDemo = currentUser && currentUser.id === 'U002';
-  hotels = isDemo ? [...DUPONT_HOTELS] : [];
-  ROOMS_DATA = isDemo ? [...DUPONT_ROOMS] : [];
-  vouchers = isDemo ? [...DUPONT_VOUCHERS] : [];
-  guestCards = isDemo ? [...DUPONT_GUEST_CARDS] : [];
-  TRIPS = isDemo ? [...DUPONT_TRIPS] : [];
-  alertsData = isDemo ? [...DUPONT_ALERTS] : [];
-  MEMBERS = isDemo ? DUPONT_MEMBERS.map(m=>({...m})) : [];
-  MY_SHARED_TRIPS = isDemo ? Object.assign({},DUPONT_SHARED_TRIPS) : {};
+async function loadUserData(){
+  // Charger hotels + vouchers depuis Supabase, fallback sur données demo
+  try {
+    const [{data:hData},{data:vData}] = await Promise.all([
+      _sb.from('hotels').select('*').order('id'),
+      _sb.from('vouchers').select('*').order('id')
+    ]);
+    hotels = (hData && hData.length) ? hData.map(_mapHotel) : [...DUPONT_HOTELS];
+    vouchers = (vData && vData.length) ? vData.map(_mapVoucher) : [...DUPONT_VOUCHERS];
+  } catch(e) {
+    hotels = [...DUPONT_HOTELS];
+    vouchers = [...DUPONT_VOUCHERS];
+  }
+  ROOMS_DATA = [...DUPONT_ROOMS];
+  guestCards = [...DUPONT_GUEST_CARDS];
+  TRIPS = [...DUPONT_TRIPS];
+  alertsData = [...DUPONT_ALERTS];
+  MEMBERS = DUPONT_MEMBERS.map(m=>({...m}));
+  MY_SHARED_TRIPS = Object.assign({},DUPONT_SHARED_TRIPS);
 }
 
 let _adminUser=null; // stocke l'admin pendant l'impersonation
@@ -5787,19 +5815,17 @@ function updateImpersonateZone(){
   }
 }
 
-function applyUserSession(){
+async function applyUserSession(){
   const el=id=>document.getElementById(id);
   if(el('sbUserInitials'))el('sbUserInitials').textContent=currentUser.initials;
   if(el('sbUserName'))el('sbUserName').textContent=currentUser.name;
   if(el('sbUserRole'))el('sbUserRole').textContent=currentUser.role;
   updateImpersonateZone();
-  // Onglet admin visible uniquement pour les admins (pas en mode impersonation)
   const adminNav=el('tab-admin-btn');
   const adminSb=el('sb-admin-btn');
   if(adminNav)adminNav.style.display=(currentUser.isAdmin&&!_adminUser)?'flex':'none';
   if(adminSb)adminSb.style.display=(currentUser.isAdmin&&!_adminUser)?'':'none';
-  // Charger les données propres à l'utilisateur et re-rendre
-  loadUserData();
+  await loadUserData();
   try{ renderPortfolio(); }catch(e){}
   try{ renderContracts(); }catch(e){}
   try{ initKPIs(); }catch(e){}
@@ -5811,7 +5837,6 @@ function applyUserSession(){
   try{ buildVoyCards(); }catch(e){}
   try{ renderVoyMembersList(); }catch(e){}
   try{ renderAlertes(); }catch(e){}
-  // Alerte mot de passe temporaire
   if(currentUser.passwordTemp){
     setTimeout(()=>showNotif('<i class="fas fa-key" style="color:#F59E0B"></i> Mot de passe temporaire — pensez à le modifier dans Configuration','warning'),800);
   }
