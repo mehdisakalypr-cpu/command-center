@@ -63,6 +63,24 @@ const HOTEL_INVENTORY = [
   // IHG
   { id: 'H018', name: 'InterContinental Paris Le Grand', group: 'IHG', brand: 'InterContinental', city: 'Paris', country: 'FR', stars: 5, lat: 48.8754, lng: 2.3307, units: 3, roomTypes: ['Club Room','Opera Suite','Grand Suite'], adr: 750, currency: 'EUR', bookingId: 'BK_80001', amadeusId: 'AMH_PA005' },
   { id: 'H019', name: 'Kimpton De Witt Amsterdam', group: 'IHG', brand: 'Kimpton', city: 'Amsterdam', country: 'NL', stars: 5, lat: 52.3762, lng: 4.8975, units: 2, roomTypes: ['Deluxe Suite','Penthouse Suite'], adr: 480, currency: 'EUR', bookingId: 'BK_80002', amadeusId: 'AMH_AMS001' },
+
+  // MAROC
+  { id: 'H020', name: 'La Mamounia', group: 'Leading Hotels', brand: 'La Mamounia', city: 'Marrakech', country: 'MA', stars: 5, lat: 31.6185, lng: -8.0167, units: 2, roomTypes: ['Riad Prestige','Suite Atlas','Suite Jardin'], adr: 2375, currency: 'EUR', bookingId: 'BK_90001', amadeusId: 'AMH_MAR001' },
+
+  // TUNISIE
+  { id: 'H021', name: 'Four Seasons Tunis', group: 'Four Seasons', brand: 'Four Seasons', city: 'Tunis', country: 'TN', stars: 5, lat: 36.8937, lng: 10.3234, units: 2, roomTypes: ['Suite Mer Méditerranée','Suite Panoramique'], adr: 1075, currency: 'EUR', bookingId: 'BK_90002', amadeusId: 'AMH_TUN001' },
+
+  // TANZANIE
+  { id: 'H022', name: 'Singita Grumeti', group: 'Singita', brand: 'Singita', city: 'Serengeti', country: 'TZ', stars: 5, lat: -2.0669, lng: 34.8395, units: 2, roomTypes: ['Suite Rivière','Villa Safari'], adr: 5000, currency: 'USD', bookingId: 'BK_90003', amadeusId: 'AMH_TZA001' },
+
+  // AFRIQUE DU SUD
+  { id: 'H023', name: 'The Silo Hotel', group: 'Royal Portfolio', brand: 'The Silo', city: 'Le Cap', country: 'ZA', stars: 5, lat: -33.9067, lng: 18.4209, units: 2, roomTypes: ['Suite Table Mountain','Suite Harbour'], adr: 1475, currency: 'USD', bookingId: 'BK_90004', amadeusId: 'AMH_ZAF001' },
+
+  // NAMIBIE
+  { id: 'H024', name: 'Sossusvlei Desert Lodge', group: '&Beyond', brand: '&Beyond', city: 'Sossusvlei', country: 'NA', stars: 5, lat: -24.7261, lng: 15.5926, units: 2, roomTypes: ['Desert Suite','Desert Suite Dune View'], adr: 1950, currency: 'USD', bookingId: 'BK_90005', amadeusId: 'AMH_NAM001' },
+
+  // ÉMIRATS ARABES UNIS (2e propriété)
+  { id: 'H025', name: 'Burj Al Arab', group: 'Jumeirah', brand: 'Jumeirah', city: 'Dubaï', country: 'AE', stars: 7, lat: 25.1412, lng: 55.1853, units: 2, roomTypes: ['Deluxe Suite Mer','Presidential Suite'], adr: 9750, currency: 'AED', bookingId: 'BK_90006', amadeusId: 'AMH_UAE002' },
 ];
 
 /* ─────────────────────────────────────────────

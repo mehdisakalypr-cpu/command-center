@@ -106,7 +106,19 @@ body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;dis
 .topbar-search input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);padding:9px 14px 9px 38px;font-size:.82rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s}
 .topbar-search input:focus{border-color:var(--gold)}
 .topbar-search input::placeholder{color:var(--text-s)}
-.topbar-search i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text-s);font-size:.8rem}
+.topbar-search i.fa-search{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text-s);font-size:.8rem;pointer-events:none}
+/* Autocomplete dropdown */
+.topbar-ac-drop{position:absolute;top:calc(100% + 5px);left:0;right:0;background:var(--navy-l);border:1px solid rgba(201,168,76,.35);box-shadow:0 16px 50px rgba(0,0,0,.7);z-index:99999;display:none;max-height:320px;overflow-y:auto}
+.topbar-ac-drop.open{display:block}
+.topbar-ac-item{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background .12s;border-bottom:1px solid rgba(255,255,255,.04)}
+.topbar-ac-item:last-child{border-bottom:none}
+.topbar-ac-item:hover,.topbar-ac-item.tac-focused{background:rgba(201,168,76,.08)}
+.tac-flag{font-size:1.1rem;line-height:1;flex-shrink:0}
+.tac-name{font-size:.8rem;color:var(--text);font-weight:500;line-height:1.3}
+.tac-name em{color:var(--gold);font-style:normal;font-weight:700}
+.tac-sub{font-size:.62rem;color:var(--text-s);margin-top:1px}
+.tac-stars{color:var(--gold);font-size:.55rem;letter-spacing:1px}
+.tac-no-result{padding:12px 14px;font-size:.75rem;color:var(--text-s);text-align:center}
 .topbar-actions{margin-left:auto;display:flex;align-items:center;gap:20px}
 .topbar-btn{width:36px;height:36px;background:none;border:1px solid var(--border);color:var(--text-m);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;font-size:.85rem;position:relative}
 .topbar-btn:hover{border-color:var(--gold);color:var(--gold)}
@@ -628,17 +640,20 @@ canvas{max-height:260px}
 .crs-note{margin-top:16px;padding:12px 16px;background:rgba(201,168,76,.05);border:1px solid var(--border);border-left:2px solid var(--gold);font-size:.72rem;color:var(--text-m);display:flex;align-items:center;gap:10px}
 
 /* Leaflet overrides */
-.leaflet-popup-content-wrapper{background:var(--navy-l);border:1px solid var(--border);border-radius:0;box-shadow:0 10px 40px rgba(0,0,0,.6);color:var(--text);padding:0}
+.leaflet-popup-content-wrapper{background:var(--navy-l);border:1px solid rgba(201,168,76,.35);border-radius:0;box-shadow:0 16px 50px rgba(0,0,0,.75);color:var(--text);padding:0;min-width:280px}
 .leaflet-popup-content{margin:0;font-family:'Inter',sans-serif}
 .leaflet-popup-tip{background:var(--navy-l)}
-.leaflet-popup-close-button{color:var(--text-m)!important;top:8px!important;right:8px!important;font-size:16px!important}
+.leaflet-popup-close-button{color:var(--text-m)!important;top:8px!important;right:8px!important;font-size:16px!important;z-index:2}
 .leaflet-popup-close-button:hover{color:var(--gold)!important}
-.popup-content{padding:16px 20px}
-.popup-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:500;margin-bottom:4px}
-.popup-loc{font-size:.72rem;color:var(--text-m);margin-bottom:10px}
-.popup-row{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-m);margin-bottom:5px}
+.popup-img{width:100%;height:170px;object-fit:cover;display:block;filter:brightness(.92)}
+.popup-content{padding:14px 18px 16px}
+.popup-brand{font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.popup-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:500;margin-bottom:3px;line-height:1.25}
+.popup-stars{color:var(--gold);font-size:.7rem;letter-spacing:2px;margin-bottom:5px}
+.popup-loc{font-size:.68rem;color:var(--text-m);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.popup-row{display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-m);margin-bottom:4px}
 .popup-row span:last-child{color:var(--gold);font-weight:500}
-.popup-btn{width:100%;margin-top:12px;padding:9px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;transition:all .3s}
+.popup-btn{width:100%;margin-top:11px;padding:9px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px}
 .popup-btn:hover{background:var(--gold);color:var(--navy)}
 .custom-marker{cursor:pointer!important}
 
@@ -1566,6 +1581,7 @@ async function _sbDeleteTrip(id){
   <nav class="sb-nav">
     <div class="sb-section">Principal</div>
     <a class="sb-item" href="map.html"><i class="fas fa-globe-europe"></i> Carte & Hôtels<span class="sb-badge">21</span></a>
+    <a class="sb-item" href="directory.html"><i class="fas fa-search-location"></i> Annuaire Mondial</a>
     <a class="sb-item active" href="#" onclick="showTab('portfolio-tab',this)"><i class="fas fa-building"></i> Portefeuille CRM</a>
     <a class="sb-item" href="#" onclick="showTab('revenues-tab',this)"><i class="fas fa-chart-area"></i> Revenus & ADR</a>
     <a class="sb-item" href="#" onclick="showTab('contracts-tab',this)"><i class="fas fa-file-signature"></i> Contrats<span class="sb-badge">3</span></a>
@@ -1636,7 +1652,13 @@ async function _sbDeleteTrip(id){
     <button class="mob-sb-btn" onclick="toggleSidebar()" aria-label="Menu"><i class="fas fa-bars"></i></button>
     <div class="topbar-search">
       <i class="fas fa-search"></i>
-      <input type="text" id="topbarSearch" placeholder="Rechercher un hôtel, une ville, un pays..." oninput="syncTopbarSearch(this.value)" autocomplete="off">
+      <input type="text" id="topbarSearch"
+        placeholder="Rechercher un hôtel, une ville, un pays..."
+        oninput="topbarAcInput(this.value)"
+        onkeydown="topbarAcKey(event)"
+        onblur="setTimeout(topbarAcClose,160)"
+        autocomplete="off" spellcheck="false">
+      <div id="topbarAcDrop" class="topbar-ac-drop"></div>
     </div>
     <div class="topbar-actions">
       <div class="topbar-date" id="topbarDate"></div>
@@ -2677,6 +2699,10 @@ const DUPONT_HOTELS = [
      {url:"https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&q=85&auto=format&fit=crop",caption:"Spa Kos — Piscine intérieure"},
      {url:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=85&auto=format&fit=crop",caption:"Restaurant gastronomique"},
      {url:"https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=1200&q=85&auto=format&fit=crop",caption:"Bar & Lounge"},
+     {url:"https://images.unsplash.com/photo-1549366021-9f761d450615?w=1200&q=85&auto=format&fit=crop",caption:"Galerie Privée — Art Déco parisien"},
+     {url:"https://images.unsplash.com/photo-1502602261-5b8e8b31b9fb?w=1200&q=85&auto=format&fit=crop",caption:"Terrasse — Vue sur Paris"},
+     {url:"https://images.unsplash.com/photo-1561981840-e69bdd5b4e47?w=1200&q=85&auto=format&fit=crop",caption:"Suite Prestige — Salon lumineux"},
+     {url:"https://images.unsplash.com/photo-1564501049412-61c2a60c44e3?w=1200&q=85&auto=format&fit=crop",caption:"Atrium — Escalier marbre blanc"},
    ],
    amenities:["Spa Kos","Gastronomie","Bar Blossom","Concierge 24/7","Fitness"],totalValue:2800000,nightsAvail:125,nightsUsed:42},
   {id:2,name:"Waldorf Astoria",group:"Hilton",subBrand:"Waldorf Astoria",city:"Dubai",country:"UAE",flag:"🇦🇪",lat:25.204,lng:55.271,category:"Ultra-Luxe",stars:5,roomsOwned:3,rooms:[{num:"3201",floor:32,type:"Suite Royale",sqm:220,adr:2200},{num:"3202",floor:32,type:"Suite Panorama",sqm:180,adr:1900},{num:"2801",floor:28,type:"Suite Deluxe",sqm:140,adr:1500}],adr:1867,revenueMonthly:98000,revenueSplit:60,availability:"occupied",occupancy:94,
@@ -2688,6 +2714,10 @@ const DUPONT_HOTELS = [
      {url:"https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=85&auto=format&fit=crop",caption:"Spa & Wellness"},
      {url:"https://images.unsplash.com/photo-1551882547-ff40c63fe2e2?w=1200&q=85&auto=format&fit=crop",caption:"Lobby & Hall d'entrée"},
      {url:"https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=1200&q=85&auto=format&fit=crop",caption:"Beach Club Privé"},
+     {url:"https://images.unsplash.com/photo-1526495124232-a04e1849168c?w=1200&q=85&auto=format&fit=crop",caption:"Dubai Skyline — Vue depuis la Suite Royale"},
+     {url:"https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200&q=85&auto=format&fit=crop",caption:"Suite Panorama — Salle de bain marbre"},
+     {url:"https://images.unsplash.com/photo-1540202404-d0c7fe46a087?w=1200&q=85&auto=format&fit=crop",caption:"Restaurant — Cuisine internationale"},
+     {url:"https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&q=85&auto=format&fit=crop",caption:"Spa Suite — Jacuzzi vue Golfe"},
    ],
    amenities:["Infinity Pool","Spa","5 Restaurants","Beach Club","Butler Privé"],totalValue:8400000,nightsAvail:60,nightsUsed:88},
   {id:3,name:"Ritz-Carlton Central Park",group:"Marriott",subBrand:"Ritz-Carlton",city:"New York",country:"USA",flag:"🇺🇸",lat:40.764,lng:-73.973,category:"Palace",stars:5,roomsOwned:1,rooms:[{num:"1510",floor:15,type:"Suite Central Park",sqm:160,adr:1800}],adr:1800,revenueMonthly:52000,revenueSplit:55,availability:"available",occupancy:65,
@@ -2699,6 +2729,10 @@ const DUPONT_HOTELS = [
      {url:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=85&auto=format&fit=crop",caption:"Spa RC — Piscine"},
      {url:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=85&auto=format&fit=crop",caption:"Restaurant — Fine Dining"},
      {url:"https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200&q=85&auto=format&fit=crop",caption:"Club Lounge — Vue Skyline"},
+     {url:"https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&q=85&auto=format&fit=crop",caption:"Manhattan — Vue depuis la Suite penthouse"},
+     {url:"https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200&q=85&auto=format&fit=crop",caption:"Salle de bain — Marbre Calacatta"},
+     {url:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=85&auto=format&fit=crop",caption:"Fitness — Vue Central Park"},
+     {url:"https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=85&auto=format&fit=crop",caption:"Spa — Hammam privatif"},
    ],
    amenities:["Spa RC","Club Lounge","Restaurant","Fitness Elite"],totalValue:3800000,nightsAvail:145,nightsUsed:28},
   {id:4,name:"Four Seasons Resort",group:"Four Seasons",subBrand:"Four Seasons",city:"Bora Bora",country:"Polynésie Fr.",flag:"🇵🇫",lat:-16.500,lng:-151.742,category:"Resort",stars:5,roomsOwned:4,rooms:[{num:"OW-12",floor:1,type:"Villa Overwater",sqm:320,adr:4200},{num:"OW-13",floor:1,type:"Villa Overwater",sqm:320,adr:4200},{num:"BV-05",floor:1,type:"Villa Beach",sqm:280,adr:3600},{num:"BV-06",floor:1,type:"Villa Beach Premium",sqm:350,adr:3900}],adr:3975,revenueMonthly:142000,revenueSplit:60,availability:"partial",occupancy:82,
@@ -2710,6 +2744,10 @@ const DUPONT_HOTELS = [
      {url:"https://images.unsplash.com/photo-1561501878-aabd62634533?w=1200&q=85&auto=format&fit=crop",caption:"Spa 3000m² — Soin polynésien"},
      {url:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=85&auto=format&fit=crop",caption:"Restaurant sur l'eau"},
      {url:"https://images.unsplash.com/photo-1549294413-26f195200c16?w=1200&q=85&auto=format&fit=crop",caption:"Villa Beach — Coucher de soleil"},
+     {url:"https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=1200&q=85&auto=format&fit=crop",caption:"Vue aérienne — Lagon turquoise de Bora Bora"},
+     {url:"https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=1200&q=85&auto=format&fit=crop",caption:"Ponton privé — Accès direct lagon"},
+     {url:"https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200&q=85&auto=format&fit=crop",caption:"Spa 3000m² — Soins polynésiens"},
+     {url:"https://images.unsplash.com/photo-1561501878-aabd62634533?w=1200&q=85&auto=format&fit=crop",caption:"Plage privée — Sable blanc corallien"},
    ],
    amenities:["Lagoon Privé","Spa 3000m²","4 Restaurants","Water Sports","Butler"],totalValue:12200000,nightsAvail:80,nightsUsed:64},
   {id:5,name:"Park Hyatt",group:"Hyatt",subBrand:"Park Hyatt",city:"Tokyo",country:"Japon",flag:"🇯🇵",lat:35.687,lng:139.694,category:"Urban Luxe",stars:5,roomsOwned:2,rooms:[{num:"4701",floor:47,type:"Suite Fuji View",sqm:120,adr:1100},{num:"4802",floor:48,type:"Suite Tokyo View",sqm:100,adr:950}],adr:1025,revenueMonthly:48000,revenueSplit:55,availability:"available",occupancy:71,
@@ -2721,6 +2759,10 @@ const DUPONT_HOTELS = [
      {url:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=85&auto=format&fit=crop",caption:"Pool — 47e étage"},
      {url:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=85&auto=format&fit=crop",caption:"New York Bar & Restaurant"},
      {url:"https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=1200&q=85&auto=format&fit=crop",caption:"Fitness & Wellness Center"},
+     {url:"https://images.unsplash.com/photo-1464146072230-91cabc968266?w=1200&q=85&auto=format&fit=crop",caption:"Tokyo — Panorama nocturne depuis la suite"},
+     {url:"https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=1200&q=85&auto=format&fit=crop",caption:"Jardin zen — Espace méditation"},
+     {url:"https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=85&auto=format&fit=crop",caption:"Suite Fuji — Salle de bain en marbre"},
+     {url:"https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&q=85&auto=format&fit=crop",caption:"Infinity Pool — Reflet sur Tokyo"},
    ],
    amenities:["Pool 47e étage","Spa","New York Bar","Restaurant","Fitness"],totalValue:2100000,nightsAvail:110,nightsUsed:52},
   {id:6,name:"Mandarin Oriental",group:"Mandarin Oriental",subBrand:"Mandarin Oriental",city:"Londres",country:"UK",flag:"🇬🇧",lat:51.502,lng:-0.161,category:"Palace",stars:5,roomsOwned:2,rooms:[{num:"801",floor:8,type:"Suite Hyde Park",sqm:180,adr:1800},{num:"802",floor:8,type:"Suite Garden",sqm:150,adr:1500}],adr:1650,revenueMonthly:72000,revenueSplit:58,availability:"occupied",occupancy:88,
@@ -2732,6 +2774,10 @@ const DUPONT_HOTELS = [
      {url:"https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&q=85&auto=format&fit=crop",caption:"Spa Award Winning — Piscine"},
      {url:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=85&auto=format&fit=crop",caption:"Dinner by Heston Blumenthal"},
      {url:"https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=1200&q=85&auto=format&fit=crop",caption:"Bar — Cocktails signature"},
+     {url:"https://images.unsplash.com/photo-1549294413-26f195200c16?w=1200&q=85&auto=format&fit=crop",caption:"Hyde Park — Vue depuis la suite"},
+     {url:"https://images.unsplash.com/photo-1590490359683-658d3d23f972?w=1200&q=85&auto=format&fit=crop",caption:"Suite Hyde Park — Chambre prestige"},
+     {url:"https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1200&q=85&auto=format&fit=crop",caption:"Library & Lounge — Knightsbridge"},
+     {url:"https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=85&auto=format&fit=crop",caption:"Suite Garden — Salon éclairage personnalisé"},
    ],
    amenities:["Spa Award Winning","Pool","Dinner by Heston","Bar","Concierge"],totalValue:5200000,nightsAvail:72,nightsUsed:76},
   {id:7,name:"Raffles Le Royal Monceau",group:"Accor",subBrand:"Raffles",city:"Paris",country:"France",flag:"🇫🇷",lat:48.876,lng:2.303,category:"Palace",stars:5,roomsOwned:1,rooms:[{num:"201",floor:2,type:"Suite Prestige Jardin",sqm:200,adr:2200}],adr:2200,revenueMonthly:56000,revenueSplit:55,availability:"available",occupancy:60,
@@ -2743,6 +2789,10 @@ const DUPONT_HOTELS = [
      {url:"https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&q=85&auto=format&fit=crop",caption:"Spa My Blend — Piscine intérieure"},
      {url:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200&q=85&auto=format&fit=crop",caption:"Cinéma Privé — 99 places"},
      {url:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=85&auto=format&fit=crop",caption:"Il Carpaccio — Restaurant Italien"},
+     {url:"https://images.unsplash.com/photo-1502602261-5b8e8b31b9fb?w=1200&q=85&auto=format&fit=crop",caption:"Champs-Élysées — Vue nocturne depuis le toit"},
+     {url:"https://images.unsplash.com/photo-1564501049412-61c2a60c44e3?w=1200&q=85&auto=format&fit=crop",caption:"Jardin Privé — Suite prestige"},
+     {url:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=85&auto=format&fit=crop",caption:"Art Gallery — Collection contemporaine"},
+     {url:"https://images.unsplash.com/photo-1582719508700-e02f14cde2b0?w=1200&q=85&auto=format&fit=crop",caption:"Piscine intérieure — Spa My Blend"},
    ],
    amenities:["Spa My Blend","Piscine","Cinéma Privé","Carita","Art Gallery","Butler"],totalValue:4800000,nightsAvail:160,nightsUsed:22},
   {id:8,name:"Conrad Rangali Island",group:"Hilton",subBrand:"Conrad",city:"Maldives",country:"Maldives",flag:"🇲🇻",lat:3.688,lng:72.741,category:"Resort Overwater",stars:5,roomsOwned:3,rooms:[{num:"OW-01",floor:1,type:"Ocean Villa",sqm:290,adr:3500},{num:"OW-02",floor:1,type:"Two-Bedroom Ocean Villa",sqm:450,adr:5200},{num:"LA-01",floor:1,type:"Lagoon Villa",sqm:250,adr:2800}],adr:3833,revenueMonthly:134000,revenueSplit:60,availability:"partial",occupancy:76,
@@ -2754,8 +2804,114 @@ const DUPONT_HOTELS = [
      {url:"https://images.unsplash.com/photo-1540202404-d0c7fe46a087?w=1200&q=85&auto=format&fit=crop",caption:"Ithaa — Restaurant sous-marin"},
      {url:"https://images.unsplash.com/photo-1561501878-aabd62634533?w=1200&q=85&auto=format&fit=crop",caption:"Spa 2000m² — Vue lagon"},
      {url:"https://images.unsplash.com/photo-1549294413-26f195200c16?w=1200&q=85&auto=format&fit=crop",caption:"Chambre — Coucher de soleil"},
+     {url:"https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=1200&q=85&auto=format&fit=crop",caption:"Ocean Villa — Ponton bois privé"},
+     {url:"https://images.unsplash.com/photo-1540202404-d0c7fe46a087?w=1200&q=85&auto=format&fit=crop",caption:"Ithaa Restaurant — Vue sous-marine"},
+     {url:"https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=1200&q=85&auto=format&fit=crop",caption:"Vue aérienne — Lagon cristallin Maldives"},
+     {url:"https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&q=85&auto=format&fit=crop",caption:"Spa Retreat — Soins tropicaux"},
    ],
-   amenities:["Restaurant Sous-Marin","Spa 2000m²","Plongée","Water Sports","Butler","Hydravion"],totalValue:11500000,nightsAvail:90,nightsUsed:58}
+   amenities:["Restaurant Sous-Marin","Spa 2000m²","Plongée","Water Sports","Butler","Hydravion"],totalValue:11500000,nightsAvail:90,nightsUsed:58},
+
+  // MAROC — La Mamounia Marrakech
+  {id:9,name:"La Mamounia",group:"Leading Hotels",subBrand:"La Mamounia",city:"Marrakech",country:"Maroc",flag:"🇲🇦",lat:31.6185,lng:-8.0167,category:"Palace",stars:5,roomsOwned:2,rooms:[{num:"R-12",floor:1,type:"Riad Prestige",sqm:750,adr:2800},{num:"R-07",floor:1,type:"Suite Atlas",sqm:480,adr:1950}],adr:2375,revenueMonthly:82000,revenueSplit:60,availability:"available",occupancy:72,
+   image:"https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=800&q=80&auto=format&fit=crop",
+   gallery:[
+     {url:"https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1200&q=85&auto=format&fit=crop",caption:"La Mamounia — Jardin centenaire"},
+     {url:"https://images.unsplash.com/photo-1548013146-72479768bada?w=1200&q=85&auto=format&fit=crop",caption:"Riad Prestige — Terrasse vue Atlas"},
+     {url:"https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=85&auto=format&fit=crop",caption:"Suite Atlas — Décoration Art Déco"},
+     {url:"https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&q=85&auto=format&fit=crop",caption:"Spa — Hammam traditionnel"},
+     {url:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=85&auto=format&fit=crop",caption:"Le Marocain — Gastronomie"},
+     {url:"https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=1200&q=85&auto=format&fit=crop",caption:"Churchill Bar & Terrace"},
+     {url:"https://images.unsplash.com/photo-1571575173700-afb9492d3e79?w=1200&q=85&auto=format&fit=crop",caption:"Médina — Architecture traditionnelle marrakchie"},
+     {url:"https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200&q=85&auto=format&fit=crop",caption:"Riad — Cour intérieure en zellige"},
+     {url:"https://images.unsplash.com/photo-1548013146-72479768bada?w=1200&q=85&auto=format&fit=crop",caption:"Piscine principale — Vue sur les jardins"},
+     {url:"https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1200&q=85&auto=format&fit=crop",caption:"Hammam Royal — Soins traditionnels"},
+   ],
+   amenities:["Jardin 7ha","Spa Mamounia","3 Piscines","4 Restaurants","Churchill Bar","Hammam Royal"],totalValue:7200000,nightsAvail:110,nightsUsed:32},
+
+  // TUNISIE — Four Seasons Gammarth
+  {id:10,name:"Four Seasons Tunis",group:"Four Seasons",subBrand:"Four Seasons",city:"Tunis",country:"Tunisie",flag:"🇹🇳",lat:36.8937,lng:10.3234,category:"Palace",stars:5,roomsOwned:2,rooms:[{num:"601",floor:6,type:"Suite Mer Méditerranée",sqm:220,adr:1200},{num:"602",floor:6,type:"Suite Panoramique",sqm:180,adr:950}],adr:1075,revenueMonthly:44000,revenueSplit:58,availability:"available",occupancy:64,
+   image:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80&auto=format&fit=crop",
+   gallery:[
+     {url:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=85&auto=format&fit=crop",caption:"Four Seasons Tunis — Vue Méditerranée"},
+     {url:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=85&auto=format&fit=crop",caption:"Piscine — Vue sur mer"},
+     {url:"https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=85&auto=format&fit=crop",caption:"Suite Mer — Salon privé"},
+     {url:"https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&q=85&auto=format&fit=crop",caption:"Spa — Soins argan"},
+     {url:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=85&auto=format&fit=crop",caption:"Restaurant — Cuisine méditerranéenne"},
+     {url:"https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200&q=85&auto=format&fit=crop",caption:"Plage privée — Gammarth"},
+     {url:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=85&auto=format&fit=crop",caption:"Piscine infinity — Vue Méditerranée"},
+     {url:"https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=85&auto=format&fit=crop",caption:"Suite Mer — Salle de bain panoramique"},
+     {url:"https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=85&auto=format&fit=crop",caption:"Spa — Soins à l'huile d'argan"},
+     {url:"https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=85&auto=format&fit=crop",caption:"Suite Panoramique — Salon privé"},
+   ],
+   amenities:["Plage Privée","Spa","Piscine Infinity","3 Restaurants","Tennis","Concierge 24/7"],totalValue:3800000,nightsAvail:130,nightsUsed:28},
+
+  // TANZANIE — Singita Grumeti
+  {id:11,name:"Singita Grumeti",group:"Singita",subBrand:"Singita",city:"Serengeti",country:"Tanzanie",flag:"🇹🇿",lat:-2.0669,lng:34.8395,category:"Safari Lodge",stars:5,roomsOwned:2,rooms:[{num:"V-03",floor:1,type:"Suite Rivière",sqm:420,adr:5200},{num:"V-04",floor:1,type:"Villa Safari",sqm:380,adr:4800}],adr:5000,revenueMonthly:115000,revenueSplit:65,availability:"partial",occupancy:80,
+   image:"https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800&q=80&auto=format&fit=crop",
+   gallery:[
+     {url:"https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1200&q=85&auto=format&fit=crop",caption:"Singita Grumeti — Vue Serengeti"},
+     {url:"https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200&q=85&auto=format&fit=crop",caption:"Villa Safari — Piscine privée"},
+     {url:"https://images.unsplash.com/photo-1504432842672-1a79f78e4d43?w=1200&q=85&auto=format&fit=crop",caption:"Grande Migration — Vue depuis la villa"},
+     {url:"https://images.unsplash.com/photo-1549366021-9f761d450615?w=1200&q=85&auto=format&fit=crop",caption:"Game Drive au lever du soleil"},
+     {url:"https://images.unsplash.com/photo-1540202404-d0c7fe46a087?w=1200&q=85&auto=format&fit=crop",caption:"Dîner sous les étoiles"},
+     {url:"https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=85&auto=format&fit=crop",caption:"Spa & Wellness — Bush"},
+     {url:"https://images.unsplash.com/photo-1504432842672-1a79f78e4d43?w=1200&q=85&auto=format&fit=crop",caption:"Grande Migration — Vue depuis la villa"},
+     {url:"https://images.unsplash.com/photo-1549366021-9f761d450615?w=1200&q=85&auto=format&fit=crop",caption:"Dîner sous les étoiles — Savane"},
+     {url:"https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1200&q=85&auto=format&fit=crop",caption:"Lever de soleil — Plaine du Serengeti"},
+     {url:"https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200&q=85&auto=format&fit=crop",caption:"Villa Safari — Terrasse vue savane"},
+   ],
+   amenities:["Game Drives 2×/jour","Bush Spa","Piscine Privée","Sommelier","Ranger Privé","Hélico transfers"],totalValue:13500000,nightsAvail:70,nightsUsed:45},
+
+  // AFRIQUE DU SUD — The Silo Hotel Cape Town
+  {id:12,name:"The Silo Hotel",group:"Royal Portfolio",subBrand:"The Silo",city:"Le Cap",country:"Afrique du Sud",flag:"🇿🇦",lat:-33.9067,lng:18.4209,category:"Urban Luxe",stars:5,roomsOwned:2,rooms:[{num:"601",floor:6,type:"Suite Table Mountain",sqm:195,adr:1600},{num:"501",floor:5,type:"Suite Harbour",sqm:165,adr:1350}],adr:1475,revenueMonthly:58000,revenueSplit:58,availability:"available",occupancy:69,
+   image:"https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=800&q=80&auto=format&fit=crop",
+   gallery:[
+     {url:"https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1200&q=85&auto=format&fit=crop",caption:"The Silo — Table Mountain & Waterfront"},
+     {url:"https://images.unsplash.com/photo-1512007498020-dc26d2ace2c5?w=1200&q=85&auto=format&fit=crop",caption:"Suite Table Mountain — Vue panoramique"},
+     {url:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=85&auto=format&fit=crop",caption:"Design intérieur — Art Africain contemporain"},
+     {url:"https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=85&auto=format&fit=crop",caption:"Chambre — Façade bullseye en verre"},
+     {url:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=85&auto=format&fit=crop",caption:"The Granary Café — Restaurant"},
+     {url:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=85&auto=format&fit=crop",caption:"Rooftop Pool — Vue V&A Waterfront"},
+     {url:"https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1200&q=85&auto=format&fit=crop",caption:"Table Mountain — Landmark du Cap"},
+     {url:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=85&auto=format&fit=crop",caption:"Suite Table Mountain — Art africain contemporain"},
+     {url:"https://images.unsplash.com/photo-1590490359683-658d3d23f972?w=1200&q=85&auto=format&fit=crop",caption:"Suite Harbour — Baignoire design"},
+     {url:"https://images.unsplash.com/photo-1512007498020-dc26d2ace2c5?w=1200&q=85&auto=format&fit=crop",caption:"Granary Café — Restaurant gastronomique"},
+   ],
+   amenities:["Rooftop Pool","Spa","Granary Café","Bar","Concierge","Zeitz MOCAA Access"],totalValue:5400000,nightsAvail:100,nightsUsed:44},
+
+  // NAMIBIE — &Beyond Sossusvlei Desert Lodge
+  {id:13,name:"Sossusvlei Desert Lodge",group:"&Beyond",subBrand:"&Beyond",city:"Sossusvlei",country:"Namibie",flag:"🇳🇦",lat:-24.7261,lng:15.5926,category:"Desert Lodge",stars:5,roomsOwned:2,rooms:[{num:"C-05",floor:1,type:"Desert Suite",sqm:340,adr:1800},{num:"C-06",floor:1,type:"Desert Suite Dune View",sqm:340,adr:2100}],adr:1950,revenueMonthly:68000,revenueSplit:62,availability:"available",occupancy:74,
+   image:"https://images.unsplash.com/photo-1509233725247-49e657c54213?w=800&q=80&auto=format&fit=crop",
+   gallery:[
+     {url:"https://images.unsplash.com/photo-1509233725247-49e657c54213?w=1200&q=85&auto=format&fit=crop",caption:"Sossusvlei — Dunes de sable rouge"},
+     {url:"https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200&q=85&auto=format&fit=crop",caption:"Desert Suite — Piscine privée vue dunes"},
+     {url:"https://images.unsplash.com/photo-1540202404-d0c7fe46a087?w=1200&q=85&auto=format&fit=crop",caption:"Dîner sous les étoiles — Désert du Namib"},
+     {url:"https://images.unsplash.com/photo-1504432842672-1a79f78e4d43?w=1200&q=85&auto=format&fit=crop",caption:"Lever de soleil sur Dune 45"},
+     {url:"https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=85&auto=format&fit=crop",caption:"Observatoire astronomique privé"},
+     {url:"https://images.unsplash.com/photo-1549366021-9f761d450615?w=1200&q=85&auto=format&fit=crop",caption:"Vol en montgolfière au lever du jour"},
+     {url:"https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200&q=85&auto=format&fit=crop",caption:"Desert Suite — Piscine privée vue dunes"},
+     {url:"https://images.unsplash.com/photo-1540202404-d0c7fe46a087?w=1200&q=85&auto=format&fit=crop",caption:"Dîner désert — Sous les étoiles infinies"},
+     {url:"https://images.unsplash.com/photo-1504432842672-1a79f78e4d43?w=1200&q=85&auto=format&fit=crop",caption:"Dune 45 — Lever de soleil rouge"},
+     {url:"https://images.unsplash.com/photo-1509233725247-49e657c54213?w=1200&q=85&auto=format&fit=crop",caption:"Namib — Paysage lunaire à l'aube"},
+   ],
+   amenities:["Observatoire Privé","Piscine Dune View","Excursions 4×4","Montgolfière","Spa","Ranger Expert"],totalValue:4200000,nightsAvail:115,nightsUsed:26},
+
+  // ÉMIRATS ARABES UNIS — Burj Al Arab
+  {id:14,name:"Burj Al Arab",group:"Jumeirah",subBrand:"Jumeirah",city:"Dubaï",country:"Émirats",flag:"🇦🇪",lat:25.1412,lng:55.1853,category:"Ultra-Luxe",stars:7,roomsOwned:2,rooms:[{num:"2501",floor:25,type:"Deluxe Suite Mer",sqm:170,adr:5500},{num:"2601",floor:26,type:"Presidential Suite",sqm:780,adr:14000}],adr:9750,revenueMonthly:218000,revenueSplit:65,availability:"occupied",occupancy:91,
+   image:"https://images.unsplash.com/photo-1526495124232-a04e1849168c?w=800&q=80&auto=format&fit=crop",
+   gallery:[
+     {url:"https://images.unsplash.com/photo-1526495124232-a04e1849168c?w=1200&q=85&auto=format&fit=crop",caption:"Burj Al Arab — Voile emblématique de Dubaï"},
+     {url:"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&q=85&auto=format&fit=crop",caption:"Presidential Suite — Salon double hauteur"},
+     {url:"https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200&q=85&auto=format&fit=crop",caption:"Piscine — Vue Golfe Persique"},
+     {url:"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&q=85&auto=format&fit=crop",caption:"Al Mahara — Restaurant sous-marin"},
+     {url:"https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1200&q=85&auto=format&fit=crop",caption:"Skyview Bar — 212m altitude"},
+     {url:"https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=85&auto=format&fit=crop",caption:"SpaClub — Wellness au 18e étage"},
+     {url:"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&q=85&auto=format&fit=crop",caption:"Presidential Suite — Salon double hauteur"},
+     {url:"https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200&q=85&auto=format&fit=crop",caption:"Piscine privée — Vue Golfe Persique"},
+     {url:"https://images.unsplash.com/photo-1526495124232-a04e1849168c?w=1200&q=85&auto=format&fit=crop",caption:"Burj Al Arab — Nuit sur la mer"},
+     {url:"https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1200&q=85&auto=format&fit=crop",caption:"Helipad & Fleet Rolls-Royce exclusif"},
+   ],
+   amenities:["Suite Duplex","Restaurant Sous-Marin","Helipad","SpaClub","Rolls-Royce Fleet","Butler Dédié"],totalValue:28500000,nightsAvail:50,nightsUsed:82}
 ];
 let hotels = []; // peuplé par loadUserData() selon l'utilisateur connecté
 
@@ -2793,6 +2949,8 @@ function initMap(){
   renderMarkers(hotels);
 }
 
+let _popupTimer = null;
+
 function renderMarkers(data){
   markers.forEach(m=>m.remove());
   markers=[];
@@ -2805,21 +2963,49 @@ function renderMarkers(data){
             </div>`,
       iconSize:[38,38],iconAnchor:[19,38],popupAnchor:[0,-42]
     });
-    const avail={available:'<span style="color:#10B981">● Disponible</span>',occupied:'<span style="color:#EF4444">● Occupé</span>',partial:'<span style="color:#F59E0B">● Partiel</span>'};
-    const popup=L.popup({maxWidth:260,className:''}).setContent(`
+    const avail={
+      available:'<span style="color:#10B981;font-weight:600">● Disponible</span>',
+      occupied:'<span style="color:#EF4444;font-weight:600">● Occupé</span>',
+      partial:'<span style="color:#F59E0B;font-weight:600">● Partiel</span>'
+    };
+    const stars='★'.repeat(h.stars||5);
+    const popup=L.popup({maxWidth:300,className:'',autoPan:false,closeButton:true}).setContent(`
+      <img class="popup-img" src="${h.image}" alt="${h.name}" loading="lazy">
       <div class="popup-content">
-        <div style="font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:#C9A84C;margin-bottom:6px">${h.subBrand}</div>
+        <div class="popup-brand">${h.subBrand||h.group}</div>
         <div class="popup-name">${h.name}</div>
+        <div class="popup-stars">${stars}</div>
         <div class="popup-loc">${h.flag} ${h.city}, ${h.country}</div>
-        <div class="popup-row"><span>Unités possédées</span><span>${h.roomsOwned} chambre${h.roomsOwned>1?'s':''}</span></div>
+        <div class="popup-row"><span>Disponibilité</span>${avail[h.availability]}</div>
         <div class="popup-row"><span>ADR moyen</span><span>€${h.adr.toLocaleString()}/nuit</span></div>
         <div class="popup-row"><span>Rev. mensuel</span><span>€${(h.revenueMonthly/1000).toFixed(0)}k</span></div>
-        <div class="popup-row"><span>Disponibilité</span><span>${avail[h.availability]}</span></div>
-        <button class="popup-btn" onclick="openDetail(${h.id})">Voir les détails →</button>
+        <button class="popup-btn" onclick="openDetail(${h.id})"><i class="fas fa-eye"></i> Voir le détail</button>
       </div>
     `);
     const m=L.marker([h.lat,h.lng],{icon}).bindPopup(popup).addTo(map);
-    m.on('click',()=>m.openPopup());
+
+    // Hover : ouvre au survol, ferme avec délai (annulé si on entre dans le popup)
+    m.on('mouseover',function(){
+      clearTimeout(_popupTimer);
+      m.openPopup();
+    });
+    m.on('mouseout',function(){
+      _popupTimer=setTimeout(()=>{ try{m.closePopup();}catch(e){} },380);
+    });
+    m.on('click',function(){
+      clearTimeout(_popupTimer);
+      m.openPopup();
+    });
+    m.on('popupopen',function(){
+      const el=m.getPopup().getElement();
+      if(el){
+        el.addEventListener('mouseenter',()=>clearTimeout(_popupTimer));
+        el.addEventListener('mouseleave',()=>{
+          _popupTimer=setTimeout(()=>{ try{m.closePopup();}catch(e){} },280);
+        });
+      }
+    });
+
     markers.push(m);
   });
 }
@@ -3017,12 +3203,44 @@ const DUPONT_ROOMS = [
    num:'OW-02',type:'Two-Bedroom Ocean Villa',sqm:450,adrLocal:5200,currency:'USD',adrEur:4784,acquiredAt:'2020-12-01'},
   {roomId:'R18',hotelId:8,hotel:'Conrad Maldives Rangali',group:'Hilton',flag:'🇲🇻',city:'Maldives',
    num:'LA-01',type:'Lagoon Villa',sqm:250,adrLocal:2800,currency:'USD',adrEur:2576,acquiredAt:'2022-05-08'},
+  // MAROC — La Mamounia
+  {roomId:'R19',hotelId:9,hotel:'La Mamounia',group:'Leading Hotels',flag:'🇲🇦',city:'Marrakech',
+   num:'R-12',type:'Riad Prestige',sqm:750,adrLocal:2800,currency:'EUR',adrEur:2800,acquiredAt:'2023-04-18'},
+  {roomId:'R20',hotelId:9,hotel:'La Mamounia',group:'Leading Hotels',flag:'🇲🇦',city:'Marrakech',
+   num:'R-07',type:'Suite Atlas',sqm:480,adrLocal:1950,currency:'EUR',adrEur:1950,acquiredAt:'2023-04-18'},
+  // TUNISIE — Four Seasons Tunis
+  {roomId:'R21',hotelId:10,hotel:'Four Seasons Tunis',group:'Four Seasons',flag:'🇹🇳',city:'Tunis',
+   num:'601',type:'Suite Mer Méditerranée',sqm:220,adrLocal:1200,currency:'EUR',adrEur:1200,acquiredAt:'2024-02-10'},
+  {roomId:'R22',hotelId:10,hotel:'Four Seasons Tunis',group:'Four Seasons',flag:'🇹🇳',city:'Tunis',
+   num:'602',type:'Suite Panoramique',sqm:180,adrLocal:950,currency:'EUR',adrEur:950,acquiredAt:'2024-02-10'},
+  // TANZANIE — Singita Grumeti
+  {roomId:'R23',hotelId:11,hotel:'Singita Grumeti',group:'Singita',flag:'🇹🇿',city:'Serengeti',
+   num:'V-03',type:'Suite Rivière',sqm:420,adrLocal:5200,currency:'USD',adrEur:4784,acquiredAt:'2022-10-05'},
+  {roomId:'R24',hotelId:11,hotel:'Singita Grumeti',group:'Singita',flag:'🇹🇿',city:'Serengeti',
+   num:'V-04',type:'Villa Safari',sqm:380,adrLocal:4800,currency:'USD',adrEur:4416,acquiredAt:'2022-10-05'},
+  // AFRIQUE DU SUD — The Silo
+  {roomId:'R25',hotelId:12,hotel:'The Silo Hotel',group:'Royal Portfolio',flag:'🇿🇦',city:'Le Cap',
+   num:'601',type:'Suite Table Mountain',sqm:195,adrLocal:30000,currency:'ZAR',adrEur:1470,acquiredAt:'2023-07-22'},
+  {roomId:'R26',hotelId:12,hotel:'The Silo Hotel',group:'Royal Portfolio',flag:'🇿🇦',city:'Le Cap',
+   num:'501',type:'Suite Harbour',sqm:165,adrLocal:25000,currency:'ZAR',adrEur:1225,acquiredAt:'2023-07-22'},
+  // NAMIBIE — &Beyond Sossusvlei
+  {roomId:'R27',hotelId:13,hotel:'Sossusvlei Desert Lodge',group:'&Beyond',flag:'🇳🇦',city:'Sossusvlei',
+   num:'C-05',type:'Desert Suite',sqm:340,adrLocal:1800,currency:'USD',adrEur:1656,acquiredAt:'2024-03-01'},
+  {roomId:'R28',hotelId:13,hotel:'Sossusvlei Desert Lodge',group:'&Beyond',flag:'🇳🇦',city:'Sossusvlei',
+   num:'C-06',type:'Desert Suite Dune View',sqm:340,adrLocal:2100,currency:'USD',adrEur:1932,acquiredAt:'2024-03-01'},
+  // ÉMIRATS ARABES UNIS — Burj Al Arab
+  {roomId:'R29',hotelId:14,hotel:'Burj Al Arab',group:'Jumeirah',flag:'🇦🇪',city:'Dubaï',
+   num:'2501',type:'Deluxe Suite Mer',sqm:170,adrLocal:5500,currency:'AED',adrEur:1375,acquiredAt:'2021-11-15'},
+  {roomId:'R30',hotelId:14,hotel:'Burj Al Arab',group:'Jumeirah',flag:'🇦🇪',city:'Dubaï',
+   num:'2601',type:'Presidential Suite',sqm:780,adrLocal:14000,currency:'AED',adrEur:3500,acquiredAt:'2021-11-15'},
 ];
 let ROOMS_DATA = []; // peuplé par loadUserData()
 
 const RI_GRP_COLORS = {
   'Accor':'#C41E3A','Hilton':'#1E3A6E','Marriott':'#8B1A1A',
-  'Hyatt':'#2E7D32','Four Seasons':'#1B4332','Mandarin Oriental':'#6D4C41'
+  'Hyatt':'#2E7D32','Four Seasons':'#1B4332','Mandarin Oriental':'#6D4C41',
+  'Leading Hotels':'#7B5E3A','Singita':'#5C7A3E','Royal Portfolio':'#2C5F7A',
+  '&Beyond':'#8B6F4E','Jumeirah':'#C9A030'
 };
 const RI_RENTAL_DAYS = 325;  // days rented per year (365 - 30 voucher - ~10 margin)
 const RI_VOUCHER_DAYS = 30;  // voucher nights per room per year
@@ -3457,6 +3675,140 @@ function syncTopbarSearch(val){
   if(sb){sb.value=val;}
   applyFilters();
 }
+
+/* ── Topbar autocomplete ─────────────���────────────────── */
+let _tacIdx=-1;
+
+function _tacEsc(s){
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function topbarAcInput(val){
+  syncTopbarSearch(val);
+  _renderTacDrop(val.trim());
+}
+
+function _renderTacDrop(q){
+  const drop=document.getElementById('topbarAcDrop');
+  if(!drop)return;
+  if(!q){drop.innerHTML='';drop.classList.remove('open');return;}
+
+  const ql=q.toLowerCase();
+  // Escape q for use in regex (no raw user content injected into HTML)
+  const qEscRe=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const re=new RegExp('('+qEscRe+')','gi');
+
+  const matches=hotels.filter(h=>
+    (h.name+' '+h.city+' '+h.country+' '+(h.group||'')+' '+(h.subBrand||''))
+      .toLowerCase().includes(ql)
+  ).slice(0,9);
+
+  _tacIdx=-1;
+
+  if(!matches.length){
+    // Use textContent for user-supplied q — no HTML injection
+    const div=document.createElement('div');
+    div.className='tac-no-result';
+    div.textContent='Aucun hôtel trouvé pour "'+q+'"';
+    drop.innerHTML='';
+    drop.appendChild(div);
+    drop.classList.add('open');
+    return;
+  }
+
+  // Build items via DOM to avoid injecting unsanitized content
+  drop.innerHTML='';
+  matches.forEach((h,i)=>{
+    const item=document.createElement('div');
+    item.className='topbar-ac-item';
+    item.dataset.i=i;
+    item.dataset.id=h.id;
+    item.dataset.name=h.name; // dataset is text-safe
+
+    // Flag
+    const flag=document.createElement('span');
+    flag.className='tac-flag';
+    flag.textContent=h.flag||'';
+
+    // Text block
+    const txt=document.createElement('div');
+    txt.style.minWidth='0';
+
+    // Name with highlighted match — escape name first, then wrap match in <em>
+    const nameDiv=document.createElement('div');
+    nameDiv.className='tac-name';
+    const safeNameHL=_tacEsc(h.name).replace(re,'<em>$1</em>'); // $1 comes from escaped hotel name → safe
+    nameDiv.innerHTML=safeNameHL;
+
+    // Sub-line (city · group · stars) — fully trusted data
+    const sub=document.createElement('div');
+    sub.className='tac-sub';
+    sub.textContent=h.city+' · '+h.group;
+    const stars=document.createElement('span');
+    stars.className='tac-stars';
+    stars.style.marginLeft='6px';
+    stars.textContent='★'.repeat(h.stars||5);
+    sub.appendChild(stars);
+
+    txt.appendChild(nameDiv);
+    txt.appendChild(sub);
+    item.appendChild(flag);
+    item.appendChild(txt);
+
+    item.addEventListener('mousedown',()=>topbarAcSelect(item));
+    item.addEventListener('mouseenter',()=>topbarAcHover(i));
+    drop.appendChild(item);
+  });
+  drop.classList.add('open');
+}
+
+function topbarAcSelect(el){
+  const name=el.dataset.name||'';
+  const id=parseInt(el.dataset.id,10);
+  const inp=document.getElementById('topbarSearch');
+  if(inp)inp.value=name;
+  syncTopbarSearch(name);
+  topbarAcClose();
+  const exact=hotels.filter(h=>h.name.toLowerCase()===name.toLowerCase());
+  if(exact.length===1)setTimeout(()=>openDetail(exact[0].id),80);
+}
+
+function topbarAcHover(i){
+  _tacIdx=i;
+  document.querySelectorAll('#topbarAcDrop .topbar-ac-item').forEach((el,j)=>
+    el.classList.toggle('tac-focused',j===i));
+}
+
+function topbarAcKey(e){
+  const drop=document.getElementById('topbarAcDrop');
+  const items=drop?Array.from(drop.querySelectorAll('.topbar-ac-item')):[];
+  if(!items.length){
+    if(e.key==='Escape'){document.getElementById('topbarSearch')?.blur();}
+    return;
+  }
+  if(e.key==='ArrowDown'){
+    e.preventDefault();topbarAcHover(Math.min(_tacIdx+1,items.length-1));
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();topbarAcHover(Math.max(_tacIdx-1,0));
+  } else if(e.key==='Enter'){
+    if(_tacIdx>=0&&items[_tacIdx]){e.preventDefault();topbarAcSelect(items[_tacIdx]);}
+  } else if(e.key==='Escape'){
+    topbarAcClose();
+    document.getElementById('topbarSearch')?.blur();
+  }
+}
+
+function topbarAcClose(){
+  const drop=document.getElementById('topbarAcDrop');
+  if(drop){drop.innerHTML='';drop.classList.remove('open');}
+  _tacIdx=-1;
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.topbar-search'))topbarAcClose();
+});
 
 function clearFilters(){
   ['filterSearch','topbarSearch'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
@@ -4727,7 +5079,7 @@ const BK_HOTELS = [
   {id:19,owned:false,name:"Amangiri",group:"Aman",subBrand:"Aman",city:"Canyon Point",country:"Utah, USA",flag:"🇺🇸",stars:5,category:"Desert Resort",description:"Émergeant de la roche rouge de l'Utah, l'Amangiri est le resort le plus exclusif des États-Unis. Son architecture organique de béton brut épouse les formations géologiques de 150 millions d'années. Sa Mesa Suite de 1300m² avec piscine chauffée est unique.",image:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80",gallery:["https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=500&q=80","https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=500&q=80","https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=500&q=80"],amenities:["Pool dans le canyon","Spa","Randonnées canyons","Rafting","Mesa Suite 1300m²"],adr:2600,currency:"USD"},
   {id:20,owned:false,name:"Aman Venice",group:"Aman",subBrand:"Aman",city:"Venise",country:"Italie",flag:"🇮🇹",stars:5,category:"Palace Vénitien",description:"Installé dans le Palazzo Papadopoli, un palazzo du XVIe siècle en bord de Grand Canal, l'Aman Venice ne compte que 24 suites. Ses fresques de Tiepolo, ses jardins secrets et son accès privé au Grand Canal par barque en font l'adresse la plus confidentielle de Venise.",image:"https://images.unsplash.com/photo-1534259197649-4ade5a0e0219?w=800&q=80",gallery:["https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80","https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80"],amenities:["Grand Canal privé","Jardins secrets","Spa","Restaurant","Barque privée","Fresques Tiepolo"],adr:3200,currency:"EUR"},
   {id:21,owned:false,name:"InterContinental Paris Le Grand",group:"IHG",subBrand:"InterContinental",city:"Paris",country:"France",flag:"🇫🇷",stars:5,category:"Grand Hôtel",description:"Inauguré en 1862 par Napoléon III face à l'Opéra Garnier, l'InterContinental Paris Le Grand est un monument de l'histoire hôtelière française. Sa salle Opéra Second Empire et son Club Lounge vue directe sur l'Opéra sont inoubliables.",image:"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",gallery:["https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80","https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=500&q=80","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80"],amenities:["Club Lounge","Salle Opéra","Café de la Paix","Bar","Fitness","Concierge Clefs d'Or"],adr:480,currency:"EUR"}
-  ,{id:22,owned:false,name:"La Mamounia",group:"Indépendant",subBrand:"La Mamounia",city:"Marrakech",country:"Maroc",flag:"🇲🇦",stars:5,category:"Palace Historique",description:"Classé parmi les 50 meilleurs hôtels du monde, La Mamounia est le bijou de Marrakech depuis 1923. Ses jardins arabes de 8 hectares, ses suites Winston Churchill et son Spa conçu par Pierre-Yves Rochon incarnent le raffinement absolu.",image:"https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&q=80",gallery:["https://images.unsplash.com/photo-1571575173700-afb9492d3e79?w=500&q=80","https://images.unsplash.com/photo-1548019979-49c8f8b1b2e0?w=500&q=80","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80"],amenities:["Spa Pierre-Yves Rochon","Jardins 8ha","3 Piscines","4 Restaurants","Casino","Galerie d'Art"],adr:8500,currency:"MAD"}
+  ,{id:22,owned:true,name:"La Mamounia",group:"Leading Hotels",subBrand:"La Mamounia",city:"Marrakech",country:"Maroc",flag:"🇲🇦",stars:5,category:"Palace Historique",description:"Classé parmi les 50 meilleurs hôtels du monde, La Mamounia est le bijou de Marrakech depuis 1923. Ses jardins arabes de 8 hectares, ses suites Winston Churchill et son Spa conçu par Pierre-Yves Rochon incarnent le raffinement absolu.",image:"https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&q=80",gallery:["https://images.unsplash.com/photo-1571575173700-afb9492d3e79?w=500&q=80","https://images.unsplash.com/photo-1548019979-49c8f8b1b2e0?w=500&q=80","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80"],amenities:["Spa Pierre-Yves Rochon","Jardins 8ha","3 Piscines","4 Restaurants","Casino","Galerie d'Art"],adr:8500,currency:"MAD"}
   ,{id:23,owned:false,name:"Royal Mansour Marrakech",group:"Indépendant",subBrand:"Royal Mansour",city:"Marrakech",country:"Maroc",flag:"🇲🇦",stars:5,category:"Palace Royal",description:"Commandé par le Roi Mohammed VI, le Royal Mansour est le plus exclusif des riads de Marrakech. Ses 53 riads privés de 2 à 4 étages avec piscine, ses jardins secrets et son restaurant La Grande Table Marocaine ★★ sont hors du commun.",image:"https://images.unsplash.com/photo-1548019979-49c8f8b1b2e0?w=800&q=80",gallery:["https://images.unsplash.com/photo-1571575173700-afb9492d3e79?w=500&q=80","https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=500&q=80","https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80"],amenities:["53 Riads Privés","Spa 2500m²","La Grande Table ★★","3 Piscines","Butler Exclusif","Galerie Artisanat"],adr:18000,currency:"MAD"}
   ,{id:24,owned:false,name:"Four Seasons Resort Marrakech",group:"Four Seasons",subBrand:"Four Seasons",city:"Marrakech",country:"Maroc",flag:"🇲🇦",stars:5,category:"Resort Palace",description:"Niché au cœur de jardins andalous sur 6 hectares face aux montagnes de l'Atlas, le Four Seasons Marrakech offre un luxe discret typique de la marque. Deux piscines monumentales, un spa de référence et des suites privées avec vue sur l'Atlas.",image:"https://images.unsplash.com/photo-1571575173700-afb9492d3e79?w=800&q=80",gallery:["https://images.unsplash.com/photo-1548019979-49c8f8b1b2e0?w=500&q=80","https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=500&q=80","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80"],amenities:["Spa 2500m²","2 Piscines","Vue Atlas","5 Restaurants","Tennis","Concierge 24/7"],adr:5800,currency:"MAD"}
   ,{id:25,owned:false,name:"Mandarin Oriental Marrakech",group:"Mandarin Oriental",subBrand:"Mandarin Oriental",city:"Marrakech",country:"Maroc",flag:"🇲🇦",stars:5,category:"Resort Palmeraie",description:"Immergé dans la Palmeraie de Marrakech, le Mandarin Oriental déploie ses villas privées entre les palmiers centenaires. Chaque villa dispose de sa propre piscine. Le Spa Mandarin Oriental, primé meilleur spa d'Afrique, est une référence continentale.",image:"https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",gallery:["https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=500&q=80","https://images.unsplash.com/photo-1571575173700-afb9492d3e79?w=500&q=80","https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80"],amenities:["Villas Piscine Privée","Spa Primé","Palmeraie","3 Restaurants","Tennis","Hammam Royal"],adr:5200,currency:"MAD"}
@@ -4739,12 +5091,21 @@ const BK_HOTELS = [
   ,{id:31,owned:false,name:"Nobu Hotel Marrakech",group:"Indépendant",subBrand:"Nobu Hotels",city:"Marrakech",country:"Maroc",flag:"🇲🇦",stars:5,category:"Design Contemporain",description:"Fusion du design japonais et de l'artisanat marocain, le Nobu Hotel Marrakech porte la signature du chef Nobu Matsuhisa. Chaque surface célèbre la zellige et le bois de cèdre dans une architecture signée Piero Lissoni.",image:"https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?w=800&q=80",gallery:["https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=500&q=80","https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80"],amenities:["Restaurant Nobu","Spa","Piscine","Rooftop Bar","Fitness","Galerie Contemporaine"],adr:3800,currency:"MAD"}
   ,{id:32,owned:false,name:"Palais Namaskar",group:"Indépendant",subBrand:"Palais Namaskar",city:"Marrakech",country:"Maroc",flag:"🇲🇦",stars:5,category:"Palais Privé",description:"Dernier grand palais privé de Marrakech, le Palais Namaskar ne compte que 41 suites et villas autour d'un lac intérieur. Son esthétique indo-marocaine unique, son spa ayurvédique et son service ultra-personnalisé séduisent une clientèle ultra-VIP.",image:"https://images.unsplash.com/photo-1534259197649-4ade5a0e0219?w=800&q=80",gallery:["https://images.unsplash.com/photo-1548019979-49c8f8b1b2e0?w=500&q=80","https://images.unsplash.com/photo-1571575173700-afb9492d3e79?w=500&q=80","https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80"],amenities:["41 Villas","Lac Intérieur","Spa Ayurvédique","2 Restaurants","Piscine Privée","Butler"],adr:7500,currency:"MAD"}
   ,{id:33,owned:false,name:"The Pearl Marrakech",group:"Indépendant",subBrand:"The Pearl",city:"Marrakech",country:"Maroc",flag:"🇲🇦",stars:5,category:"Boutique Palace",description:"Nouveau fleuron de la scène hôtelière marrakchie, The Pearl Marrakech impose sa modernité discrète au cœur du quartier Guéliz. Ses 70 chambres et suites revisitent la géométrie zellige dans un langage architectural du XXIe siècle.",image:"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80",gallery:["https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=500&q=80","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80","https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=500&q=80"],amenities:["Rooftop Pool","Spa","Restaurant Gastronomique","Bar Lounge","Fitness","Concierge"],adr:2800,currency:"MAD"}
+
+  // ── Nouvelles propriétés en portefeuille (owned) ──
+  ,{id:34,owned:true,name:"Four Seasons Tunis",group:"Four Seasons",subBrand:"Four Seasons",city:"Tunis",country:"Tunisie",flag:"🇹🇳",stars:5,category:"Palace",description:"Dominant la Méditerranée depuis les hauteurs de Gammarth, le Four Seasons Tunis est le premier palace international de Tunisie. Sa plage privée, ses suites panoramiques et son spa de référence incarnent un nouveau luxe nord-africain.",image:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80",gallery:["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80","https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80"],amenities:["Plage Privée","Spa","Piscine Infinity","3 Restaurants","Tennis","Concierge 24/7"],adr:1075,currency:"EUR",roomsOwned:2,revenueMonthly:44000,rooms:[{num:"601",floor:6,type:"Suite Mer Méditerranée",sqm:220,adr:1200},{num:"602",floor:6,type:"Suite Panoramique",sqm:180,adr:950}]}
+  ,{id:35,owned:true,name:"Singita Grumeti",group:"Singita",subBrand:"Singita",city:"Serengeti",country:"Tanzanie",flag:"🇹🇿",stars:5,category:"Safari Lodge",description:"Posé sur la rive du Grumeti dans la zone ouest du Serengeti, Singita Grumeti est le lodge le plus exclusif d'Afrique de l'Est. Chaque villa dispose d'une piscine privée avec vue directe sur les troupeaux lors de la Grande Migration.",image:"https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800&q=80",gallery:["https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=500&q=80","https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=500&q=80","https://images.unsplash.com/photo-1549366021-9f761d450615?w=500&q=80"],amenities:["Game Drives 2×/jour","Bush Spa","Piscine Privée","Sommelier","Ranger Privé","Hélico Transfers"],adr:5000,currency:"USD",roomsOwned:2,revenueMonthly:115000,rooms:[{num:"V-03",floor:1,type:"Suite Rivière",sqm:420,adr:5200},{num:"V-04",floor:1,type:"Villa Safari",sqm:380,adr:4800}]}
+  ,{id:36,owned:true,name:"The Silo Hotel",group:"Royal Portfolio",subBrand:"The Silo",city:"Le Cap",country:"Afrique du Sud",flag:"🇿🇦",stars:5,category:"Urban Luxe",description:"Perché au sommet d'un ancien grenier à grain du V&A Waterfront, le Silo Hotel offre une vue à 360° sur Table Mountain, le port et l'océan. Ses 28 suites et sa collection d'art contemporain africain en font l'adresse la plus talentueuse du Cap.",image:"https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=800&q=80",gallery:["https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=500&q=80","https://images.unsplash.com/photo-1512007498020-dc26d2ace2c5?w=500&q=80","https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80"],amenities:["Rooftop Pool","Spa","Granary Café","Bar","Concierge","Zeitz MOCAA Access"],adr:1475,currency:"USD",roomsOwned:2,revenueMonthly:58000,rooms:[{num:"601",floor:6,type:"Suite Table Mountain",sqm:195,adr:1600},{num:"501",floor:5,type:"Suite Harbour",sqm:165,adr:1350}]}
+  ,{id:37,owned:true,name:"Sossusvlei Desert Lodge",group:"&Beyond",subBrand:"&Beyond",city:"Sossusvlei",country:"Namibie",flag:"🇳🇦",stars:5,category:"Desert Lodge",description:"Encastré dans les dunes du Namib, &Beyond Sossusvlei Desert Lodge est l'un des rares lodges au monde à posséder son propre observatoire astronomique. Ses suites en pierre et verre se fondent dans le désert avec vue directe sur les dunes emblématiques.",image:"https://images.unsplash.com/photo-1509233725247-49e657c54213?w=800&q=80",gallery:["https://images.unsplash.com/photo-1509233725247-49e657c54213?w=500&q=80","https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=500&q=80","https://images.unsplash.com/photo-1504432842672-1a79f78e4d43?w=500&q=80"],amenities:["Observatoire Privé","Piscine Dune View","Excursions 4×4","Montgolfière","Spa","Ranger Expert"],adr:1950,currency:"USD",roomsOwned:2,revenueMonthly:68000,rooms:[{num:"C-05",floor:1,type:"Desert Suite",sqm:340,adr:1800},{num:"C-06",floor:1,type:"Desert Suite Dune View",sqm:340,adr:2100}]}
+  ,{id:38,owned:true,name:"Burj Al Arab",group:"Jumeirah",subBrand:"Jumeirah",city:"Dubaï",country:"Émirats",flag:"🇦🇪",stars:7,category:"Ultra-Luxe",description:"Voile emblématique de Dubaï, le Burj Al Arab est le seul hôtel 7 étoiles officieux au monde. Construit sur une île artificielle en mer, chaque chambre est une suite duplex. Son restaurant Al Mahara sous-marin et son Skyview Bar à 212m d'altitude sont mythiques.",image:"https://images.unsplash.com/photo-1526495124232-a04e1849168c?w=800&q=80",gallery:["https://images.unsplash.com/photo-1526495124232-a04e1849168c?w=500&q=80","https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500&q=80","https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=500&q=80"],amenities:["Suite Duplex","Restaurant Al Mahara","Helipad","SpaClub","Rolls-Royce Fleet","Butler Dédié"],adr:9750,currency:"AED",roomsOwned:2,revenueMonthly:218000,rooms:[{num:"2501",floor:25,type:"Deluxe Suite Mer",sqm:170,adr:5500},{num:"2601",floor:26,type:"Presidential Suite",sqm:780,adr:14000}]}
 ];
 
 const BK_GROUP_COLORS = {
   'Accor':'#C41E3A','Hilton':'#1E3A6E','Marriott':'#8B1A1A',
   'Hyatt':'#2E7D32','Four Seasons':'#1B4332','Mandarin Oriental':'#6D4C41',
-  'Aman':'#B4965A','IHG':'#4a70c0','Indépendant':'#8B6914'
+  'Aman':'#B4965A','IHG':'#4a70c0','Indépendant':'#8B6914',
+  'Leading Hotels':'#7B5E3A','Singita':'#5C7A3E','Royal Portfolio':'#2C5F7A',
+  '&Beyond':'#8B6F4E','Jumeirah':'#C9A030'
 };
 function toEur(adr,cur){
   if(!cur||cur==='EUR') return Math.round(adr);
@@ -5819,7 +6180,34 @@ async function loadUserData(){
     window._sbContracts = null;
     MY_SHARED_TRIPS = Object.assign({},DUPONT_SHARED_TRIPS);
   }
-  ROOMS_DATA = [...DUPONT_ROOMS];
+  ROOMS_DATA = _buildRoomsData(hotels);
+}
+
+function _buildRoomsData(hotelsArr){
+  const rows = [];
+  let n = 1;
+  hotelsArr.forEach(h => {
+    (h.rooms || []).forEach(r => {
+      rows.push({
+        roomId    : r.roomId    || `R${String(n).padStart(2,'0')}`,
+        hotelId   : h.id,
+        hotel     : h.name,
+        group     : h.group,
+        flag      : h.flag || '',
+        city      : h.city,
+        num       : r.num,
+        type      : r.type,
+        sqm       : r.sqm       || 0,
+        adrLocal  : r.adr       || r.adrLocal  || 0,
+        currency  : r.currency  || 'EUR',
+        adrEur    : r.adrEur    || r.adr       || 0,
+        acquiredAt: r.acquiredAt|| r.acquired_at|| ''
+      });
+      n++;
+    });
+  });
+  // Fallback : si aucune chambre dans les hôtels, utiliser DUPONT_ROOMS
+  return rows.length ? rows : [...DUPONT_ROOMS];
 }
 
 let _adminUser=null; // stocke l'admin pendant l'impersonation
