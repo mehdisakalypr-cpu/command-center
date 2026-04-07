@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
 
 type Mode = "idle" | "listening" | "thinking" | "speaking";
 interface Message { role: "user" | "assistant"; content: string; bridge?: boolean; bridgeType?: string; }
@@ -56,6 +57,10 @@ export default function VoicePage() {
   const [voiceId,          setVoiceId]          = useState("onyx");
   const [showVoices,       setShowVoices]       = useState(false);
   const [pendingValidation, setPendingValidation] = useState<string | null>(null);
+  const [muted,            setMuted]            = useState(() => {
+    try { return localStorage.getItem("cc_muted") === "1"; } catch { return false; }
+  });
+  const mutedRef = useRef(muted);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const mediaRecRef   = useRef<MediaRecorder | null>(null);
@@ -82,6 +87,13 @@ export default function VoicePage() {
   /* ── Sync voiceId → ref ── */
   useEffect(() => { voiceRef.current = voiceId; }, [voiceId]);
 
+  /* ── Sync muted → ref + localStorage ── */
+  useEffect(() => {
+    mutedRef.current = muted;
+    try { localStorage.setItem("cc_muted", muted ? "1" : "0"); } catch { /* noop */ }
+    if (muted) { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } speechSynthesis.cancel(); }
+  }, [muted]);
+
   /* ── Auto-scroll inside conversation ── */
   useEffect(() => {
     if (convRef.current) {
@@ -97,6 +109,7 @@ export default function VoicePage() {
 
   /* ── TTS via OpenAI ── */
   const speak = useCallback(async (text: string) => {
+    if (mutedRef.current) { setMode("idle"); return; }
     try {
       const res = await fetch("/api/tts", {
         method: "POST",
@@ -112,6 +125,7 @@ export default function VoicePage() {
       audio.onended = audio.onerror = () => { setMode("idle"); URL.revokeObjectURL(url); };
       audio.play();
     } catch {
+      if (mutedRef.current) { setMode("idle"); return; }
       // Fallback Web Speech
       const utt = new SpeechSynthesisUtterance(text);
       utt.lang = "fr-FR"; utt.rate = 1.05;
@@ -155,7 +169,7 @@ export default function VoicePage() {
 
   useEffect(() => {
     pollBridge();
-    const id = setInterval(pollBridge, 60_000);
+    const id = setInterval(pollBridge, 8_000); // toutes les 8s pour réponses quasi-temps-réel
     return () => clearInterval(id);
   }, [pollBridge]);
 
@@ -318,15 +332,12 @@ export default function VoicePage() {
       <div style={{ flexShrink:0 }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"12px 18px 8px" }}>
           <div style={{ display:"flex", alignItems:"center", gap:9 }}>
+            <Link href="/gemini" style={{ width:30, height:30, borderRadius:9, background:"linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853)", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:13, color:"#fff", textDecoration:"none", flexShrink:0 }} title="Gemini Pro">G</Link>
+            <Link href="/dashboard" style={{ width:30, height:30, borderRadius:9, background:"linear-gradient(135deg,#0A1A2E,#071425)", border:"1px solid rgba(201,168,76,.35)", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:13, color:"#C9A84C", textDecoration:"none", flexShrink:0 }} title="Dashboard projets">⊞</Link>
             <div style={{ width:30, height:30, borderRadius:9, background:"linear-gradient(135deg,#4F46E5,#7C3AED)", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:13, color:"#fff" }}>S</div>
             <span style={{ fontSize:13, fontWeight:700, color:"rgba(255,255,255,.6)", letterSpacing:".1em" }}>COMMAND CENTER</span>
           </div>
           <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-            {!noSpeech && (
-              <button onClick={() => setShowInput(v => !v)} style={{ background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)", borderRadius:8, padding:"5px 11px", color:"rgba(255,255,255,.4)", fontSize:11, cursor:"pointer" }}>
-                {showInput ? "🎙" : "⌨️"}
-              </button>
-            )}
             {messages.length > 0 && (
               <button onClick={() => { setMessages([]); stopAudio(); setMode("idle"); }} style={{ background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)", borderRadius:8, padding:"5px 11px", color:"rgba(255,255,255,.4)", fontSize:11, cursor:"pointer" }}>
                 ✕
@@ -337,7 +348,7 @@ export default function VoicePage() {
       </div>
 
       {/* ── Conversation ── */}
-      <div ref={convRef} style={{ flex:1, overflowY:"auto", padding:"8px 16px 140px", display:"flex", flexDirection:"column", gap:10 }}>
+      <div ref={convRef} style={{ flex:1, overflowY:"auto", padding:"8px 16px 220px", display:"flex", flexDirection:"column", gap:10 }}>
         {messages.length === 0 && (
           <div style={{ textAlign:"center", color:"rgba(255,255,255,.15)", fontSize:13, marginTop:40, lineHeight:2 }}>
             Maintenez l'orbe pour parler<br/>
@@ -391,16 +402,14 @@ export default function VoicePage() {
         </div>
       )}
 
-      {/* ── Text input — visible si showInput ou noSpeech ── */}
-      {(showInput || noSpeech) && (
-        <div style={{ position:"fixed", bottom: noSpeech ? 24 : 130, left:16, right:16, display:"flex", gap:8, zIndex:30 }}>
-          <input value={textInput} onChange={e => setTextInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendText()}
-            placeholder={noSpeech ? "Tapez votre message…" : "Écris ta question…"}
-            style={{ flex:1, background:"rgba(15,15,40,.95)", border:"1px solid rgba(255,255,255,.15)", borderRadius:12, padding:"12px 16px", fontSize:14, color:"#fff", outline:"none", fontFamily:"inherit" }}
-          />
-          <button onClick={sendText} style={{ background:"linear-gradient(135deg,#4F46E5,#7C3AED)", border:"none", borderRadius:12, padding:"0 18px", color:"#fff", fontSize:16, fontWeight:700, cursor:"pointer" }}>→</button>
-        </div>
-      )}
+      {/* ── Text input — toujours visible au-dessus de l'orbe ── */}
+      <div style={{ position:"fixed", bottom:148, left:16, right:16, display:"flex", gap:8, zIndex:30 }}>
+        <input value={textInput} onChange={e => setTextInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendText()}
+          placeholder="Écris un message…"
+          style={{ flex:1, background:"rgba(15,15,40,.95)", border:"1px solid rgba(255,255,255,.15)", borderRadius:12, padding:"12px 16px", fontSize:14, color:"#fff", outline:"none", fontFamily:"inherit" }}
+        />
+        <button onClick={sendText} disabled={!textInput.trim()} style={{ background:"linear-gradient(135deg,#4F46E5,#7C3AED)", border:"none", borderRadius:12, padding:"0 18px", color:"#fff", fontSize:16, fontWeight:700, cursor:"pointer", opacity: textInput.trim() ? 1 : 0.4 }}>→</button>
+      </div>
 
       {/* ── Voice picker popup (ancré au bouton voix) ── */}
       {showVoices && (
@@ -513,8 +522,23 @@ export default function VoicePage() {
             )}
           </button>
         </div>
-        {/* Placeholder droit pour équilibrer visuellement */}
-        <div style={{ width:44 }} />
+        {/* Bouton mute — à droite de l'orbe */}
+        <button
+          onClick={() => setMuted(m => !m)}
+          style={{
+            width:44, height:44, borderRadius:"50%",
+            background: muted ? "rgba(239,68,68,.18)" : "rgba(255,255,255,.07)",
+            border: `1px solid ${muted ? "rgba(239,68,68,.55)" : "rgba(255,255,255,.15)"}`,
+            cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:1,
+            transition:"background .2s, border-color .2s",
+          }}
+          title={muted ? "Activer le son" : "Couper le son"}
+        >
+          <span style={{ fontSize:16, lineHeight:1 }}>{muted ? "🔇" : "🔊"}</span>
+          <span style={{ fontSize:8, color: muted ? "#EF4444" : "rgba(255,255,255,.4)", fontWeight:600, letterSpacing:".04em" }}>
+            {muted ? "MUTE" : "SON"}
+          </span>
+        </button>
 
         </div>{/* fin boutons flanquants */}
       </div>{/* fin floating orb container */}
