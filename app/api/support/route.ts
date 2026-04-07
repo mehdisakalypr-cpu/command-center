@@ -16,13 +16,14 @@ export async function POST(req: NextRequest) {
     'https://the-estate-fo.netlify.app',
     'https://consulting-on55melzp-mehdisakalypr-3843s-projects.vercel.app',
     'https://feel-the-gap.vercel.app',
-    'https://feel-the-gap.duckdns.org',
-    'https://command-center01.duckdns.org',
     'https://command-center-lemon-xi.vercel.app',
+    // Dynamic origins from env (VPS or custom domains)
+    process.env.FTG_URL,
+    process.env.NEXT_PUBLIC_BASE_URL,
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
-  ]
+  ].filter(Boolean) as string[]
 
   const corsHeaders = {
     'Access-Control-Allow-Origin':  ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],

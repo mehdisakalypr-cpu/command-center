@@ -20,8 +20,14 @@ export async function POST(req: NextRequest) {
     status: "unread",
   });
 
-  // Email only for to_claude direction
+  // Accusé de réception immédiat pour les messages entrants (to_claude)
   if (direction === "from_claude") return NextResponse.json({ ok: true });
+
+  await sb().from("claude_bridge").insert({
+    direction: "from_claude",
+    message: JSON.stringify({ type: "received", text: "Message reçu. Claude le traitera au prochain prompt." }),
+    status: "unread",
+  });
 
   // Notification email
   try {

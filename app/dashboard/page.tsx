@@ -8,6 +8,7 @@ interface Pm2Process { name: string; status: string; memory: number; restarts: n
 interface ServiceStatus { url: string; up: boolean; latencyMs: number; }
 interface Metrics {
   ts: string;
+  isVps: boolean;
   vps: {
     ram: { total: number; used: number; available: number; pct: number };
     disk: { total: string; used: string; free: string; pct: string };
@@ -254,8 +255,8 @@ export default function DashboardPage() {
             )}
           </Card>
 
-          {/* VPS Infra */}
-          <Card title="Infrastructure VPS" icon="🖥️">
+          {/* VPS Infra (shown only when VPS data available) */}
+          <Card title={metrics?.isVps ? "Infrastructure VPS" : "Infrastructure"} icon="🖥️">
             {vps ? (
               <>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
@@ -290,7 +291,13 @@ export default function DashboardPage() {
                 </div>
               </>
             ) : (
-              <div style={{ fontSize: ".72rem", color: "#5A6A7A" }}>Données VPS non disponibles</div>
+              <div style={{ padding: "12px 0" }}>
+                <div style={{ fontSize: ".72rem", color: "#10B981", marginBottom: 8 }}>Vercel (serverless)</div>
+                <div style={{ fontSize: ".65rem", color: "#5A6A7A", lineHeight: 1.6 }}>
+                  Pas de serveur VPS — déployé sur Vercel.<br/>
+                  Les métriques Supabase et les pings services restent actifs.
+                </div>
+              </div>
             )}
           </Card>
 
@@ -318,13 +325,15 @@ export default function DashboardPage() {
           {/* Actions rapides */}
           <Card title="Actions Rapides" icon="⚡">
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <div>
-                <div style={{ fontSize: ".58rem", letterSpacing: ".14em", textTransform: "uppercase", color: "#5A6A7A", marginBottom: 10 }}>PM2 — Processus</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  <ActionBtn label="Restart Feel The Gap" action="restart-ftg" onDone={showToast} />
-                  <ActionBtn label="Restart Command Center" action="restart-cc" onDone={showToast} />
+              {metrics?.isVps && (
+                <div>
+                  <div style={{ fontSize: ".58rem", letterSpacing: ".14em", textTransform: "uppercase", color: "#5A6A7A", marginBottom: 10 }}>PM2 — Processus</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    <ActionBtn label="Restart Feel The Gap" action="restart-ftg" onDone={showToast} />
+                    <ActionBtn label="Restart Command Center" action="restart-cc" onDone={showToast} />
+                  </div>
                 </div>
-              </div>
+              )}
               <div>
                 <div style={{ fontSize: ".58rem", letterSpacing: ".14em", textTransform: "uppercase", color: "#5A6A7A", marginBottom: 10 }}>Supabase</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -338,7 +347,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Last health log */}
+              {/* Last health log (VPS only) */}
               {metrics?.lastHealthLog && (
                 <div style={{ marginTop: 4 }}>
                   <div style={{ fontSize: ".58rem", letterSpacing: ".14em", textTransform: "uppercase", color: "#5A6A7A", marginBottom: 8 }}>Dernier rapport santé</div>
@@ -353,7 +362,7 @@ export default function DashboardPage() {
 
         {/* ── Footer ── */}
         <div style={{ textAlign: "center", fontSize: ".58rem", color: "#5A6A7A", letterSpacing: ".08em", paddingBottom: 8 }}>
-          Command Center · VPS · Coût 0€ · Refresh auto toutes les 30s
+          Command Center · {metrics?.isVps ? "VPS" : "Vercel"} · Coût 0€ · Refresh auto toutes les 30s
         </div>
       </div>
     </div>

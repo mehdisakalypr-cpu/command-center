@@ -1,18 +1,21 @@
 import { NextResponse } from "next/server";
-import { exec } from "child_process";
-import { promisify } from "util";
 import { createClient } from "@supabase/supabase-js";
-
-const execAsync = promisify(exec);
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_ANON_KEY!
 );
 
-/* ── VPS metrics ─────────────────────────────────────────────── */
+const IS_VPS = process.env.DEPLOYMENT_ENV === "vps";
+
+/* ── VPS metrics (only when running on VPS) ────────────────── */
 async function getVpsMetrics() {
+  if (!IS_VPS) return null;
   try {
+    const { exec } = await import("child_process");
+    const { promisify } = await import("util");
+    const execAsync = promisify(exec);
+
     const [memOut, dfOut, pm2Out] = await Promise.all([
       execAsync("free -m | awk 'NR==2{print $2,$3,$7}'"),
       execAsync("df -h / | awk 'NR==2{print $2,$3,$4,$5}'"),
@@ -32,7 +35,7 @@ async function getVpsMetrics() {
         memory: Math.round((p.monit?.memory ?? 0) / 1024 / 1024),
         restarts: p.pm2_env?.restart_time ?? 0,
       }));
-    } catch { /* pm2 not available or parse error */ }
+    } catch { /* pm2 not available */ }
 
     return {
       ram: { total, used, available, pct: Math.round((used / total) * 100) },
@@ -58,7 +61,6 @@ async function getFtgMetrics() {
       tiers[p.tier ?? "explorer"] = (tiers[p.tier ?? "explorer"] ?? 0) + 1;
     }
 
-    // New users last 7 days
     const since = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
     const newUsers = profiles.filter(p => p.created_at >= since).length;
 
@@ -125,15 +127,25 @@ async function pingService(url: string, timeoutMs = 5000): Promise<{ up: boolean
   }
 }
 
-/* ── Monitor logs (last health check) ───────────────────────── */
+/* ── Monitor logs (VPS only) ─────────────────────────────────── */
 async function getLastHealthLog() {
+  if (!IS_VPS) return null;
   try {
+    const { exec } = await import("child_process");
+    const { promisify } = await import("util");
+    const execAsync = promisify(exec);
     const { stdout } = await execAsync("tail -3 /root/monitor/logs/health.log 2>/dev/null");
     return stdout.trim() || null;
   } catch {
     return null;
   }
 }
+
+/* ── Service URLs from env (no more hardcoded duckdns) ──────── */
+const SVC_ESTATE = "https://the-estate-fo.netlify.app";
+const SVC_SHIFT  = process.env.SHIFT_DYNAMICS_URL ?? "https://consulting-on55melzp-mehdisakalypr-3843s-projects.vercel.app";
+const SVC_FTG    = process.env.FTG_URL ?? "https://feel-the-gap.vercel.app";
+const SVC_CC     = process.env.NEXT_PUBLIC_BASE_URL ?? "https://command-center-lemon-xi.vercel.app";
 
 /* ── GET /api/dashboard/metrics ─────────────────────────────── */
 export async function GET() {
@@ -142,23 +154,24 @@ export async function GET() {
     getFtgMetrics(),
     getFtgDataStats(),
     getEstateMetrics(),
-    pingService("https://the-estate-fo.netlify.app"),
-    pingService("https://consulting-on55melzp-mehdisakalypr-3843s-projects.vercel.app"),
-    pingService("https://feel-the-gap.duckdns.org"),
+    pingService(SVC_ESTATE),
+    pingService(SVC_SHIFT),
+    pingService(SVC_FTG),
     getLastHealthLog(),
   ]);
 
   return NextResponse.json({
     ts: new Date().toISOString(),
+    isVps: IS_VPS,
     vps,
     ftg,
     ftgData,
     estate,
     services: {
-      theEstate: { url: "https://the-estate-fo.netlify.app", ...estateStatus },
-      shiftDynamics: { url: "https://consulting-on55melzp-mehdisakalypr-3843s-projects.vercel.app", ...shiftStatus },
-      feelTheGap: { url: "https://feel-the-gap.duckdns.org", ...ftgStatus },
-      commandCenter: { url: "https://command-center01.duckdns.org", up: true, latencyMs: 0 },
+      theEstate:     { url: SVC_ESTATE, ...estateStatus },
+      shiftDynamics: { url: SVC_SHIFT, ...shiftStatus },
+      feelTheGap:    { url: SVC_FTG, ...ftgStatus },
+      commandCenter: { url: SVC_CC, up: true, latencyMs: 0 },
     },
     lastHealthLog: healthLog,
   }, { headers: { "Cache-Control": "no-store" } });

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
-const PUBLIC = ["/login", "/api/auth", "/_next", "/favicon.ico"];
+const PUBLIC = ["/login", "/api/auth", "/api/telegram-webhook", "/_next", "/favicon.ico"];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
