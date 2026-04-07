@@ -113,6 +113,35 @@ async function getFtgDataStats() {
   }
 }
 
+/* ── Reports & Shift Dynamics progress ─────────────────────── */
+async function getReportsProgress() {
+  try {
+    const [reportsRes, bpRes, oppsCountryRes, leadsRes, cmsRes] = await Promise.all([
+      supabase.from("reports").select("id", { count: "exact", head: true }),
+      supabase.from("business_plans").select("id", { count: "exact", head: true }),
+      supabase.from("opportunities").select("country_iso"),
+      supabase.from("leads").select("id", { count: "exact", head: true }),
+      supabase.from("cms_entries").select("id", { count: "exact", head: true }),
+    ]);
+
+    const distinctCountries = new Set((oppsCountryRes.data ?? []).map((r: { country_iso: string }) => r.country_iso)).size;
+
+    return {
+      reportsProgress: {
+        reports: reportsRes.count ?? 0,
+        businessPlans: bpRes.count ?? 0,
+        countriesWithOpps: distinctCountries,
+      },
+      shiftDynamics: {
+        cmsEntries: cmsRes.count ?? 0,
+        leads: leadsRes.count ?? 0,
+      },
+    };
+  } catch {
+    return { reportsProgress: null, shiftDynamics: null };
+  }
+}
+
 /* ── Service uptime ping ─────────────────────────────────────── */
 async function pingService(url: string, timeoutMs = 5000): Promise<{ up: boolean; latencyMs: number }> {
   const start = Date.now();
@@ -149,7 +178,7 @@ const SVC_CC     = process.env.NEXT_PUBLIC_BASE_URL ?? "https://command-center-l
 
 /* ── GET /api/dashboard/metrics ─────────────────────────────── */
 export async function GET() {
-  const [vps, ftg, ftgData, estate, estateStatus, shiftStatus, ftgStatus, healthLog] = await Promise.all([
+  const [vps, ftg, ftgData, estate, estateStatus, shiftStatus, ftgStatus, healthLog, reportsData] = await Promise.all([
     getVpsMetrics(),
     getFtgMetrics(),
     getFtgDataStats(),
@@ -158,6 +187,7 @@ export async function GET() {
     pingService(SVC_SHIFT),
     pingService(SVC_FTG),
     getLastHealthLog(),
+    getReportsProgress(),
   ]);
 
   return NextResponse.json({
@@ -167,6 +197,8 @@ export async function GET() {
     ftg,
     ftgData,
     estate,
+    reportsProgress: reportsData.reportsProgress,
+    shiftDynamics: reportsData.shiftDynamics,
     services: {
       theEstate:     { url: SVC_ESTATE, ...estateStatus },
       shiftDynamics: { url: SVC_SHIFT, ...shiftStatus },

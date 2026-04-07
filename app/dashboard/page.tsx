@@ -27,6 +27,15 @@ interface Metrics {
     alerts: { total: number; unread: number };
     members: number;
   } | null;
+  reportsProgress: {
+    reports: number;
+    businessPlans: number;
+    countriesWithOpps: number;
+  } | null;
+  shiftDynamics: {
+    cmsEntries: number;
+    leads: number;
+  } | null;
   services: {
     theEstate: ServiceStatus;
     shiftDynamics: ServiceStatus;
@@ -159,7 +168,7 @@ export default function DashboardPage() {
     </div>
   );
 
-  const { vps, ftg, ftgData, estate, services } = metrics ?? {};
+  const { vps, ftg, ftgData, estate, reportsProgress, shiftDynamics, services } = metrics ?? {};
   const serviceList = services ? [
     { key: "theEstate",    label: "The Estate",     icon: "🏨", color: "#C9A84C", s: services.theEstate },
     { key: "shiftDynamics",label: "Shift Dynamics",  icon: "⚡", color: "#8B5CF6", s: services.shiftDynamics },
@@ -318,6 +327,55 @@ export default function DashboardPage() {
                 </div>
               </>
             ) : (
+              <div style={{ fontSize: ".72rem", color: "#5A6A7A" }}>Données non disponibles</div>
+            )}
+          </Card>
+
+          {/* Reports Progress + Shift Dynamics */}
+          <Card title="Rapports & Données" icon="📊">
+            {reportsProgress ? (() => {
+              const rptPct = reportsProgress.countriesWithOpps > 0
+                ? Math.round((reportsProgress.reports / reportsProgress.countriesWithOpps) * 100)
+                : 0;
+              const bpPct = reportsProgress.countriesWithOpps > 0
+                ? Math.round((reportsProgress.businessPlans / reportsProgress.countriesWithOpps) * 100)
+                : 0;
+              return (
+                <>
+                  <div style={{ marginBottom: 18 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
+                      <span style={{ fontSize: ".7rem", color: "#9BA8B8" }}>Rapports pays générés</span>
+                      <span style={{ fontSize: ".82rem", fontWeight: 700, color: "#C9A84C" }}>{rptPct}%</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+                      <span style={{ fontSize: "1.2rem", fontWeight: 700, color: "#E8E0D0" }}>{reportsProgress.reports}</span>
+                      <span style={{ fontSize: ".68rem", color: "#5A6A7A" }}>/ {reportsProgress.countriesWithOpps} pays avec opportunités</span>
+                    </div>
+                    <ProgressBar pct={rptPct} color="#C9A84C" />
+                  </div>
+                  <div style={{ marginBottom: 18 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
+                      <span style={{ fontSize: ".7rem", color: "#9BA8B8" }}>Business plans générés</span>
+                      <span style={{ fontSize: ".82rem", fontWeight: 700, color: "#3B82F6" }}>{bpPct}%</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+                      <span style={{ fontSize: "1.2rem", fontWeight: 700, color: "#E8E0D0" }}>{reportsProgress.businessPlans}</span>
+                      <span style={{ fontSize: ".68rem", color: "#5A6A7A" }}>/ {reportsProgress.countriesWithOpps} opportunités cibles</span>
+                    </div>
+                    <ProgressBar pct={bpPct} color="#3B82F6" />
+                  </div>
+                  {shiftDynamics && (
+                    <div style={{ paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.04)" }}>
+                      <div style={{ fontSize: ".58rem", letterSpacing: ".14em", textTransform: "uppercase", color: "#5A6A7A", marginBottom: 10 }}>Shift Dynamics</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <Stat label="Entrées CMS" value={shiftDynamics.cmsEntries} color="#8B5CF6" />
+                        <Stat label="Leads capturés" value={shiftDynamics.leads} color="#10B981" />
+                      </div>
+                    </div>
+                  )}
+                </>
+              );
+            })() : (
               <div style={{ fontSize: ".72rem", color: "#5A6A7A" }}>Données non disponibles</div>
             )}
           </Card>
