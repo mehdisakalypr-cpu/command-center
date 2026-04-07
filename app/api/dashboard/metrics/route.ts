@@ -73,6 +73,44 @@ async function getFtgMetrics() {
   }
 }
 
+/* ── The Estate metrics (Supabase) ─────────────────────────── */
+async function getEstateMetrics() {
+  try {
+    const [hotelsRes, vouchersRes, alertsRes, membersRes] = await Promise.all([
+      supabase.from("hotels").select("id", { count: "exact", head: true }),
+      supabase.from("vouchers").select("status", { count: "exact" }),
+      supabase.from("alerts").select("read", { count: "exact" }),
+      supabase.from("members").select("id", { count: "exact", head: true }),
+    ]);
+    const unreadAlerts = (alertsRes.data ?? []).filter((a: { read: boolean }) => !a.read).length;
+    const activeVouchers = (vouchersRes.data ?? []).filter((v: { status: string }) => v.status === "active").length;
+    return {
+      hotels: hotelsRes.count ?? 0,
+      vouchers: { total: vouchersRes.count ?? 0, active: activeVouchers },
+      alerts: { total: alertsRes.count ?? 0, unread: unreadAlerts },
+      members: membersRes.count ?? 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/* ── FTG data stats ──────────────────────────────────────────── */
+async function getFtgDataStats() {
+  try {
+    const [countriesRes, oppsRes] = await Promise.all([
+      supabase.from("countries").select("id", { count: "exact", head: true }),
+      supabase.from("opportunities").select("id", { count: "exact", head: true }),
+    ]);
+    return {
+      countries: countriesRes.count ?? 0,
+      opportunities: oppsRes.count ?? 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /* ── Service uptime ping ─────────────────────────────────────── */
 async function pingService(url: string, timeoutMs = 5000): Promise<{ up: boolean; latencyMs: number }> {
   const start = Date.now();
@@ -99,9 +137,11 @@ async function getLastHealthLog() {
 
 /* ── GET /api/dashboard/metrics ─────────────────────────────── */
 export async function GET() {
-  const [vps, ftg, estateStatus, shiftStatus, ftgStatus, healthLog] = await Promise.all([
+  const [vps, ftg, ftgData, estate, estateStatus, shiftStatus, ftgStatus, healthLog] = await Promise.all([
     getVpsMetrics(),
     getFtgMetrics(),
+    getFtgDataStats(),
+    getEstateMetrics(),
     pingService("https://the-estate-fo.netlify.app"),
     pingService("https://consulting-on55melzp-mehdisakalypr-3843s-projects.vercel.app"),
     pingService("https://feel-the-gap.duckdns.org"),
@@ -112,6 +152,8 @@ export async function GET() {
     ts: new Date().toISOString(),
     vps,
     ftg,
+    ftgData,
+    estate,
     services: {
       theEstate: { url: "https://the-estate-fo.netlify.app", ...estateStatus },
       shiftDynamics: { url: "https://consulting-on55melzp-mehdisakalypr-3843s-projects.vercel.app", ...shiftStatus },

@@ -19,6 +19,13 @@ interface Metrics {
     newLast7d: number;
     withCredits: number;
   } | null;
+  ftgData: { countries: number; opportunities: number } | null;
+  estate: {
+    hotels: number;
+    vouchers: { total: number; active: number };
+    alerts: { total: number; unread: number };
+    members: number;
+  } | null;
   services: {
     theEstate: ServiceStatus;
     shiftDynamics: ServiceStatus;
@@ -151,7 +158,7 @@ export default function DashboardPage() {
     </div>
   );
 
-  const { vps, ftg, services } = metrics ?? {};
+  const { vps, ftg, ftgData, estate, services } = metrics ?? {};
   const serviceList = services ? [
     { key: "theEstate",    label: "The Estate",     icon: "🏨", color: "#C9A84C", s: services.theEstate },
     { key: "shiftDynamics",label: "Shift Dynamics",  icon: "⚡", color: "#8B5CF6", s: services.shiftDynamics },
@@ -235,6 +242,12 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
+                {ftgData && (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 18, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,.04)" }}>
+                    <Stat label="Pays en base" value={ftgData.countries} />
+                    <Stat label="Opportunités" value={ftgData.opportunities} color="#C9A84C" />
+                  </div>
+                )}
               </>
             ) : (
               <div style={{ fontSize: ".72rem", color: "#5A6A7A" }}>Données non disponibles</div>
@@ -281,29 +294,25 @@ export default function DashboardPage() {
             )}
           </Card>
 
-          {/* Projets status */}
-          <Card title="Projets" icon="📋">
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {[
-                { name: "The Estate", tech: "HTML/Netlify", repo: "mehdisakalypr-cpu/the-estate", color: "#C9A84C", s: services?.theEstate },
-                { name: "Shift Dynamics", tech: "Next.js/Vercel", repo: "mehdisakalypr-cpu/shift-dynamics", color: "#8B5CF6", s: services?.shiftDynamics },
-                { name: "Feel The Gap", tech: "Next.js/VPS", repo: "—", color: "#3B82F6", s: services?.feelTheGap },
-              ].map(p => (
-                <div key={p.name} style={{ padding: "12px 14px", background: "rgba(255,255,255,.02)", border: "1px solid rgba(255,255,255,.04)", display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 3, height: 36, background: p.color, flexShrink: 0 }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: ".8rem", fontWeight: 600, color: p.color }}>{p.name}</div>
-                    <div style={{ fontSize: ".62rem", color: "#5A6A7A", marginTop: 2 }}>{p.tech} · {p.repo}</div>
-                  </div>
-                  {p.s && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: ".62rem", color: p.s.up ? "#10B981" : "#EF4444" }}>
-                      <StatusDot up={p.s.up} />
-                      {p.s.up ? `${p.s.latencyMs}ms` : "Down"}
-                    </div>
-                  )}
+          {/* The Estate */}
+          <Card title="The Estate" icon="🏨">
+            {estate ? (
+              <>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 16 }}>
+                  <Stat label="Hôtels" value={estate.hotels} />
+                  <Stat label="Membres" value={estate.members} />
+                  <Stat label="Vouchers actifs" value={estate.vouchers.active} color="#10B981" sub={`/ ${estate.vouchers.total} total`} />
+                  <Stat label="Alertes non lues" value={estate.alerts.unread} color={estate.alerts.unread > 0 ? "#F59E0B" : "#10B981"} sub={`/ ${estate.alerts.total} total`} />
                 </div>
-              ))}
-            </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "rgba(201,168,76,.05)", border: "1px solid rgba(201,168,76,.1)" }}>
+                  <StatusDot up={services?.theEstate?.up ?? false} />
+                  <span style={{ fontSize: ".65rem", color: "#9BA8B8" }}>Netlify · the-estate-fo.netlify.app</span>
+                  {services?.theEstate && <span style={{ marginLeft: "auto", fontSize: ".62rem", color: "#5A6A7A" }}>{services.theEstate.latencyMs}ms</span>}
+                </div>
+              </>
+            ) : (
+              <div style={{ fontSize: ".72rem", color: "#5A6A7A" }}>Données non disponibles</div>
+            )}
           </Card>
 
           {/* Actions rapides */}
