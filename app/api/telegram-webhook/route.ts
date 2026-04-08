@@ -41,7 +41,8 @@ export async function POST(req: NextRequest) {
   }
 
   // Accusé de réception Telegram
-  const TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? "8238353364:AAGc0qRAlfqRoPd5EHgQvTlqpXrbDRfLWUA";
+  const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+  if (!TOKEN) return NextResponse.json({ ok: true }); // skip ack if no token configured
   await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
