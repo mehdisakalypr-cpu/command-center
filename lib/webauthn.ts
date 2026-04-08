@@ -14,9 +14,22 @@ import { createClient } from "@supabase/supabase-js";
 // ── Config ──────────────────────────────────────────────────────────────────────
 
 const RP_NAME = "Command Center";
-const RP_ID = process.env.WEBAUTHN_RP_ID || "command-center01.duckdns.org";
-const ORIGIN = process.env.NEXT_PUBLIC_BASE_URL || `https://${RP_ID}`;
 const APP_ID = "command-center";
+
+// Allowed domains for WebAuthn — credentials are per-domain
+const ALLOWED_HOSTS = new Set([
+  "command-center01.duckdns.org",
+  "command-center-lemon-xi.vercel.app",
+  "localhost",
+]);
+
+/** Derive RP_ID and origin from the request Host header */
+export function getWebAuthnConfig(host?: string | null) {
+  const h = (host || "").replace(/:\d+$/, ""); // strip port
+  const rpId = ALLOWED_HOSTS.has(h) ? h : "command-center01.duckdns.org";
+  const origin = h === "localhost" ? `http://${host}` : `https://${rpId}`;
+  return { rpId, origin, rpName: RP_NAME };
+}
 
 // ── Supabase (service role for RLS bypass) ──────────────────────────────────────
 
@@ -87,7 +100,8 @@ function getAndDeleteChallenge(userId: string): string | null {
 
 // ── Registration ─────────────────────────────────────────────────────────────────
 
-export async function startRegistration(userId: string) {
+export async function startRegistration(userId: string, host?: string | null) {
+  const { rpId, rpName } = getWebAuthnConfig(host);
   const existing = await getCredentials(userId);
   const excludeCredentials = existing.map((c) => ({
     id: c.id,
@@ -95,12 +109,12 @@ export async function startRegistration(userId: string) {
   }));
 
   const options = await generateRegistrationOptions({
-    rpName: RP_NAME,
-    rpID: RP_ID,
+    rpName,
+    rpID: rpId,
     userName: userId,
     attestationType: "none",
     authenticatorSelection: {
-      authenticatorAttachment: "platform", // fingerprint, face ID — not USB keys
+      authenticatorAttachment: "platform",
       residentKey: "preferred",
       userVerification: "required",
     },
@@ -114,23 +128,25 @@ export async function startRegistration(userId: string) {
 export async function finishRegistration(
   userId: string,
   response: RegistrationResponseJSON,
-  deviceName?: string
+  deviceName?: string,
+  host?: string | null
 ) {
+  const { rpId, origin } = getWebAuthnConfig(host);
   const expectedChallenge = getAndDeleteChallenge(userId);
   if (!expectedChallenge) throw new Error("Challenge expired or missing");
 
   const verification = await verifyRegistrationResponse({
     response,
     expectedChallenge,
-    expectedOrigin: ORIGIN,
-    expectedRPID: RP_ID,
+    expectedOrigin: origin,
+    expectedRPID: rpId,
   });
 
   if (!verification.verified || !verification.registrationInfo) {
     throw new Error("Registration verification failed");
   }
 
-  const { credential, credentialBackedUp } = verification.registrationInfo;
+  const { credential } = verification.registrationInfo;
 
   await saveCredential({
     id: credential.id,
@@ -146,9 +162,10 @@ export async function finishRegistration(
 
 // ── Authentication ───────────────────────────────────────────────────────────────
 
-export async function startAuthentication(userId: string) {
+export async function startAuthentication(userId: string, host?: string | null) {
+  const { rpId } = getWebAuthnConfig(host);
   const credentials = await getCredentials(userId);
-  if (credentials.length === 0) return null; // no passkeys registered
+  if (credentials.length === 0) return null;
 
   const allowCredentials = credentials.map((c) => ({
     id: c.id,
@@ -156,7 +173,7 @@ export async function startAuthentication(userId: string) {
   }));
 
   const options = await generateAuthenticationOptions({
-    rpID: RP_ID,
+    rpID: rpId,
     allowCredentials,
     userVerification: "required",
   });
@@ -167,8 +184,10 @@ export async function startAuthentication(userId: string) {
 
 export async function finishAuthentication(
   userId: string,
-  response: AuthenticationResponseJSON
+  response: AuthenticationResponseJSON,
+  host?: string | null
 ) {
+  const { rpId, origin } = getWebAuthnConfig(host);
   const expectedChallenge = getAndDeleteChallenge(userId);
   if (!expectedChallenge) throw new Error("Challenge expired or missing");
 
@@ -179,8 +198,8 @@ export async function finishAuthentication(
   const verification = await verifyAuthenticationResponse({
     response,
     expectedChallenge,
-    expectedOrigin: ORIGIN,
-    expectedRPID: RP_ID,
+    expectedOrigin: origin,
+    expectedRPID: rpId,
     credential: {
       id: credential.id,
       publicKey: Buffer.from(credential.public_key, "base64url"),
