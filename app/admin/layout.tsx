@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
 const NAV = [
+  { href: '/admin/overview',  label: 'Overview',   icon: '🏠', desc: 'Vue d\'ensemble' },
   { href: '/admin/dashboard', label: 'Dashboard', icon: '📊', desc: 'Monitoring & VPS' },
   { href: '/admin/cms',       label: 'CMS',       icon: '✏️', desc: '3 sites' },
   { href: '/admin/crm',       label: 'CRM',       icon: '👥', desc: 'Utilisateurs' },
