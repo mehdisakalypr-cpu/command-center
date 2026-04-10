@@ -1,12 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 type Profile = {
   id: string;
@@ -70,13 +64,10 @@ export default function CrmPage() {
   useEffect(() => {
     (async () => {
       try {
-        const { data, error: err } = await supabase
-          .from("profiles")
-          .select("id, email, full_name, role, tier, ai_credits, is_billed, is_admin, is_delegate_admin, is_demo, demo_expires_at, stripe_customer_id, stripe_subscription_id, created_at")
-          .order("created_at", { ascending: false })
-          .limit(200);
-        if (err) throw err;
-        setProfiles(data ?? []);
+        const res = await fetch("/api/admin/profiles?limit=200");
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        setProfiles(data);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Failed to load profiles");
       } finally {

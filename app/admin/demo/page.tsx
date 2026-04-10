@@ -1,12 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 type Profile = {
   id: string;
@@ -67,15 +61,13 @@ export default function DemoPage() {
 
   async function fetchDemoProfiles() {
     try {
-      const emails = DEMO_ACCOUNTS.map(a => a.email);
-      const { data, error: err } = await supabase
-        .from("profiles")
-        .select("id, email, full_name, role, tier, ai_credits")
-        .in("email", emails);
-      if (err) throw err;
+      // Fetch demo profiles by searching for "demo." prefix
+      const res = await fetch("/api/admin/profiles?search=demo.&limit=20");
+      if (!res.ok) throw new Error(await res.text());
+      const data: Profile[] = await res.json();
 
       const result = DEMO_ACCOUNTS.map(acct => {
-        const profile = data?.find(p => p.email === acct.email);
+        const profile = data.find(p => p.email === acct.email);
         return profile
           ? { ...profile, payingTier: acct.payingTier }
           : { id: "", email: acct.email, full_name: null, role: null, tier: null, ai_credits: null, payingTier: acct.payingTier };
@@ -95,14 +87,21 @@ export default function DemoPage() {
     const isExplorer = !currentTier || currentTier === "explorer";
     const newTier = isExplorer ? payingTier : "explorer";
     setSaving(true);
-    const { error: err } = await supabase
-      .from("profiles")
-      .update({ tier: newTier })
-      .eq("id", profileId);
-    if (err) { showToast("Erreur: " + err.message); }
-    else {
-      showToast(`Tier mis a jour: ${newTier}`);
-      await fetchDemoProfiles();
+    try {
+      const res = await fetch("/api/admin/profiles", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: profileId, tier: newTier }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        showToast("Erreur: " + (err.error || "Unknown error"));
+      } else {
+        showToast(`Tier mis a jour: ${newTier}`);
+        await fetchDemoProfiles();
+      }
+    } catch (e: unknown) {
+      showToast("Erreur: " + (e instanceof Error ? e.message : "Unknown error"));
     }
     setSaving(false);
   }

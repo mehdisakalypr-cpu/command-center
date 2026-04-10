@@ -1,23 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 type TableCount = { table: string; count: number; color: string; icon: string };
-type ResearchRun = { id: string; status: string; query: string | null; created_at: string };
 
-const TABLES: { name: string; color: string; icon: string }[] = [
-  { name: "countries", color: "#3B82F6", icon: "🌍" },
+const TABLES: { name: string; color: string; icon: string; statsKey?: string }[] = [
+  { name: "countries", color: "#3B82F6", icon: "🌍", statsKey: "countries" },
   { name: "products", color: "#8B5CF6", icon: "📦" },
-  { name: "opportunities", color: "#C9A84C", icon: "💡" },
-  { name: "business_plans", color: "#10B981", icon: "📋" },
+  { name: "opportunities", color: "#C9A84C", icon: "💡", statsKey: "opportunities" },
+  { name: "business_plans", color: "#10B981", icon: "📋", statsKey: "businessPlans" },
   { name: "trade_flows", color: "#F59E0B", icon: "🔄" },
-  { name: "reports", color: "#EF4444", icon: "📊" },
+  { name: "reports", color: "#EF4444", icon: "📊", statsKey: "reports" },
 ];
 
 const S = {
@@ -36,49 +29,26 @@ const S = {
   cardLabel: { fontSize: ".6rem", color: "#5A6A7A", textTransform: "uppercase" as const, letterSpacing: ".1em" },
   section: { marginBottom: 24 },
   sectionTitle: { fontSize: ".68rem", fontWeight: 600, color: "#E8E0D0", marginBottom: 12, letterSpacing: ".04em" },
-  runRow: { background: "#0A1A2E", border: "1px solid rgba(255,255,255,.06)", padding: "12px 16px", marginBottom: 6, display: "flex", alignItems: "center", gap: 12 } as React.CSSProperties,
-  badge: (color: string) => ({ fontSize: ".58rem", padding: "2px 8px", background: `${color}20`, color, letterSpacing: ".06em", borderRadius: 3, display: "inline-block" } as React.CSSProperties),
 };
 
 export default function DataPage() {
   const [counts, setCounts] = useState<TableCount[]>([]);
-  const [runs, setRuns] = useState<ResearchRun[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     (async () => {
       try {
-        const results: TableCount[] = [];
+        const res = await fetch("/api/admin/stats");
+        if (!res.ok) throw new Error(await res.text());
+        const stats = await res.json();
 
-        for (const t of TABLES) {
-          try {
-            const { count, error: err } = await supabase
-              .from(t.name)
-              .select("*", { count: "exact", head: true });
-            if (!err) {
-              results.push({ table: t.name, count: count ?? 0, color: t.color, icon: t.icon });
-            } else {
-              results.push({ table: t.name, count: -1, color: t.color, icon: t.icon });
-            }
-          } catch {
-            results.push({ table: t.name, count: -1, color: t.color, icon: t.icon });
-          }
-        }
+        const results: TableCount[] = TABLES.map(t => {
+          const count = t.statsKey && stats[t.statsKey] != null ? stats[t.statsKey] : -1;
+          return { table: t.name, count, color: t.color, icon: t.icon };
+        });
 
         setCounts(results);
-
-        // Try to fetch research_runs (may not exist)
-        try {
-          const { data } = await supabase
-            .from("research_runs")
-            .select("id, status, query, created_at")
-            .order("created_at", { ascending: false })
-            .limit(5);
-          if (data) setRuns(data);
-        } catch {
-          // table may not exist, ignore
-        }
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Failed to load data");
       } finally {
@@ -118,27 +88,6 @@ export default function DataPage() {
                 ))}
               </div>
             </div>
-
-            {/* Research runs */}
-            {runs.length > 0 && (
-              <div style={S.section}>
-                <div style={S.sectionTitle}>Derniers research runs</div>
-                {runs.map(r => {
-                  const statusColor = r.status === "completed" ? "#10B981" : r.status === "running" ? "#3B82F6" : r.status === "failed" ? "#EF4444" : "#F59E0B";
-                  return (
-                    <div key={r.id} style={S.runRow}>
-                      <span style={S.badge(statusColor)}>{r.status}</span>
-                      <span style={{ fontSize: ".72rem", color: "#E8E0D0", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {r.query || "-"}
-                      </span>
-                      <span style={{ fontSize: ".58rem", color: "#5A6A7A" }}>
-                        {new Date(r.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </>
         )}
       </div>

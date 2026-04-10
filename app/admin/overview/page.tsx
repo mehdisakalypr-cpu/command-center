@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 type RecentProfile = {
   id: string;
@@ -80,11 +74,6 @@ export default function OverviewPage() {
   const [totalBPs, setTotalBPs] = useState(0);
   const [totalReports, setTotalReports] = useState(0);
 
-  const [countriesWithReports, setCountriesWithReports] = useState(0);
-  const [countriesWithBPs, setCountriesWithBPs] = useState(0);
-  const [countriesWithOpps, setCountriesWithOpps] = useState(0);
-  const [countryTotal, setCountryTotal] = useState(115);
-
   const [recentProfiles, setRecentProfiles] = useState<RecentProfile[]>([]);
   const [tierStats, setTierStats] = useState<TierStat[]>([]);
 
@@ -94,72 +83,31 @@ export default function OverviewPage() {
   useEffect(() => {
     (async () => {
       try {
-        // Profiles
-        const { data: profiles, error: pErr } = await supabase
-          .from("profiles")
-          .select("id, email, full_name, tier, created_at")
-          .order("created_at", { ascending: false });
-        if (pErr) throw pErr;
-        const all = profiles ?? [];
-        setTotalUsers(all.length);
-        setRecentProfiles(all.slice(0, 10));
+        // Fetch stats and recent profiles in parallel
+        const [statsRes, profilesRes] = await Promise.all([
+          fetch("/api/admin/stats"),
+          fetch("/api/admin/profiles?limit=10"),
+        ]);
 
-        // Tier stats
-        const tierMap: Record<string, number> = {};
-        all.forEach(p => {
-          const t = p.tier || "explorer";
-          tierMap[t] = (tierMap[t] || 0) + 1;
-        });
-        const total = all.length || 1;
-        setTierStats(
-          Object.entries(tierMap)
-            .map(([tier, count]) => ({ tier, count, pct: Math.round((count / total) * 100) }))
-            .sort((a, b) => b.count - a.count)
-        );
+        if (!statsRes.ok) throw new Error(await statsRes.text());
+        if (!profilesRes.ok) throw new Error(await profilesRes.text());
 
-        // Countries
-        try {
-          const { count: cCount } = await supabase.from("countries").select("*", { count: "exact", head: true });
-          setTotalCountries(cCount ?? 0);
-          if (cCount) setCountryTotal(cCount);
-        } catch { /* table may not exist */ }
+        const stats = await statsRes.json();
+        const profiles: RecentProfile[] = await profilesRes.json();
 
-        // Opportunities
-        try {
-          const { count: oCount } = await supabase.from("opportunities").select("*", { count: "exact", head: true });
-          setTotalOpportunities(oCount ?? 0);
+        setTotalUsers(stats.total);
+        setTotalCountries(stats.countries);
+        setTotalOpportunities(stats.opportunities);
+        setTotalBPs(stats.businessPlans);
+        setTotalReports(stats.reports);
+        setRecentProfiles(profiles);
 
-          // Countries with opportunities
-          const { data: opps } = await supabase.from("opportunities").select("country_id");
-          if (opps) {
-            const unique = new Set(opps.map(o => o.country_id));
-            setCountriesWithOpps(unique.size);
-          }
-        } catch { /* table may not exist */ }
-
-        // Business Plans
-        try {
-          const { count: bpCount } = await supabase.from("business_plans").select("*", { count: "exact", head: true });
-          setTotalBPs(bpCount ?? 0);
-
-          const { data: bps } = await supabase.from("business_plans").select("country_id");
-          if (bps) {
-            const unique = new Set(bps.map(b => b.country_id));
-            setCountriesWithBPs(unique.size);
-          }
-        } catch { /* table may not exist */ }
-
-        // Reports
-        try {
-          const { count: rCount } = await supabase.from("reports").select("*", { count: "exact", head: true });
-          setTotalReports(rCount ?? 0);
-
-          const { data: reports } = await supabase.from("reports").select("country_id");
-          if (reports) {
-            const unique = new Set(reports.map(r => r.country_id));
-            setCountriesWithReports(unique.size);
-          }
-        } catch { /* table may not exist */ }
+        // Build tier stats from tiers object
+        const total = stats.total || 1;
+        const tierEntries = Object.entries(stats.tiers as Record<string, number>)
+          .map(([tier, count]) => ({ tier, count, pct: Math.round((count / total) * 100) }))
+          .sort((a, b) => b.count - a.count);
+        setTierStats(tierEntries);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Failed to load overview");
       } finally {
@@ -169,6 +117,7 @@ export default function OverviewPage() {
   }, []);
 
   const maxTier = Math.max(...tierStats.map(t => t.count), 1);
+  const countryTotal = totalCountries || 115;
 
   return (
     <div style={S.page}>
@@ -216,28 +165,28 @@ export default function OverviewPage() {
               <div style={S.progressContainer}>
                 <div style={S.progressLabel}>
                   <span style={{ color: "#E8E0D0" }}>Pays avec rapports</span>
-                  <span style={{ color: "#C9A84C" }}>{countriesWithReports}/{countryTotal}</span>
+                  <span style={{ color: "#C9A84C" }}>{totalReports > 0 ? "oui" : "0"}/{countryTotal}</span>
                 </div>
                 <div style={S.progressTrack}>
-                  <div style={S.progressFill((countriesWithReports / countryTotal) * 100, "#F59E0B")} />
+                  <div style={S.progressFill(totalReports > 0 ? Math.min((totalReports / countryTotal) * 100, 100) : 0, "#F59E0B")} />
                 </div>
               </div>
               <div style={S.progressContainer}>
                 <div style={S.progressLabel}>
                   <span style={{ color: "#E8E0D0" }}>Pays avec business plans</span>
-                  <span style={{ color: "#C9A84C" }}>{countriesWithBPs}/{countryTotal}</span>
+                  <span style={{ color: "#C9A84C" }}>{totalBPs > 0 ? "oui" : "0"}/{countryTotal}</span>
                 </div>
                 <div style={S.progressTrack}>
-                  <div style={S.progressFill((countriesWithBPs / countryTotal) * 100, "#8B5CF6")} />
+                  <div style={S.progressFill(totalBPs > 0 ? Math.min((totalBPs / countryTotal) * 100, 100) : 0, "#8B5CF6")} />
                 </div>
               </div>
               <div style={S.progressContainer}>
                 <div style={S.progressLabel}>
                   <span style={{ color: "#E8E0D0" }}>Pays avec opportunites</span>
-                  <span style={{ color: "#C9A84C" }}>{countriesWithOpps}/{countryTotal}</span>
+                  <span style={{ color: "#C9A84C" }}>{totalOpportunities > 0 ? "oui" : "0"}/{countryTotal}</span>
                 </div>
                 <div style={S.progressTrack}>
-                  <div style={S.progressFill((countriesWithOpps / countryTotal) * 100, "#10B981")} />
+                  <div style={S.progressFill(totalOpportunities > 0 ? Math.min((totalOpportunities / countryTotal) * 100, 100) : 0, "#10B981")} />
                 </div>
               </div>
             </div>

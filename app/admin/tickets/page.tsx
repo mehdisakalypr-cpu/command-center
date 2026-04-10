@@ -1,12 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 type Ticket = {
   id: string;
@@ -60,12 +54,10 @@ export default function TicketsPage() {
 
   async function fetchTickets() {
     try {
-      const { data, error: err } = await supabase
-        .from("refund_tickets")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (err) throw err;
-      setTickets(data ?? []);
+      const res = await fetch("/api/admin/tickets");
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      setTickets(data);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to load tickets");
     } finally {
@@ -78,14 +70,21 @@ export default function TicketsPage() {
   async function updateStatus(ticketId: string, newStatus: string) {
     setSaving(true);
     setOpenDropdown(null);
-    const { error: err } = await supabase
-      .from("refund_tickets")
-      .update({ status: newStatus })
-      .eq("id", ticketId);
-    if (err) { showToast("Erreur: " + err.message); }
-    else {
-      showToast(`Ticket mis a jour: ${newStatus}`);
-      await fetchTickets();
+    try {
+      const res = await fetch("/api/admin/tickets", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: ticketId, status: newStatus }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        showToast("Erreur: " + (err.error || "Unknown error"));
+      } else {
+        showToast(`Ticket mis a jour: ${newStatus}`);
+        await fetchTickets();
+      }
+    } catch (e: unknown) {
+      showToast("Erreur: " + (e instanceof Error ? e.message : "Unknown error"));
     }
     setSaving(false);
   }
