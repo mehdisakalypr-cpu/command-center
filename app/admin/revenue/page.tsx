@@ -458,7 +458,7 @@ export default function RevenuePage() {
           </Card>
 
           {/* ─── Row 5: Churn & Retention ─── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
             {/* Churn chart */}
             <Card>
               <SectionTitle>Churn mensuel</SectionTitle>
@@ -513,7 +513,7 @@ export default function RevenuePage() {
           <Card>
             <SectionTitle>Transactions recentes</SectionTitle>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 500 }}>
                 <thead>
                   <tr>
                     {['Date', 'Client', 'Type', 'Plan', 'Montant', 'Status'].map(h => (
@@ -573,27 +573,27 @@ export default function RevenuePage() {
           {/* ─── Row 7: AI Credits Revenue ─── */}
           <Card>
             <SectionTitle>Revenus AI Credits</SectionTitle>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
 
               {/* Credits breakdown */}
-              <div>
+              <div style={{ minWidth: 0, overflow: 'hidden' }}>
                 <div style={{ color: C.dim, fontSize: 11, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Total credits vendus ce mois</div>
-                <div style={{ color: C.gold, fontSize: 28, fontWeight: 700, marginBottom: 16 }}>{eur(AI_CREDITS_TOTAL)}</div>
+                <div style={{ color: C.gold, fontSize: 24, fontWeight: 700, marginBottom: 12 }}>{eur(AI_CREDITS_TOTAL)}</div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {AI_CREDIT_PACKS.map(p => (
-                    <div key={p.pack} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div key={p.pack} style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       <span style={{
-                        fontSize: 12,
+                        fontSize: 11,
                         color: C.text,
                         fontWeight: 600,
-                        width: 44,
+                        width: 36,
                         textAlign: 'right',
                         flexShrink: 0,
                       }}>
                         {p.pack}
                       </span>
-                      <div style={{ flex: 1, height: 8, background: C.cardAlt, borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ flex: 1, minWidth: 40, height: 8, background: C.cardAlt, borderRadius: 4, overflow: 'hidden' }}>
                         <div style={{
                           height: '100%',
                           width: `${(p.total / AI_CREDITS_TOTAL) * 100}%`,
@@ -602,10 +602,10 @@ export default function RevenuePage() {
                           transition: 'width .6s ease',
                         }} />
                       </div>
-                      <span style={{ color: C.muted, fontSize: 11, width: 80, flexShrink: 0 }}>
-                        {p.count} achats
+                      <span style={{ color: C.muted, fontSize: 10, flexShrink: 0 }}>
+                        {p.count}×
                       </span>
-                      <span style={{ color: C.text, fontSize: 12, fontWeight: 600, width: 52, textAlign: 'right', flexShrink: 0 }}>
+                      <span style={{ color: C.text, fontSize: 11, fontWeight: 600, flexShrink: 0 }}>
                         {eur(p.total)}
                       </span>
                     </div>
