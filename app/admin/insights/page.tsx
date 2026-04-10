@@ -39,6 +39,14 @@ export default function InsightsPage() {
   const [speakingChapter, setSpeakingChapter] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     fetchReports();
@@ -272,28 +280,46 @@ export default function InsightsPage() {
         </button>
       </div>
 
-      <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
-        {/* Chapter nav (desktop) */}
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", flex: 1, minHeight: 0 }}>
+        {/* Chapter nav */}
         {activeReport.chapters.length > 0 && (
-          <div style={{ width: 200, borderRight: C.borderLight, padding: "12px 8px", overflowY: "auto", flexShrink: 0 }}>
-            <div style={{ fontSize: 10, color: C.dim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 8, padding: "0 8px" }}>Chapitres</div>
-            {activeReport.chapters.map((ch, i) => (
-              <button key={ch.anchor} onClick={() => scrollToChapter(ch.anchor)} style={{
-                display: "block", width: "100%", textAlign: "left", padding: "6px 8px",
-                fontSize: 11, color: activeChapter === ch.anchor ? C.gold : C.muted,
-                background: activeChapter === ch.anchor ? "rgba(201,168,76,.08)" : "transparent",
-                border: "none", cursor: "pointer", fontFamily: "inherit", borderRadius: 4,
-                lineHeight: 1.4,
-              }}>
-                <span style={{ color: C.dim, marginRight: 6 }}>{i + 1}.</span>
-                {ch.title}
-              </button>
-            ))}
-          </div>
+          isMobile ? (
+            /* Mobile: horizontal scrollable pills */
+            <div style={{ display: "flex", gap: 6, padding: "8px 16px", overflowX: "auto", flexShrink: 0, borderBottom: C.borderLight }}>
+              {activeReport.chapters.map((ch, i) => (
+                <button key={ch.anchor} onClick={() => scrollToChapter(ch.anchor)} style={{
+                  padding: "6px 12px", fontSize: 10, whiteSpace: "nowrap",
+                  color: activeChapter === ch.anchor ? C.gold : C.muted,
+                  background: activeChapter === ch.anchor ? "rgba(201,168,76,.1)" : "rgba(255,255,255,.03)",
+                  border: activeChapter === ch.anchor ? "1px solid rgba(201,168,76,.25)" : "1px solid rgba(255,255,255,.06)",
+                  borderRadius: 20, cursor: "pointer", fontFamily: "inherit", flexShrink: 0,
+                }}>
+                  {i + 1}. {ch.title.length > 20 ? ch.title.slice(0, 20) + "…" : ch.title}
+                </button>
+              ))}
+            </div>
+          ) : (
+            /* Desktop: sidebar */
+            <div style={{ width: 200, borderRight: C.borderLight, padding: "12px 8px", overflowY: "auto", flexShrink: 0 }}>
+              <div style={{ fontSize: 10, color: C.dim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 8, padding: "0 8px" }}>Chapitres</div>
+              {activeReport.chapters.map((ch, i) => (
+                <button key={ch.anchor} onClick={() => scrollToChapter(ch.anchor)} style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "6px 8px",
+                  fontSize: 11, color: activeChapter === ch.anchor ? C.gold : C.muted,
+                  background: activeChapter === ch.anchor ? "rgba(201,168,76,.08)" : "transparent",
+                  border: "none", cursor: "pointer", fontFamily: "inherit", borderRadius: 4,
+                  lineHeight: 1.4,
+                }}>
+                  <span style={{ color: C.dim, marginRight: 6 }}>{i + 1}.</span>
+                  {ch.title}
+                </button>
+              ))}
+            </div>
+          )
         )}
 
         {/* Content */}
-        <div ref={contentRef} style={{ flex: 1, overflow: "auto", padding: "20px 24px", lineHeight: 1.6 }}>
+        <div ref={contentRef} style={{ flex: 1, overflow: "auto", padding: isMobile ? "16px" : "20px 24px", lineHeight: 1.6 }}>
           <div style={{ fontSize: 10, color: C.dim, marginBottom: 16 }}>
             Mis à jour le {new Date(activeReport.updated_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" })}
             {" · "}{Math.ceil(activeReport.content.length / 1500)} min de lecture
