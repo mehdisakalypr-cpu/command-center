@@ -11,7 +11,8 @@ const NAV = [
   { href: '/admin/analytics', label: 'Analytics',  icon: '📈', desc: 'Events & funnels' },
   { href: '/admin/plans',     label: 'Plans',      icon: '💳', desc: 'Tiers & billing' },
   { href: '/admin/tickets',   label: 'Tickets',    icon: '🎫', desc: 'Refunds' },
-  { href: '/admin/demo',      label: 'Démo',       icon: '🎭', desc: 'Comptes test' },
+  { href: '/admin/demo',          label: 'Démo',       icon: '🎭', desc: 'Comptes test' },
+  { href: '/admin/demo-parcours', label: 'Parcours',   icon: '🎯', desc: 'Tours guidés' },
   { href: '/admin/data',      label: 'Data',       icon: '🗄️', desc: 'Sources & seed' },
 ]
 
