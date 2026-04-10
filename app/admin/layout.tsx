@@ -16,6 +16,7 @@ const NAV = [
   { href: '/admin/demo',          label: 'Démo',       icon: '🎭', desc: 'Comptes test' },
   { href: '/admin/demo-parcours', label: 'Parcours',   icon: '🎯', desc: 'Tours guidés' },
   { href: '/admin/data',          label: 'Data',       icon: '🗄️', desc: 'Sources & seed' },
+  { href: '/admin/insights',      label: 'Insights',   icon: '🧠', desc: 'Stratégie & benchmark' },
 ]
 
 const SITES = [
