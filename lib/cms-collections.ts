@@ -71,6 +71,71 @@ export const CMS_SITES: SiteDef[] = [
           { slug: "plan_premium_features", label: "Premium — Features", field_type: "json", default_fr: '["Réseau influenceurs","Geo-matching","Dashboard affiliation"]', default_en: '["Influencer network","Geo-matching","Affiliate dashboard"]' },
         ],
       },
+      {
+        key: "auth", label: "Authentification",
+        slots: [
+          { slug: "login_title", label: "Titre login", field_type: "text", default_fr: "Bon retour", default_en: "Welcome back" },
+          { slug: "login_subtitle", label: "Sous-titre login", field_type: "text", default_fr: "Connectez-vous pour accéder à votre intelligence commerciale", default_en: "Sign in to access your trade intelligence" },
+          { slug: "register_title", label: "Titre inscription", field_type: "text", default_fr: "Créez votre compte", default_en: "Create your account" },
+          { slug: "register_subtitle", label: "Sous-titre inscription", field_type: "text", default_fr: "Commencez à explorer les opportunités mondiales gratuitement", default_en: "Start exploring global opportunities for free" },
+        ],
+      },
+      {
+        key: "map", label: "Carte interactive",
+        slots: [
+          { slug: "filter_label", label: "Label filtre", field_type: "text", default_fr: "Filtre", default_en: "Filter" },
+          { slug: "countries_tracked", label: "Pays suivis", field_type: "text", default_fr: "pays suivis", default_en: "countries tracked" },
+          { slug: "opportunities_label", label: "Opportunités", field_type: "text", default_fr: "opportunités identifiées", default_en: "identified opportunities" },
+        ],
+      },
+      {
+        key: "country", label: "Fiche pays",
+        slots: [
+          { slug: "advisor_title", label: "Titre AI Advisor", field_type: "text", default_fr: "AI Trade Advisor", default_en: "AI Trade Advisor" },
+          { slug: "advisor_desc", label: "Description Advisor", field_type: "richtext", default_fr: "Posez une question sur ce marché et recevez une analyse personnalisée.", default_en: "Ask a question about this market and get a personalized analysis." },
+          { slug: "plan_title", label: "Titre Business Plan", field_type: "text", default_fr: "Business Plan IA", default_en: "AI Business Plan" },
+        ],
+      },
+      {
+        key: "reports", label: "Rapports",
+        slots: [
+          { slug: "page_title", label: "Titre page", field_type: "text", default_fr: "Rapports pays", default_en: "Country Reports" },
+          { slug: "empty_state", label: "État vide", field_type: "text", default_fr: "Aucun rapport disponible. Explorez la carte pour générer des rapports.", default_en: "No reports available. Explore the map to generate reports." },
+        ],
+      },
+      {
+        key: "farming", label: "Opportunity Farming",
+        slots: [
+          { slug: "page_title", label: "Titre page", field_type: "text", default_fr: "Opportunity Farming", default_en: "Opportunity Farming" },
+          { slug: "scan_label", label: "Label scan", field_type: "text", default_fr: "Scanner un produit", default_en: "Scan a product" },
+          { slug: "scan_desc", label: "Description scan", field_type: "richtext", default_fr: "Décrivez votre produit et l'IA identifie les marchés idéaux, les typologies de clients et les canaux de distribution.", default_en: "Describe your product and AI identifies ideal markets, customer profiles and distribution channels." },
+        ],
+      },
+      {
+        key: "influencer", label: "Espace influenceur",
+        slots: [
+          { slug: "catalog_title", label: "Titre catalogue", field_type: "text", default_fr: "Catalogue produits", default_en: "Product Catalog" },
+          { slug: "catalog_desc", label: "Description catalogue", field_type: "text", default_fr: "Parcourez les produits et générez vos liens affiliés.", default_en: "Browse products and generate your affiliate links." },
+          { slug: "favorites_title", label: "Titre favoris", field_type: "text", default_fr: "Mes favoris", default_en: "My Favorites" },
+          { slug: "dashboard_title", label: "Titre dashboard", field_type: "text", default_fr: "Dashboard Influenceur", default_en: "Influencer Dashboard" },
+        ],
+      },
+      {
+        key: "seller", label: "Espace vendeur",
+        slots: [
+          { slug: "products_title", label: "Titre produits", field_type: "text", default_fr: "Mes produits", default_en: "My Products" },
+          { slug: "products_desc", label: "Description", field_type: "text", default_fr: "Gérez vos produits et offres d'affiliation.", default_en: "Manage your products and affiliate offers." },
+        ],
+      },
+      {
+        key: "funding", label: "Financement",
+        slots: [
+          { slug: "scenarios_title", label: "Titre scénarios", field_type: "text", default_fr: "Scénarios de financement", default_en: "Funding Scenarios" },
+          { slug: "scenarios_desc", label: "Description", field_type: "richtext", default_fr: "Choisissez entre financement bancaire et investissement en equity.", default_en: "Choose between bank financing and equity investment." },
+          { slug: "finance_title", label: "Titre espace financeur", field_type: "text", default_fr: "Espace Financeur", default_en: "Funder Space" },
+          { slug: "invest_title", label: "Titre espace investisseur", field_type: "text", default_fr: "Espace Investisseur", default_en: "Investor Space" },
+        ],
+      },
     ],
   },
   {
@@ -97,6 +162,45 @@ export const CMS_SITES: SiteDef[] = [
           { slug: "quote", label: "Citation", field_type: "richtext", default_fr: "La technologie n'a de valeur que lorsqu'elle génère du revenu mesurable.", default_en: "Technology is only as valuable as the measurable revenue it generates." },
         ],
       },
+      {
+        key: "gaming", label: "Vertical Gaming",
+        slots: [
+          { slug: "hero_title", label: "Titre hero", field_type: "text", default_fr: "Gaming & Esports", default_en: "Gaming & Esports" },
+          { slug: "hero_desc", label: "Description", field_type: "richtext", default_fr: "Activation esports, gaming mobile, monetisation — 17 marchés africains couverts.", default_en: "Esports activation, mobile gaming, monetization — 17 African markets covered." },
+          { slug: "cta", label: "CTA", field_type: "text", default_fr: "Réserver un audit stratégique", default_en: "Book a Strategic Audit" },
+        ],
+      },
+      {
+        key: "market_entry", label: "Vertical Market Entry",
+        slots: [
+          { slug: "hero_title", label: "Titre hero", field_type: "text", default_fr: "Expansion internationale", default_en: "International Expansion" },
+          { slug: "hero_desc", label: "Description", field_type: "richtext", default_fr: "De l'étude de marché au premier client, nous structurons votre entrée.", default_en: "From market study to first client, we structure your entry." },
+          { slug: "cta", label: "CTA", field_type: "text", default_fr: "Cartographier votre marché", default_en: "Map your market" },
+        ],
+      },
+      {
+        key: "deep_tech", label: "Vertical Deep Tech",
+        slots: [
+          { slug: "hero_title", label: "Titre hero", field_type: "text", default_fr: "Deep Tech", default_en: "Deep Tech" },
+          { slug: "hero_desc", label: "Description", field_type: "richtext", default_fr: "IA, blockchain, IoT — nous transformons l'innovation en revenus.", default_en: "AI, blockchain, IoT — we transform innovation into revenue." },
+          { slug: "cta", label: "CTA", field_type: "text", default_fr: "Réserver un audit", default_en: "Book an Audit" },
+        ],
+      },
+      {
+        key: "alliances", label: "Vertical Alliances",
+        slots: [
+          { slug: "hero_title", label: "Titre hero", field_type: "text", default_fr: "Alliances Stratégiques", default_en: "Strategic Alliances" },
+          { slug: "hero_desc", label: "Description", field_type: "richtext", default_fr: "Joint-ventures, partenariats, structuration d'alliances durables.", default_en: "Joint ventures, partnerships, structuring lasting alliances." },
+          { slug: "cta", label: "CTA", field_type: "text", default_fr: "Structurer une alliance", default_en: "Structure an Alliance" },
+        ],
+      },
+      {
+        key: "booking", label: "Booking",
+        slots: [
+          { slug: "page_title", label: "Titre", field_type: "text", default_fr: "Réserver une consultation", default_en: "Book a Consultation" },
+          { slug: "page_desc", label: "Description", field_type: "richtext", default_fr: "Choisissez un créneau pour un appel stratégique de 30 ou 60 minutes.", default_en: "Choose a slot for a 30 or 60-minute strategic call." },
+        ],
+      },
     ],
   },
   {
@@ -108,6 +212,20 @@ export const CMS_SITES: SiteDef[] = [
           { slug: "services", label: "Services monitorés", field_type: "json", default_fr: '[{"name":"The Estate","icon":"🏨","color":"#C9A84C"},{"name":"Shift Dynamics","icon":"⚡","color":"#8B5CF6"},{"name":"Feel The Gap","icon":"🌍","color":"#3B82F6"},{"name":"Command Center","icon":"🎙️","color":"#10B981"}]', default_en: '[{"name":"The Estate","icon":"🏨","color":"#C9A84C"},{"name":"Shift Dynamics","icon":"⚡","color":"#8B5CF6"},{"name":"Feel The Gap","icon":"🌍","color":"#3B82F6"},{"name":"Command Center","icon":"🎙️","color":"#10B981"}]' },
           { slug: "tier_labels", label: "Labels des tiers", field_type: "json", default_fr: '{"explorer":"Explorer","data":"Data","strategy":"Strategy","premium":"Premium","enterprise":"Enterprise"}', default_en: '{"explorer":"Explorer","data":"Data","strategy":"Strategy","premium":"Premium","enterprise":"Enterprise"}' },
           { slug: "tier_colors", label: "Couleurs des tiers", field_type: "json", default_fr: '{"explorer":"#5A6A7A","data":"#3B82F6","strategy":"#8B5CF6","premium":"#C9A84C","enterprise":"#10B981"}', default_en: '{"explorer":"#5A6A7A","data":"#3B82F6","strategy":"#8B5CF6","premium":"#C9A84C","enterprise":"#10B981"}' },
+        ],
+      },
+      {
+        key: "voice", label: "Interface Aria",
+        slots: [
+          { slug: "welcome_text", label: "Texte d'accueil", field_type: "text", default_fr: "Maintenez l'orbe pour parler", default_en: "Hold the orb to speak" },
+          { slug: "welcome_sub", label: "Sous-texte", field_type: "text", default_fr: "Relâchez pour envoyer", default_en: "Release to send" },
+        ],
+      },
+      {
+        key: "login", label: "Page login",
+        slots: [
+          { slug: "title", label: "Titre", field_type: "text", default_fr: "Accès restreint", default_en: "Restricted Access" },
+          { slug: "subtitle", label: "Sous-titre", field_type: "text", default_fr: "Command Center · Espace administrateur", default_en: "Command Center · Admin Space" },
         ],
       },
     ],
