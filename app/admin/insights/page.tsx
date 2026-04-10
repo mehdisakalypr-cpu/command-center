@@ -13,6 +13,16 @@ type Report = {
   created_at: string;
   updated_at: string;
 };
+type Action = {
+  id: string;
+  report_id: string;
+  label: string;
+  assignee: "agent" | "human";
+  status: "pending" | "in_progress" | "done";
+  palier: number | null;
+  sort_order: number;
+  completed_at: string | null;
+};
 
 const C = {
   bg: "#040D1C", header: "#071425", card: "#0A1A2E", cardAlt: "rgba(255,255,255,.03)",
@@ -40,6 +50,8 @@ export default function InsightsPage() {
   const contentRef = useRef<HTMLDivElement>(null);
   const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [actions, setActions] = useState<Action[]>([]);
+  const [detailTab, setDetailTab] = useState<"content" | "actions">("content");
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -64,7 +76,24 @@ export default function InsightsPage() {
   function openReport(r: Report) {
     setActiveReport(r);
     setActiveChapter(null);
+    setDetailTab("content");
     stopSpeaking();
+    fetchActions(r.id);
+  }
+
+  async function fetchActions(reportId: string) {
+    const res = await fetch(`/api/admin/insights/actions?report_id=${reportId}`);
+    const data = await res.json();
+    if (Array.isArray(data)) setActions(data);
+  }
+
+  async function toggleAction(actionId: string) {
+    await fetch("/api/admin/insights/actions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: actionId, toggle: true }),
+    });
+    if (activeReport) fetchActions(activeReport.id);
   }
 
   function scrollToChapter(anchor: string) {
@@ -280,6 +309,131 @@ export default function InsightsPage() {
         </button>
       </div>
 
+      {/* Tabs: Content / Actions */}
+      {(() => {
+        const done = actions.filter(a => a.status === "done").length;
+        const total = actions.length;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        const humanTodo = actions.filter(a => a.assignee === "human" && a.status !== "done");
+        return (
+          <div style={{ background: C.header, borderBottom: C.borderLight, padding: "0 20px", display: "flex", alignItems: "center", gap: 0, flexShrink: 0 }}>
+            <button onClick={() => setDetailTab("content")} style={{
+              padding: "10px 16px", fontSize: 12, fontFamily: "inherit", cursor: "pointer",
+              color: detailTab === "content" ? C.gold : C.muted,
+              background: "transparent", border: "none",
+              borderBottom: detailTab === "content" ? "2px solid " + C.gold : "2px solid transparent",
+            }}>Contenu</button>
+            <button onClick={() => setDetailTab("actions")} style={{
+              padding: "10px 16px", fontSize: 12, fontFamily: "inherit", cursor: "pointer",
+              color: detailTab === "actions" ? C.gold : C.muted,
+              background: "transparent", border: "none",
+              borderBottom: detailTab === "actions" ? "2px solid " + C.gold : "2px solid transparent",
+              display: "flex", alignItems: "center", gap: 6,
+            }}>
+              Actions
+              {total > 0 && (
+                <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: pct === 100 ? "rgba(16,185,129,.15)" : "rgba(201,168,76,.12)", color: pct === 100 ? "#10B981" : C.gold }}>
+                  {done}/{total}
+                </span>
+              )}
+            </button>
+            {total > 0 && (
+              <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ width: 80, height: 4, background: "rgba(255,255,255,.06)", borderRadius: 2, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${pct}%`, background: pct === 100 ? "#10B981" : C.gold, borderRadius: 2, transition: "width .3s" }} />
+                </div>
+                <span style={{ fontSize: 10, color: C.dim }}>{pct}%</span>
+                {humanTodo.length > 0 && (
+                  <span style={{ fontSize: 9, padding: "2px 6px", background: "rgba(239,68,68,.1)", color: "#EF4444", borderRadius: 3 }}>
+                    {humanTodo.length} action{humanTodo.length > 1 ? "s" : ""} humaine{humanTodo.length > 1 ? "s" : ""}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* Actions tab */}
+      {detailTab === "actions" && (
+        <div style={{ flex: 1, overflow: "auto", padding: isMobile ? "16px" : "20px 24px" }}>
+          {actions.length === 0 ? (
+            <div style={{ color: C.dim, fontSize: 13, padding: 40, textAlign: "center" }}>
+              Aucune action definie pour ce rapport.
+              <br /><span style={{ fontSize: 11 }}>Les actions sont generees automatiquement avec chaque nouveau palier.</span>
+            </div>
+          ) : (
+            <>
+              {/* Human actions first */}
+              {actions.filter(a => a.assignee === "human").length > 0 && (
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#EF4444", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 16 }}>👤</span> Vos actions requises
+                  </div>
+                  {actions.filter(a => a.assignee === "human").map(a => (
+                    <div key={a.id} onClick={() => toggleAction(a.id)} style={{
+                      display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", marginBottom: 4,
+                      background: a.status === "done" ? "rgba(16,185,129,.05)" : "rgba(239,68,68,.05)",
+                      border: `1px solid ${a.status === "done" ? "rgba(16,185,129,.15)" : "rgba(239,68,68,.15)"}`,
+                      cursor: "pointer", transition: "all .15s",
+                    }}>
+                      <div style={{
+                        width: 20, height: 20, borderRadius: 4, flexShrink: 0,
+                        border: a.status === "done" ? "2px solid #10B981" : "2px solid rgba(239,68,68,.4)",
+                        background: a.status === "done" ? "#10B981" : "transparent",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: "#fff", fontSize: 12,
+                      }}>
+                        {a.status === "done" ? "✓" : ""}
+                      </div>
+                      <span style={{ fontSize: 13, color: a.status === "done" ? C.dim : C.text, textDecoration: a.status === "done" ? "line-through" : "none", flex: 1 }}>
+                        {a.label}
+                      </span>
+                      <span style={{ fontSize: 9, padding: "2px 6px", background: "rgba(239,68,68,.1)", color: "#EF4444", borderRadius: 3, flexShrink: 0 }}>HUMAIN</span>
+                      {a.palier && <span style={{ fontSize: 9, color: C.dim, flexShrink: 0 }}>P{a.palier}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Agent actions */}
+              {actions.filter(a => a.assignee === "agent").length > 0 && (
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 16 }}>🤖</span> Actions agents IA
+                  </div>
+                  {actions.filter(a => a.assignee === "agent").map(a => (
+                    <div key={a.id} onClick={() => toggleAction(a.id)} style={{
+                      display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", marginBottom: 4,
+                      background: a.status === "done" ? "rgba(16,185,129,.05)" : C.cardAlt,
+                      border: a.status === "done" ? "1px solid rgba(16,185,129,.15)" : C.borderLight,
+                      cursor: "pointer", transition: "all .15s",
+                    }}>
+                      <div style={{
+                        width: 20, height: 20, borderRadius: 4, flexShrink: 0,
+                        border: a.status === "done" ? "2px solid #10B981" : "2px solid rgba(201,168,76,.3)",
+                        background: a.status === "done" ? "#10B981" : "transparent",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: "#fff", fontSize: 12,
+                      }}>
+                        {a.status === "done" ? "✓" : ""}
+                      </div>
+                      <span style={{ fontSize: 13, color: a.status === "done" ? C.dim : C.muted, textDecoration: a.status === "done" ? "line-through" : "none", flex: 1 }}>
+                        {a.label}
+                      </span>
+                      <span style={{ fontSize: 9, padding: "2px 6px", background: "rgba(201,168,76,.08)", color: C.gold, borderRadius: 3, flexShrink: 0 }}>AGENT</span>
+                      {a.palier && <span style={{ fontSize: 9, color: C.dim, flexShrink: 0 }}>P{a.palier}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Content tab */}
+      {detailTab === "content" && (
       <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", flex: 1, minHeight: 0 }}>
         {/* Chapter nav */}
         {activeReport.chapters.length > 0 && (
@@ -328,6 +482,7 @@ export default function InsightsPage() {
           {renderContent(activeReport.content, activeReport.chapters)}
         </div>
       </div>
+      )}
     </div>
   );
 }
