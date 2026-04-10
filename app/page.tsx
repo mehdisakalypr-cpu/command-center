@@ -330,20 +330,22 @@ export default function VoicePage() {
 
       {/* ── Header ── */}
       <div style={{ flexShrink:0 }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"12px 18px 8px" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:9 }}>
-            <Link href="/gemini" style={{ width:30, height:30, borderRadius:9, background:"linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853)", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:13, color:"#fff", textDecoration:"none", flexShrink:0 }} title="Gemini Pro">G</Link>
-            <Link href="/dashboard" style={{ width:30, height:30, borderRadius:9, background:"linear-gradient(135deg,#0A1A2E,#071425)", border:"1px solid rgba(201,168,76,.35)", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:13, color:"#C9A84C", textDecoration:"none", flexShrink:0 }} title="Dashboard projets">⊞</Link>
-            <div style={{ width:30, height:30, borderRadius:9, background:"linear-gradient(135deg,#4F46E5,#7C3AED)", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:13, color:"#fff" }}>S</div>
-            <span style={{ fontSize:13, fontWeight:700, color:"rgba(255,255,255,.6)", letterSpacing:".1em" }}>COMMAND CENTER</span>
-          </div>
-          <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-            {messages.length > 0 && (
-              <button onClick={() => { setMessages([]); stopAudio(); setMode("idle"); }} style={{ background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)", borderRadius:8, padding:"5px 11px", color:"rgba(255,255,255,.4)", fontSize:11, cursor:"pointer" }}>
-                ✕
-              </button>
-            )}
-          </div>
+        <div style={{ display:"flex", justifyContent:"center", alignItems:"center", padding:"14px 18px 6px", position:"relative" }}>
+          <span style={{ fontSize:14, fontWeight:700, color:"rgba(255,255,255,.6)", letterSpacing:".12em" }}>COMMAND CENTER</span>
+          {messages.length > 0 && (
+            <button onClick={() => { setMessages([]); stopAudio(); setMode("idle"); }} style={{ position:"absolute", right:18, background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)", borderRadius:8, padding:"5px 11px", color:"rgba(255,255,255,.4)", fontSize:11, cursor:"pointer" }}>
+              ✕
+            </button>
+          )}
+        </div>
+        {/* Big nav buttons */}
+        <div style={{ display:"flex", justifyContent:"center", gap:10, padding:"6px 18px 10px" }}>
+          <Link href="/admin" style={{ flex:1, maxWidth:160, height:44, borderRadius:12, background:"linear-gradient(135deg,#0A1A2E,#071425)", border:"1px solid rgba(201,168,76,.35)", display:"flex", alignItems:"center", justifyContent:"center", gap:8, fontWeight:700, fontSize:14, color:"#C9A84C", textDecoration:"none" }}>
+            ⊞ Dashboard
+          </Link>
+          <Link href="/gemini" style={{ flex:1, maxWidth:160, height:44, borderRadius:12, background:"linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853)", display:"flex", alignItems:"center", justifyContent:"center", gap:8, fontWeight:700, fontSize:14, color:"#fff", textDecoration:"none" }}>
+            G Gemini
+          </Link>
         </div>
       </div>
 
