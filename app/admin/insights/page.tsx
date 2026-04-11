@@ -426,7 +426,7 @@ export default function InsightsPage() {
               <div style={{ display: "flex", gap: 3, background: "rgba(201,168,76,.08)", borderRadius: 8, padding: 2, border: "1px solid rgba(201,168,76,.2)" }}>
                 {([
                   { key: "ftg" as const, label: "FTG", icon: "🌍" },
-                  { key: "baratie" as const, label: "Baratie", icon: "🍳" },
+                  { key: "baratie" as const, label: "One For All", icon: "💪" },
                   { key: "total" as const, label: "Total Empire", icon: "👑" },
                 ] as const).map(p => (
                   <button key={p.key} onClick={() => setProjectTab(p.key)}
