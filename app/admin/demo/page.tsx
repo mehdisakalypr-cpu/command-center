@@ -50,6 +50,24 @@ const S = {
   toast: { position: "fixed" as const, top: 16, right: 24, zIndex: 100, background: "#071425", border: "1px solid rgba(201,168,76,.4)", padding: "10px 18px", fontSize: ".72rem", color: "#C9A84C", boxShadow: "0 4px 24px rgba(0,0,0,.4)" },
 };
 
+function MaskedValue({ value, label }: { value: string; label?: string }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span style={{ fontFamily: "monospace", color: visible ? "#C9A84C" : "#5A6A7A", fontWeight: 600, fontSize: ".82rem", letterSpacing: visible ? 0 : ".15em" }}>
+        {visible ? value : "••••••••"}
+      </span>
+      <button
+        onClick={(e) => { e.stopPropagation(); setVisible(v => !v); if (!visible) setTimeout(() => setVisible(false), 8000); }}
+        style={{ background: "none", border: "1px solid rgba(201,168,76,.3)", color: "#C9A84C", fontSize: ".55rem", padding: "2px 6px", cursor: "pointer", fontFamily: "inherit" }}
+        title={visible ? "Masquer" : "Reveler (8s)"}
+      >
+        {visible ? "👁 Masquer" : "👁 Voir"}
+      </button>
+    </span>
+  );
+}
+
 export default function DemoPage() {
   const [profiles, setProfiles] = useState<(Profile & { payingTier: string })[]>([]);
   const [loading, setLoading] = useState(true);
@@ -125,9 +143,7 @@ export default function DemoPage() {
               <span style={{ fontSize: ".6rem", color: "#5A6A7A", textTransform: "uppercase", letterSpacing: ".1em" }}>
                 Mot de passe commun
               </span>
-              <span style={{ fontSize: ".82rem", color: "#C9A84C", fontWeight: 600, fontFamily: "monospace" }}>
-                {DEMO_PASSWORD}
-              </span>
+              <MaskedValue value={DEMO_PASSWORD} />
             </div>
 
             {/* Demo account cards */}
@@ -137,7 +153,7 @@ export default function DemoPage() {
               return (
                 <div key={p.email} style={S.card}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                    <span style={{ fontSize: ".82rem", fontWeight: 600, color: "#E8E0D0" }}>{p.email}</span>
+                    <MaskedValue value={p.email} />
                     <span style={S.badge(tierColor)}>{p.tier || "explorer"}</span>
                     {!p.id && <span style={S.badge("#EF4444")}>non trouve</span>}
                   </div>
