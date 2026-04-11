@@ -418,6 +418,47 @@ export default function DashboardPage() {
           </Card>
         </div>
 
+        {/* ── Code Architecture Map ── */}
+        <Card title="Code Architecture Map" icon="🗺️" style={{ gridColumn: "1 / -1" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ fontSize: ".68rem", color: "#9BA8B8" }}>
+              Visualisation interactive des dependances, clusters et flux de tous les projets via GitNexus.
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+              {[
+                { name: "Feel The Gap", icon: "🌍", color: "#C9A84C", files: 265, symbols: 1797, edges: 3733, clusters: 152, flows: 129 },
+                { name: "ONE FOR ALL", icon: "🏭", color: "#22C55E", files: 17, symbols: 58, edges: 77, clusters: 5, flows: 0 },
+                { name: "THE ESTATE", icon: "🏨", color: "#60A5FA", files: 44, symbols: 236, edges: 358, clusters: 15, flows: 8 },
+                { name: "Command Center", icon: "🎮", color: "#A78BFA", files: 64, symbols: 447, edges: 839, clusters: 32, flows: 35 },
+              ].map(p => (
+                <div key={p.name} style={{ background: "rgba(255,255,255,.03)", border: `1px solid ${p.color}33`, padding: "12px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                    <span>{p.icon}</span>
+                    <span style={{ fontSize: ".65rem", fontWeight: 700, color: p.color }}>{p.name}</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+                    <div style={{ fontSize: ".55rem", color: "#5A6A7A" }}>Files: <span style={{ color: "#E8E0D0" }}>{p.files}</span></div>
+                    <div style={{ fontSize: ".55rem", color: "#5A6A7A" }}>Symbols: <span style={{ color: "#E8E0D0" }}>{p.symbols.toLocaleString()}</span></div>
+                    <div style={{ fontSize: ".55rem", color: "#5A6A7A" }}>Edges: <span style={{ color: "#E8E0D0" }}>{p.edges.toLocaleString()}</span></div>
+                    <div style={{ fontSize: ".55rem", color: "#5A6A7A" }}>Clusters: <span style={{ color: "#E8E0D0" }}>{p.clusters}</span></div>
+                  </div>
+                  {p.flows > 0 && (
+                    <div style={{ fontSize: ".55rem", color: "#5A6A7A", marginTop: 4 }}>Flows: <span style={{ color: p.color }}>{p.flows}</span></div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <Link href="/dashboard/code-map" style={{
+              display: "inline-flex", alignItems: "center", gap: 8, alignSelf: "flex-start",
+              padding: "8px 18px", background: "rgba(201,168,76,.12)", border: "1px solid rgba(201,168,76,.3)",
+              color: "#C9A84C", fontSize: ".65rem", letterSpacing: ".1em", textTransform: "uppercase",
+              textDecoration: "none", cursor: "pointer", fontFamily: "inherit",
+            }}>
+              Explorer les graphes interactifs →
+            </Link>
+          </div>
+        </Card>
+
         {/* ── Footer ── */}
         <div style={{ textAlign: "center", fontSize: ".58rem", color: "#5A6A7A", letterSpacing: ".08em", paddingBottom: 8 }}>
           Command Center · {metrics?.isVps ? "VPS" : "Vercel"} · Coût 0€ · Refresh auto toutes les 30s

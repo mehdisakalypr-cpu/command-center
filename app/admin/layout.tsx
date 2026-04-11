@@ -9,13 +9,11 @@ const NAV = [
   { href: '/admin/dashboard',     label: 'Dashboard',  icon: '📊', desc: 'Monitoring & VPS' },
   { href: '/admin/cms',           label: 'CMS',        icon: '✏️', desc: '3 sites' },
   { href: '/admin/crm',           label: 'CRM',        icon: '👥', desc: 'Utilisateurs' },
-  { href: '/admin/analytics',     label: 'Analytics',  icon: '📈', desc: 'Events & funnels' },
-  { href: '/admin/plans',         label: 'Plans',      icon: '💳', desc: 'Tiers & billing' },
+  { href: '/admin/plans',         label: 'Plans',      icon: '💳', desc: 'Tiers & analytics' },
   { href: '/admin/revenue',       label: 'Revenus',    icon: '💰', desc: 'Ventes & marges' },
   { href: '/admin/tickets',       label: 'Tickets',    icon: '🎫', desc: 'Refunds' },
   { href: '/admin/demo',          label: 'Démo',       icon: '🎭', desc: 'Comptes test' },
   { href: '/admin/demo-parcours', label: 'Parcours',   icon: '🎯', desc: 'Tours guidés' },
-  { href: '/admin/data',          label: 'Data',       icon: '🗄️', desc: 'Sources & seed' },
   { href: '/admin/insights',      label: 'Insights',   icon: '🧠', desc: 'Stratégie & benchmark' },
 ]
 

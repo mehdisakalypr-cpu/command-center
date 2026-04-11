@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 
+type TierStat = { tier: string; count: number };
+type CountryStat = { name: string; opportunities: number };
 type Profile = {
   id: string;
   email: string;
@@ -76,6 +78,12 @@ export default function PlansPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
   const [error, setError] = useState("");
+  const [tab, setTab] = useState<"plans" | "analytics">("plans");
+  const [tierStats, setTierStats] = useState<TierStat[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [newUsers7d, setNewUsers7d] = useState(0);
+  const [usersWithCredits, setUsersWithCredits] = useState(0);
+  const [topCountries, setTopCountries] = useState<CountryStat[]>([]);
 
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(""), 2500); };
 
@@ -92,7 +100,33 @@ export default function PlansPage() {
     }
   }
 
-  useEffect(() => { fetchProfiles(); }, []);
+  useEffect(() => { fetchProfiles(); fetchAnalytics(); }, []);
+
+  async function fetchAnalytics() {
+    try {
+      const res = await fetch("/api/admin/stats");
+      if (!res.ok) return;
+      const stats = await res.json();
+      setTotalUsers(stats.total);
+      setNewUsers7d(stats.newLast7d);
+      setUsersWithCredits(stats.withCredits);
+      const tierEntries = Object.entries(stats.tiers as Record<string, number>)
+        .map(([tier, count]) => ({ tier, count }))
+        .sort((a, b) => b.count - a.count);
+      setTierStats(tierEntries);
+      // Top countries from profiles
+      try {
+        const profilesRes = await fetch("/api/admin/profiles?limit=1000");
+        if (profilesRes.ok) {
+          const profs = await profilesRes.json();
+          const countryMap: Record<string, number> = {};
+          for (const p of profs) { if (p.country) countryMap[p.country] = (countryMap[p.country] || 0) + 1; }
+          const sorted = Object.entries(countryMap).map(([name, opportunities]) => ({ name, opportunities })).sort((a, b) => b.opportunities - a.opportunities).slice(0, 10);
+          if (sorted.length > 0) setTopCountries(sorted);
+        }
+      } catch { /* ignore */ }
+    } catch { /* ignore */ }
+  }
 
   async function updateProfile(profileId: string, updates: Record<string, unknown>, message: string) {
     setSaving(true);
@@ -153,10 +187,79 @@ export default function PlansPage() {
     <div style={S.page}>
       {toast && <div style={S.toast}>{toast}</div>}
       <div style={S.header}>
-        <span style={S.title}>Plans</span>
-        <span style={S.sub}>Gestion des tiers & billing</span>
+        <span style={S.title}>Plans & Analytics</span>
+        <div style={{ display: "flex", gap: 0, marginLeft: 16 }}>
+          <button onClick={() => setTab("plans")} style={{ padding: "6px 14px", fontSize: ".62rem", fontFamily: "inherit", cursor: "pointer", color: tab === "plans" ? "#C9A84C" : "#5A6A7A", background: "transparent", border: "none", borderBottom: tab === "plans" ? "2px solid #C9A84C" : "2px solid transparent", letterSpacing: ".06em", textTransform: "uppercase" }}>Gestion</button>
+          <button onClick={() => setTab("analytics")} style={{ padding: "6px 14px", fontSize: ".62rem", fontFamily: "inherit", cursor: "pointer", color: tab === "analytics" ? "#C9A84C" : "#5A6A7A", background: "transparent", border: "none", borderBottom: tab === "analytics" ? "2px solid #C9A84C" : "2px solid transparent", letterSpacing: ".06em", textTransform: "uppercase" }}>Analytics</button>
+        </div>
       </div>
 
+      {/* Analytics tab */}
+      {tab === "analytics" && (
+        <div style={{ flex: 1, overflow: "auto", padding: "20px 24px" }}>
+          {/* KPI Cards */}
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ fontSize: ".68rem", fontWeight: 600, color: "#E8E0D0", marginBottom: 12, letterSpacing: ".04em" }}>Indicateurs cles</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+              <div style={{ background: "#0A1A2E", border: "1px solid rgba(255,255,255,.06)", padding: "16px 18px" }}>
+                <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "#C9A84C" }}>{totalUsers}</div>
+                <div style={{ fontSize: ".56rem", color: "#5A6A7A", textTransform: "uppercase", letterSpacing: ".1em", marginTop: 4 }}>Total utilisateurs</div>
+              </div>
+              <div style={{ background: "#0A1A2E", border: "1px solid rgba(255,255,255,.06)", padding: "16px 18px" }}>
+                <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "#10B981" }}>{newUsers7d}</div>
+                <div style={{ fontSize: ".56rem", color: "#5A6A7A", textTransform: "uppercase", letterSpacing: ".1em", marginTop: 4 }}>Nouveaux (7j)</div>
+              </div>
+              <div style={{ background: "#0A1A2E", border: "1px solid rgba(255,255,255,.06)", padding: "16px 18px" }}>
+                <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "#3B82F6" }}>{usersWithCredits}</div>
+                <div style={{ fontSize: ".56rem", color: "#5A6A7A", textTransform: "uppercase", letterSpacing: ".1em", marginTop: 4 }}>Avec credits IA</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tier Distribution */}
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ fontSize: ".68rem", fontWeight: 600, color: "#E8E0D0", marginBottom: 12, letterSpacing: ".04em" }}>Distribution par tier</div>
+            {tierStats.map(t => {
+              const maxTier = Math.max(...tierStats.map(x => x.count), 1);
+              return (
+                <div key={t.tier} style={{ marginBottom: 6 }}>
+                  <div style={{ height: 24, background: `${TIER_COLORS[t.tier] || "#5A6A7A"}30`, border: `1px solid ${TIER_COLORS[t.tier] || "#5A6A7A"}50`, width: `${Math.max((t.count / maxTier) * 100, 2)}%`, display: "flex", alignItems: "center", paddingLeft: 8, transition: "width .3s" }}>
+                    <span style={{ fontSize: ".6rem", color: "#E8E0D0", whiteSpace: "nowrap" }}>
+                      {t.tier} - {t.count} ({totalUsers > 0 ? Math.round((t.count / totalUsers) * 100) : 0}%)
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+            {tierStats.length === 0 && <div style={{ color: "#5A6A7A", fontSize: ".72rem" }}>Aucune donnee</div>}
+          </div>
+
+          {/* Top Countries */}
+          {topCountries.length > 0 && (
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ fontSize: ".68rem", fontWeight: 600, color: "#E8E0D0", marginBottom: 12, letterSpacing: ".04em" }}>Top pays</div>
+              {topCountries.map((c, i) => {
+                const maxC = Math.max(...topCountries.map(x => x.opportunities), 1);
+                return (
+                  <div key={c.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,.03)" }}>
+                    <span style={{ fontSize: ".6rem", color: "#5A6A7A", width: 20, textAlign: "right" }}>{i + 1}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: ".72rem", color: "#E8E0D0" }}>{c.name}</span>
+                        <span style={{ fontSize: ".58rem", color: "#C9A84C" }}>{c.opportunities}</span>
+                      </div>
+                      <div style={{ height: 3, background: `rgba(201,168,76,${0.15 + (c.opportunities / maxC) * 0.5})`, width: `${(c.opportunities / maxC) * 100}%`, marginTop: 3 }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Plans tab */}
+      {tab === "plans" && (
       <div style={S.body}>
         {loading && <div style={{ color: "#5A6A7A", fontSize: ".72rem" }}>Chargement...</div>}
         {error && <div style={{ color: "#EF4444", fontSize: ".72rem" }}>{error}</div>}
@@ -347,6 +450,7 @@ export default function PlansPage() {
           </>
         )}
       </div>
+      )}
     </div>
   );
 }

@@ -90,11 +90,24 @@ function ActionBtn({ label, action, onDone }: { label: string; action: string; o
   );
 }
 
+type TableCount = { table: string; count: number; color: string; icon: string };
+const DATA_TABLES: { name: string; color: string; icon: string; statsKey?: string }[] = [
+  { name: "countries", color: "#3B82F6", icon: "🌍", statsKey: "countries" },
+  { name: "products", color: "#8B5CF6", icon: "📦" },
+  { name: "opportunities", color: "#C9A84C", icon: "💡", statsKey: "opportunities" },
+  { name: "business_plans", color: "#10B981", icon: "📋", statsKey: "businessPlans" },
+  { name: "trade_flows", color: "#F59E0B", icon: "🔄" },
+  { name: "reports", color: "#EF4444", icon: "📊", statsKey: "reports" },
+];
+
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState("");
   const [toast, setToast] = useState("");
+  const [tab, setTab] = useState<"monitoring" | "data">("monitoring");
+  const [dataCounts, setDataCounts] = useState<TableCount[]>([]);
+  const [dataLoading, setDataLoading] = useState(false);
 
   const fetchMetrics = useCallback(async () => {
     try {
@@ -105,11 +118,28 @@ export default function DashboardPage() {
     } catch { /* retry */ } finally { setLoading(false); }
   }, []);
 
+  const fetchData = useCallback(async () => {
+    setDataLoading(true);
+    try {
+      const res = await fetch("/api/admin/stats");
+      if (!res.ok) return;
+      const stats = await res.json();
+      const results: TableCount[] = DATA_TABLES.map(t => ({
+        table: t.name,
+        count: t.statsKey && stats[t.statsKey] != null ? stats[t.statsKey] : -1,
+        color: t.color,
+        icon: t.icon,
+      }));
+      setDataCounts(results);
+    } catch { /* silent */ } finally { setDataLoading(false); }
+  }, []);
+
   useEffect(() => {
     fetchMetrics();
+    fetchData();
     const id = setInterval(fetchMetrics, POLL_INTERVAL);
     return () => clearInterval(id);
-  }, [fetchMetrics]);
+  }, [fetchMetrics, fetchData]);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 4000); };
 
@@ -135,15 +165,20 @@ export default function DashboardPage() {
       {/* Header bar */}
       <div style={{ background: "#071425", borderBottom: "1px solid rgba(201,168,76,.15)", padding: "12px 24px", display: "flex", alignItems: "center", gap: 12 }}>
         <span style={{ fontSize: ".7rem", letterSpacing: ".16em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 600 }}>Dashboard</span>
-        <span style={{ fontSize: ".6rem", color: "#5A6A7A" }}>Monitoring & Infrastructure</span>
+        <div style={{ display: "flex", gap: 0, marginLeft: 16 }}>
+          <button onClick={() => setTab("monitoring")} style={{ padding: "6px 14px", fontSize: ".62rem", fontFamily: "inherit", cursor: "pointer", color: tab === "monitoring" ? "#C9A84C" : "#5A6A7A", background: "transparent", border: "none", borderBottom: tab === "monitoring" ? "2px solid #C9A84C" : "2px solid transparent", letterSpacing: ".06em", textTransform: "uppercase" }}>Monitoring</button>
+          <button onClick={() => setTab("data")} style={{ padding: "6px 14px", fontSize: ".62rem", fontFamily: "inherit", cursor: "pointer", color: tab === "data" ? "#C9A84C" : "#5A6A7A", background: "transparent", border: "none", borderBottom: tab === "data" ? "2px solid #C9A84C" : "2px solid transparent", letterSpacing: ".06em", textTransform: "uppercase" }}>Data</button>
+        </div>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
           {lastUpdate && <span style={{ fontSize: ".62rem", color: "#5A6A7A" }}>Mis à jour {lastUpdate}</span>}
-          <button onClick={fetchMetrics} style={{ background: "transparent", border: "1px solid rgba(201,168,76,.25)", color: "#C9A84C", padding: "5px 12px", fontSize: ".6rem", letterSpacing: ".1em", textTransform: "uppercase", cursor: "pointer", fontFamily: "inherit" }}>↻ Rafraîchir</button>
+          <button onClick={() => { fetchMetrics(); fetchData(); }} style={{ background: "transparent", border: "1px solid rgba(201,168,76,.25)", color: "#C9A84C", padding: "5px 12px", fontSize: ".6rem", letterSpacing: ".1em", textTransform: "uppercase", cursor: "pointer", fontFamily: "inherit" }}>↻ Rafraîchir</button>
         </div>
       </div>
 
       {toast && <div style={{ position: "fixed", top: 16, right: 24, zIndex: 100, background: "#071425", border: "1px solid rgba(201,168,76,.4)", padding: "10px 18px", fontSize: ".72rem", color: "#C9A84C", animation: "fadeIn .25s ease", boxShadow: "0 4px 24px rgba(0,0,0,.4)" }}>{toast}</div>}
 
+      {/* Tab: Monitoring */}
+      {tab === "monitoring" && (
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 20px", display: "flex", flexDirection: "column", gap: 20 }}>
         {/* Services */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
@@ -181,12 +216,6 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
-              {ftgData && (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.04)" }}>
-                  <Stat label="Pays en base" value={ftgData.countries} />
-                  <Stat label="Opportunités" value={ftgData.opportunities} color="#C9A84C" />
-                </div>
-              )}
             </>) : <div style={{ fontSize: ".72rem", color: "#5A6A7A" }}>Données non disponibles</div>}
           </Card>
 
@@ -257,6 +286,37 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+      )}
+
+      {/* Tab: Data */}
+      {tab === "data" && (
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 20px", display: "flex", flexDirection: "column", gap: 20 }}>
+        {dataLoading ? (
+          <div style={{ color: "#5A6A7A", fontSize: ".72rem", padding: 40, textAlign: "center" }}>Chargement des données...</div>
+        ) : (
+          <>
+            {/* Total */}
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4 }}>
+              <span style={{ fontSize: "1.8rem", fontWeight: 700, color: "#E8E0D0" }}>{dataCounts.reduce((s, c) => s + (c.count > 0 ? c.count : 0), 0).toLocaleString()}</span>
+              <span style={{ fontSize: ".7rem", color: "#5A6A7A" }}>enregistrements totaux</span>
+            </div>
+
+            {/* Table cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+              {dataCounts.map(c => (
+                <div key={c.table} style={{ background: "#0A1A2E", border: `1px solid ${c.color}30`, padding: "20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: "1.4rem" }}>{c.icon}</span>
+                  <div style={{ fontSize: "1.6rem", fontWeight: 700, color: c.color }}>
+                    {c.count >= 0 ? c.count.toLocaleString() : "N/A"}
+                  </div>
+                  <div style={{ fontSize: ".6rem", color: "#5A6A7A", textTransform: "uppercase", letterSpacing: ".1em" }}>{c.table.replace(/_/g, " ")}</div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      )}
     </div>
   );
 }
