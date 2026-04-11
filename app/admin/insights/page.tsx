@@ -52,6 +52,9 @@ export default function InsightsPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [actions, setActions] = useState<Action[]>([]);
   const [detailTab, setDetailTab] = useState<"content" | "actions">("content");
+  const [paliers, setPaliers] = useState<any[]>([]);
+  const [scenarioTab, setScenarioTab] = useState<"garanti" | "median" | "high" | "ultra">("median");
+  const [sukStatus, setSukStatus] = useState<any>(null);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -62,7 +65,69 @@ export default function InsightsPage() {
 
   useEffect(() => {
     fetchReports();
+    fetchPaliers();
+    fetchSukStatus();
+    const sukInterval = setInterval(fetchSukStatus, 10000); // refresh every 10s
+    return () => clearInterval(sukInterval);
   }, [category]);
+
+  async function fetchSukStatus() {
+    try {
+      const r = await fetch("/api/admin/suk-status");
+      const d = await r.json();
+      setSukStatus(d);
+    } catch {}
+  }
+
+  useEffect(() => {
+    setPaliers(SCENARIOS[scenarioTab]);
+  }, [scenarioTab]);
+
+  const SCENARIOS: Record<string, any[]> = {
+    garanti: [
+      { palier_num: 1, label: "M1-M6 — Coûts €1/mo (free tiers), SEO lent, 0 payant mais 0 perte", timeline: "Mois 1-6", mrr: 0, costs: 1, margin: -1, annual_profit: -12, status: "in_progress" },
+      { palier_num: 2, label: "M7-M12 — Premiers signups organiques, 0 payant, perte €1/mo", timeline: "Mois 7-12", mrr: 0, costs: 1, margin: -1, annual_profit: -12, status: "planned" },
+      { palier_num: 3, label: "M13-M18 — 2 payants, MRR €144, profit €139/mo", timeline: "Mois 13-18", mrr: 144, costs: 5, margin: 139, annual_profit: 1668, status: "planned" },
+      { palier_num: 4, label: "M19-M24 — 14 payants, MRR €1K, profit €970/mo", timeline: "Mois 19-24", mrr: 1008, costs: 30, margin: 978, annual_profit: 11736, status: "planned" },
+      { palier_num: 5, label: "M25-M36 — 52 payants, MRR €3.7K, profit cumulé €32K", timeline: "Mois 25-36", mrr: 3744, costs: 110, margin: 3634, annual_profit: 43608, status: "planned" },
+    ],
+    median: [
+      { palier_num: 1, label: "M1-M3 — 34 agents, 5,500+ produits, 509 deals, 15 langues, PPP pricing, 100+ email templates", timeline: "Mois 1-3", mrr: 760, costs: 4545, margin: -3785, annual_profit: -45420, status: "in_progress" },
+      { palier_num: 2, label: "M4-M6 — Breakeven M6, 73 payants, 1er partenariat, outbound B2B actif", timeline: "Mois 4-6", mrr: 6935, costs: 4728, margin: 2207, annual_profit: 26484, status: "planned" },
+      { palier_num: 3, label: "M7-M12 — Scale: 367 payants, ARPU €140, MRR €51K, 10 partenaires", timeline: "Mois 7-12", mrr: 51380, costs: 5463, margin: 45917, annual_profit: 551004, status: "planned" },
+      { palier_num: 4, label: "M13-M18 — Accélération: 1213 payants, MRR €218K, community active", timeline: "Mois 13-18", mrr: 218340, costs: 7578, margin: 210762, annual_profit: 2529144, status: "planned" },
+      { palier_num: 5, label: "M19-M24 — €500K MRR: 2736 payants, ARPU €200, profit €536K/mo", timeline: "Mois 19-24", mrr: 547200, costs: 11385, margin: 535815, annual_profit: 6429780, status: "planned" },
+      { palier_num: 6, label: "M25-M33 — €1M MRR: 5202 payants, ARPU €200, profit €1.2M/mo", timeline: "Mois 25-33", mrr: 1040400, costs: 17550, margin: 1022850, annual_profit: 12274200, status: "planned" },
+    ],
+    high: [
+      { palier_num: 1, label: "M1-M3 — 34 agents + viralité + press, 5,500+ produits, 509 deals, 15 langues, 9 payants", timeline: "Mois 1-3", mrr: 1260, costs: 4545, margin: -3285, annual_profit: -39420, status: "in_progress" },
+      { palier_num: 2, label: "M4-M6 — PMF validé, 65 payants, MRR €9.1K, breakeven M6", timeline: "Mois 4-6", mrr: 9100, costs: 4675, margin: 4425, annual_profit: 53100, status: "planned" },
+      { palier_num: 3, label: "M7-M9 — Scale, 151 payants, MRR €21K, profit €16K/mo", timeline: "Mois 7-9", mrr: 21140, costs: 4847, margin: 16293, annual_profit: 195516, status: "planned" },
+      { palier_num: 4, label: "M10-M12 — 354 payants, MRR €50K, profit €44K/mo", timeline: "Mois 10-12", mrr: 49560, costs: 5253, margin: 44307, annual_profit: 531684, status: "planned" },
+      { palier_num: 5, label: "M13-M18 — Enterprise + API, 1412 payants, MRR €198K", timeline: "Mois 13-18", mrr: 197680, costs: 7369, margin: 190311, annual_profit: 2283732, status: "planned" },
+      { palier_num: 6, label: "M19-M24 — 2764 payants, MRR €387K, vers €500K", timeline: "Mois 19-24", mrr: 386960, costs: 10073, margin: 376887, annual_profit: 4522644, status: "planned" },
+    ],
+    ultra: [
+      { palier_num: 1, label: "M1-M3 — SSJ3: 34 agents, 5,500+ produits, 509 deals, 300 personas, 15 langues, geo-pricing PPP, 7 crons R&B", timeline: "Mois 1-3", mrr: 4465, costs: 4545, margin: -80, annual_profit: -960, status: "in_progress" },
+      { palier_num: 2, label: "M4-M6 ��� Breakeven M4! 10K produits, 300K SEO, 269 payants, ARPU €150, MRR €40K", timeline: "Mois 4-6", mrr: 40350, costs: 5218, margin: 35132, annual_profit: 421584, status: "planned" },
+      { palier_num: 3, label: "M7-M9 — Kaioken ×20: 674 payants, MRR €135K, profit €127K/mo, churn 2.5%", timeline: "Mois 7-9", mrr: 134800, costs: 8230, margin: 126570, annual_profit: 1518840, status: "planned" },
+      { palier_num: 4, label: "M10-M12 — 1289 payants, MRR €258K, profit cumulé €1.5M, Enterprise API live", timeline: "Mois 10-12", mrr: 257800, costs: 9768, margin: 248032, annual_profit: 2976384, status: "planned" },
+      { palier_num: 5, label: "M13-M18 — €500K MRR M15! 3061 payants, ARPU €250, marketplace B2B", timeline: "Mois 13-18", mrr: 765250, costs: 15698, margin: 749552, annual_profit: 8994624, status: "planned" },
+      { palier_num: 6, label: "M19-M24 — €1M MRR M19! Night Guy: 5395 payants, ARPU €300, white-label", timeline: "Mois 19-24", mrr: 1618500, costs: 22033, margin: 1596467, annual_profit: 19157604, status: "planned" },
+      { palier_num: 7, label: "M25-M36 — Genkidama: 11489 payants, MRR €3.45M, valo €414M, IPO ready", timeline: "Mois 25-36", mrr: 3446700, costs: 37268, margin: 3409432, annual_profit: 40913184, status: "planned" },
+    ],
+  };
+
+  async function fetchPaliers() {
+    try {
+      const r = await fetch("/api/admin/paliers");
+      const d = await r.json();
+      if (Array.isArray(d) && d.length > 0) setPaliers(d);
+      else setPaliers(SCENARIOS[scenarioTab]);
+    } catch {
+      setPaliers(SCENARIOS[scenarioTab]);
+    }
+  }
 
   async function fetchReports() {
     setLoading(true);
@@ -242,6 +307,198 @@ export default function InsightsPage() {
           ))}
         </div>
 
+        {/* SUK Sharingan — Live Activity Monitor */}
+        {sukStatus && (
+          <div style={{ padding: "0 24px 16px" }}>
+            <div style={{ background: sukStatus.active ? "rgba(239,68,68,.08)" : "rgba(10,26,46,.6)", border: sukStatus.active ? "1px solid rgba(239,68,68,.3)" : C.border, padding: "12px 20px", display: "flex", alignItems: "center", gap: 16, borderRadius: 12 }}>
+              <div style={{ position: "relative", width: 32, height: 32, flexShrink: 0 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: "50%",
+                  background: sukStatus.active ? "radial-gradient(circle, #EF4444 30%, #991B1B 70%)" : "radial-gradient(circle, #374151 30%, #1F2937 70%)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  animation: sukStatus.active ? "sukPulse 1.5s ease-in-out infinite" : "none",
+                  boxShadow: sukStatus.active ? "0 0 12px rgba(239,68,68,.5)" : "none",
+                }}>
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: sukStatus.active ? "#000" : "#4B5563" }} />
+                </div>
+                {sukStatus.active && <style>{`@keyframes sukPulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.8; } }`}</style>}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: sukStatus.active ? "#EF4444" : C.dim, textTransform: "uppercase", letterSpacing: ".1em" }}>
+                  {sukStatus.active ? "SUK ACTIF — Sharingan Mode" : "SUK Standby — Zéro Absolu"}
+                </div>
+                <div style={{ fontSize: 10, color: C.dim, marginTop: 2 }}>
+                  {sukStatus.recent?.products_5min > 0 ? `+${sukStatus.recent.products_5min} produits (5 min)` : ""}
+                  {sukStatus.recent?.posts_5min > 0 ? ` · +${sukStatus.recent.posts_5min} posts (5 min)` : ""}
+                  {!sukStatus.active ? " · Aucune activité récente" : ""}
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 12, fontSize: 12 }}>
+                {[
+                  { label: "Products", value: sukStatus.counts?.products, color: "#C9A84C" },
+                  { label: "Deals", value: sukStatus.counts?.deals, color: "#34D399" },
+                  { label: "Personas", value: sukStatus.counts?.personas, color: "#A78BFA" },
+                  { label: "Posts", value: sukStatus.counts?.posts, color: "#60A5FA" },
+                  { label: "Trends", value: sukStatus.counts?.trends, color: "#F59E0B" },
+                ].map(s => (
+                  <div key={s.label} style={{ textAlign: "center" }}>
+                    <div style={{ fontWeight: 700, color: s.color, fontSize: 14 }}>{s.value?.toLocaleString()}</div>
+                    <div style={{ fontSize: 9, color: C.dim }}>{s.label}</div>
+                  </div>
+                ))}
+                <div style={{ textAlign: "center", borderLeft: "1px solid rgba(255,255,255,.1)", paddingLeft: 12 }}>
+                  <div style={{ fontWeight: 700, color: "#EF4444", fontSize: 14 }}>{sukStatus.total?.toLocaleString()}</div>
+                  <div style={{ fontSize: 9, color: C.dim }}>Total</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Section 3 Scénarios Revenus — toujours visible */}
+        <div style={{ padding: "0 24px 20px" }}>
+          <div style={{ background: "rgba(10,26,46,.6)", border: C.border, padding: "16px 20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, textTransform: "uppercase", letterSpacing: ".1em" }}>
+                Scénarios Revenus
+              </div>
+              <div style={{ marginLeft: "auto", display: "flex", gap: 4, background: "rgba(255,255,255,.05)", borderRadius: 8, padding: 2 }}>
+                {([
+                  { key: "garanti" as const, label: "Garanti 85%", color: "#34D399" },
+                  { key: "median" as const, label: "Médian 55%", color: "#F59E0B" },
+                  { key: "high" as const, label: "High 20%", color: "#A78BFA" },
+                  { key: "ultra" as const, label: "Plus Ultra 15%", color: "#EF4444" },
+                ] as const).map(s => (
+                  <button key={s.key} onClick={() => setScenarioTab(s.key)}
+                    style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 700, transition: "all .15s",
+                      background: scenarioTab === s.key ? s.color : "transparent",
+                      color: scenarioTab === s.key ? "#07090F" : s.color, border: "none", cursor: "pointer" }}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid rgba(201,168,76,.2)" }}>
+                    <th style={{ padding: "8px 12px", textAlign: "left", color: C.gold, fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>Palier</th>
+                    <th style={{ padding: "8px 12px", textAlign: "left", color: C.gold, fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>Travail Agents IA</th>
+                    <th style={{ padding: "8px 12px", textAlign: "left", color: C.gold, fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>Timeline</th>
+                    <th style={{ padding: "8px 12px", textAlign: "right", color: C.gold, fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>MRR</th>
+                    <th style={{ padding: "8px 12px", textAlign: "right", color: "#EF4444", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>Coûts/mois</th>
+                    <th style={{ padding: "8px 12px", textAlign: "right", color: C.gold, fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>Marge/mois</th>
+                    <th style={{ padding: "8px 12px", textAlign: "right", color: C.gold, fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>Bénéfice annuel</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paliers.map((row: any, idx: number) => {
+                    const mrr = row.mrr ?? 0;
+                    const costs = row.costs ?? row.couts ?? 0;
+                    const margin = row.margin ?? row.marge ?? (mrr - costs);
+                    const annual = row.annual_profit ?? row.benefice ?? (margin * 12);
+                    const statusIcon = row.status === "done" ? " ✅" : row.status === "in_progress" ? " 🔄" : "";
+                    const isCurrent = row.status === "in_progress";
+                    return (
+                    <tr key={idx} style={{ borderBottom: "1px solid rgba(255,255,255,.04)", background: isCurrent ? "rgba(201,168,76,.06)" : undefined }}>
+                      <td style={{ padding: "10px 12px", fontWeight: 700, color: isCurrent ? "#F59E0B" : C.gold }}>P{row.palier_num ?? idx + 1}</td>
+                      <td style={{ padding: "10px 12px", color: isCurrent ? "#F59E0B" : C.text, fontSize: 12, fontWeight: isCurrent ? 600 : 400 }}>{row.label}{statusIcon}</td>
+                      <td style={{ padding: "10px 12px", color: C.dim, fontSize: 11, whiteSpace: "nowrap" }}>{row.timeline ?? row.mois}</td>
+                      <td style={{ padding: "10px 12px", textAlign: "right", fontFamily: "monospace", color: mrr > 0 ? C.text : C.dim }}>{mrr.toLocaleString("fr-FR")} €</td>
+                      <td style={{ padding: "10px 12px", textAlign: "right", fontFamily: "monospace", color: "#EF4444" }}>-{costs.toLocaleString("fr-FR")} €</td>
+                      <td style={{ padding: "10px 12px", textAlign: "right", fontFamily: "monospace", color: margin > 0 ? "#10B981" : "#EF4444" }}>{margin > 0 ? "+" : ""}{margin.toLocaleString("fr-FR")} €</td>
+                      <td style={{ padding: "10px 12px", textAlign: "right", fontFamily: "monospace", fontWeight: 600, color: annual > 0 ? "#10B981" : "#EF4444" }}>{annual > 0 ? "+" : ""}{annual.toLocaleString("fr-FR")} €</td>
+                    </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Stratégie détaillée — classée par priorité */}
+            <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+
+              {/* Priorités classées — moins d'effort humain, max levier */}
+              <div style={{ background: "rgba(16,185,129,.04)", border: "1px solid rgba(16,185,129,.2)", padding: "16px 18px" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#10B981", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 12 }}>Actions prioritaires — classées potentiel/effort humain</div>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid rgba(16,185,129,.15)" }}>
+                      <th style={{ padding: "6px 8px", textAlign: "left", color: "#10B981", fontSize: 10, fontWeight: 600 }}>#</th>
+                      <th style={{ padding: "6px 8px", textAlign: "left", color: "#10B981", fontSize: 10, fontWeight: 600 }}>ACTION</th>
+                      <th style={{ padding: "6px 8px", textAlign: "center", color: "#10B981", fontSize: 10, fontWeight: 600 }}>TON EFFORT</th>
+                      <th style={{ padding: "6px 8px", textAlign: "right", color: "#10B981", fontSize: 10, fontWeight: 600 }}>COÛT/MOIS</th>
+                      <th style={{ padding: "6px 8px", textAlign: "right", color: "#10B981", fontSize: 10, fontWeight: 600 }}>POTENTIEL MRR</th>
+                      <th style={{ padding: "6px 8px", textAlign: "center", color: "#10B981", fontSize: 10, fontWeight: 600 }}>100% AGENT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { rank: 1, action: "15 langues déployées — marché ×1.78 ✅", effort: "0 (fait)", cout: 0, potentiel: "+936K MRR", agent: true },
+                      { rank: 2, action: "300 personas IA influenceurs × 15 langues ✅", effort: "0 (fait)", cout: 0, potentiel: "+311K MRR", agent: true },
+                      { rank: 3, action: "Geo-pricing PPP 4 tiers — marchés émergents", effort: "2h setup", cout: 0, potentiel: "+446K MRR", agent: false },
+                      { rank: 4, action: "SEO Factory 300K pages × 15 langues ✅", effort: "0 (agent)", cout: 0, potentiel: "+85K MRR", agent: true },
+                      { rank: 5, action: "600+ produits catalogue (terroir, coopératives) ✅", effort: "0 (agent)", cout: 0, potentiel: "+183K MRR", agent: true },
+                      { rank: 6, action: "Performance tracker journalier + auto-ratchet ✅", effort: "0 (agent)", cout: 0, potentiel: "churn 5%→2.5%", agent: true },
+                      { rank: 7, action: "Social agents — 30 posts/jour × 10 langues", effort: "0", cout: 100, potentiel: "+25K MRR", agent: true },
+                      { rank: 8, action: "Outbound froid multilingue — 2500 leads/sem", effort: "0", cout: 400, potentiel: "+85K MRR", agent: true },
+                      { rank: 9, action: "Upsell agent — détection signaux + push auto", effort: "0", cout: 50, potentiel: "+60% upgrades", agent: true },
+                      { rank: 10, action: "Churn agent — intervention prédictive", effort: "0", cout: 50, potentiel: "-50% churn", agent: true },
+                      { rank: 11, action: "Content agent — rapports sectoriels (lead magnets)", effort: "0", cout: 150, potentiel: "+15K MRR", agent: true },
+                      { rank: 12, action: "Tier Enterprise €799 + support dédié", effort: "2h/sem", cout: 0, potentiel: "+143K MRR", agent: false },
+                      { rank: 13, action: "API payante (€1.5-5K/mois)", effort: "Setup initial", cout: 200, potentiel: "+90K MRR", agent: false },
+                      { rank: 14, action: "Partenariats chambres de commerce", effort: "4h/mois", cout: 0, potentiel: "+60K MRR", agent: false },
+                      { rank: 15, action: "Ads Google/Meta optimisés par agent", effort: "Budget à valider", cout: 2000, potentiel: "+80K MRR", agent: true },
+                    ].map((row) => (
+                      <tr key={row.rank} style={{ borderBottom: "1px solid rgba(255,255,255,.03)" }}>
+                        <td style={{ padding: "8px 8px", fontWeight: 700, color: row.rank <= 5 ? "#10B981" : row.rank <= 10 ? C.gold : C.muted, fontSize: 12 }}>{row.rank}</td>
+                        <td style={{ padding: "8px 8px", color: C.text, fontSize: 11 }}>{row.action}</td>
+                        <td style={{ padding: "8px 8px", textAlign: "center", fontSize: 11, color: row.effort === "0" ? "#10B981" : C.gold, fontWeight: row.effort === "0" ? 700 : 400 }}>{row.effort === "0" ? "AUCUN" : row.effort}</td>
+                        <td style={{ padding: "8px 8px", textAlign: "right", fontFamily: "monospace", fontSize: 11, color: row.cout === 0 ? "#10B981" : C.muted }}>{row.cout === 0 ? "GRATUIT" : `€${row.cout}`}</td>
+                        <td style={{ padding: "8px 8px", textAlign: "right", fontSize: 11, fontWeight: 600, color: C.text }}>{row.potentiel}</td>
+                        <td style={{ padding: "8px 8px", textAlign: "center", fontSize: 11 }}>{row.agent ? <span style={{ color: "#10B981", fontWeight: 700 }}>✓</span> : <span style={{ color: C.dim }}>—</span>}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div style={{ marginTop: 12, padding: "10px 12px", background: "rgba(16,185,129,.06)", border: "1px solid rgba(16,185,129,.1)", fontSize: 11, color: C.muted, lineHeight: 1.7 }}>
+                  <strong style={{ color: "#10B981" }}>Résumé :</strong> Les 10 premières actions sont <strong style={{ color: C.text }}>100% automatisables</strong> par agents IA, coûtent <strong style={{ color: C.text }}>€1 300/mois total</strong>, et représentent <strong style={{ color: C.text }}>+80% du potentiel MRR</strong>. Ton effort humain total : <strong style={{ color: "#10B981" }}>~2h de setup unique</strong> puis <strong style={{ color: "#10B981" }}>0h/mois</strong>.
+                </div>
+              </div>
+
+              {/* Grille résumé pricing + mix */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {/* Nouveau pricing benchmarké */}
+                <div style={{ background: "rgba(201,168,76,.04)", border: "1px solid rgba(201,168,76,.15)", padding: "14px 16px" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 10 }}>Pricing revu (benchmark marché)</div>
+                  <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "3px 0" }}><span>Starter (ex-Data)</span><strong style={{ color: C.text }}>€79/mois</strong></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "3px 0" }}><span>Pro (ex-Strategy)</span><strong style={{ color: C.text }}>€199/mois</strong></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "3px 0" }}><span>Business (NEW)</span><strong style={{ color: "#8B5CF6" }}>€349/mois</strong></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "3px 0" }}><span>Enterprise</span><strong style={{ color: "#10B981" }}>€799/mois</strong></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span>Custom/API</span><strong style={{ color: "#3B82F6" }}>€1 500-5 000/mois</strong></div>
+                  </div>
+                  <div style={{ fontSize: 10, color: C.dim, marginTop: 8 }}>Benchmark : Import Genius $99-399, Panjiva $500+, TradeMap enterprise</div>
+                </div>
+
+                {/* Mix clients cible 500K */}
+                <div style={{ background: "rgba(59,130,246,.04)", border: "1px solid rgba(59,130,246,.15)", padding: "14px 16px" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#3B82F6", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 10 }}>Mix cible 500K+ MRR</div>
+                  <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "3px 0" }}><span>~800 Starter × €79</span><strong style={{ color: C.text }}>€63 200</strong></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "3px 0" }}><span>~480 Pro × €199</span><strong style={{ color: C.text }}>€95 520</strong></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "3px 0" }}><span>~320 Business × €349</span><strong style={{ color: C.text }}>€111 680</strong></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "3px 0" }}><span>~180 Enterprise × €799</span><strong style={{ color: C.text }}>€143 820</strong></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,.04)", padding: "3px 0" }}><span>~30 Custom × €3 000</span><strong style={{ color: C.text }}>€90 000</strong></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0", fontWeight: 700 }}><span style={{ color: C.gold }}>TOTAL</span><strong style={{ color: "#10B981" }}>€504 220 MRR</strong></div>
+                  </div>
+                  <div style={{ fontSize: 10, color: C.dim, marginTop: 8 }}>~1 810 clients payants · Conversion free→paid 12-15%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div style={{ padding: "0 24px 24px" }}>
           {loading ? (
             <div style={{ color: C.dim, fontSize: 13, padding: 40, textAlign: "center" }}>Chargement...</div>
@@ -314,43 +571,140 @@ export default function InsightsPage() {
         const done = actions.filter(a => a.status === "done").length;
         const total = actions.length;
         const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-        const humanTodo = actions.filter(a => a.assignee === "human" && a.status !== "done");
+        const agentActions = actions.filter(a => a.assignee === "agent");
+        const agentDone = agentActions.filter(a => a.status === "done").length;
+        const humanActions = actions.filter(a => a.assignee === "human");
+        const humanDone = humanActions.filter(a => a.status === "done").length;
+        const humanTodo = humanActions.filter(a => a.status !== "done");
         return (
-          <div style={{ background: C.header, borderBottom: C.borderLight, padding: "0 20px", display: "flex", alignItems: "center", gap: 0, flexShrink: 0 }}>
-            <button onClick={() => setDetailTab("content")} style={{
-              padding: "10px 16px", fontSize: 12, fontFamily: "inherit", cursor: "pointer",
-              color: detailTab === "content" ? C.gold : C.muted,
-              background: "transparent", border: "none",
-              borderBottom: detailTab === "content" ? "2px solid " + C.gold : "2px solid transparent",
-            }}>Contenu</button>
-            <button onClick={() => setDetailTab("actions")} style={{
-              padding: "10px 16px", fontSize: 12, fontFamily: "inherit", cursor: "pointer",
-              color: detailTab === "actions" ? C.gold : C.muted,
-              background: "transparent", border: "none",
-              borderBottom: detailTab === "actions" ? "2px solid " + C.gold : "2px solid transparent",
-              display: "flex", alignItems: "center", gap: 6,
-            }}>
-              Actions
-              {total > 0 && (
-                <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: pct === 100 ? "rgba(16,185,129,.15)" : "rgba(201,168,76,.12)", color: pct === 100 ? "#10B981" : C.gold }}>
-                  {done}/{total}
-                </span>
-              )}
-            </button>
-            {total > 0 && (
-              <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 80, height: 4, background: "rgba(255,255,255,.06)", borderRadius: 2, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${pct}%`, background: pct === 100 ? "#10B981" : C.gold, borderRadius: 2, transition: "width .3s" }} />
-                </div>
-                <span style={{ fontSize: 10, color: C.dim }}>{pct}%</span>
-                {humanTodo.length > 0 && (
-                  <span style={{ fontSize: 9, padding: "2px 6px", background: "rgba(239,68,68,.1)", color: "#EF4444", borderRadius: 3 }}>
-                    {humanTodo.length} action{humanTodo.length > 1 ? "s" : ""} humaine{humanTodo.length > 1 ? "s" : ""}
+          <>
+            <div style={{ background: C.header, borderBottom: C.borderLight, padding: "0 20px", display: "flex", alignItems: "center", gap: 0, flexShrink: 0 }}>
+              <button onClick={() => setDetailTab("content")} style={{
+                padding: "10px 16px", fontSize: 12, fontFamily: "inherit", cursor: "pointer",
+                color: detailTab === "content" ? C.gold : C.muted,
+                background: "transparent", border: "none",
+                borderBottom: detailTab === "content" ? "2px solid " + C.gold : "2px solid transparent",
+              }}>Contenu</button>
+              <button onClick={() => setDetailTab("actions")} style={{
+                padding: "10px 16px", fontSize: 12, fontFamily: "inherit", cursor: "pointer",
+                color: detailTab === "actions" ? C.gold : C.muted,
+                background: "transparent", border: "none",
+                borderBottom: detailTab === "actions" ? "2px solid " + C.gold : "2px solid transparent",
+                display: "flex", alignItems: "center", gap: 6,
+              }}>
+                Actions
+                {total > 0 && (
+                  <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: pct === 100 ? "rgba(16,185,129,.15)" : "rgba(201,168,76,.12)", color: pct === 100 ? "#10B981" : C.gold }}>
+                    {done}/{total}
                   </span>
                 )}
+              </button>
+            </div>
+
+            {/* Section Tracking dédiée */}
+            {total > 0 && (
+              <div style={{ background: "rgba(10,26,46,.8)", borderBottom: C.border, padding: "14px 20px", flexShrink: 0 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12 }}>
+                  Tracking
+                </div>
+
+                {/* Barre de progression globale */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                  <span style={{ fontSize: 13, color: C.text, fontWeight: 600, minWidth: 40 }}>{pct}%</span>
+                  <div style={{ flex: 1, height: 8, background: "rgba(255,255,255,.06)", borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${pct}%`, background: pct === 100 ? "#10B981" : C.gold, borderRadius: 4, transition: "width .3s" }} />
+                  </div>
+                  <span style={{ fontSize: 12, color: C.muted }}>{done}/{total} complétées</span>
+                </div>
+
+                {/* Détail par assignee */}
+                <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                  {/* Agents IA */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "rgba(201,168,76,.06)", border: "1px solid rgba(201,168,76,.15)", borderRadius: 6 }}>
+                    <span style={{ fontSize: 18 }}>🤖</span>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>Agents IA</div>
+                      <div style={{ fontSize: 12, color: C.muted }}>{agentDone}/{agentActions.length} tâches</div>
+                    </div>
+                    <div style={{ width: 50, height: 6, background: "rgba(255,255,255,.06)", borderRadius: 3, overflow: "hidden", marginLeft: 8 }}>
+                      <div style={{ height: "100%", width: agentActions.length > 0 ? `${Math.round((agentDone / agentActions.length) * 100)}%` : "0%", background: agentDone === agentActions.length && agentActions.length > 0 ? "#10B981" : C.gold, borderRadius: 3 }} />
+                    </div>
+                  </div>
+
+                  {/* Actions humaines */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: humanTodo.length > 0 ? "rgba(239,68,68,.06)" : "rgba(16,185,129,.06)", border: `1px solid ${humanTodo.length > 0 ? "rgba(239,68,68,.15)" : "rgba(16,185,129,.15)"}`, borderRadius: 6 }}>
+                    <span style={{ fontSize: 18 }}>👤</span>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>Mes actions</div>
+                      <div style={{ fontSize: 12, color: humanTodo.length > 0 ? "#EF4444" : C.muted }}>
+                        {humanTodo.length > 0 ? `${humanTodo.length} en attente` : `${humanDone}/${humanActions.length} complétées`}
+                      </div>
+                    </div>
+                    <div style={{ width: 50, height: 6, background: "rgba(255,255,255,.06)", borderRadius: 3, overflow: "hidden", marginLeft: 8 }}>
+                      <div style={{ height: "100%", width: humanActions.length > 0 ? `${Math.round((humanDone / humanActions.length) * 100)}%` : "0%", background: humanDone === humanActions.length && humanActions.length > 0 ? "#10B981" : "#EF4444", borderRadius: 3 }} />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
-          </div>
+
+            {/* Section Palier Revenus Théorique — vue détail */}
+            {total > 0 && (
+              <div style={{ background: "rgba(10,26,46,.6)", borderBottom: C.border, padding: "14px 20px", flexShrink: 0, maxHeight: 300, overflowY: "auto" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12 }}>
+                  Palier Revenus Théorique
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid rgba(201,168,76,.2)" }}>
+                        <th style={{ padding: "6px 10px", textAlign: "left", color: C.gold, fontWeight: 600, fontSize: 10, textTransform: "uppercase" }}>Palier</th>
+                        <th style={{ padding: "6px 10px", textAlign: "left", color: C.gold, fontWeight: 600, fontSize: 10, textTransform: "uppercase" }}>Objectif</th>
+                        <th style={{ padding: "6px 10px", textAlign: "left", color: C.gold, fontWeight: 600, fontSize: 10, textTransform: "uppercase" }}>Timeline</th>
+                        <th style={{ padding: "6px 10px", textAlign: "right", color: C.gold, fontWeight: 600, fontSize: 10, textTransform: "uppercase" }}>MRR</th>
+                        <th style={{ padding: "6px 10px", textAlign: "right", color: "#EF4444", fontWeight: 600, fontSize: 10, textTransform: "uppercase" }}>Coûts</th>
+                        <th style={{ padding: "6px 10px", textAlign: "right", color: C.gold, fontWeight: 600, fontSize: 10, textTransform: "uppercase" }}>Marge</th>
+                        <th style={{ padding: "6px 10px", textAlign: "right", color: C.gold, fontWeight: 600, fontSize: 10, textTransform: "uppercase" }}>Annuel</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { palier: "M1", label: "609 produits + 300 personas + 206 deals + 270 posts + vidéos 🔄", mois: "Mois 1", mrr: 1210000, couts: 4600, marge: 1205400, benefice: 14464800 },
+                        { palier: "M2", label: "2K produits + SEO 30K + Social 500/j + Email 15 langues", mois: "Mois 2", mrr: 1280000, couts: 12000, marge: 1268000, benefice: 15216000 },
+                        { palier: "M3", label: "5K produits + SEO 75K + Influencers viraux + geo-pricing", mois: "Mois 3", mrr: 1450000, couts: 87000, marge: 1363000, benefice: 16356000 },
+                        { palier: "M4-5", label: "10K produits + 150K SEO + 500 personas + 500 deals + upsell", mois: "Mois 4-5", mrr: 1800000, couts: 108000, marge: 1692000, benefice: 20304000 },
+                        { palier: "M6", label: "Traction: 150K pages indexées + 10K produits + churn 2.5%", mois: "Mois 6", mrr: 2200000, couts: 132000, marge: 2068000, benefice: 24816000 },
+                        { palier: "M7-9", label: "Enterprise + API B2B + white-label + marketplace + Stripe live", mois: "Mois 7-9", mrr: 3200000, couts: 192000, marge: 3008000, benefice: 36096000 },
+                        { palier: "M10-12", label: "50 langues + 20K produits + agent army ×3 + vidéos auto", mois: "Mois 10-12", mrr: 5000000, couts: 300000, marge: 4700000, benefice: 56400000 },
+                        { palier: "M13-18", label: "Datasets exclusifs + bureaux régionaux + 50K produits", mois: "Mois 13-18", mrr: 8500000, couts: 510000, marge: 7990000, benefice: 95880000 },
+                        { palier: "M19-24", label: "Référence mondiale + IPO ready + 100K produits", mois: "Mois 19-24", mrr: 18000000, couts: 1080000, marge: 16920000, benefice: 203040000 },
+                        { palier: "M24+", label: "Exit / IPO: €216M+ ARR, valorisation €2-3B", mois: "Mois 24+", mrr: 25000000, couts: 1500000, marge: 23500000, benefice: 282000000 },
+                      ].map((row, idx) => {
+                        const isActive = actions.some(a => a.palier === idx + 1 && a.status !== "done");
+                        const isDone = actions.filter(a => a.palier === idx + 1).length > 0 && actions.filter(a => a.palier === idx + 1).every(a => a.status === "done");
+                        return (
+                          <tr key={row.palier} style={{
+                            background: isActive ? "rgba(201,168,76,.06)" : isDone ? "rgba(16,185,129,.04)" : "transparent",
+                            borderBottom: "1px solid rgba(255,255,255,.04)",
+                          }}>
+                            <td style={{ padding: "8px 10px", fontWeight: 700, color: isActive ? C.gold : isDone ? "#10B981" : C.muted }}>
+                              {isDone ? "✓ " : isActive ? "► " : ""}{row.palier}
+                            </td>
+                            <td style={{ padding: "8px 10px", color: isActive ? C.text : C.muted, fontSize: 11 }}>{row.label}</td>
+                            <td style={{ padding: "8px 10px", color: C.dim, fontSize: 11 }}>{row.mois}</td>
+                            <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", color: row.mrr > 0 ? C.text : C.dim }}>{row.mrr.toLocaleString("fr-FR")} €</td>
+                            <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", color: "#EF4444" }}>-{row.couts.toLocaleString("fr-FR")} €</td>
+                            <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", color: row.marge > 0 ? "#10B981" : "#EF4444" }}>{row.marge > 0 ? "+" : ""}{row.marge.toLocaleString("fr-FR")} €</td>
+                            <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", fontWeight: 600, color: row.benefice > 0 ? "#10B981" : "#EF4444" }}>{row.benefice > 0 ? "+" : ""}{row.benefice.toLocaleString("fr-FR")} €</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </>
         );
       })()}
 
