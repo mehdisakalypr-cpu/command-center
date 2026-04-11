@@ -16,6 +16,7 @@ const NAV = [
   { href: '/admin/demo-parcours', label: 'Parcours',   icon: '🎯', desc: 'Tours guidés' },
   { href: '/admin/insights',      label: 'Insights',   icon: '🧠', desc: 'Stratégie & benchmark' },
   { href: '/admin/vr',            label: 'V/R',        icon: '🎯', desc: 'Vision vs Réalisé' },
+  { href: '/admin/campaigns',    label: 'Campagnes',  icon: '📡', desc: 'Funnels & outreach' },
   { href: '/admin/code-map',      label: 'Code Map',   icon: '🗺️', desc: 'Architecture projets' },
 ]
 
