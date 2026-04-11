@@ -475,6 +475,8 @@ export default function InsightsPage() {
                     <th style={{ padding: "8px 12px", textAlign: "right", color: C.gold, fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>MRR</th>
                     <th style={{ padding: "8px 12px", textAlign: "right", color: "#EF4444", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>Coûts/mois</th>
                     <th style={{ padding: "8px 12px", textAlign: "right", color: C.gold, fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>Marge/mois</th>
+                    <th style={{ padding: "8px 12px", textAlign: "right", color: "#A78BFA", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>70% Reinvest</th>
+                    <th style={{ padding: "8px 12px", textAlign: "right", color: "#10B981", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>30% Profit</th>
                     <th style={{ padding: "8px 12px", textAlign: "right", color: C.gold, fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>Bénéfice annuel</th>
                   </tr>
                 </thead>
@@ -494,6 +496,8 @@ export default function InsightsPage() {
                       <td style={{ padding: "10px 12px", textAlign: "right", fontFamily: "monospace", color: mrr > 0 ? C.text : C.dim }}>{mrr.toLocaleString("fr-FR")} €</td>
                       <td style={{ padding: "10px 12px", textAlign: "right", fontFamily: "monospace", color: "#EF4444" }}>-{costs.toLocaleString("fr-FR")} €</td>
                       <td style={{ padding: "10px 12px", textAlign: "right", fontFamily: "monospace", color: margin > 0 ? "#10B981" : "#EF4444" }}>{margin > 0 ? "+" : ""}{margin.toLocaleString("fr-FR")} €</td>
+                      <td style={{ padding: "10px 12px", textAlign: "right", fontFamily: "monospace", color: "#A78BFA" }}>{margin > 0 ? Math.round(margin * 0.7).toLocaleString("fr-FR") : 0} €</td>
+                      <td style={{ padding: "10px 12px", textAlign: "right", fontFamily: "monospace", color: "#10B981", fontWeight: 600 }}>{margin > 0 ? Math.round(margin * 0.3).toLocaleString("fr-FR") : 0} €</td>
                       <td style={{ padding: "10px 12px", textAlign: "right", fontFamily: "monospace", fontWeight: 600, color: annual > 0 ? "#10B981" : "#EF4444" }}>{annual > 0 ? "+" : ""}{annual.toLocaleString("fr-FR")} €</td>
                     </tr>
                     );
