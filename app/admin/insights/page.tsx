@@ -54,6 +54,7 @@ export default function InsightsPage() {
   const [detailTab, setDetailTab] = useState<"content" | "actions">("content");
   const [paliers, setPaliers] = useState<any[]>([]);
   const [scenarioTab, setScenarioTab] = useState<"garanti" | "median" | "high" | "ultra">("median");
+  const [projectTab, setProjectTab] = useState<"ftg" | "baratie" | "total">("ftg");
   const [sukStatus, setSukStatus] = useState<any>(null);
 
   useEffect(() => {
@@ -80,41 +81,100 @@ export default function InsightsPage() {
   }
 
   useEffect(() => {
-    setPaliers(SCENARIOS[scenarioTab]);
-  }, [scenarioTab]);
+    const key = `${projectTab}_${scenarioTab}`;
+    const data = ALL_SCENARIOS[key] ?? ALL_SCENARIOS[`ftg_${scenarioTab}`] ?? [];
+    setPaliers(data);
+  }, [scenarioTab, projectTab]);
 
-  const SCENARIOS: Record<string, any[]> = {
-    garanti: [
+  const ALL_SCENARIOS: Record<string, any[]> = {
+    // ══════ FTG ══════
+    ftg_garanti: [
       { palier_num: 1, label: "M1-M6 — Coûts €1/mo (free tiers), SEO lent, 0 payant mais 0 perte", timeline: "Mois 1-6", mrr: 0, costs: 1, margin: -1, annual_profit: -12, status: "in_progress" },
       { palier_num: 2, label: "M7-M12 — Premiers signups organiques, 0 payant, perte €1/mo", timeline: "Mois 7-12", mrr: 0, costs: 1, margin: -1, annual_profit: -12, status: "planned" },
       { palier_num: 3, label: "M13-M18 — 2 payants, MRR €144, profit €139/mo", timeline: "Mois 13-18", mrr: 144, costs: 5, margin: 139, annual_profit: 1668, status: "planned" },
       { palier_num: 4, label: "M19-M24 — 14 payants, MRR €1K, profit €970/mo", timeline: "Mois 19-24", mrr: 1008, costs: 30, margin: 978, annual_profit: 11736, status: "planned" },
       { palier_num: 5, label: "M25-M36 — 52 payants, MRR €3.7K, profit cumulé €32K", timeline: "Mois 25-36", mrr: 3744, costs: 110, margin: 3634, annual_profit: 43608, status: "planned" },
     ],
-    median: [
-      { palier_num: 1, label: "M1-M3 — 34 agents, 5,500+ produits, 509 deals, 15 langues, PPP pricing, 100+ email templates", timeline: "Mois 1-3", mrr: 760, costs: 4545, margin: -3785, annual_profit: -45420, status: "in_progress" },
-      { palier_num: 2, label: "M4-M6 — Breakeven M6, 73 payants, 1er partenariat, outbound B2B actif", timeline: "Mois 4-6", mrr: 6935, costs: 4728, margin: 2207, annual_profit: 26484, status: "planned" },
-      { palier_num: 3, label: "M7-M12 — Scale: 367 payants, ARPU €140, MRR €51K, 10 partenaires", timeline: "Mois 7-12", mrr: 51380, costs: 5463, margin: 45917, annual_profit: 551004, status: "planned" },
-      { palier_num: 4, label: "M13-M18 — Accélération: 1213 payants, MRR €218K, community active", timeline: "Mois 13-18", mrr: 218340, costs: 7578, margin: 210762, annual_profit: 2529144, status: "planned" },
-      { palier_num: 5, label: "M19-M24 — €500K MRR: 2736 payants, ARPU €200, profit €536K/mo", timeline: "Mois 19-24", mrr: 547200, costs: 11385, margin: 535815, annual_profit: 6429780, status: "planned" },
-      { palier_num: 6, label: "M25-M33 — €1M MRR: 5202 payants, ARPU €200, profit €1.2M/mo", timeline: "Mois 25-33", mrr: 1040400, costs: 17550, margin: 1022850, annual_profit: 12274200, status: "planned" },
+    ftg_median: [
+      { palier_num: 1, label: "M1-M3 — 34 agents, 10K produits, 2,600 opps, 566 deals, 523 leads Nami, PPP pricing", timeline: "Mois 1-3", mrr: 760, costs: 4545, margin: -3785, annual_profit: -45420, status: "in_progress" },
+      { palier_num: 2, label: "M4-M6 — FTG: 73 payants + Baratie: 200 sites (€3K) = MRR €10K, breakeven M6", timeline: "Mois 4-6", mrr: 9935, costs: 4728, margin: 5207, annual_profit: 62484, status: "planned" },
+      { palier_num: 3, label: "M7-M12 — FTG: 367 payants €51K + Baratie: 2K sites €30K = MRR €81K", timeline: "Mois 7-12", mrr: 81380, costs: 6463, margin: 74917, annual_profit: 899004, status: "planned" },
+      { palier_num: 4, label: "M13-M18 — FTG: €218K + Baratie: 8K sites €120K = MRR €338K", timeline: "Mois 13-18", mrr: 338340, costs: 12578, margin: 325762, annual_profit: 3909144, status: "planned" },
+      { palier_num: 5, label: "M19-M24 — FTG: €547K + Baratie: 15K sites €225K = MRR €772K", timeline: "Mois 19-24", mrr: 772200, costs: 18385, margin: 753815, annual_profit: 9045780, status: "planned" },
+      { palier_num: 6, label: "M25-M33 — FTG: €1M + Baratie: 25K sites €375K = MRR €1.4M", timeline: "Mois 25-33", mrr: 1415400, costs: 27550, margin: 1387850, annual_profit: 16654200, status: "planned" },
     ],
-    high: [
-      { palier_num: 1, label: "M1-M3 — 34 agents + viralité + press, 5,500+ produits, 509 deals, 15 langues, 9 payants", timeline: "Mois 1-3", mrr: 1260, costs: 4545, margin: -3285, annual_profit: -39420, status: "in_progress" },
+    ftg_high: [
+      { palier_num: 1, label: "M1-M3 — 34 agents + viralité + press, 10K produits, 2,600 opps, 566 deals, 15 langues", timeline: "Mois 1-3", mrr: 1260, costs: 4545, margin: -3285, annual_profit: -39420, status: "in_progress" },
       { palier_num: 2, label: "M4-M6 — PMF validé, 65 payants, MRR €9.1K, breakeven M6", timeline: "Mois 4-6", mrr: 9100, costs: 4675, margin: 4425, annual_profit: 53100, status: "planned" },
       { palier_num: 3, label: "M7-M9 — Scale, 151 payants, MRR €21K, profit €16K/mo", timeline: "Mois 7-9", mrr: 21140, costs: 4847, margin: 16293, annual_profit: 195516, status: "planned" },
       { palier_num: 4, label: "M10-M12 — 354 payants, MRR €50K, profit €44K/mo", timeline: "Mois 10-12", mrr: 49560, costs: 5253, margin: 44307, annual_profit: 531684, status: "planned" },
       { palier_num: 5, label: "M13-M18 — Enterprise + API, 1412 payants, MRR €198K", timeline: "Mois 13-18", mrr: 197680, costs: 7369, margin: 190311, annual_profit: 2283732, status: "planned" },
       { palier_num: 6, label: "M19-M24 — 2764 payants, MRR €387K, vers €500K", timeline: "Mois 19-24", mrr: 386960, costs: 10073, margin: 376887, annual_profit: 4522644, status: "planned" },
     ],
-    ultra: [
-      { palier_num: 1, label: "M1-M3 — SSJ3: 34 agents, 5,500+ produits, 509 deals, 300 personas, 15 langues, geo-pricing PPP, 7 crons R&B", timeline: "Mois 1-3", mrr: 4465, costs: 4545, margin: -80, annual_profit: -960, status: "in_progress" },
-      { palier_num: 2, label: "M4-M6 ��� Breakeven M4! 10K produits, 300K SEO, 269 payants, ARPU €150, MRR €40K", timeline: "Mois 4-6", mrr: 40350, costs: 5218, margin: 35132, annual_profit: 421584, status: "planned" },
-      { palier_num: 3, label: "M7-M9 — Kaioken ×20: 674 payants, MRR €135K, profit €127K/mo, churn 2.5%", timeline: "Mois 7-9", mrr: 134800, costs: 8230, margin: 126570, annual_profit: 1518840, status: "planned" },
-      { palier_num: 4, label: "M10-M12 — 1289 payants, MRR €258K, profit cumulé €1.5M, Enterprise API live", timeline: "Mois 10-12", mrr: 257800, costs: 9768, margin: 248032, annual_profit: 2976384, status: "planned" },
-      { palier_num: 5, label: "M13-M18 — €500K MRR M15! 3061 payants, ARPU €250, marketplace B2B", timeline: "Mois 13-18", mrr: 765250, costs: 15698, margin: 749552, annual_profit: 8994624, status: "planned" },
-      { palier_num: 6, label: "M19-M24 — €1M MRR M19! Night Guy: 5395 payants, ARPU €300, white-label", timeline: "Mois 19-24", mrr: 1618500, costs: 22033, margin: 1596467, annual_profit: 19157604, status: "planned" },
-      { palier_num: 7, label: "M25-M36 — Genkidama: 11489 payants, MRR €3.45M, valo €414M, IPO ready", timeline: "Mois 25-36", mrr: 3446700, costs: 37268, margin: 3409432, annual_profit: 40913184, status: "planned" },
+    ftg_ultra: [
+      { palier_num: 1, label: "M1-M3 — SSJ3: 34 agents, 10K produits, 2,600+ opps, 566 deals, 531 trends, 523 leads Nami, PPP pricing, 7 crons R&B", timeline: "Mois 1-3", mrr: 4465, costs: 4545, margin: -80, annual_profit: -960, status: "in_progress" },
+      { palier_num: 2, label: "M4-M6 — Breakeven M4! FTG: 269 payants MRR €40K + Baratie (Site Factory): 500 sites MRR €7.5K = €47.5K total", timeline: "Mois 4-6", mrr: 47850, costs: 5218, margin: 42632, annual_profit: 511584, status: "planned" },
+      { palier_num: 3, label: "M7-M9 — Kaioken: FTG 674 payants €135K + Baratie 3K sites €45K = €180K MRR, churn 2.5%", timeline: "Mois 7-9", mrr: 180000, costs: 10230, margin: 169770, annual_profit: 2037240, status: "planned" },
+      { palier_num: 4, label: "M10-M12 — FTG 1289 payants €258K + Baratie 10K sites €150K = €408K MRR, profit €2.5M cumulé", timeline: "Mois 10-12", mrr: 408000, costs: 16768, margin: 391232, annual_profit: 4694784, status: "planned" },
+      { palier_num: 5, label: "M13-M18 — FTG €500K + Baratie €300K = €800K MRR! 20K sites, marketplace B2B, Enterprise API", timeline: "Mois 13-18", mrr: 800000, costs: 25698, margin: 774302, annual_profit: 9291624, status: "planned" },
+      { palier_num: 6, label: "M19-M24 — FTG €1M + Baratie €450K = €1.45M MRR! Night Guy: 30K sites, 5K payants FTG", timeline: "Mois 19-24", mrr: 1450000, costs: 35033, margin: 1414967, annual_profit: 16979604, status: "planned" },
+      { palier_num: 7, label: "M25-M36 — Genkidama: FTG €3.45M + Baratie €1M = €4.45M MRR, valo €530M, IPO ready", timeline: "Mois 25-36", mrr: 4450000, costs: 55268, margin: 4394732, annual_profit: 52736784, status: "planned" },
+    ],
+    // ══════ BARATIE (Site Factory) ══════
+    baratie_garanti: [
+      { palier_num: 1, label: "M1-M6 — Build templates + 100 sites test, 0 vente", timeline: "Mois 1-6", mrr: 0, costs: 0, margin: 0, annual_profit: 0, status: "planned" },
+      { palier_num: 2, label: "M7-M12 — 500 sites, 50 ventes × €49 + 30 abos × €15 = MRR €2.9K", timeline: "Mois 7-12", mrr: 2900, costs: 45, margin: 2855, annual_profit: 34260, status: "planned" },
+      { palier_num: 3, label: "M13-M24 — 3K sites, 300 abos × €15 = MRR €4.5K", timeline: "Mois 13-24", mrr: 4500, costs: 70, margin: 4430, annual_profit: 53160, status: "planned" },
+    ],
+    baratie_median: [
+      { palier_num: 1, label: "M4-M6 — Launch: 500 sites, 50 ventes, 200 abos × €15 = MRR €3K", timeline: "Mois 4-6", mrr: 3000, costs: 20, margin: 2980, annual_profit: 35760, status: "planned" },
+      { palier_num: 2, label: "M7-M12 — Scale: 5K sites, 2K abos × €15 = MRR €30K", timeline: "Mois 7-12", mrr: 30000, costs: 500, margin: 29500, annual_profit: 354000, status: "planned" },
+      { palier_num: 3, label: "M13-M18 — 15K sites, 8K abos × €15 = MRR €120K", timeline: "Mois 13-18", mrr: 120000, costs: 2000, margin: 118000, annual_profit: 1416000, status: "planned" },
+      { palier_num: 4, label: "M19-M24 — 25K sites, 15K abos × €15 = MRR €225K", timeline: "Mois 19-24", mrr: 225000, costs: 4000, margin: 221000, annual_profit: 2652000, status: "planned" },
+    ],
+    baratie_high: [
+      { palier_num: 1, label: "M4-M6 — Launch: 1K sites, 200 ventes + 500 abos = MRR €7.5K", timeline: "Mois 4-6", mrr: 7500, costs: 45, margin: 7455, annual_profit: 89460, status: "planned" },
+      { palier_num: 2, label: "M7-M9 — 5K sites, 3K abos × €15 = MRR €45K", timeline: "Mois 7-9", mrr: 45000, costs: 700, margin: 44300, annual_profit: 531600, status: "planned" },
+      { palier_num: 3, label: "M10-M12 — 15K sites, 10K abos = MRR €150K", timeline: "Mois 10-12", mrr: 150000, costs: 2500, margin: 147500, annual_profit: 1770000, status: "planned" },
+      { palier_num: 4, label: "M13-M18 — 30K sites, 20K abos = MRR €300K", timeline: "Mois 13-18", mrr: 300000, costs: 5000, margin: 295000, annual_profit: 3540000, status: "planned" },
+      { palier_num: 5, label: "M19-M24 — 50K sites, 35K abos = MRR €525K", timeline: "Mois 19-24", mrr: 525000, costs: 8000, margin: 517000, annual_profit: 6204000, status: "planned" },
+    ],
+    baratie_ultra: [
+      { palier_num: 1, label: "M4-M6 — Nami Launch: 2K sites, 500 ventes + 1K abos = MRR €15K", timeline: "Mois 4-6", mrr: 15000, costs: 100, margin: 14900, annual_profit: 178800, status: "planned" },
+      { palier_num: 2, label: "M7-M9 — 10K sites, 5K abos = MRR €75K", timeline: "Mois 7-9", mrr: 75000, costs: 1200, margin: 73800, annual_profit: 885600, status: "planned" },
+      { palier_num: 3, label: "M10-M12 — 25K sites, 15K abos = MRR €225K", timeline: "Mois 10-12", mrr: 225000, costs: 3500, margin: 221500, annual_profit: 2658000, status: "planned" },
+      { palier_num: 4, label: "M13-M18 — 50K sites, 30K abos = MRR €450K", timeline: "Mois 13-18", mrr: 450000, costs: 7000, margin: 443000, annual_profit: 5316000, status: "planned" },
+      { palier_num: 5, label: "M19-M24 — 100K sites, 60K abos = MRR €900K", timeline: "Mois 19-24", mrr: 900000, costs: 14000, margin: 886000, annual_profit: 10632000, status: "planned" },
+    ],
+    // ══════ TOTAL (FTG + Baratie) ══════
+    total_garanti: [
+      { palier_num: 1, label: "M1-M12 — FTG seul, €0 coûts, 0 payant", timeline: "Mois 1-12", mrr: 0, costs: 1, margin: -1, annual_profit: -12, status: "in_progress" },
+      { palier_num: 2, label: "M13-M24 — FTG €1K + Baratie €2.9K = MRR €3.9K", timeline: "Mois 13-24", mrr: 3900, costs: 75, margin: 3825, annual_profit: 45900, status: "planned" },
+      { palier_num: 3, label: "M25-M36 — FTG €3.7K + Baratie €4.5K = MRR €8.2K", timeline: "Mois 25-36", mrr: 8200, costs: 180, margin: 8020, annual_profit: 96240, status: "planned" },
+    ],
+    total_median: [
+      { palier_num: 1, label: "M1-M3 — FTG launch, €760 MRR", timeline: "Mois 1-3", mrr: 760, costs: 4545, margin: -3785, annual_profit: -45420, status: "in_progress" },
+      { palier_num: 2, label: "M4-M6 — FTG €10K + Baratie €3K = €13K MRR", timeline: "Mois 4-6", mrr: 13000, costs: 4748, margin: 8252, annual_profit: 99024, status: "planned" },
+      { palier_num: 3, label: "M7-M12 — FTG €51K + Baratie €30K = €81K MRR", timeline: "Mois 7-12", mrr: 81000, costs: 5963, margin: 75037, annual_profit: 900444, status: "planned" },
+      { palier_num: 4, label: "M13-M18 — FTG €218K + Baratie €120K = €338K MRR", timeline: "Mois 13-18", mrr: 338000, costs: 9578, margin: 328422, annual_profit: 3941064, status: "planned" },
+      { palier_num: 5, label: "M19-M24 — FTG €547K + Baratie €225K = €772K MRR", timeline: "Mois 19-24", mrr: 772000, costs: 15385, margin: 756615, annual_profit: 9079380, status: "planned" },
+      { palier_num: 6, label: "M25-M33 — FTG €1M + Baratie €375K = €1.4M MRR", timeline: "Mois 25-33", mrr: 1400000, costs: 21550, margin: 1378450, annual_profit: 16541400, status: "planned" },
+    ],
+    total_high: [
+      { palier_num: 1, label: "M1-M3 — FTG launch, €1.3K MRR", timeline: "Mois 1-3", mrr: 1260, costs: 4545, margin: -3285, annual_profit: -39420, status: "in_progress" },
+      { palier_num: 2, label: "M4-M6 — FTG €9.1K + Baratie €7.5K = €16.6K MRR", timeline: "Mois 4-6", mrr: 16600, costs: 4720, margin: 11880, annual_profit: 142560, status: "planned" },
+      { palier_num: 3, label: "M7-M12 — FTG €50K + Baratie €150K = €200K MRR", timeline: "Mois 7-12", mrr: 200000, costs: 7753, margin: 192247, annual_profit: 2306964, status: "planned" },
+      { palier_num: 4, label: "M13-M18 — FTG €198K + Baratie €300K = €498K MRR", timeline: "Mois 13-18", mrr: 498000, costs: 12369, margin: 485631, annual_profit: 5827572, status: "planned" },
+      { palier_num: 5, label: "M19-M24 — FTG €387K + Baratie €525K = €912K MRR", timeline: "Mois 19-24", mrr: 912000, costs: 18073, margin: 893927, annual_profit: 10727124, status: "planned" },
+    ],
+    total_ultra: [
+      { palier_num: 1, label: "M1-M3 — FTG SSJ3 launch, €4.5K MRR", timeline: "Mois 1-3", mrr: 4465, costs: 4545, margin: -80, annual_profit: -960, status: "in_progress" },
+      { palier_num: 2, label: "M4-M6 — FTG €40K + Baratie €15K = €55K MRR", timeline: "Mois 4-6", mrr: 55000, costs: 5318, margin: 49682, annual_profit: 596184, status: "planned" },
+      { palier_num: 3, label: "M7-M9 — FTG €135K + Baratie €75K = €210K MRR, Kaioken", timeline: "Mois 7-9", mrr: 210000, costs: 11430, margin: 198570, annual_profit: 2382840, status: "planned" },
+      { palier_num: 4, label: "M10-M12 — FTG €258K + Baratie €225K = €483K MRR", timeline: "Mois 10-12", mrr: 483000, costs: 20268, margin: 462732, annual_profit: 5552784, status: "planned" },
+      { palier_num: 5, label: "M13-M18 — FTG €500K + Baratie €450K = €950K MRR, Genkidama charging", timeline: "Mois 13-18", mrr: 950000, costs: 32698, margin: 917302, annual_profit: 11007624, status: "planned" },
+      { palier_num: 6, label: "M19-M24 — FTG €1M + Baratie €900K = €1.9M MRR! Night Guy", timeline: "Mois 19-24", mrr: 1900000, costs: 49033, margin: 1850967, annual_profit: 22211604, status: "planned" },
+      { palier_num: 7, label: "M25-M36 — GENKIDAMA: FTG €3.45M + Baratie €1.5M = €4.95M MRR, valo €594M", timeline: "Mois 25-36", mrr: 4950000, costs: 69268, margin: 4880732, annual_profit: 58568784, status: "planned" },
     ],
   };
 
@@ -123,9 +183,9 @@ export default function InsightsPage() {
       const r = await fetch("/api/admin/paliers");
       const d = await r.json();
       if (Array.isArray(d) && d.length > 0) setPaliers(d);
-      else setPaliers(SCENARIOS[scenarioTab]);
+      else setPaliers(ALL_SCENARIOS[`${projectTab}_${scenarioTab}`] ?? []);
     } catch {
-      setPaliers(SCENARIOS[scenarioTab]);
+      setPaliers(ALL_SCENARIOS[`${projectTab}_${scenarioTab}`] ?? []);
     }
   }
 
@@ -358,10 +418,26 @@ export default function InsightsPage() {
         {/* Section 3 Scénarios Revenus — toujours visible */}
         <div style={{ padding: "0 24px 20px" }}>
           <div style={{ background: "rgba(10,26,46,.6)", border: C.border, padding: "16px 20px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, textTransform: "uppercase", letterSpacing: ".1em" }}>
                 Scénarios Revenus
               </div>
+              {/* Project selector */}
+              <div style={{ display: "flex", gap: 3, background: "rgba(201,168,76,.08)", borderRadius: 8, padding: 2, border: "1px solid rgba(201,168,76,.2)" }}>
+                {([
+                  { key: "ftg" as const, label: "FTG", icon: "🌍" },
+                  { key: "baratie" as const, label: "Baratie", icon: "🍳" },
+                  { key: "total" as const, label: "Total Empire", icon: "👑" },
+                ] as const).map(p => (
+                  <button key={p.key} onClick={() => setProjectTab(p.key)}
+                    style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 700, transition: "all .15s",
+                      background: projectTab === p.key ? C.gold : "transparent",
+                      color: projectTab === p.key ? "#07090F" : C.gold, border: "none", cursor: "pointer" }}>
+                    {p.icon} {p.label}
+                  </button>
+                ))}
+              </div>
+              {/* Scenario selector */}
               <div style={{ marginLeft: "auto", display: "flex", gap: 4, background: "rgba(255,255,255,.05)", borderRadius: 8, padding: 2 }}>
                 {([
                   { key: "garanti" as const, label: "Garanti 85%", color: "#34D399" },
