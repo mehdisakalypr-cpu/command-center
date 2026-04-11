@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireAuth } from "@/lib/auth";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,6 +8,7 @@ const supabase = createClient(
 )
 
 export async function GET(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   // Fetch all campaigns
   const { data: campaigns } = await supabase
     .from('campaigns')

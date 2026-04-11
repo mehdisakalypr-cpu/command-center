@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth } from "@/lib/auth";
 
 const sb = () =>
   createClient(
@@ -9,6 +10,7 @@ const sb = () =>
 
 // GET /api/admin/insights/actions?report_id=xxx
 export async function GET(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const reportId = req.nextUrl.searchParams.get("report_id");
   let query = sb().from("insight_actions").select("*").order("sort_order");
   if (reportId) query = query.eq("report_id", reportId);
@@ -19,6 +21,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/admin/insights/actions — create or update
 export async function POST(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const body = await req.json();
 
   // Toggle status
@@ -48,6 +51,7 @@ export async function POST(req: NextRequest) {
 
 // DELETE /api/admin/insights/actions?id=xxx
 export async function DELETE(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
   const { error } = await sb().from("insight_actions").delete().eq("id", id);

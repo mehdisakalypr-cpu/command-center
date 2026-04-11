@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth } from "@/lib/auth";
 
 const sb = () =>
   createClient(
@@ -10,6 +11,7 @@ const sb = () =>
 // Table: paliers_revenue in Supabase — always up to date
 // GET /api/admin/paliers — returns current palier data
 export async function GET() {
+  const denied = await requireAuth(); if (denied) return denied;
   const { data, error } = await sb()
     .from("paliers_revenue")
     .select("*")
@@ -25,6 +27,7 @@ export async function GET() {
 
 // POST /api/admin/paliers — update all paliers (called by agents)
 export async function POST(req: Request) {
+  const denied = await requireAuth(); if (denied) return denied;
   const body = await req.json();
   const { paliers } = body;
 

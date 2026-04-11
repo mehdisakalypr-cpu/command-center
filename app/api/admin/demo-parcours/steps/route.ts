@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireAuth } from "@/lib/auth";
 
 const sb = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,6 +9,7 @@ const sb = () => createClient(
 
 // GET /api/admin/demo-parcours/steps?parcours=entrepreneur — List steps ordered by step_order
 export async function GET(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   try {
     const parcours = req.nextUrl.searchParams.get('parcours')?.trim().toLowerCase()
     if (!parcours) {
@@ -34,6 +36,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/admin/demo-parcours/steps — Upsert a step
 export async function POST(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   try {
     const body = await req.json() as {
       id?: string
@@ -101,6 +104,7 @@ export async function POST(req: NextRequest) {
 
 // DELETE /api/admin/demo-parcours/steps?id=xxx — Delete a step
 export async function DELETE(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   try {
     const id = req.nextUrl.searchParams.get('id')
     if (!id) {

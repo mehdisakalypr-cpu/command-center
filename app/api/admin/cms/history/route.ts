@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth } from "@/lib/auth";
 
 const sb = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,6 +8,7 @@ const sb = () => createClient(
 );
 
 export async function GET(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const contentId = req.nextUrl.searchParams.get("content_id");
   if (!contentId) return NextResponse.json({ error: "content_id required" }, { status: 400 });
   const { data, error } = await sb().from("cms_history").select("*").eq("content_id", contentId).order("changed_at", { ascending: false }).limit(5);
@@ -15,6 +17,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const { history_id } = await req.json();
   if (!history_id) return NextResponse.json({ error: "history_id required" }, { status: 400 });
   const s = sb();

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth } from "@/lib/auth";
 
 const sb = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,6 +8,7 @@ const sb = () => createClient(
 );
 
 export async function GET(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const site = req.nextUrl.searchParams.get("site");
   const collection = req.nextUrl.searchParams.get("collection");
 
@@ -20,6 +22,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const body = await req.json();
   const { site, collection, slug, field_type, value_en, value_fr, metadata, order, published } = body;
   if (!site || !collection || !slug) return NextResponse.json({ error: "site, collection, slug required" }, { status: 400 });
@@ -41,6 +44,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
   const { error } = await sb().from("cms_content").delete().eq("id", id);

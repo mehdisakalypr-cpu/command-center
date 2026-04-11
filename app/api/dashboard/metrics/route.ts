@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth } from "@/lib/auth";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -178,6 +179,7 @@ const SVC_CC     = process.env.NEXT_PUBLIC_BASE_URL ?? "https://command-center-l
 
 /* ── GET /api/dashboard/metrics ─────────────────────────────── */
 export async function GET() {
+  const denied = await requireAuth(); if (denied) return denied;
   const [vps, ftg, ftgData, estate, estateStatus, shiftStatus, ftgStatus, healthLog, reportsData] = await Promise.all([
     getVpsMetrics(),
     getFtgMetrics(),

@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { requireAuth } from "@/lib/auth";
 
 const today = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 
@@ -214,6 +215,7 @@ function textStream(text: string): Response {
 
 // ── Main handler ─────────────────────────────────────────────
 export async function POST(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
   const openAiKey    = process.env.OPENAI_API_KEY;
 

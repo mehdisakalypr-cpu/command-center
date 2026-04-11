@@ -38,3 +38,15 @@ export async function deleteSession() {
   const jar = await cookies();
   jar.delete(COOKIE);
 }
+
+/** Guard for API routes — returns 401 Response if not authenticated, null if OK */
+export async function requireAuth(): Promise<Response | null> {
+  const ok = await getSession();
+  if (!ok) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return null;
+}

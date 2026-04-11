@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import { requireAuth } from "@/lib/auth";
 
 function sb() {
   return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
@@ -8,6 +9,7 @@ function sb() {
 
 // POST /api/bridge — Aria → Claude ou Claude → Aria
 export async function POST(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const { message, direction: dir } = await req.json();
   if (!message?.trim()) return NextResponse.json({ ok: false });
 
@@ -54,6 +56,7 @@ export async function POST(req: NextRequest) {
 
 // GET /api/bridge — Aria lit les réponses de Claude
 export async function GET() {
+  const denied = await requireAuth(); if (denied) return denied;
   const { data } = await sb()
     .from("claude_bridge")
     .select("*")

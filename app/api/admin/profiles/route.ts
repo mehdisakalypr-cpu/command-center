@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth } from "@/lib/auth";
 
 const sb = () =>
   createClient(
@@ -9,6 +10,7 @@ const sb = () =>
 
 // GET /api/admin/profiles?search=xxx&limit=100
 export async function GET(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const search = req.nextUrl.searchParams.get("search") ?? "";
   const limit = parseInt(req.nextUrl.searchParams.get("limit") ?? "100");
 
@@ -29,6 +31,7 @@ export async function GET(req: NextRequest) {
 
 // PATCH /api/admin/profiles — update a profile field
 export async function PATCH(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const body = await req.json();
   const { id, ...updates } = body;
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });

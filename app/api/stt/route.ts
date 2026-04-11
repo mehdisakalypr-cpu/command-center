@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const openAiKey = process.env.OPENAI_API_KEY;
   if (!openAiKey) return NextResponse.json({ error: "No key" }, { status: 500 });
 

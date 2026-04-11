@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth } from "@/lib/auth";
 
 const sb = () =>
   createClient(
@@ -9,6 +10,7 @@ const sb = () =>
 
 // GET /api/admin/suk-status — Real-time SUK dashboard (Sharingan mode)
 export async function GET() {
+  const denied = await requireAuth(); if (denied) return denied;
   const supabase = sb();
 
   const [products, deals, personas, posts, trends] = await Promise.all([

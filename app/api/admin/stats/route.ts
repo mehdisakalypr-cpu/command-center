@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth } from "@/lib/auth";
 
 const sb = () =>
   createClient(
@@ -9,6 +10,7 @@ const sb = () =>
 
 // GET /api/admin/stats — aggregate stats for admin pages
 export async function GET() {
+  const denied = await requireAuth(); if (denied) return denied;
   const s = sb();
 
   const [profiles, countries, opportunities, businessPlans, reports] = await Promise.all([

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth } from "@/lib/auth";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -67,6 +68,7 @@ const ACTIONS: Record<string, () => Promise<string>> = {
 };
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const { action } = await req.json().catch(() => ({}));
   const handler = ACTIONS[action];
   if (!handler) {

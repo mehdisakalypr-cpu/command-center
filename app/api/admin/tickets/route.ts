@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth } from "@/lib/auth";
 
 const sb = () =>
   createClient(
@@ -9,6 +10,7 @@ const sb = () =>
 
 // GET /api/admin/tickets — list refund tickets
 export async function GET() {
+  const denied = await requireAuth(); if (denied) return denied;
   const { data, error } = await sb()
     .from("refund_tickets")
     .select("*")
@@ -20,6 +22,7 @@ export async function GET() {
 
 // PATCH /api/admin/tickets — update ticket status
 export async function PATCH(req: NextRequest) {
+  const denied = await requireAuth(); if (denied) return denied;
   const body = await req.json();
   const { id, ...updates } = body;
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
