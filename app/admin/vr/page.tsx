@@ -65,6 +65,7 @@ export default function VRPage() {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("all");
   const [lastRefresh, setLastRefresh] = useState("");
+  const [reinvestPct, setReinvestPct] = useState(70);
 
   async function fetchData() {
     try {
@@ -200,13 +201,39 @@ export default function VRPage() {
 
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
             <thead>
+              <tr>
+                <th colSpan={4} />
+                <th style={{ textAlign: "center", padding: "4px 10px" }}>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={reinvestPct}
+                    onChange={e => { const v = Math.max(0, Math.min(100, Number(e.target.value) || 0)); setReinvestPct(v); }}
+                    style={{ width: 52, background: "rgba(167,139,250,.12)", border: "1px solid rgba(167,139,250,.3)", borderRadius: 4, color: "#A78BFA", textAlign: "center", padding: "3px 4px", fontSize: 12, fontFamily: "monospace", outline: "none" }}
+                  />
+                  <span style={{ color: "#A78BFA", fontSize: 10, marginLeft: 2 }}>%</span>
+                </th>
+                <th style={{ textAlign: "center", padding: "4px 10px" }}>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={100 - reinvestPct}
+                    onChange={e => { const v = Math.max(0, Math.min(100, Number(e.target.value) || 0)); setReinvestPct(100 - v); }}
+                    style={{ width: 52, background: "rgba(34,197,94,.12)", border: "1px solid rgba(34,197,94,.3)", borderRadius: 4, color: C.green, textAlign: "center", padding: "3px 4px", fontSize: 12, fontFamily: "monospace", outline: "none" }}
+                  />
+                  <span style={{ color: C.green, fontSize: 10, marginLeft: 2 }}>%</span>
+                </th>
+                <th />
+              </tr>
               <tr style={{ borderBottom: "2px solid rgba(201,168,76,.2)" }}>
                 <th style={{ ...th(), textAlign: "left" }}>Source revenu</th>
                 <th style={{ ...th(), textAlign: "right", color: C.purple }}>Vision MRR</th>
                 <th style={{ ...th(), textAlign: "right", color: C.green }}>Realise MRR</th>
                 <th style={{ ...th(), textAlign: "right" }}>% Atteint</th>
-                <th style={{ ...th(), textAlign: "right", color: "#A78BFA" }}>70% Reinvest</th>
-                <th style={{ ...th(), textAlign: "right", color: C.green }}>30% Profit</th>
+                <th style={{ ...th(), textAlign: "right", color: "#A78BFA" }}>Reinvest</th>
+                <th style={{ ...th(), textAlign: "right", color: C.green }}>Profit</th>
                 <th style={{ ...th(), textAlign: "left", width: 160 }}>Progression</th>
               </tr>
             </thead>
@@ -222,8 +249,8 @@ export default function VRPage() {
                     <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", color: C.purple }}>{rt.target.toLocaleString("fr-FR")} EUR</td>
                     <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", fontWeight: 700, color: real > 0 ? C.green : C.dim }}>{real.toLocaleString("fr-FR")} EUR</td>
                     <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", fontWeight: 700, color: barColor }}>{pct.toFixed(1)}%</td>
-                    <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", color: "#A78BFA" }}>{Math.round(real * 0.7).toLocaleString("fr-FR")} EUR</td>
-                    <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", color: C.green }}>{Math.round(real * 0.3).toLocaleString("fr-FR")} EUR</td>
+                    <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", color: "#A78BFA" }}>{Math.round(real * reinvestPct / 100).toLocaleString("fr-FR")} EUR</td>
+                    <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace", color: C.green }}>{Math.round(real * (100 - reinvestPct) / 100).toLocaleString("fr-FR")} EUR</td>
                     <td style={{ padding: "8px 10px" }}>
                       <div style={{ height: 6, background: "rgba(255,255,255,.06)", borderRadius: 3, overflow: "hidden" }}>
                         <div style={{ height: "100%", borderRadius: 3, background: barColor, width: `${Math.min(100, pct)}%`, transition: "width .3s" }} />
