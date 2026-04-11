@@ -46,12 +46,14 @@ export async function GET(req: NextRequest) {
 
     const nodeTypes = runCypher(r.id, "MATCH (n) RETURN DISTINCT labels(n) AS type, count(*) AS cnt ORDER BY cnt DESC")
     const relTypes = runCypher(r.id, "MATCH (n)-[r:CodeRelation]->(m) RETURN DISTINCT r.type AS relType, count(*) AS cnt ORDER BY cnt DESC LIMIT 10")
-    const topFiles = runCypher(r.id, "MATCH (f:File)-[r]->() RETURN f.path AS path, count(r) AS connections ORDER BY connections DESC LIMIT 10")
-    const imports = runCypher(r.id, "MATCH (a:File)-[r:CodeRelation {type: 'IMPORTS'}]->(b:File) RETURN a.path AS source, b.path AS target LIMIT 100")
+    const topFiles = runCypher(r.id, "MATCH (f:File)-[r]->() RETURN f.filePath AS path, count(r) AS connections ORDER BY connections DESC LIMIT 15")
+    const imports = runCypher(r.id, "MATCH (a:File)-[r:CodeRelation {type: 'IMPORTS'}]->(b:File) RETURN a.filePath AS source, b.filePath AS target LIMIT 200")
+    const calls = runCypher(r.id, "MATCH (a:Function)-[r:CodeRelation {type: 'CALLS'}]->(b:Function) RETURN a.name AS source, b.name AS target LIMIT 150")
     const clusters = runCypher(r.id, "MATCH (c:Community) RETURN c.name AS name, c.size AS size ORDER BY c.size DESC LIMIT 20")
     const routes = runCypher(r.id, "MATCH (r:Route) RETURN r.path AS path, r.method AS method LIMIT 50")
+    const functions = runCypher(r.id, "MATCH (f:Function) RETURN f.name AS name, labels(f) AS type LIMIT 100")
 
-    return { ...r, meta, nodeTypes, relTypes, topFiles, imports, clusters, routes }
+    return { ...r, meta, nodeTypes, relTypes, topFiles, imports, calls, clusters, routes, functions }
   })
 
   return NextResponse.json({ repos: overview, generatedAt: new Date().toISOString() })
