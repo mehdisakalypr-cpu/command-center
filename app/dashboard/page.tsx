@@ -448,7 +448,7 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-            <Link href="/dashboard/code-map" style={{
+            <Link href="/admin/code-map" style={{
               display: "inline-flex", alignItems: "center", gap: 8, alignSelf: "flex-start",
               padding: "8px 18px", background: "rgba(201,168,76,.12)", border: "1px solid rgba(201,168,76,.3)",
               color: "#C9A84C", fontSize: ".65rem", letterSpacing: ".1em", textTransform: "uppercase",

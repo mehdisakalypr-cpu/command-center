@@ -139,7 +139,7 @@ export default function CodeMapPage() {
       {/* Header */}
       <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(201,168,76,.15)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link href="/dashboard" style={{ color: "#C9A84C", textDecoration: "none", fontSize: ".7rem" }}>← Dashboard</Link>
+          <Link href="/admin/dashboard" style={{ color: "#C9A84C", textDecoration: "none", fontSize: ".7rem" }}>← Dashboard</Link>
           <h1 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>Code Architecture Map</h1>
           <span style={{ fontSize: ".6rem", color: "#5A6A7A", background: "rgba(201,168,76,.1)", padding: "2px 8px", borderRadius: 4 }}>GitNexus</span>
         </div>
