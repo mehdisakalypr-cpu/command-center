@@ -418,6 +418,48 @@ export default function DashboardPage() {
           </Card>
         </div>
 
+        {/* ── V/R + Campaigns (centralisé) ── */}
+        <Card title="Pilotage centralisé" icon="🎯" style={{ gridColumn: "1 / -1" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+            <Link href="/dashboard/vr" style={{
+              display: "flex", flexDirection: "column", gap: 8, padding: "16px 20px",
+              background: "rgba(201,168,76,.06)", border: "1px solid rgba(201,168,76,.2)",
+              textDecoration: "none", transition: "all .15s",
+            }}>
+              <span style={{ fontSize: "1.4rem" }}>🎯</span>
+              <span style={{ color: "#C9A84C", fontWeight: 700, fontSize: ".75rem" }}>V/R — Vision vs Realise</span>
+              <span style={{ color: "#5A6A7A", fontSize: ".6rem" }}>Objectifs 30/04 vs donnees reelles, tous projets</span>
+            </Link>
+            <Link href="/dashboard/campaigns" style={{
+              display: "flex", flexDirection: "column", gap: 8, padding: "16px 20px",
+              background: "rgba(167,139,250,.06)", border: "1px solid rgba(167,139,250,.2)",
+              textDecoration: "none", transition: "all .15s",
+            }}>
+              <span style={{ fontSize: "1.4rem" }}>📡</span>
+              <span style={{ color: "#A78BFA", fontWeight: 700, fontSize: ".75rem" }}>Campagnes & Funnels</span>
+              <span style={{ color: "#5A6A7A", fontSize: ".6rem" }}>Outreach multi-canal, taux conversion V/R</span>
+            </Link>
+            <Link href="/dashboard/revenue" style={{
+              display: "flex", flexDirection: "column", gap: 8, padding: "16px 20px",
+              background: "rgba(16,185,129,.06)", border: "1px solid rgba(16,185,129,.2)",
+              textDecoration: "none", transition: "all .15s",
+            }}>
+              <span style={{ fontSize: "1.4rem" }}>💰</span>
+              <span style={{ color: "#10B981", fontWeight: 700, fontSize: ".75rem" }}>Revenue — Nami 70/30</span>
+              <span style={{ color: "#5A6A7A", fontSize: ".6rem" }}>MRR cumule FTG + OFA, reinvestissement</span>
+            </Link>
+            <Link href="/admin/code-map" style={{
+              display: "flex", flexDirection: "column", gap: 8, padding: "16px 20px",
+              background: "rgba(96,165,250,.06)", border: "1px solid rgba(96,165,250,.2)",
+              textDecoration: "none", transition: "all .15s",
+            }}>
+              <span style={{ fontSize: "1.4rem" }}>🗺️</span>
+              <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: ".75rem" }}>Code Architecture Map</span>
+              <span style={{ color: "#5A6A7A", fontSize: ".6rem" }}>Graphes dependances GitNexus</span>
+            </Link>
+          </div>
+        </Card>
+
         {/* ── Code Architecture Map ── */}
         <Card title="Code Architecture Map" icon="🗺️" style={{ gridColumn: "1 / -1" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
