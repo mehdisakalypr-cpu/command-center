@@ -54,12 +54,18 @@ export async function proxy(request: NextRequest) {
 
   if (!user) {
     if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      const res = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      response.cookies.getAll().forEach(c => res.cookies.set(c.name, c.value, c));
+      return res;
     }
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/auth/login";
     loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    const redir = NextResponse.redirect(loginUrl);
+    // Preserve any refreshed Supabase session cookies so the user doesn't
+    // land on /auth/login with a half-refreshed session.
+    response.cookies.getAll().forEach(c => redir.cookies.set(c.name, c.value, c));
+    return redir;
   }
 
   return response;

@@ -14,19 +14,21 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 // ── Config ──────────────────────────────────────────────────────────────────────
 
-const RP_NAME = "Feel The Gap";
-const APP_ID = "feel-the-gap";
+const RP_NAME = "Command Center";
+const APP_ID = "command-center";
 
+const DEFAULT_HOST = "command-center-delta.vercel.app";
 const ALLOWED_HOSTS = new Set([
-  "feel-the-gap.duckdns.org",
-  "feel-the-gap.vercel.app",
+  "command-center-delta.vercel.app",
+  "command-center.vercel.app",
+  DEFAULT_HOST,
   "localhost",
 ]);
 
 export function getWebAuthnConfig(host?: string | null) {
   const h = (host || "").replace(/:\d+$/, "");
   const isVercel = h.endsWith(".vercel.app");
-  const rpId = ALLOWED_HOSTS.has(h) || isVercel ? h : "feel-the-gap.duckdns.org";
+  const rpId = ALLOWED_HOSTS.has(h) || isVercel ? h : DEFAULT_HOST;
   const origin = h === "localhost" ? `http://${host}` : `https://${rpId}`;
   return { rpId, origin, rpName: RP_NAME };
 }

@@ -126,9 +126,30 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+
     const sb = createSupabaseBrowser()
-    const { data: signInData, error: err } = await sb.auth.signInWithPassword({ email, password })
-    if (err) { setError(err.message); setLoading(false); return }
+    const normalizedEmail = email.trim().toLowerCase()
+
+    // Clear any stale session before signing in. Prevents "sticky" recovery
+    // sessions from the password reset flow that can make subsequent
+    // signInWithPassword calls fail with phantom "invalid credentials".
+    try { await sb.auth.signOut({ scope: 'local' }) } catch { /* ignore */ }
+
+    const { data: signInData, error: err } = await sb.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
+    })
+    if (err) {
+      console.error('[login] signInWithPassword failed', err)
+      const msg = err.message === 'Invalid login credentials'
+        ? 'Email ou mot de passe incorrect.'
+        : err.message === 'Email not confirmed'
+          ? "Email non confirmé. Vérifiez votre boîte mail."
+          : err.message
+      setError(msg)
+      setLoading(false)
+      return
+    }
 
     const token = signInData.session?.access_token
     const accessRes = await fetch('/api/auth/check-access', {
@@ -136,13 +157,18 @@ export default function LoginPage() {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     if (!accessRes.ok) {
+      const body = await accessRes.json().catch(() => ({}))
+      console.error('[login] check-access failed', accessRes.status, body)
       await sb.auth.signOut()
-      setError("Ce compte n'existe pas sur Command Center. Vérifiez vos identifiants.")
+      const msg = accessRes.status === 403
+        ? "Ce compte n'a pas accès à Command Center. Contactez l'admin pour activer l'accès."
+        : "Session invalide. Réessayez."
+      setError(msg)
       setLoading(false)
       return
     }
 
-    localStorage.setItem('cc_biometric_email', email)
+    localStorage.setItem('cc_biometric_email', normalizedEmail)
 
     // Offer biometric setup if not configured yet for this domain
     if (window.PublicKeyCredential) {
@@ -155,7 +181,7 @@ export default function LoginPage() {
           const checkRes = await fetch('/api/auth/webauthn/check', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ email: normalizedEmail }),
           })
           const checkData = await checkRes.json()
 
