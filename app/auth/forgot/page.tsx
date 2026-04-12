@@ -22,17 +22,20 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     setError(null)
 
-    const check = await fetch('/api/auth/check-email-access', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) })
-    const checkData = await check.json()
+    const normalized = email.trim().toLowerCase()
     const sb = createSupabaseBrowser()
-    const { error: err } = checkData.exists
-      ? await sb.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth/reset-password` })
-      : { error: null as null | Error }
+    // Always send reset email if the user exists in Supabase auth. site_access
+    // will be granted at login via the owner auto-bootstrap if applicable.
+    const { error: err } = await sb.auth.resetPasswordForEmail(normalized, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    })
 
     setLoading(false)
     if (err) {
+      console.error('[forgot] resetPasswordForEmail', err)
       setError(err.message)
     } else {
+      setEmail(normalized)
       setStep('otp')
     }
   }
