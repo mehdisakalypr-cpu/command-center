@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { execFileSync } from 'child_process'
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
+import path from 'path'
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 const REPOS = [
   { id: 'feel-the-gap', name: 'Feel The Gap', path: '/var/www/feel-the-gap', color: '#C9A84C', icon: '🌍' },
@@ -9,22 +13,42 @@ const REPOS = [
   { id: 'command-center', name: 'Command Center', path: '/root/command-center', color: '#A78BFA', icon: '🎮' },
 ]
 
-function runCypher(repo: string, query: string): any {
+type CypherResult = { markdown: string; row_count: number; error?: string }
+
+function hasGitnexusCli(): boolean {
+  try {
+    execFileSync('gitnexus', ['--version'], { timeout: 3000, stdio: 'ignore' })
+    return true
+  } catch {
+    return false
+  }
+}
+
+function runCypher(repo: string, query: string): CypherResult {
   try {
     const raw = execFileSync('gitnexus', ['cypher', '-r', repo, query], {
       timeout: 10000,
       encoding: 'utf8',
     })
-    return JSON.parse(raw)
+    return JSON.parse(raw) as CypherResult
   } catch {
     return { error: 'query failed', markdown: '', row_count: 0 }
   }
 }
 
-function getMeta(repoPath: string): any {
+function getMeta(repoPath: string) {
   try {
-    const raw = readFileSync(`${repoPath}/.gitnexus/meta.json`, 'utf8')
-    return JSON.parse(raw)
+    return JSON.parse(readFileSync(`${repoPath}/.gitnexus/meta.json`, 'utf8'))
+  } catch {
+    return null
+  }
+}
+
+function readSnapshot() {
+  const p = path.join(process.cwd(), 'public', 'gitnexus-snapshot.json')
+  if (!existsSync(p)) return null
+  try {
+    return JSON.parse(readFileSync(p, 'utf8'))
   } catch {
     return null
   }
@@ -34,27 +58,33 @@ export async function GET(req: NextRequest) {
   const repo = req.nextUrl.searchParams.get('repo')
   const query = req.nextUrl.searchParams.get('query')
 
-  // If specific repo + query
   if (repo && query) {
-    const result = runCypher(repo, query)
-    return NextResponse.json(result)
+    if (!hasGitnexusCli()) {
+      return NextResponse.json({ error: 'gitnexus CLI unavailable on this runtime', markdown: '', row_count: 0 })
+    }
+    return NextResponse.json(runCypher(repo, query))
   }
 
-  // Default: return overview of all repos
-  const overview = REPOS.map(r => {
-    const meta = getMeta(r.path)
+  // Prefer live data when gitnexus CLI is available (VPS / local dev).
+  if (hasGitnexusCli()) {
+    const overview = REPOS.map(r => ({
+      ...r,
+      meta: getMeta(r.path),
+      nodeTypes: runCypher(r.id, 'MATCH (n) RETURN DISTINCT labels(n) AS type, count(*) AS cnt ORDER BY cnt DESC'),
+      relTypes: runCypher(r.id, 'MATCH (n)-[r:CodeRelation]->(m) RETURN DISTINCT r.type AS relType, count(*) AS cnt ORDER BY cnt DESC LIMIT 10'),
+      topFiles: runCypher(r.id, 'MATCH (f:File)-[r]->() RETURN f.filePath AS path, count(r) AS connections ORDER BY connections DESC LIMIT 15'),
+      imports: runCypher(r.id, "MATCH (a:File)-[r:CodeRelation {type: 'IMPORTS'}]->(b:File) RETURN a.filePath AS source, b.filePath AS target LIMIT 200"),
+      calls: runCypher(r.id, "MATCH (a:Function)-[r:CodeRelation {type: 'CALLS'}]->(b:Function) RETURN a.name AS source, b.name AS target LIMIT 150"),
+      clusters: runCypher(r.id, 'MATCH (c:Community) RETURN c.name AS name, c.size AS size ORDER BY c.size DESC LIMIT 20'),
+      routes: runCypher(r.id, 'MATCH (r:Route) RETURN r.path AS path, r.method AS method LIMIT 50'),
+      functions: runCypher(r.id, 'MATCH (f:Function) RETURN f.name AS name, labels(f) AS type LIMIT 100'),
+    }))
+    return NextResponse.json({ repos: overview, generatedAt: new Date().toISOString(), source: 'live' })
+  }
 
-    const nodeTypes = runCypher(r.id, "MATCH (n) RETURN DISTINCT labels(n) AS type, count(*) AS cnt ORDER BY cnt DESC")
-    const relTypes = runCypher(r.id, "MATCH (n)-[r:CodeRelation]->(m) RETURN DISTINCT r.type AS relType, count(*) AS cnt ORDER BY cnt DESC LIMIT 10")
-    const topFiles = runCypher(r.id, "MATCH (f:File)-[r]->() RETURN f.filePath AS path, count(r) AS connections ORDER BY connections DESC LIMIT 15")
-    const imports = runCypher(r.id, "MATCH (a:File)-[r:CodeRelation {type: 'IMPORTS'}]->(b:File) RETURN a.filePath AS source, b.filePath AS target LIMIT 200")
-    const calls = runCypher(r.id, "MATCH (a:Function)-[r:CodeRelation {type: 'CALLS'}]->(b:Function) RETURN a.name AS source, b.name AS target LIMIT 150")
-    const clusters = runCypher(r.id, "MATCH (c:Community) RETURN c.name AS name, c.size AS size ORDER BY c.size DESC LIMIT 20")
-    const routes = runCypher(r.id, "MATCH (r:Route) RETURN r.path AS path, r.method AS method LIMIT 50")
-    const functions = runCypher(r.id, "MATCH (f:Function) RETURN f.name AS name, labels(f) AS type LIMIT 100")
+  // Fallback to static snapshot (Vercel prod).
+  const snap = readSnapshot()
+  if (snap) return NextResponse.json({ ...snap, source: 'snapshot' })
 
-    return { ...r, meta, nodeTypes, relTypes, topFiles, imports, calls, clusters, routes, functions }
-  })
-
-  return NextResponse.json({ repos: overview, generatedAt: new Date().toISOString() })
+  return NextResponse.json({ repos: [], generatedAt: null, source: 'none', error: 'no gitnexus CLI and no snapshot' }, { status: 200 })
 }
