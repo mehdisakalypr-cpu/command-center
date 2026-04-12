@@ -50,6 +50,8 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/capacity', label: 'Capacity OFA', icon: '📈', desc: 'Pipeline sites/emails/enrich' },
       { href: '/admin/typologies', label: 'Typologies', icon: '🌳', desc: 'Arbre + sources + patterns' },
       { href: '/admin/orchestrator', label: 'Orchestrator', icon: '⚙️', desc: '6 phases pipeline live' },
+      { href: '/admin/publish-health', label: 'Publish Health', icon: '🩺', desc: 'Drafts + gate 100% images' },
+      { href: '/admin/smtp-setup', label: 'SMTP Setup', icon: '📧', desc: 'Resend × Supabase 2-min guide' },
     ],
   },
 ]
