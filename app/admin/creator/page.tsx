@@ -77,6 +77,14 @@ export default async function CreatorPage() {
         </p>
       </header>
 
+      <style>{`
+@keyframes auraPulse { 0%,100% { opacity:.55; transform: scale(1) } 50% { opacity:.9; transform: scale(1.08) } }
+@keyframes auraRing { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+@keyframes float1 { 0%,100% { transform: translate(0,0) } 50% { transform: translate(14px,-18px) } }
+@keyframes float2 { 0%,100% { transform: translate(0,0) } 50% { transform: translate(-16px,12px) } }
+@keyframes float3 { 0%,100% { transform: translate(0,0) } 50% { transform: translate(10px,14px) } }
+@keyframes heroBreath { 0%,100% { transform: scale(1.02) } 50% { transform: scale(1.07) } }
+`}</style>
       {/* Current tier hero */}
       {latest && currentTier && (
         <section style={{
@@ -85,14 +93,35 @@ export default async function CreatorPage() {
           borderRadius: 16, padding: 20, marginBottom: 28,
           position: 'relative', overflow: 'hidden',
         }}>
+          {/* Ambient aura behind everything */}
           <div style={{
             position: 'absolute', inset: 0,
             background: `radial-gradient(circle at 20% 30%, ${currentTier.aura_color || GOLD}25, transparent 60%)`,
-            pointerEvents: 'none',
+            pointerEvents: 'none', animation: 'auraPulse 4s ease-in-out infinite',
           }} />
           <div style={{ position: 'relative', aspectRatio: '3/4', borderRadius: 12, overflow: 'hidden', background: '#030712' }}>
+            {/* Rotating aura ring */}
+            <div style={{
+              position: 'absolute', inset: -20,
+              background: `conic-gradient(from 0deg, ${currentTier.aura_color || GOLD}66, transparent 25%, ${currentTier.aura_color || GOLD}99, transparent 60%, ${currentTier.aura_color || GOLD}66)`,
+              filter: 'blur(30px)', animation: 'auraRing 12s linear infinite', opacity: .8,
+            }} />
+            {/* Aura pulse */}
+            <div style={{
+              position: 'absolute', inset: 0, zIndex: 1,
+              boxShadow: `inset 0 0 60px 10px ${currentTier.aura_color || GOLD}55, 0 0 80px 10px ${currentTier.aura_color || GOLD}55`,
+              animation: 'auraPulse 2.6s ease-in-out infinite',
+              pointerEvents: 'none',
+            }} />
+            {/* Floating energy orbs */}
+            <div style={{ position: 'absolute', top: '15%', left: '10%', width: 10, height: 10, borderRadius: '50%', background: currentTier.aura_color || GOLD, boxShadow: `0 0 20px 4px ${currentTier.aura_color || GOLD}`, animation: 'float1 5s ease-in-out infinite', zIndex: 3 }} />
+            <div style={{ position: 'absolute', top: '60%', right: '12%', width: 7, height: 7, borderRadius: '50%', background: currentTier.aura_color || GOLD, boxShadow: `0 0 16px 3px ${currentTier.aura_color || GOLD}`, animation: 'float2 4.2s ease-in-out infinite', zIndex: 3 }} />
+            <div style={{ position: 'absolute', bottom: '20%', left: '22%', width: 6, height: 6, borderRadius: '50%', background: currentTier.aura_color || GOLD, boxShadow: `0 0 14px 3px ${currentTier.aura_color || GOLD}`, animation: 'float3 6.5s ease-in-out infinite', zIndex: 3 }} />
             {currentTier.image_url ? (
-              <img src={currentTier.image_url} alt={currentTier.label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={currentTier.image_url} alt={currentTier.label} style={{
+                width: '100%', height: '100%', objectFit: 'cover', position: 'relative', zIndex: 2,
+                animation: 'heroBreath 6s ease-in-out infinite',
+              }} />
             ) : (
               <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>
                 (image en cours…)
@@ -221,6 +250,62 @@ export default async function CreatorPage() {
             </g>
           ))}
         </svg>
+      </section>
+
+      {/* Échelle de puissance — all 9 tiers as a visual ladder */}
+      <section style={{ marginBottom: 28 }}>
+        <h2 style={{ fontSize: 13, color: '#7D8BA0', textTransform: 'uppercase', letterSpacing: '.2em', marginBottom: 12 }}>
+          Échelle de puissance · 9 paliers
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+          {tiers.map(t => {
+            const isCurrent = currentTier?.code === t.code
+            const aura = t.aura_color || GOLD
+            return (
+              <div key={t.code} style={{
+                background: isCurrent ? `${aura}15` : '#071425',
+                border: `1px solid ${isCurrent ? aura : `${aura}33`}`,
+                borderRadius: 12, overflow: 'hidden', position: 'relative',
+                boxShadow: isCurrent ? `0 0 30px 0 ${aura}55` : undefined,
+              }}>
+                <div style={{ aspectRatio: '3/4', position: 'relative', overflow: 'hidden', background: '#030712' }}>
+                  {t.image_url ? (
+                    <img src={t.image_url} alt={t.label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', fontSize: 12 }}>(no image)</div>
+                  )}
+                  <div style={{ position: 'absolute', inset: 0, boxShadow: `inset 0 -60px 80px -20px #05060bdd` }} />
+                  {isCurrent && (
+                    <div style={{
+                      position: 'absolute', top: 8, right: 8, padding: '3px 10px',
+                      background: aura, color: '#000', fontSize: 10, fontWeight: 800,
+                      borderRadius: 999, letterSpacing: '.15em',
+                    }}>
+                      ACTUEL
+                    </div>
+                  )}
+                </div>
+                <div style={{ padding: 12 }}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 2 }}>{t.label}</div>
+                  <div style={{ fontSize: 11, color: '#7D8BA0', marginBottom: 8 }}>
+                    Score {t.score_min}–{t.score_max}
+                  </div>
+                  <div style={{
+                    fontSize: 12, fontFamily: 'ui-monospace, Menlo, monospace',
+                    color: aura, letterSpacing: '.05em', marginBottom: 6,
+                  }}>
+                    ⚡ {formatPL(t.power_level)}<span style={{ opacity: .5 }}> unités</span>
+                  </div>
+                  {t.transformation_note && (
+                    <div style={{ fontSize: 11, color: '#CBD5E1', lineHeight: 1.4, fontStyle: 'italic' }}>
+                      « {t.transformation_note} »
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </section>
 
       {/* Session log */}
