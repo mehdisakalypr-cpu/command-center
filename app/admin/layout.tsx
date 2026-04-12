@@ -43,6 +43,11 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/insights',  label: 'Insights',   icon: '🧠', desc: 'Stratégie & benchmark' },
     ],
   },
+  {
+    label: 'Go-live', icon: '🚀', items: [
+      { href: '/admin/pvp', label: 'Pre-prod vs Prod', icon: '🚀', desc: 'Checklist avant mise en prod' },
+    ],
+  },
 ]
 
 const SITES = [
