@@ -18,6 +18,7 @@ const NAV = [
   { href: '/admin/vr',            label: 'V/R',        icon: '🎯', desc: 'Vision vs Réalisé' },
   { href: '/admin/simulator',     label: 'Simulateur', icon: '🧮', desc: 'Objectifs → plan agents' },
   { href: '/admin/campaigns',    label: 'Campagnes',  icon: '📡', desc: 'Funnels & outreach' },
+  { href: '/admin/payments',      label: 'Payments',   icon: '💳', desc: 'Stripe test cheat sheet' },
   { href: '/admin/code-map',      label: 'Code Map',   icon: '🗺️', desc: 'Architecture projets' },
 ]
 
