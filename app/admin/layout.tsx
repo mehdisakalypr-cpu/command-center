@@ -46,6 +46,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Go-live', icon: '🚀', items: [
       { href: '/admin/pvp', label: 'Pre-prod vs Prod', icon: '🚀', desc: 'Checklist avant mise en prod' },
+      { href: '/admin/capacity', label: 'Capacity OFA', icon: '📈', desc: 'Pipeline sites/emails/enrich' },
     ],
   },
 ]
