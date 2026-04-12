@@ -339,6 +339,9 @@ export default function CodeMapPage() {
         </p>
       </div>
 
+      {/* Homogénéité des briques communes */}
+      <HomogeneityPanel />
+
       {/* Repo selector */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
         <button onClick={() => setSelectedRepo(null)} style={{
@@ -461,5 +464,121 @@ export default function CodeMapPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+/* ── Homogénéité des briques communes ─────────────────────── */
+type BrickStatus = 'ok' | 'custom' | 'missing' | 'na';
+const BRICKS: { id: string; name: string; desc: string; canonical: string; status: Record<string, BrickStatus> }[] = [
+  { id: 'auth-engine',      name: 'Auth engine Supabase',        desc: 'signInWithPassword + OAuth + MFA', canonical: '@supabase/supabase-js + @supabase/ssr',
+    status: { ftg: 'ok', ofa: 'ok', cc: 'ok', estate: 'missing', shift: 'na' } },
+  { id: 'auth-pages',       name: 'Pages /app/auth/*',           desc: 'login, forgot, reset-password, biometric-setup, register, callback', canonical: '/var/www/feel-the-gap/app/auth/',
+    status: { ftg: 'ok', ofa: 'ok', cc: 'ok', estate: 'missing', shift: 'na' } },
+  { id: 'lib-supabase',     name: 'lib/supabase.ts + server + middleware',  desc: 'createSupabaseBrowser/Server/Middleware + admin', canonical: '/var/www/feel-the-gap/lib/supabase*.ts',
+    status: { ftg: 'ok', ofa: 'ok', cc: 'ok', estate: 'missing', shift: 'na' } },
+  { id: 'webauthn',         name: 'lib/webauthn.ts (biométrie)', desc: 'WebAuthn (Face/Touch ID, Android fingerprint)', canonical: '/var/www/feel-the-gap/lib/webauthn.ts',
+    status: { ftg: 'ok', ofa: 'ok', cc: 'ok', estate: 'missing', shift: 'missing' } },
+  { id: 'i18n',             name: 'lib/i18n/ (16 langues)',      desc: 'Fichiers JSON par langue + helpers', canonical: '/var/www/feel-the-gap/lib/i18n/',
+    status: { ftg: 'ok', ofa: 'ok', cc: 'ok', estate: 'missing', shift: 'missing' } },
+  { id: 'language-provider', name: 'components/LanguageProvider.tsx', desc: 'Contexte React pour i18n + persistance', canonical: '/var/www/feel-the-gap/components/LanguageProvider.tsx',
+    status: { ftg: 'ok', ofa: 'ok', cc: 'ok', estate: 'missing', shift: 'missing' } },
+  { id: 'forgot',           name: 'Forgot password',             desc: 'Email reset via Supabase', canonical: '/var/www/feel-the-gap/app/auth/forgot/',
+    status: { ftg: 'ok', ofa: 'ok', cc: 'ok', estate: 'missing', shift: 'na' } },
+  { id: 'oauth-google',     name: 'OAuth Google',                desc: 'signInWithOAuth({provider:"google"})', canonical: '/var/www/feel-the-gap/app/auth/callback/',
+    status: { ftg: 'ok', ofa: 'ok', cc: 'ok', estate: 'missing', shift: 'na' } },
+  { id: 'llm-fallback',     name: 'LLM fallback chain',          desc: 'Gemini → Groq → OpenAI (insight-extractor)', canonical: '/var/www/feel-the-gap/lib/insight-extractor.ts',
+    status: { ftg: 'ok', ofa: 'custom', cc: 'missing', estate: 'missing', shift: 'missing' } },
+  { id: 'stripe',           name: 'Stripe checkout + webhook',   desc: 'Subscriptions + one-time + Connect', canonical: '/var/www/feel-the-gap/app/api/stripe/',
+    status: { ftg: 'ok', ofa: 'missing', cc: 'na', estate: 'missing', shift: 'na' } },
+  { id: 'admin-shell',      name: 'Admin sidebar + layout',      desc: 'Nav sticky + expand/collapse + profil', canonical: '/root/command-center/app/admin/layout.tsx',
+    status: { ftg: 'custom', ofa: 'ok', cc: 'ok', estate: 'missing', shift: 'na' } },
+  { id: 'profile-form',     name: 'Change password (eye toggle)', desc: 'Password + confirm + show/hide', canonical: '/var/www/site-factory/app/admin/profile/profile-form.tsx',
+    status: { ftg: 'missing', ofa: 'ok', cc: 'missing', estate: 'missing', shift: 'na' } },
+  { id: 'business-simulator', name: 'Business Simulator',        desc: 'Objectifs → funnel → agents targets', canonical: '/root/command-center/app/admin/simulator/page.tsx',
+    status: { ftg: 'na', ofa: 'na', cc: 'ok', estate: 'na', shift: 'na' } },
+];
+
+const PROJECTS: { id: string; name: string; color: string }[] = [
+  { id: 'ftg',    name: 'FTG',    color: '#60A5FA' },
+  { id: 'ofa',    name: 'OFA',    color: '#C9A84C' },
+  { id: 'cc',     name: 'CC',     color: '#A78BFA' },
+  { id: 'estate', name: 'Estate', color: '#F59E0B' },
+  { id: 'shift',  name: 'Shift',  color: '#10B981' },
+];
+
+function HomogeneityPanel() {
+  const totalCells = BRICKS.length * PROJECTS.length;
+  const okCount = BRICKS.reduce((acc, b) => acc + Object.values(b.status).filter(s => s === 'ok').length, 0);
+  const customCount = BRICKS.reduce((acc, b) => acc + Object.values(b.status).filter(s => s === 'custom').length, 0);
+  const missingCount = BRICKS.reduce((acc, b) => acc + Object.values(b.status).filter(s => s === 'missing').length, 0);
+
+  return (
+    <div style={{ marginBottom: 24, background: '#0A1A2E', border: '1px solid rgba(201,168,76,.2)', padding: 16, borderRadius: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <div>
+          <h2 style={{ fontSize: '.9rem', margin: 0, color: '#C9A84C', fontWeight: 700 }}>🧩 Homogénéité des briques communes</h2>
+          <p style={{ fontSize: '.62rem', color: '#5A6A7A', margin: '4px 0 0' }}>
+            Briques canoniques (standard = FTG) et état par projet. Règle Kakashi : avant de coder, réutiliser.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 12, fontSize: '.62rem' }}>
+          <span style={{ color: '#10B981' }}>✓ {okCount} ok</span>
+          <span style={{ color: '#F59E0B' }}>⚠ {customCount} custom</span>
+          <span style={{ color: '#F87171' }}>✗ {missingCount} absent</span>
+          <span style={{ color: '#5A6A7A' }}>{totalCells} cellules</span>
+        </div>
+      </div>
+
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.65rem' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+              <th style={{ padding: '6px 8px', textAlign: 'left', color: '#9BA8B8', fontWeight: 600 }}>Brique canonique</th>
+              <th style={{ padding: '6px 8px', textAlign: 'left', color: '#5A6A7A', fontWeight: 400, fontSize: '.55rem' }}>Description</th>
+              {PROJECTS.map(p => (
+                <th key={p.id} style={{ padding: '6px 8px', textAlign: 'center', color: p.color, fontWeight: 600 }}>{p.name}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {BRICKS.map(b => (
+              <tr key={b.id} style={{ borderBottom: '1px solid rgba(255,255,255,.03)' }}>
+                <td style={{ padding: '6px 8px', color: '#E8E0D0', fontWeight: 500 }}>
+                  {b.name}
+                  <div style={{ fontSize: '.55rem', color: '#5A6A7A', fontFamily: 'monospace', marginTop: 2 }}>{b.canonical}</div>
+                </td>
+                <td style={{ padding: '6px 8px', color: '#9BA8B8', fontSize: '.6rem' }}>{b.desc}</td>
+                {PROJECTS.map(p => (
+                  <td key={p.id} style={{ padding: '6px 8px', textAlign: 'center' }}>
+                    <StatusBadge status={b.status[p.id]} />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p style={{ fontSize: '.58rem', color: '#5A6A7A', marginTop: 10, fontStyle: 'italic' }}>
+        Légende : ✓ utilise la brique canonique · ⚠ version custom non alignée · ✗ absent · — non applicable.
+        Les briques custom sont candidates à migration (Kakashi).
+      </p>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: BrickStatus }) {
+  const styles: Record<BrickStatus, { bg: string; color: string; label: string }> = {
+    ok:      { bg: 'rgba(16,185,129,.15)',  color: '#10B981', label: '✓' },
+    custom:  { bg: 'rgba(245,158,11,.15)',  color: '#F59E0B', label: '⚠' },
+    missing: { bg: 'rgba(248,113,113,.15)', color: '#F87171', label: '✗' },
+    na:      { bg: 'rgba(90,106,122,.1)',   color: '#5A6A7A', label: '—' },
+  };
+  const s = styles[status];
+  return (
+    <span style={{
+      display: 'inline-block', padding: '2px 8px', borderRadius: 4, background: s.bg,
+      color: s.color, fontSize: '.65rem', fontWeight: 700, minWidth: 24,
+    }}>{s.label}</span>
   );
 }

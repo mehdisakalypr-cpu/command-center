@@ -1,37 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSession } from "@/lib/auth";
-import { startAuthentication, finishAuthentication } from "@/lib/webauthn";
+import { startAuthenticationForEmail, finishAuthentication } from "@/lib/webauthn";
+import { supabaseAdmin } from "@/lib/supabase";
 import { headers } from "next/headers";
 
-const USER_ID = process.env.ADMIN_EMAIL || "admin";
-
-// GET — start authentication (generate challenge)
-export async function GET() {
-  try {
-    const h = await headers();
-    const host = h.get("host");
-    const options = await startAuthentication(USER_ID, host);
-    if (!options) return NextResponse.json({ available: false });
-    return NextResponse.json({ available: true, ...options });
-  } catch {
-    return NextResponse.json({ available: false });
-  }
-}
-
-// POST — finish authentication (verify + create session)
+// POST — two actions: "start" and "finish"
 export async function POST(req: NextRequest) {
+  const body = await req.json();
   const h = await headers();
   const host = h.get("host");
-  const { response } = await req.json();
-  try {
-    const result = await finishAuthentication(USER_ID, response, host);
-    if (result.verified) {
-      await createSession();
-      return NextResponse.json({ ok: true });
-    }
-    return NextResponse.json({ error: "Verification failed" }, { status: 401 });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Authentication failed";
-    return NextResponse.json({ error: msg }, { status: 401 });
+
+  // Step 1: Start authentication — client sends { action: "start", email }
+  if (body.action === "start") {
+    const { email } = body;
+    if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
+
+    const result = await startAuthenticationForEmail(email, host);
+    if (!result) return NextResponse.json({ available: false });
+
+    return NextResponse.json({ available: true, options: result.options, userId: result.userId, challengeToken: result.challengeToken });
   }
+
+  // Step 2: Finish authentication — client sends { action: "finish", userId, response }
+  if (body.action === "finish") {
+    const { userId, response, challengeToken } = body;
+    try {
+      const result = await finishAuthentication(userId, response, host, challengeToken);
+      if (!result.verified) {
+        return NextResponse.json({ error: "Verification failed" }, { status: 401 });
+      }
+
+      // Generate a magic link to sign in the user without password
+      const sb = supabaseAdmin();
+      const { data: userData } = await sb.auth.admin.getUserById(userId);
+      if (!userData?.user?.email) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      const { data: linkData, error: linkErr } = await sb.auth.admin.generateLink({
+        type: "magiclink",
+        email: userData.user.email,
+      });
+
+      if (linkErr || !linkData) {
+        return NextResponse.json({ error: "Session creation failed" }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        ok: true,
+        token_hash: linkData.properties.hashed_token,
+        email: userData.user.email,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Authentication failed";
+      return NextResponse.json({ error: msg }, { status: 401 });
+    }
+  }
+
+  return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 }

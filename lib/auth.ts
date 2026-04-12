@@ -1,52 +1,62 @@
-import { SignJWT, jwtVerify } from "jose";
-import { cookies } from "next/headers";
+/**
+ * Command Center auth — Supabase-based (migré le 2026-04-12).
+ * Shim qui garde les mêmes signatures que l'ancienne API JWT+TOTP pour
+ * éviter de toucher les dizaines de routes qui l'utilisent.
+ *
+ * createSession / deleteSession : no-op (Supabase gère les cookies via ses propres API).
+ * getSession()                  : true si un user Supabase est présent.
+ * requireAuth()                 : Response 401 si pas de user.
+ * getUser()                     : renvoie le user Supabase (ou null).
+ */
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
-const COOKIE = "cc_session";
-const SESSION_DAYS = 7;
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
-export async function createSession() {
-  const token = await new SignJWT({ auth: true })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime(`${SESSION_DAYS}d`)
-    .sign(JWT_SECRET);
+const URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-  const jar = await cookies();
-  jar.set(COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * SESSION_DAYS,
-    path: "/",
-  });
+async function sbServer() {
+  const jar = await cookies()
+  return createServerClient(URL, ANON, {
+    cookies: {
+      getAll: () => jar.getAll(),
+      setAll: (c) => { c.forEach(({ name, value, options }) => jar.set(name, value, options)) },
+    },
+  })
+}
+
+export async function getUser() {
+  try {
+    const sb = await sbServer()
+    const { data: { user } } = await sb.auth.getUser()
+    return user
+  } catch {
+    return null
+  }
 }
 
 export async function getSession(): Promise<boolean> {
-  try {
-    const jar = await cookies();
-    const token = jar.get(COOKIE)?.value;
-    if (!token) return false;
-    await jwtVerify(token, JWT_SECRET);
-    return true;
-  } catch {
-    return false;
-  }
+  return !!(await getUser())
+}
+
+export async function createSession() {
+  // no-op: Supabase crée la session via signInWithPassword ou verifyOtp
 }
 
 export async function deleteSession() {
-  const jar = await cookies();
-  jar.delete(COOKIE);
+  try {
+    const sb = await sbServer()
+    await sb.auth.signOut()
+  } catch { /* ignore */ }
 }
 
-/** Guard for API routes — returns 401 Response if not authenticated, null if OK */
 export async function requireAuth(): Promise<Response | null> {
-  const ok = await getSession();
+  const ok = await getSession()
   if (!ok) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
-  return null;
+  return null
 }

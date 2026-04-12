@@ -36,7 +36,7 @@ const TARGETS_APRIL_30: Record<string, { label: string; target: number; category
 };
 
 const REVENUE_TARGETS = [
-  { key: "mrrOfa",  label: "MRR One For All (maintenance)",  target: 8204  },
+  { key: "mrrOfa",  label: "MRR One For All (14,98€/site moy.)",  target: 25077  },
   { key: "mrrFtg",  label: "MRR Feel The Gap (abonnements)", target: 70785 },
   { key: "mrrSeo",  label: "MRR SEO organique",              target: 37584 },
   { key: "totalMrr", label: "TOTAL MRR",                     target: 116573 },

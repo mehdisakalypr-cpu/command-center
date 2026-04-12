@@ -527,7 +527,7 @@ export default function InsightsPage() {
                     {[
                       { rank: 1, action: "15 langues déployées — marché ×1.78 ✅", effort: "0 (fait)", cout: 0, potentiel: "+936K MRR", agent: true },
                       { rank: 2, action: "300 personas IA influenceurs × 15 langues ✅", effort: "0 (fait)", cout: 0, potentiel: "+311K MRR", agent: true },
-                      { rank: 3, action: "Geo-pricing PPP 4 tiers — marchés émergents", effort: "2h setup", cout: 0, potentiel: "+446K MRR", agent: false },
+                      { rank: 3, action: "Pricing OFA simplifié 2 offres (Achat 149€+9.99/mo / Abo 19.99/mo)", effort: "Fait", cout: 0, potentiel: "+446K MRR", agent: true },
                       { rank: 4, action: "SEO Factory 300K pages × 15 langues ✅", effort: "0 (agent)", cout: 0, potentiel: "+85K MRR", agent: true },
                       { rank: 5, action: "600+ produits catalogue (terroir, coopératives) ✅", effort: "0 (agent)", cout: 0, potentiel: "+183K MRR", agent: true },
                       { rank: 6, action: "Performance tracker journalier + auto-ratchet ✅", effort: "0 (agent)", cout: 0, potentiel: "churn 5%→2.5%", agent: true },

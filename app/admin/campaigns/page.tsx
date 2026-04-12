@@ -109,11 +109,14 @@ export default function CampaignsPage() {
   return (
     <div style={{ padding: 24, color: C.text }}>
       {/* Header */}
-      <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: "1.3rem", fontWeight: 700, margin: 0 }}>Campagnes & Funnels</h1>
-        <p style={{ fontSize: ".7rem", color: C.dim, marginTop: 4 }}>
-          {campaigns.length} campagnes — V/R par canal, typologie, taux de conversion
-        </p>
+      <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ fontSize: "1.3rem", fontWeight: 700, margin: 0 }}>Campagnes & Funnels</h1>
+          <p style={{ fontSize: ".7rem", color: C.dim, marginTop: 4 }}>
+            {campaigns.length} campagnes — V/R par canal, typologie, taux de conversion
+          </p>
+        </div>
+        <a href="/admin/campaigns/credentials" style={{ padding: '6px 14px', background: 'rgba(201,168,76,.15)', border: '1px solid rgba(201,168,76,.4)', color: C.gold, borderRadius: 6, fontSize: 12, textDecoration: 'none' }}>🔐 Credentials sociaux →</a>
       </div>
 
       {/* Filters */}

@@ -9,36 +9,26 @@ import type {
   AuthenticationResponseJSON,
   AuthenticatorTransportFuture,
 } from "@simplewebauthn/server";
-import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto";
+import { supabaseAdmin } from "@/lib/supabase";
 
 // ── Config ──────────────────────────────────────────────────────────────────────
 
-const RP_NAME = "Command Center";
-const APP_ID = "command-center";
+const RP_NAME = "Feel The Gap";
+const APP_ID = "feel-the-gap";
 
-// Allowed domains for WebAuthn — credentials are per-domain
 const ALLOWED_HOSTS = new Set([
-  "command-center01.duckdns.org",
-  "command-center-lemon-xi.vercel.app",
+  "feel-the-gap.duckdns.org",
+  "feel-the-gap.vercel.app",
   "localhost",
 ]);
 
-/** Derive RP_ID and origin from the request Host header */
 export function getWebAuthnConfig(host?: string | null) {
-  const h = (host || "").replace(/:\d+$/, ""); // strip port
-  const rpId = ALLOWED_HOSTS.has(h) ? h : "command-center01.duckdns.org";
+  const h = (host || "").replace(/:\d+$/, "");
+  const isVercel = h.endsWith(".vercel.app");
+  const rpId = ALLOWED_HOSTS.has(h) || isVercel ? h : "feel-the-gap.duckdns.org";
   const origin = h === "localhost" ? `http://${host}` : `https://${rpId}`;
   return { rpId, origin, rpName: RP_NAME };
-}
-
-// ── Supabase (service role for RLS bypass) ──────────────────────────────────────
-
-function getSupabase() {
-  return createClient(
-    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
-  );
 }
 
 // ── Types ────────────────────────────────────────────────────────────────────────
@@ -47,7 +37,8 @@ interface StoredCredential {
   id: string;
   user_id: string;
   app: string;
-  public_key: string; // base64url-encoded
+  rp_id?: string | null;
+  public_key: string;
   counter: number;
   device_name: string | null;
   transports: string[] | null;
@@ -56,7 +47,7 @@ interface StoredCredential {
 // ── DB helpers ───────────────────────────────────────────────────────────────────
 
 async function getCredentials(userId: string): Promise<StoredCredential[]> {
-  const sb = getSupabase();
+  const sb = supabaseAdmin();
   const { data } = await sb
     .from("webauthn_credentials")
     .select("*")
@@ -65,17 +56,36 @@ async function getCredentials(userId: string): Promise<StoredCredential[]> {
   return (data ?? []) as StoredCredential[];
 }
 
-async function saveCredential(cred: Omit<StoredCredential, "app"> & { app?: string }) {
-  const sb = getSupabase();
-  const { error } = await sb.from("webauthn_credentials").insert({
-    ...cred,
-    app: APP_ID,
-  });
-  if (error) throw new Error(`Save credential failed: ${error.message}`);
+async function saveCredential(
+  cred: Omit<StoredCredential, "app">,
+  rpId: string
+) {
+  const sb = supabaseAdmin();
+  // Try with rp_id first, fallback without if column doesn't exist yet
+  const row: Record<string, unknown> = { ...cred, app: APP_ID };
+  try {
+    row.rp_id = rpId;
+    const { error } = await sb.from("webauthn_credentials").insert(row);
+    if (error && error.message.includes("rp_id")) {
+      // Column doesn't exist yet — insert without it
+      delete row.rp_id;
+      const { error: e2 } = await sb.from("webauthn_credentials").insert(row);
+      if (e2) throw new Error(`Save credential failed: ${e2.message}`);
+    } else if (error) {
+      throw new Error(`Save credential failed: ${error.message}`);
+    }
+  } catch (err) {
+    if (err instanceof Error && err.message.startsWith("Save credential"))
+      throw err;
+    // Fallback
+    delete row.rp_id;
+    const { error } = await sb.from("webauthn_credentials").insert(row);
+    if (error) throw new Error(`Save credential failed: ${error.message}`);
+  }
 }
 
 async function updateCounter(credId: string, newCounter: number) {
-  const sb = getSupabase();
+  const sb = supabaseAdmin();
   await sb
     .from("webauthn_credentials")
     .update({ counter: newCounter, last_used_at: new Date().toISOString() })
@@ -83,56 +93,100 @@ async function updateCounter(credId: string, newCounter: number) {
     .eq("app", APP_ID);
 }
 
-// ── Challenge store (in-memory, short-lived) ─────────────────────────────────────
-
-const challenges = new Map<string, { challenge: string; expires: number }>();
-
-function storeChallenge(userId: string, challenge: string) {
-  challenges.set(userId, { challenge, expires: Date.now() + 5 * 60 * 1000 });
+/** Find user ID by email via profiles table (no pagination issues unlike listUsers) */
+async function findUserIdByEmail(email: string): Promise<string | null> {
+  const sb = supabaseAdmin();
+  const { data } = await sb
+    .from("profiles")
+    .select("id")
+    .eq("email", email)
+    .single();
+  return data?.id ?? null;
 }
 
-function getAndDeleteChallenge(userId: string): string | null {
-  const entry = challenges.get(userId);
-  challenges.delete(userId);
-  if (!entry || entry.expires < Date.now()) return null;
-  return entry.challenge;
+// ── Stateless challenge (HMAC-signed, survives Vercel serverless) ────────────────
+
+const CHALLENGE_SECRET =
+  process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 32) ??
+  "fallback-secret-key-for-dev-only";
+const CHALLENGE_TTL_MS = 5 * 60 * 1000;
+
+function signChallenge(userId: string, challenge: string): string {
+  const expires = Date.now() + CHALLENGE_TTL_MS;
+  const payload = `${userId}:${challenge}:${expires}`;
+  const hmac = crypto
+    .createHmac("sha256", CHALLENGE_SECRET)
+    .update(payload)
+    .digest("base64url");
+  return `${Buffer.from(payload).toString("base64url")}.${hmac}`;
+}
+
+function verifyAndExtractChallenge(
+  userId: string,
+  token: string
+): string | null {
+  try {
+    const [payloadB64, hmac] = token.split(".");
+    if (!payloadB64 || !hmac) return null;
+    const payload = Buffer.from(payloadB64, "base64url").toString();
+    const expected = crypto
+      .createHmac("sha256", CHALLENGE_SECRET)
+      .update(payload)
+      .digest("base64url");
+    if (hmac !== expected) return null;
+    const [storedUserId, challenge, expiresStr] = payload.split(":");
+    if (storedUserId !== userId) return null;
+    if (Number(expiresStr) < Date.now()) return null;
+    return challenge;
+  } catch {
+    return null;
+  }
 }
 
 // ── Registration ─────────────────────────────────────────────────────────────────
 
-export async function startRegistration(userId: string, host?: string | null) {
+export async function startRegistration(
+  userId: string,
+  userEmail: string,
+  host?: string | null
+) {
   const { rpId, rpName } = getWebAuthnConfig(host);
-  const existing = await getCredentials(userId);
-  const excludeCredentials = existing.map((c) => ({
-    id: c.id,
-    transports: (c.transports ?? []) as AuthenticatorTransportFuture[],
-  }));
+
+  // Remove any existing credentials for this user (clean re-registration)
+  const sb = supabaseAdmin();
+  await sb
+    .from("webauthn_credentials")
+    .delete()
+    .eq("user_id", userId)
+    .eq("app", APP_ID);
 
   const options = await generateRegistrationOptions({
     rpName,
     rpID: rpId,
-    userName: userId,
+    userName: userEmail,
     attestationType: "none",
     authenticatorSelection: {
       authenticatorAttachment: "platform",
       residentKey: "preferred",
       userVerification: "required",
     },
-    excludeCredentials,
   });
 
-  storeChallenge(userId, options.challenge);
-  return options;
+  const challengeToken = signChallenge(userId, options.challenge);
+  return { ...options, challengeToken };
 }
 
 export async function finishRegistration(
   userId: string,
   response: RegistrationResponseJSON,
   deviceName?: string,
-  host?: string | null
+  host?: string | null,
+  challengeToken?: string
 ) {
   const { rpId, origin } = getWebAuthnConfig(host);
-  const expectedChallenge = getAndDeleteChallenge(userId);
+  const expectedChallenge = challengeToken
+    ? verifyAndExtractChallenge(userId, challengeToken)
+    : null;
   if (!expectedChallenge) throw new Error("Challenge expired or missing");
 
   const verification = await verifyRegistrationResponse({
@@ -148,22 +202,32 @@ export async function finishRegistration(
 
   const { credential } = verification.registrationInfo;
 
-  await saveCredential({
-    id: credential.id,
-    user_id: userId,
-    public_key: Buffer.from(credential.publicKey).toString("base64url"),
-    counter: credential.counter,
-    device_name: deviceName ?? null,
-    transports: credential.transports ?? null,
-  });
+  await saveCredential(
+    {
+      id: credential.id,
+      user_id: userId,
+      public_key: Buffer.from(credential.publicKey).toString("base64url"),
+      counter: credential.counter,
+      device_name: deviceName ?? null,
+      transports: credential.transports ?? null,
+    },
+    rpId
+  );
 
   return { verified: true, credentialId: credential.id };
 }
 
 // ── Authentication ───────────────────────────────────────────────────────────────
 
-export async function startAuthentication(userId: string, host?: string | null) {
+export async function startAuthenticationForEmail(
+  email: string,
+  host?: string | null
+) {
   const { rpId } = getWebAuthnConfig(host);
+
+  const userId = await findUserIdByEmail(email);
+  if (!userId) return null;
+
   const credentials = await getCredentials(userId);
   if (credentials.length === 0) return null;
 
@@ -178,23 +242,26 @@ export async function startAuthentication(userId: string, host?: string | null) 
     userVerification: "required",
   });
 
-  storeChallenge(userId, options.challenge);
-  return options;
+  const challengeToken = signChallenge(userId, options.challenge);
+  return { options, userId, challengeToken };
 }
 
 export async function finishAuthentication(
   userId: string,
   response: AuthenticationResponseJSON,
-  host?: string | null
+  host?: string | null,
+  challengeToken?: string
 ) {
-  const { rpId, origin } = getWebAuthnConfig(host);
-  const expectedChallenge = getAndDeleteChallenge(userId);
+  const expectedChallenge = challengeToken
+    ? verifyAndExtractChallenge(userId, challengeToken)
+    : null;
   if (!expectedChallenge) throw new Error("Challenge expired or missing");
 
   const credentials = await getCredentials(userId);
   const credential = credentials.find((c) => c.id === response.id);
   if (!credential) throw new Error("Credential not found");
 
+  const { rpId, origin } = getWebAuthnConfig(host);
   const verification = await verifyAuthenticationResponse({
     response,
     expectedChallenge,
@@ -208,10 +275,23 @@ export async function finishAuthentication(
     },
   });
 
-  if (!verification.verified) throw new Error("Authentication verification failed");
+  if (!verification.verified)
+    throw new Error("Authentication verification failed");
 
-  await updateCounter(credential.id, verification.authenticationInfo.newCounter);
-  return { verified: true };
+  await updateCounter(
+    credential.id,
+    verification.authenticationInfo.newCounter
+  );
+  return { verified: true, userId };
+}
+
+/** Check if user has biometric credentials registered */
+export async function checkCredentialsForEmail(email: string) {
+  const userId = await findUserIdByEmail(email);
+  if (!userId) return { available: false, count: 0 };
+
+  const creds = await getCredentials(userId);
+  return { available: creds.length > 0, count: creds.length };
 }
 
 export { getCredentials };
