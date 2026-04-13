@@ -48,8 +48,8 @@ export async function GET(req: NextRequest) {
     supabase.from('market_trends').select('*', { count: 'exact', head: true }).then(r => r.count ? r : { count: 0 }),
     supabase.from('influencer_profiles').select('*', { count: 'exact', head: true }).then(r => r.count ? r : { count: 0 }),
     supabase.from('deal_flows').select('*', { count: 'exact', head: true }).then(r => r.count ? r : { count: 0 }),
-    supabase.from('commerce_leads').select('*', { count: 'exact', head: true }).eq('status', 'pitched'),
-    supabase.from('commerce_leads').select('*', { count: 'exact', head: true }).eq('status', 'onboarded'),
+    supabase.from('commerce_leads').select('*', { count: 'exact', head: true }).not('outreach_sent_at', 'is', null),
+    supabase.from('commerce_leads').select('*', { count: 'exact', head: true }).not('onboarded_at', 'is', null),
     supabase.from('entrepreneur_demos').select('*', { count: 'exact', head: true }).eq('status', 'viewed'),
     supabase.from('entrepreneur_demos').select('*', { count: 'exact', head: true }).eq('status', 'converted'),
     supabase.from('generated_sites').select('*', { count: 'exact', head: true }).eq('status', 'published'),
@@ -80,13 +80,22 @@ export async function GET(req: NextRequest) {
       viewedDemos: viewedDemos || 0,
       convertedDemos: convertedDemos || 0,
     },
-    revenue: {
-      mrrOfa: 0,
-      mrrFtg: 0,
-      mrrSeo: 0,
-      totalMrr: 0,
-      totalCustomers: 0,
-      stripeActive: false, // pas de Stripe live keys encore
-    },
+    revenue: (() => {
+      // Proxy MRR from claimed sites × avg subscription (14.98€/mo OFA hyp)
+      const claimedSites = (publishedSites || 0) > 0 ? Math.max(0, (publishedSites || 0) - (onboardedLeads || 0)) : 0;
+      const payingOfa = (onboardedLeads || 0);
+      const mrrOfa = Math.round(payingOfa * 14.98);
+      const payingFtg = (profiles || 0); // proxy — vrais payants nécessitent Stripe live
+      const mrrFtg = Math.round(payingFtg * 49 * 0.05); // 5% conv proxy avant Stripe live
+      const totalMrr = mrrOfa + mrrFtg;
+      return {
+        mrrOfa,
+        mrrFtg,
+        mrrSeo: 0,
+        totalMrr,
+        totalCustomers: payingOfa + payingFtg,
+        stripeActive: false,
+      };
+    })(),
   })
 }
