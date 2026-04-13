@@ -64,22 +64,15 @@ async function main() {
     console.log(`   ✓ ${environment_id}`)
   } else console.log(`1/4 Environment reused: ${environment_id}`)
 
-  // 2. Skill upload (one skill bundling Minato + Genkidama + Kakashi as references)
-  let skill_id = existing.skill_id
-  if (!skill_id) {
-    console.log('2/4 Creating skill "minato-orchestrator"...')
-    const skillContent = fs.readFileSync(path.join(process.cwd(), 'skills/minato/SKILL.md'), 'utf8')
-    const skill = await api('/v1/skills', 'POST', {
-      display_name: 'Minato Orchestrator',
-      description: 'Méthodologie Shonen Ultimate Skill pour orchestration multi-projets (FTG/OFA/Estate/Shift/CC)',
-    }, 'skills-2025-10-02')
-    skill_id = skill.id
-    // Create v1 with content
-    await api(`/v1/skills/${skill_id}/versions`, 'POST', {
-      content: skillContent,
-    }, 'skills-2025-10-02')
-    console.log(`   ✓ ${skill_id}`)
-  } else console.log(`2/4 Skill reused: ${skill_id}`)
+  // 2. Skills → inlined into system prompt for POC (bypass Skills API multipart upload)
+  console.log('2/4 Loading skills as inline system prompt...')
+  const skillFiles = ['SKILL.md', 'genkidama.md', 'kakashi-bricks.md']
+  const skillsInline = skillFiles.map((f) => {
+    const content = fs.readFileSync(path.join(process.cwd(), 'skills/minato', f), 'utf8')
+    return `<skill name="${f.replace('.md', '')}">\n${content}\n</skill>`
+  }).join('\n\n')
+  console.log(`   ✓ ${skillsInline.length} chars loaded from ${skillFiles.length} files`)
+  const skill_id = 'inline'
 
   // 3. Agent
   let agent_id = existing.agent_id
@@ -88,11 +81,14 @@ async function main() {
     const agent = await api('/v1/agents', 'POST', {
       name: 'Minato Orchestrator',
       model: 'claude-opus-4-6',
-      system: `Tu es Minato, l'orchestrateur méta des 5 projets de l'utilisateur.
-Charge le skill "minato-orchestrator" au démarrage pour récupérer la méthodologie complète.
+      system: `Tu es Minato, l'orchestrateur méta des 5 projets de l'utilisateur (FTG, OFA, Estate, Shift, CC).
+
 Utilise les custom tools pour piloter les agents locaux gratuits sur le VPS via le bridge CC.
-Commit toutes les 15-20 min via commit_progress. Update les Insights CC après chaque batch.`,
-      skills: [{ type: 'custom', skill_id, version: 'latest' }],
+Commit toutes les 15-20 min via commit_progress. Update les Insights CC après chaque batch.
+
+Méthodologie et contexte ci-dessous :
+
+${skillsInline}`,
       tools: [
         { type: 'agent_toolset_20260401', default_config: { enabled: true } },
         {
