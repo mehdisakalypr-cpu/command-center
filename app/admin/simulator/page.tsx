@@ -813,8 +813,13 @@ function VelocityTab() {
                     </div>
                     <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>{p.quota_gained}</div>
                     <a href={p.signup_url} target="_blank" rel="noreferrer" style={{ color: C.blue, fontSize: 10 }}>{p.signup_url}</a>
-                    <div style={{ fontSize: 10, color: C.text, marginTop: 4 }}>Alias: {p.aliases.join(', ')}</div>
-                    <ol style={{ fontSize: 10, color: C.muted, margin: '4px 0 0 16px', paddingLeft: 0 }}>
+                    <div style={{ fontSize: 10, color: C.muted, marginTop: 6, marginBottom: 4 }}>
+                      Alias à utiliser ({p.aliases.length}) :
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      {p.aliases.map((a: string) => <CopyAliasRow key={a} alias={a} />)}
+                    </div>
+                    <ol style={{ fontSize: 10, color: C.muted, margin: '8px 0 0 16px', paddingLeft: 0 }}>
                       {p.steps.map((s: string, i: number) => <li key={i} style={{ marginBottom: 2 }}>{s}</li>)}
                     </ol>
                   </div>
@@ -1008,6 +1013,54 @@ const panelStyle: React.CSSProperties = { background: C.card, border: `1px solid
 const headerGold: React.CSSProperties = { fontSize: 13, letterSpacing: '.1em', textTransform: 'uppercase', color: C.gold, marginBottom: 16 }
 const subH: React.CSSProperties = { fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: '#5A6A7A', marginBottom: 6 }
 const rowStyle: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '6px 10px', background: 'rgba(255,255,255,.03)', borderRadius: 6, alignItems: 'center' }
+
+function CopyAliasRow({ alias }: { alias: string }) {
+  // Persist "copied" status across reloads so the user can resume a long
+  // signup batch without losing track. Stored under a stable per-alias key.
+  const storageKey = `copyAlias:${alias}`
+  const [copied, setCopied] = useState(false)
+  useEffect(() => {
+    try { if (localStorage.getItem(storageKey) === '1') setCopied(true) } catch {}
+  }, [storageKey])
+  async function doCopy() {
+    try {
+      await navigator.clipboard.writeText(alias)
+      setCopied(true)
+      try { localStorage.setItem(storageKey, '1') } catch {}
+    } catch {
+      // Fallback for non-secure contexts
+      const ta = document.createElement('textarea')
+      ta.value = alias; document.body.appendChild(ta); ta.select()
+      try { document.execCommand('copy'); setCopied(true); localStorage.setItem(storageKey, '1') } catch {}
+      ta.remove()
+    }
+  }
+  function reset() {
+    setCopied(false)
+    try { localStorage.removeItem(storageKey) } catch {}
+  }
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px',
+      background: copied ? 'rgba(16,185,129,.08)' : 'rgba(255,255,255,.03)',
+      border: `1px solid ${copied ? 'rgba(16,185,129,.3)' : 'rgba(255,255,255,.06)'}`,
+      borderRadius: 4, fontSize: 11, fontFamily: 'monospace',
+    }}>
+      <span style={{ flex: 1, color: copied ? '#10B981' : '#E8E0D0', userSelect: 'all' }}>{alias}</span>
+      {copied ? (
+        <button onClick={reset} title="Reset (annuler le check vert)"
+          style={{ padding: '2px 8px', background: '#10B981', color: '#000', border: 'none', borderRadius: 3, cursor: 'pointer', fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap' }}>
+          ✓ copié
+        </button>
+      ) : (
+        <button onClick={doCopy} title="Copier dans le presse-papier"
+          style={{ padding: '2px 8px', background: 'transparent', color: '#C9A84C', border: '1px solid #C9A84C', borderRadius: 3, cursor: 'pointer', fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap' }}>
+          📋 copier
+        </button>
+      )}
+    </div>
+  )
+}
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
