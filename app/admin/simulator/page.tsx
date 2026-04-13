@@ -128,6 +128,28 @@ const OBJECTIVE_MAX: Record<Product, Record<ObjectiveType, number>> = {
   shiftdynamics: { mrr: 250_000,   clients: 100,    revenue: 3_000_000 },
 }
 
+// Maps capacity-row display names → Giant Piccolo agent IDs. Keep in sync with
+// the inline agentMap in BusinessTab and the allowlist in /api/minato/scale-agent.
+const SCALE_AGENT_MAP: Record<string, string> = {
+  // OFA
+  'lead-scout':       'ofa:scout-osm',
+  'contact-finder':   'ofa:enrich-contacts',
+  'site-generator':   'ofa:generate-for-leads',
+  'pitcher':          'ofa:outreach',
+  'enterprise-scout': 'ofa:hyperscale-scout',
+  'hotel-scout':      'ofa:hyperscale-scout',
+  'demo-generator':   'ofa:generate-for-leads',
+  // FTG
+  'ftg-vc-scout':       'ftg:investors-scout',
+  'ftg-angel-scout':    'ftg:investors-scout',
+  'ftg-founder-scout':  'ftg:entrepreneur-scout',
+  'email-nurture':      'ftg:email-nurture',
+  'commerce-pitcher':   'ftg:commerce-pitcher',
+  'exporters-scout':    'ftg:exporters-scout',
+  'local-buyers-scout': 'ftg:local-buyers-scout',
+  'web-scout':          'ftg:web-scout',
+}
+
 function BusinessTab() {
   const [product, setProduct] = useState<Product>('ofa')
   const [objectiveType, setObjectiveType] = useState<ObjectiveType>('mrr')
@@ -447,6 +469,40 @@ function BusinessTab() {
         {savedId && <p style={{ color: C.green, fontSize: 12, marginTop: 8 }}>✓ Scénario <code>{savedId}</code> activé.</p>}
 
         <ScenarioHistory product={product} refreshKey={savedId} />
+
+        <MinatoScenarios
+          product={product}
+          horizonDays={horizonDays}
+          onApply={async (s) => {
+            // 1. Apply scenario params to the form state so capacity recomputes.
+            setObjectiveType(s.objectiveType)
+            setObjectiveValue(s.objectiveValue)
+            setSavedValue(s.objectiveValue)
+            setHorizonDays(s.horizonDays)
+            setAvgMrr(s.avgMrr)
+            setFunnel(s.funnel)
+            setMaxMode(false)
+            // 2. Persist + push to agent_targets via existing save endpoint.
+            await fetch('/api/simulator/save', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ product, objectiveType: s.objectiveType, objectiveValue: s.objectiveValue, horizonDays: s.horizonDays, avgMrr: s.avgMrr, funnel: s.funnel, results: s.results, maxMode: false }),
+            })
+            // 3. Auto-spawn scale requests for every goulot.
+            for (const sug of s.scaleSuggestions ?? []) {
+              const agentId = SCALE_AGENT_MAP[sug.name]
+              if (!agentId) continue
+              try {
+                await fetch('/api/minato/scale-agent', {
+                  method: 'POST', headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ agent: agentId, instances: sug.instances, requester: 'minato-scenario' }),
+                })
+              } catch {}
+              // 4. Optimistically bump local instance multiplier so the
+              //    capacity rows flip from goulot → green immediately.
+              setScaledInstances(prev => ({ ...prev, [sug.name]: Math.max(prev[sug.name] ?? 1, sug.instances) }))
+            }
+          }}
+        />
 
         {strategy && (
           <div style={{ marginTop: 16, padding: 14, background: 'rgba(96,165,250,.06)', border: `2px solid ${C.blue}`, borderRadius: 8 }}>
@@ -1051,6 +1107,133 @@ function Kpi({ label, value, color }: { label: string; value: string; color: str
     <div style={{ padding: 10, background: 'rgba(255,255,255,.03)', border: '1px solid rgba(201,168,76,.15)', borderRadius: 6 }}>
       <div style={{ fontSize: 10, color: '#5A6A7A', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color }}>{value}</div>
+    </div>
+  )
+}
+
+type MinatoScenario = {
+  tier: 'conservative' | 'balanced' | 'aggressive'
+  label: string
+  why: string
+  objectiveType: 'mrr' | 'clients' | 'revenue'
+  objectiveValue: number
+  horizonDays: number
+  avgMrr: number
+  funnel: { id: string; label: string; defaultRate: number }[]
+  results: { paidNeeded: number; leadsNeeded: number; mrr: number; capacity: { name: string; need: number; capacity: number; ok: boolean; perDay: number }[] }
+  scaleSuggestions: { name: string; instances: number; reason: string }[]
+}
+
+function MinatoScenarios({ product, horizonDays, onApply }: {
+  product: string
+  horizonDays: number
+  onApply: (s: MinatoScenario) => Promise<void> | void
+}) {
+  const [scenarios, setScenarios] = useState<MinatoScenario[] | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [applying, setApplying] = useState<string | null>(null)
+  const [applied, setApplied] = useState<string | null>(null)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function generate() {
+    setLoading(true); setErr(null); setApplied(null)
+    try {
+      const r = await fetch('/api/simulator/generate-scenarios', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product, horizonDays }),
+      })
+      const d = await r.json()
+      if (!d.ok) throw new Error(d.error || 'erreur')
+      setScenarios(d.scenarios)
+    } catch (e: any) { setErr(e.message?.slice(0, 80) ?? 'erreur') }
+    finally { setLoading(false) }
+  }
+
+  async function choose(s: MinatoScenario) {
+    setApplying(s.tier)
+    try { await onApply(s); setApplied(s.tier) }
+    finally { setApplying(null) }
+  }
+
+  const tierColors: Record<string, string> = {
+    conservative: '#60A5FA',
+    balanced: '#C9A84C',
+    aggressive: '#F87171',
+  }
+
+  return (
+    <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(201,168,76,.15)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <h3 style={subH}>🧠 Scénarios Minato</h3>
+        <button onClick={generate} disabled={loading}
+          style={{ padding: '6px 12px', background: loading ? 'transparent' : '#C9A84C', color: loading ? '#C9A84C' : '#000', border: '1px solid #C9A84C', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: loading ? 'wait' : 'pointer' }}>
+          {loading ? '… Minato réfléchit' : scenarios ? '🔄 Regénérer' : '⚡ Générer 3 scénarios'}
+        </button>
+      </div>
+      {err && <p style={{ color: '#F87171', fontSize: 11 }}>✗ {err}</p>}
+      {scenarios && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {scenarios.map(s => {
+            const color = tierColors[s.tier]
+            const isApplied = applied === s.tier
+            const isApplying = applying === s.tier
+            const gouls = s.results.capacity.filter(c => !c.ok).length
+            return (
+              <div key={s.tier} style={{
+                padding: 12, borderRadius: 8,
+                background: isApplied ? 'rgba(16,185,129,.08)' : 'rgba(255,255,255,.02)',
+                border: `1px solid ${isApplied ? 'rgba(16,185,129,.3)' : color + '40'}`,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 8 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' }}>
+                      {s.label}
+                    </div>
+                    <div style={{ color: '#E8E0D0', fontSize: 18, fontWeight: 700, marginTop: 2 }}>
+                      {s.objectiveValue.toLocaleString('fr-FR')} € MRR · {s.horizonDays}j
+                    </div>
+                    <div style={{ color: '#9BA8B8', fontSize: 11, marginTop: 4, lineHeight: 1.4 }}>
+                      {s.why}
+                    </div>
+                  </div>
+                  <button onClick={() => choose(s)} disabled={isApplying || isApplied}
+                    style={{
+                      padding: '6px 12px',
+                      background: isApplied ? '#10B981' : (isApplying ? 'transparent' : color),
+                      color: isApplied || !isApplying ? '#000' : color,
+                      border: `1px solid ${isApplied ? '#10B981' : color}`,
+                      borderRadius: 6, fontSize: 11, fontWeight: 700,
+                      cursor: isApplying || isApplied ? 'default' : 'pointer', whiteSpace: 'nowrap',
+                    }}>
+                    {isApplied ? '✓ Activé' : isApplying ? '…' : 'Choisir & scale'}
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 10, color: '#5A6A7A', flexWrap: 'wrap' }}>
+                  <span>📊 {s.results.leadsNeeded.toLocaleString('fr-FR')} leads</span>
+                  <span>🎯 {s.results.paidNeeded.toLocaleString('fr-FR')} payants</span>
+                  {gouls > 0 ? (
+                    <span style={{ color: '#F87171' }}>⚠ {gouls} goulot{gouls > 1 ? 's' : ''} → auto-scale</span>
+                  ) : (
+                    <span style={{ color: '#10B981' }}>✓ capacité OK</span>
+                  )}
+                </div>
+                {s.scaleSuggestions.length > 0 && (
+                  <div style={{ marginTop: 8, padding: 8, background: 'rgba(0,0,0,.2)', borderRadius: 4, fontSize: 10, color: '#9BA8B8' }}>
+                    <div style={{ color: '#F59E0B', fontWeight: 700, marginBottom: 4 }}>Scale auto au clic :</div>
+                    {s.scaleSuggestions.map(sug => (
+                      <div key={sug.name} style={{ display: 'flex', gap: 8 }}>
+                        <span style={{ fontFamily: 'monospace', color: '#C9A84C' }}>{sug.name}</span>
+                        <span>×{sug.instances}</span>
+                        <span style={{ color: '#5A6A7A' }}>({sug.reason})</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
