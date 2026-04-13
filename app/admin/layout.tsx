@@ -41,6 +41,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/vr',        label: 'V/R',        icon: '🎯', desc: 'Vision vs Réalisé' },
       { href: '/admin/simulator', label: 'Simulateur', icon: '🧮', desc: 'Objectifs → plan' },
       { href: '/admin/insights',  label: 'Insights',   icon: '🧠', desc: 'Stratégie & benchmark' },
+      { href: '/admin/minato',    label: 'Minato × MA', icon: '⚡', desc: 'Hybride Shonen + Managed Agents' },
       { href: '/admin/creator',   label: 'Creator',    icon: '🐉', desc: 'Power level Saiyan + progression' },
     ],
   },
