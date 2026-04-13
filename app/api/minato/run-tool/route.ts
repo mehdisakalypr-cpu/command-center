@@ -13,7 +13,7 @@ import { promisify } from 'util'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
-export const maxDuration = 600
+export const maxDuration = 300
 
 const execp = promisify(exec)
 const IS_VPS = process.env.DEPLOYMENT_ENV === 'vps'

@@ -457,6 +457,15 @@ export default function DashboardPage() {
               <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: ".75rem" }}>Code Architecture Map</span>
               <span style={{ color: "#5A6A7A", fontSize: ".6rem" }}>Graphes dependances GitNexus</span>
             </Link>
+            <Link href="/compute" style={{
+              display: "flex", flexDirection: "column", gap: 8, padding: "16px 20px",
+              background: "rgba(239,68,68,.06)", border: "1px solid rgba(239,68,68,.25)",
+              textDecoration: "none", transition: "all .15s",
+            }}>
+              <span style={{ fontSize: "1.4rem" }}>🔥</span>
+              <span style={{ color: "#EF4444", fontWeight: 700, fontSize: ".75rem" }}>Compute / NO LAZY MODE</span>
+              <span style={{ color: "#5A6A7A", fontSize: ".6rem" }}>Utilization live + bouton MAX · Minato self-watchdog</span>
+            </Link>
           </div>
         </Card>
 

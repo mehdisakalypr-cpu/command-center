@@ -139,29 +139,111 @@ function BusinessTab() {
   const [savedId, setSavedId] = useState<string | null>(null)
   const [maxMode, setMaxMode] = useState(false)
   const [savedValue, setSavedValue] = useState(10000)  // last manual value (toggle off → revient ici)
+  const [maxPotential, setMaxPotential] = useState<{ value: number; leadsPerDay: number; clients: number; mrr: number; multiplier: number; max_enabled: boolean; processes: number; active_bg: number } | null>(null)
+  const [maxLoading, setMaxLoading] = useState(false)
+  const [loadedFromDb, setLoadedFromDb] = useState(false)
+  // Giant Piccolo — live instance multiplier per agent (persisted via API spawn).
+  const [scaledInstances, setScaledInstances] = useState<Record<string, number>>({})
+  // Strategy panel state (opened when SCALE fails or user requests "find capacity").
+  const [strategy, setStrategy] = useState<any | null>(null)
+  const [strategyAgent, setStrategyAgent] = useState<string>('')
+  async function openStrategy(agent: string, label: string) {
+    setStrategyAgent(`${agent} (${label})`); setStrategy({ loading: true })
+    try {
+      const r = await fetch('/api/minato/strategy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ agent }) })
+      setStrategy(await r.json())
+    } catch (e: any) { setStrategy({ ok: false, error: String(e.message) }) }
+  }
+  // Load from localStorage so user sees the scaling they triggered earlier.
+  useEffect(() => {
+    try { const s = localStorage.getItem('ofa:scaledInstances'); if (s) setScaledInstances(JSON.parse(s)) } catch {}
+  }, [])
+  useEffect(() => {
+    try { localStorage.setItem('ofa:scaledInstances', JSON.stringify(scaledInstances)) } catch {}
+  }, [scaledInstances])
 
-  function onProductChange(p: Product) {
+  // Restore last-validated scenario for the current product on mount + product change.
+  useEffect(() => {
+    let cancelled = false
+    setLoadedFromDb(false)
+    ;(async () => {
+      try {
+        const r = await fetch(`/api/simulator/save?product=${product}`, { cache: 'no-store' })
+        const d = await r.json()
+        if (cancelled || !d.ok || !d.active) return
+        const a = d.active
+        setObjectiveType(a.objectiveType ?? 'mrr')
+        setObjectiveValue(a.objectiveValue ?? 10000)
+        setSavedValue(a.objectiveValue ?? 10000)
+        setHorizonDays(a.horizonDays ?? 30)
+        if (typeof a.avgMrr === 'number') setAvgMrr(a.avgMrr)
+        if (Array.isArray(a.funnel)) setFunnel(a.funnel)
+        setMaxMode(!!a.maxMode)
+        // NOTE: do NOT recompute fetchMaxPotential here — the value the user
+        // validated IS the priority target. We only refresh the info banner
+        // (multiplier, leads/j) without touching objectiveValue.
+        if (a.maxMode) {
+          fetch(`/api/compute/max-potential?product=${product}&objective=${a.objectiveType ?? 'mrr'}&horizon=${a.horizonDays ?? 30}`, { cache: 'no-store' })
+            .then(r => r.json()).then(d => {
+              if (!d?.ok) return
+              setMaxPotential({
+                value: d.value, leadsPerDay: d.leadsPerDay, clients: d.clients, mrr: d.mrr,
+                multiplier: d.multiplier, max_enabled: d.compute.max_enabled, processes: d.compute.processes, active_bg: d.compute.active_bg,
+              })
+            }).catch(() => {})
+        }
+      } finally { if (!cancelled) setLoadedFromDb(true) }
+    })()
+    return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product])
+
+  async function fetchMaxPotential(p: Product, o: ObjectiveType, days: number) {
+    setMaxLoading(true)
+    try {
+      const r = await fetch(`/api/compute/max-potential?product=${p}&objective=${o}&horizon=${days}`, { cache: 'no-store' })
+      const d = await r.json()
+      if (d.ok) {
+        setMaxPotential({
+          value: d.value, leadsPerDay: d.leadsPerDay, clients: d.clients, mrr: d.mrr,
+          multiplier: d.multiplier, max_enabled: d.compute.max_enabled, processes: d.compute.processes, active_bg: d.compute.active_bg,
+        })
+        return d.value as number
+      }
+    } catch {} finally { setMaxLoading(false) }
+    return null
+  }
+
+  async function onProductChange(p: Product) {
     setProduct(p)
     setAvgMrr(PRODUCT_DEFAULTS[p].avgMrrPerClient)
     setFunnel(PRODUCT_DEFAULTS[p].funnel)
-    if (maxMode) setObjectiveValue(OBJECTIVE_MAX[p][objectiveType])
-  }
-
-  function onObjectiveTypeChange(t: ObjectiveType) {
-    setObjectiveType(t)
-    if (maxMode) setObjectiveValue(OBJECTIVE_MAX[product][t])
-  }
-
-  function toggleMax() {
     if (maxMode) {
-      // OFF → revient à la dernière valeur manuelle
+      const v = await fetchMaxPotential(p, objectiveType, horizonDays)
+      setObjectiveValue(v ?? OBJECTIVE_MAX[p][objectiveType])
+    }
+  }
+
+  async function onObjectiveTypeChange(t: ObjectiveType) {
+    setObjectiveType(t)
+    if (maxMode) {
+      const v = await fetchMaxPotential(product, t, horizonDays)
+      setObjectiveValue(v ?? OBJECTIVE_MAX[product][t])
+    }
+  }
+
+  async function toggleMax() {
+    if (maxMode) {
+      // OFF → revient à la dernière valeur manuelle enregistrée
       setMaxMode(false)
       setObjectiveValue(savedValue)
+      setMaxPotential(null)
     } else {
-      // ON → mémorise la valeur courante puis passe au MAX
+      // ON → mémorise la valeur courante puis passe au MAX dynamique (instant T)
       setSavedValue(objectiveValue)
       setMaxMode(true)
-      setObjectiveValue(OBJECTIVE_MAX[product][objectiveType])
+      const v = await fetchMaxPotential(product, objectiveType, horizonDays)
+      setObjectiveValue(v ?? OBJECTIVE_MAX[product][objectiveType])
     }
   }
 
@@ -182,18 +264,19 @@ function BusinessTab() {
         : a.name.includes('pitcher') ? Math.ceil(leadsNeeded * 0.3)
         : a.name.includes('site-generator') ? Math.ceil(leadsNeeded * 0.4)
         : leadsNeeded
-      const capTotal = a.perDay * horizonDays
-      return { name: a.name, need, capacity: capTotal, ok: capTotal >= need }
+      const instances = scaledInstances[a.name] ?? 1
+      const capTotal = a.perDay * horizonDays * instances
+      return { name: a.name, need, capacity: capTotal, ok: capTotal >= need, instances }
     })
     return { paidNeeded, leadsNeeded, stageVolumes, mrr, capacity, totalConv }
-  }, [objectiveType, objectiveValue, avgMrr, funnel, product, horizonDays])
+  }, [objectiveType, objectiveValue, avgMrr, funnel, product, horizonDays, scaledInstances])
 
   async function saveAndActivate() {
     setSaving(true)
     try {
       const res = await fetch('/api/simulator/save', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product, objectiveType, objectiveValue, horizonDays, avgMrr, funnel, results }),
+        body: JSON.stringify({ product, objectiveType, objectiveValue, horizonDays, avgMrr, funnel, results, maxMode }),
       })
       const data = await res.json()
       if (res.ok) setSavedId(data.id); else alert(data.error || 'Erreur')
@@ -252,8 +335,24 @@ function BusinessTab() {
           </div>
         </Field>
         <Field label="Horizon (jours)">
-          <input type="number" value={horizonDays} onChange={e => setHorizonDays(+e.target.value || 30)} style={inputStyle} />
+          <input type="number" value={horizonDays} onChange={e => {
+            const v = +e.target.value || 30
+            setHorizonDays(v)
+            if (maxMode) fetchMaxPotential(product, objectiveType, v).then(nv => { if (nv !== null) setObjectiveValue(nv) })
+          }} style={inputStyle} />
         </Field>
+        {maxMode && maxPotential && (
+          <div style={{ margin: '8px 0', padding: 10, background: 'rgba(201,168,76,.08)', border: `1px solid ${C.gold}`, borderRadius: 6, fontSize: 11, color: C.text, lineHeight: 1.6 }}>
+            <div style={{ color: C.gold, fontWeight: 700, letterSpacing: '.08em', marginBottom: 4 }}>
+              POTENTIEL MAX À T · 90% capacité (10% réserve cognitive){maxLoading ? ' · …' : ''}
+            </div>
+            <div>Multiplier compute: <b>×{maxPotential.multiplier}</b> (proc={maxPotential.processes}, bg={maxPotential.active_bg}, MAX sticky={maxPotential.max_enabled ? 'ON' : 'off'})</div>
+            <div>Leads/j: <b>{maxPotential.leadsPerDay.toLocaleString('fr-FR')}</b> · Clients/horizon: <b>{maxPotential.clients.toLocaleString('fr-FR')}</b> · MRR garanti: <b>{maxPotential.mrr.toLocaleString('fr-FR')} €</b></div>
+            <div style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>
+              Réserve 10% = chat ↔ analyses ↔ rapports ↔ monitoring ↔ sécurité ↔ nouveaux projets
+            </div>
+          </div>
+        )}
         <Field label="MRR moyen par client (€)">
           <input type="number" step="0.01" value={avgMrr} onChange={e => setAvgMrr(+e.target.value || 0)} style={inputStyle} />
         </Field>
@@ -288,26 +387,134 @@ function BusinessTab() {
             </div>
           ))}
         </div>
-        <h3 style={subH}>Capacités agents ({horizonDays} jours)</h3>
+        <h3 style={subH}>Capacités agents ({horizonDays} jours) · 🟢 Giant Piccolo</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
-          {results.capacity.map(a => (
-            <div key={a.name} style={{
-              ...rowStyle,
-              background: a.ok ? 'rgba(16,185,129,.05)' : 'rgba(248,113,113,.05)',
-              border: `1px solid ${a.ok ? 'rgba(16,185,129,.2)' : 'rgba(248,113,113,.3)'}`,
-            }}>
-              <span style={{ color: C.muted, fontFamily: 'monospace' }}>{a.name}</span>
-              <span style={{ color: a.ok ? C.green : C.red, fontWeight: 600 }}>
-                {a.need.toLocaleString()} / {a.capacity.toLocaleString()} {a.ok ? '✓' : '⚠ goulot'}
-              </span>
-            </div>
-          ))}
+          {results.capacity.map(a => {
+            // Map business-tab agent names to scalable allowlist agents.
+            const agentMap: Record<string, string> = {
+              'lead-scout': 'ofa:scout-osm',
+              'contact-finder': 'ofa:enrich-contacts',
+              'site-generator': 'ofa:generate-for-leads',
+              'pitcher': 'ofa:outreach',
+              'enterprise-scout': 'ofa:hyperscale-scout',
+              'hotel-scout': 'ofa:hyperscale-scout',
+              'demo-generator': 'ofa:generate-for-leads',
+            }
+            const scalable = agentMap[a.name]
+            const instances = scaledInstances[a.name] ?? 1
+            return (
+              <div key={a.name} style={{
+                ...rowStyle,
+                background: a.ok ? 'rgba(16,185,129,.05)' : 'rgba(248,113,113,.05)',
+                border: `1px solid ${a.ok ? 'rgba(16,185,129,.2)' : 'rgba(248,113,113,.3)'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                  <span style={{ color: C.muted, fontFamily: 'monospace', fontSize: 11 }}>
+                    {a.name} {instances > 1 && <span style={{ color: C.gold, fontWeight: 700 }}>×{instances}</span>}
+                  </span>
+                  <span style={{ color: a.ok ? C.green : C.red, fontWeight: 600, fontSize: 11 }}>
+                    {a.need.toLocaleString()} / {a.capacity.toLocaleString()} {a.ok ? '✓' : '⚠ goulot'}
+                  </span>
+                </div>
+                {scalable && (
+                  <ScaleButton
+                    agent={scalable}
+                    agentLabel={a.name}
+                    factor={a.ok ? 1 : 3}
+                    onScaled={(n) => setScaledInstances(s => ({ ...s, [a.name]: (s[a.name] ?? 1) * (a.ok ? (n > 1 ? n : 1) : 3) }))}
+                    onNeedStrategy={openStrategy}
+                  />
+                )}
+              </div>
+            )
+          })}
         </div>
         <button onClick={saveAndActivate} disabled={saving}
           style={{ width: '100%', padding: '12px 16px', background: C.gold, color: '#000', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: saving ? 'wait' : 'pointer' }}>
           {saving ? 'Enregistrement…' : 'Valider & pousser aux agents'}
         </button>
         {savedId && <p style={{ color: C.green, fontSize: 12, marginTop: 8 }}>✓ Scénario <code>{savedId}</code> activé.</p>}
+
+        {strategy && (
+          <div style={{ marginTop: 16, padding: 14, background: 'rgba(96,165,250,.06)', border: `2px solid ${C.blue}`, borderRadius: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+              <strong style={{ color: C.blue, fontSize: 13 }}>🧠 MINATO STRATEGY · {strategyAgent}</strong>
+              <button onClick={() => setStrategy(null)} style={{ background: 'transparent', color: C.muted, border: 'none', cursor: 'pointer', fontSize: 11 }}>fermer</button>
+            </div>
+            {strategy.loading && <div style={{ color: C.muted, fontSize: 11 }}>Analyse…</div>}
+            {strategy.ok && (
+              <>
+                <div style={{ padding: 10, background: 'rgba(0,0,0,.3)', borderRadius: 6, marginBottom: 10 }}>
+                  <div style={{ fontSize: 12, color: C.gold, fontWeight: 700, marginBottom: 4 }}>DIAGNOSTIC · {strategy.diagnosis.category}</div>
+                  <div style={{ fontSize: 12, color: C.text, marginBottom: 6 }}>{strategy.summary.message}</div>
+                  {strategy.diagnosis.blocked_provider && <div style={{ fontSize: 11, color: C.red }}>Provider en goulot : <b>{strategy.diagnosis.blocked_provider}</b></div>}
+                </div>
+
+                {strategy.in_progress && strategy.in_progress.length > 0 && (
+                  <div style={{ fontSize: 11, color: C.muted, marginBottom: 8 }}>
+                    Tâches en cours : {strategy.in_progress.map((j: any) => `${j.name}[${j.status}]`).join(' · ')}
+                  </div>
+                )}
+                {strategy.mrr_target && (
+                  <div style={{ fontSize: 11, color: C.muted, marginBottom: 12 }}>
+                    Objectif MRR validé : {strategy.mrr_target.objectiveValue?.toLocaleString('fr-FR')} {strategy.mrr_target.objectiveType} sur {strategy.mrr_target.horizonDays}j ({strategy.mrr_target.product})
+                  </div>
+                )}
+
+                {Object.entries(strategy.options).map(([k, opt]: [string, any]) => (
+                  <div key={k} style={{
+                    marginBottom: 10, padding: 10,
+                    background: opt.recommended ? 'rgba(16,185,129,.08)' : 'rgba(255,255,255,.03)',
+                    border: `1px solid ${opt.recommended ? C.green : 'rgba(255,255,255,.08)'}`,
+                    borderRadius: 6,
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+                      <strong style={{ color: opt.recommended ? C.green : C.gold, fontSize: 12 }}>{opt.name} {opt.recommended && '⭐'}</strong>
+                      <span style={{ fontSize: 11, color: C.muted }}>
+                        {opt.monthly_eur === 0 ? '0 €' : `${opt.monthly_eur} €/mo`} · {opt.human_clicks ?? 0} clics · {opt.setup_min ?? 0} min
+                      </span>
+                    </div>
+                    {opt.summary && <div style={{ fontSize: 10, color: C.text, marginBottom: 6 }}>{opt.summary}</div>}
+                    {opt.actions_now && (
+                      <div style={{ fontSize: 10, color: C.green, marginBottom: 4 }}>
+                        ✓ déjà faisable : {opt.actions_now.map((a: any) => a.what).join(' · ')}
+                      </div>
+                    )}
+                    {opt.actions && opt.actions.length > 0 && (
+                      <ul style={{ fontSize: 10, color: C.text, margin: '4px 0 0 16px', paddingLeft: 0 }}>
+                        {opt.actions.map((a: any, i: number) => (
+                          <li key={i} style={{ marginBottom: 2 }}>
+                            <b>{a.label}</b> — <a href={a.signup_url} target="_blank" rel="noreferrer" style={{ color: C.blue }}>signup</a> · {a.quota_gain}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {opt.subscriptions && opt.subscriptions.length > 0 && (
+                      <ul style={{ fontSize: 10, color: C.text, margin: '4px 0 0 16px', paddingLeft: 0 }}>
+                        {opt.subscriptions.map((s: any, i: number) => (
+                          <li key={i} style={{ marginBottom: 2 }}>
+                            <b>{s.name}</b> ({s.monthly_eur} €/mo) — <a href={s.signup} target="_blank" rel="noreferrer" style={{ color: C.blue }}>upgrade</a> · {s.gain}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {opt.composition && (
+                      <div style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>
+                        Composition : {Object.entries(opt.composition).filter(([_, v]: any) => v && (Array.isArray(v) ? v.length : true)).map(([k]) => k).join(' + ')}
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+                      <span style={{ fontSize: 9, color: C.green }}>+ {(opt.pros || []).join(' · ')}</span>
+                    </div>
+                    <div style={{ fontSize: 9, color: C.red }}>− {(opt.cons || []).join(' · ')}</div>
+                  </div>
+                ))}
+              </>
+            )}
+            {strategy.ok === false && <div style={{ color: C.red, fontSize: 11 }}>{strategy.error}</div>}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -348,6 +555,46 @@ function VelocityTab() {
   const [horizonDays, setHorizonDays] = useState(7)
   const [workHoursPerDay, setWorkHoursPerDay] = useState(20) // 4h maintenance/buffer
   const [tasks, setTasks] = useState(TASKS.map(t => ({ ...t, secPerUnit: t.defaultSecPerUnit })))
+  const [capacityPlan, setCapacityPlan] = useState<any | null>(null)
+  const [scaleLog, setScaleLog] = useState<string | null>(null)
+
+  async function findCapacity(provider?: string, gap?: number) {
+    setCapacityPlan({ loading: true })
+    try {
+      const r = await fetch('/api/minato/find-capacity', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, gap }),
+      })
+      setCapacityPlan(await r.json())
+    } catch (e: any) {
+      setCapacityPlan({ ok: false, error: String(e.message) })
+    }
+  }
+
+  async function scaleAgent(agent: string, instances = 2) {
+    setScaleLog(`Scaling ${agent} ×${instances}…`)
+    try {
+      const r = await fetch('/api/minato/scale-agent', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agent, instances }),
+      })
+      const d = await r.json()
+      if (d.ok) setScaleLog(`✓ ${agent} ×${d.instances} spawned (PIDs ${d.spawned.map((s:any)=>s.pid).join(',')})`)
+      else setScaleLog(`✗ ${d.error ?? 'error'}`)
+    } catch (e: any) { setScaleLog(`✗ ${e.message}`) }
+  }
+
+  // Map provider → agents that depend on it (Giant Piccolo quick-scale).
+  const PROVIDER_TO_AGENTS: Record<string, string[]> = {
+    cloudflare: ['ofa:generate-for-leads', 'ofa:fix-demos'],
+    huggingface: ['ofa:generate-for-leads', 'ofa:fix-demos'],
+    gemini: ['ofa:hyperscale-scout', 'ofa:generate-for-leads', 'ftg:seo-factory'],
+    groq: ['ofa:hyperscale-scout', 'ofa:generate-for-leads'],
+    together: ['ofa:generate-for-leads'],
+    fal: ['ofa:generate-for-leads'],
+    places: ['ofa:enrich-contacts'],
+    resend: ['ofa:outreach'],
+  }
 
   const { currentAccounts, scenarioAccounts } = useVelocityAccountsLoader()
 
@@ -432,24 +679,80 @@ function VelocityTab() {
           <Kpi label="Sites/jour" value={Math.round(results.sitesPerHour * workHoursPerDay).toLocaleString()} color={C.blue} />
         </div>
 
-        <h3 style={subH}>Par provider (agrégé)</h3>
+        <h3 style={subH}>Par provider (agrégé) · 🟢 Giant Piccolo</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
           {Object.entries(results.byProvider).map(([p, v]) => {
             const ok = v.gap === 0
+            const agents = PROVIDER_TO_AGENTS[p] || []
             return (
               <div key={p} style={{
                 ...rowStyle,
                 background: ok ? 'rgba(16,185,129,.05)' : 'rgba(248,113,113,.05)',
                 border: `1px solid ${ok ? 'rgba(16,185,129,.2)' : 'rgba(248,113,113,.3)'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
               }}>
-                <span style={{ color: C.muted }}>{v.label}</span>
-                <span style={{ color: ok ? C.green : C.red, fontWeight: 600, fontSize: 12 }}>
-                  {v.current} / {v.needed} {ok ? '✓' : `· créer ${v.gap} compte${v.gap > 1 ? 's' : ''}`}
-                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+                  <span style={{ color: C.muted, fontSize: 12 }}>{v.label}</span>
+                  <span style={{ color: ok ? C.green : C.red, fontWeight: 600, fontSize: 11 }}>
+                    {v.current} / {v.needed} {ok ? '✓' : `· gap=${v.gap}`}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                  {agents[0] && (
+                    <button onClick={() => scaleAgent(agents[0], 2)} title={`Giant Piccolo — spawn 2× ${agents[0]}`}
+                      style={{ padding: '4px 8px', background: 'transparent', color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 4, fontSize: 10, cursor: 'pointer', fontWeight: 700 }}>
+                      🚀 SCALE
+                    </button>
+                  )}
+                  {!ok && (
+                    <button onClick={() => findCapacity(p, v.gap)} title="Plan free-tier pour combler le gap"
+                      style={{ padding: '4px 8px', background: 'transparent', color: C.blue, border: `1px solid ${C.blue}`, borderRadius: 4, fontSize: 10, cursor: 'pointer', fontWeight: 700 }}>
+                      🔎 FIND CAPACITY
+                    </button>
+                  )}
+                </div>
               </div>
             )
           })}
         </div>
+
+        {scaleLog && (
+          <div style={{ margin: '8px 0', padding: 8, background: 'rgba(201,168,76,.06)', border: `1px solid ${C.gold}`, borderRadius: 6, fontSize: 11, color: C.text, fontFamily: 'monospace' }}>
+            {scaleLog}
+          </div>
+        )}
+
+        {capacityPlan && (
+          <div style={{ margin: '8px 0', padding: 12, background: 'rgba(96,165,250,.06)', border: `1px solid ${C.blue}`, borderRadius: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <strong style={{ color: C.blue, fontSize: 12 }}>Plan free-tier</strong>
+              <button onClick={() => setCapacityPlan(null)} style={{ background: 'transparent', color: C.muted, border: 'none', cursor: 'pointer', fontSize: 11 }}>fermer</button>
+            </div>
+            {capacityPlan.loading && <div style={{ color: C.muted, fontSize: 11 }}>Génération…</div>}
+            {capacityPlan.ok && (
+              <>
+                <div style={{ fontSize: 11, color: C.text, marginBottom: 8 }}>
+                  Total: <b>{capacityPlan.summary.total_accounts_to_create}</b> comptes · <b>{capacityPlan.summary.total_time_min} min</b> · <b>{capacityPlan.summary.total_cost_eur}€</b>
+                </div>
+                {capacityPlan.plans.map((p: any) => (
+                  <div key={p.provider} style={{ marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid rgba(255,255,255,.05)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+                      <strong style={{ fontSize: 12, color: C.gold }}>{p.label}</strong>
+                      <span style={{ fontSize: 10, color: C.muted }}>créer {p.accounts_to_create} × · actif {p.active_now}</span>
+                    </div>
+                    <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>{p.quota_gained}</div>
+                    <a href={p.signup_url} target="_blank" rel="noreferrer" style={{ color: C.blue, fontSize: 10 }}>{p.signup_url}</a>
+                    <div style={{ fontSize: 10, color: C.text, marginTop: 4 }}>Alias: {p.aliases.join(', ')}</div>
+                    <ol style={{ fontSize: 10, color: C.muted, margin: '4px 0 0 16px', paddingLeft: 0 }}>
+                      {p.steps.map((s: string, i: number) => <li key={i} style={{ marginBottom: 2 }}>{s}</li>)}
+                    </ol>
+                  </div>
+                ))}
+              </>
+            )}
+            {capacityPlan.ok === false && <div style={{ color: C.red, fontSize: 11 }}>{capacityPlan.error}</div>}
+          </div>
+        )}
 
         <h3 style={subH}>Détail par tâche</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11 }}>
@@ -643,6 +946,94 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   )
 }
+type ScaleStatus = 'idle' | 'demandé' | 'spawning' | 'actif' | 'fini' | 'partiel' | 'err'
+
+function ScaleButton({ agent, agentLabel, factor, onScaled, onNeedStrategy }: { agent: string; agentLabel: string; factor: number; onScaled: (instances: number) => void; onNeedStrategy?: (agent: string, label: string) => void }) {
+  const requestStrategy = onNeedStrategy ?? (() => {})
+  const [status, setStatus] = useState<ScaleStatus>('idle')
+  const [pids, setPids] = useState<number[]>([])
+  const [alive, setAlive] = useState<number[]>([])
+  const [note, setNote] = useState<string>('')
+  const [reqId, setReqId] = useState<number | null>(null)
+
+  async function pollStatus(id: number, attempt = 0) {
+    try {
+      const r = await fetch(`/api/minato/scale-agent?id=${id}`, { cache: 'no-store' })
+      const d = await r.json()
+      if (!d.ok || !d.request) return
+      const req = d.request
+      const p = req.pids ?? []
+      const a = req.alive_pids ?? []
+      setPids(p); setAlive(a)
+      if (req.status === 'pending') { setStatus('demandé'); setNote('en queue (worker VPS toutes les 60s)') }
+      else if (req.status === 'spawning') { setStatus('spawning'); setNote(`PIDs ${p.slice(0, 3).join(',')}`) }
+      else if (req.status === 'active') {
+        setStatus('actif'); setNote(`${a.length}/${p.length} ✓`)
+        onScaled(a.length)
+        return
+      }
+      else if (req.status === 'completed') {
+        setStatus('fini'); setNote(`${p.length}/${p.length} ✓ terminé proprement`)
+        onScaled(p.length)
+        return
+      }
+      else if (req.status === 'partial') { setStatus('partiel'); setNote(`${a.length}/${p.length} vivants`); onScaled(a.length) }
+      else if (req.status === 'err') {
+        setStatus('err'); setNote(req.error_msg?.slice(0, 40) ?? 'tous morts · stratégie requise')
+        // Auto-open Minato strategy panel after a failure
+        setTimeout(() => requestStrategy(agent, agentLabel), 800)
+        return
+      }
+      // Continue polling for up to ~3 minutes
+      if (attempt < 20 && req.status !== 'active' && req.status !== 'err') {
+        setTimeout(() => pollStatus(id, attempt + 1), attempt < 3 ? 3000 : 10000)
+      }
+    } catch {}
+  }
+
+  async function go() {
+    setStatus('demandé'); setNote('envoi requête à la queue VPS…')
+    try {
+      const r = await fetch('/api/minato/scale-agent', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agent, instances: factor, requester: 'ui' }),
+      })
+      const d = await r.json()
+      if (!d.ok) { setStatus('err'); setNote(String(d.error).slice(0, 40)); setTimeout(() => requestStrategy(agent, agentLabel), 800); return }
+      setReqId(d.id)
+      setNote(`req #${d.id} en queue · cron /1 min`)
+      pollStatus(d.id, 0)
+    } catch (e: any) { setStatus('err'); setNote(e.message?.slice(0, 40) ?? 'err') }
+  }
+
+  const palette: Record<ScaleStatus, { bg: string; fg: string; bd: string; icon: string }> = {
+    idle:     { bg: 'transparent',       fg: '#C9A84C', bd: '#C9A84C', icon: '🚀' },
+    demandé:  { bg: 'rgba(96,165,250,.15)', fg: '#60A5FA', bd: '#60A5FA', icon: '⏳' },
+    spawning: { bg: 'rgba(201,168,76,.2)',  fg: '#C9A84C', bd: '#C9A84C', icon: '⚙️' },
+    actif:    { bg: '#10B981',            fg: '#07090F', bd: '#10B981', icon: '✓' },
+    fini:     { bg: 'rgba(16,185,129,.2)',fg: '#10B981', bd: '#10B981', icon: '✅' },
+    partiel:  { bg: 'rgba(245,158,11,.2)', fg: '#F59E0B', bd: '#F59E0B', icon: '◐' },
+    err:      { bg: '#F87171',            fg: '#07090F', bd: '#F87171', icon: '✗' },
+  }
+  const p = palette[status]
+  const label = status === 'idle' ? `🚀 SCALE ×${factor}` : `${p.icon} ${status} ${note ? '· ' + note : ''}`
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+      <button onClick={go} disabled={status === 'demandé' || status === 'spawning'}
+        title={`Giant Piccolo — spawn ${factor}× ${agent} · ${agentLabel}`}
+        style={{ padding: '4px 8px', background: p.bg, color: p.fg, border: `1px solid ${p.bd}`, borderRadius: 4, fontSize: 10, cursor: (status === 'demandé' || status === 'spawning') ? 'wait' : 'pointer', fontWeight: 700, whiteSpace: 'nowrap', minWidth: 120, transition: 'all .2s' }}>
+        {label}
+      </button>
+      {(status === 'actif' || status === 'partiel' || status === 'spawning') && pids.length > 0 && (
+        <span style={{ fontSize: 9, color: '#5A6A7A', fontFamily: 'monospace' }}>
+          pid: {pids.join(',')} {alive.length > 0 && `· alive: ${alive.join(',')}`}
+        </span>
+      )}
+    </div>
+  )
+}
+
 function Kpi({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div style={{ padding: 10, background: 'rgba(255,255,255,.03)', border: '1px solid rgba(201,168,76,.15)', borderRadius: 6 }}>
