@@ -86,8 +86,9 @@ export default function VRPage() {
   }, []);
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center", color: C.gold }}>
-      Chargement V/R...
+    <div style={{ padding: 24, color: C.text }}>
+      <HumanTodoPanel />
+      <div style={{ padding: 40, textAlign: "center", color: C.gold }}>Chargement V/R...</div>
     </div>
   );
 
