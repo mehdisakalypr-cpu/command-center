@@ -436,6 +436,8 @@ function BusinessTab() {
         </button>
         {savedId && <p style={{ color: C.green, fontSize: 12, marginTop: 8 }}>✓ Scénario <code>{savedId}</code> activé.</p>}
 
+        <ScenarioHistory product={product} refreshKey={savedId} />
+
         {strategy && (
           <div style={{ marginTop: 16, padding: 14, background: 'rgba(96,165,250,.06)', border: `2px solid ${C.blue}`, borderRadius: 8 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -1039,6 +1041,49 @@ function Kpi({ label, value, color }: { label: string; value: string; color: str
     <div style={{ padding: 10, background: 'rgba(255,255,255,.03)', border: '1px solid rgba(201,168,76,.15)', borderRadius: 6 }}>
       <div style={{ fontSize: 10, color: '#5A6A7A', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color }}>{value}</div>
+    </div>
+  )
+}
+
+function ScenarioHistory({ product, refreshKey }: { product: string; refreshKey: string | null }) {
+  const [items, setItems] = useState<any[]>([])
+  const [busy, setBusy] = useState<string | null>(null)
+  async function load() {
+    try {
+      const r = await fetch(`/api/simulator/list?product=${product}&limit=10`, { cache: 'no-store' })
+      const d = await r.json()
+      if (d.ok) setItems(d.scenarios)
+    } catch {}
+  }
+  useEffect(() => { load() }, [product, refreshKey])
+  async function activate(id: string) {
+    setBusy(id)
+    try {
+      await fetch('/api/simulator/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scenarioId: id }) })
+      await load()
+    } finally { setBusy(null) }
+  }
+  if (!items.length) return null
+  return (
+    <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(201,168,76,.15)' }}>
+      <h3 style={subH}>Historique ({items.length})</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 240, overflowY: 'auto' }}>
+        {items.map(s => (
+          <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', background: s.isActive ? 'rgba(16,185,129,.06)' : 'transparent', borderRadius: 4, border: `1px solid ${s.isActive ? 'rgba(16,185,129,.2)' : 'transparent'}`, fontSize: 11 }}>
+            <span style={{ color: '#5A6A7A', fontFamily: 'monospace' }}>{new Date(s.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
+            <span style={{ color: '#E8E0D0', flex: 1 }}>
+              {s.objective_type} {s.objective_value.toLocaleString('fr-FR')} · {s.horizon_days}j
+            </span>
+            {s.isActive ? (
+              <span style={{ color: '#10B981', fontWeight: 700, fontSize: 10 }}>● ACTIF</span>
+            ) : (
+              <button onClick={() => activate(s.id)} disabled={busy === s.id} style={{ padding: '3px 8px', background: 'transparent', color: '#C9A84C', border: '1px solid rgba(201,168,76,.3)', borderRadius: 4, cursor: 'pointer', fontSize: 10, fontWeight: 600 }}>
+                {busy === s.id ? '…' : 'Activer'}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
