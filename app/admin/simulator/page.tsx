@@ -1297,11 +1297,23 @@ function MinatoScenarios({ product, horizonDays, onApply }: {
 function ScenarioHistory({ product, refreshKey }: { product: string; refreshKey: string | null }) {
   const [items, setItems] = useState<any[]>([])
   const [busy, setBusy] = useState<string | null>(null)
+  const [vrByScenario, setVrByScenario] = useState<Record<string, any>>({})
   async function load() {
     try {
       const r = await fetch(`/api/simulator/list?product=${product}&limit=10`, { cache: 'no-store' })
       const d = await r.json()
-      if (d.ok) setItems(d.scenarios)
+      if (d.ok) {
+        setItems(d.scenarios)
+        // Fan out V/R fetches in parallel — each is small.
+        const all = await Promise.all((d.scenarios as any[]).map(async (s: any) => {
+          try {
+            const vr = await fetch('/api/simulator/vr', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scenarioId: s.id }) })
+            const j = await vr.json()
+            return [s.id, j.ok ? j : null] as const
+          } catch { return [s.id, null] as const }
+        }))
+        setVrByScenario(Object.fromEntries(all))
+      }
     } catch {}
   }
   useEffect(() => { load() }, [product, refreshKey])
@@ -1313,25 +1325,59 @@ function ScenarioHistory({ product, refreshKey }: { product: string; refreshKey:
     } finally { setBusy(null) }
   }
   if (!items.length) return null
+
+  function VrBar({ label, vr }: { label: 'leads' | 'paid' | 'mrr'; vr: any }) {
+    const a = vr?.actual?.[label]
+    const t = vr?.target?.[label]
+    const p = vr?.pct?.[label]
+    if (a == null || t == null) return <span style={{ color: '#5A6A7A', fontSize: 9 }}>{label}: ?</span>
+    const elapsed = vr?.elapsedPct ?? 0
+    const onTrack = p != null && p >= elapsed * 0.9
+    const color = onTrack ? '#10B981' : '#F59E0B'
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, gap: 2 }}>
+        <span style={{ fontSize: 9, color: '#7D8BA0' }}>
+          {label}: <span style={{ color, fontWeight: 700 }}>{(a as number).toLocaleString('fr-FR')}</span>
+          <span style={{ color: '#5A6A7A' }}> / {(t as number).toLocaleString('fr-FR')}</span>
+          {p != null && <span style={{ color, marginLeft: 4 }}>({p}%)</span>}
+        </span>
+        <div style={{ height: 3, background: 'rgba(255,255,255,.05)', borderRadius: 2, overflow: 'hidden' }}>
+          <div style={{ width: `${Math.min(100, p ?? 0)}%`, height: '100%', background: color, transition: 'width .3s' }} />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(201,168,76,.15)' }}>
-      <h3 style={subH}>Historique ({items.length})</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 240, overflowY: 'auto' }}>
-        {items.map(s => (
-          <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', background: s.isActive ? 'rgba(16,185,129,.06)' : 'transparent', borderRadius: 4, border: `1px solid ${s.isActive ? 'rgba(16,185,129,.2)' : 'transparent'}`, fontSize: 11 }}>
-            <span style={{ color: '#5A6A7A', fontFamily: 'monospace' }}>{new Date(s.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
-            <span style={{ color: '#E8E0D0', flex: 1 }}>
-              {s.objective_type} {s.objective_value.toLocaleString('fr-FR')} · {s.horizon_days}j
-            </span>
-            {s.isActive ? (
-              <span style={{ color: '#10B981', fontWeight: 700, fontSize: 10 }}>● ACTIF</span>
-            ) : (
-              <button onClick={() => activate(s.id)} disabled={busy === s.id} style={{ padding: '3px 8px', background: 'transparent', color: '#C9A84C', border: '1px solid rgba(201,168,76,.3)', borderRadius: 4, cursor: 'pointer', fontSize: 10, fontWeight: 600 }}>
-                {busy === s.id ? '…' : 'Activer'}
-              </button>
-            )}
-          </div>
-        ))}
+      <h3 style={subH}>Historique · V/R live ({items.length})</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 360, overflowY: 'auto' }}>
+        {items.map(s => {
+          const vr = vrByScenario[s.id]
+          return (
+            <div key={s.id} style={{ padding: '8px 10px', background: s.isActive ? 'rgba(16,185,129,.06)' : 'rgba(255,255,255,.02)', borderRadius: 4, border: `1px solid ${s.isActive ? 'rgba(16,185,129,.2)' : 'rgba(201,168,76,.08)'}`, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
+                <span style={{ color: '#5A6A7A', fontFamily: 'monospace' }}>{new Date(s.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
+                <span style={{ color: '#E8E0D0', flex: 1 }}>{s.objective_type} {s.objective_value.toLocaleString('fr-FR')} · {s.horizon_days}j</span>
+                {vr && <span style={{ color: '#5A6A7A', fontSize: 9 }}>J{vr.elapsedDays}/{vr.horizonDays}</span>}
+                {s.isActive ? (
+                  <span style={{ color: '#10B981', fontWeight: 700, fontSize: 10 }}>● ACTIF</span>
+                ) : (
+                  <button onClick={() => activate(s.id)} disabled={busy === s.id} style={{ padding: '3px 8px', background: 'transparent', color: '#C9A84C', border: '1px solid rgba(201,168,76,.3)', borderRadius: 4, cursor: 'pointer', fontSize: 10, fontWeight: 600 }}>
+                    {busy === s.id ? '…' : 'Activer'}
+                  </button>
+                )}
+              </div>
+              {vr && (
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <VrBar label="leads" vr={vr} />
+                  <VrBar label="paid" vr={vr} />
+                  <VrBar label="mrr" vr={vr} />
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
