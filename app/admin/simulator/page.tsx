@@ -439,25 +439,28 @@ function BusinessTab() {
                 ...rowStyle,
                 background: a.ok ? 'rgba(16,185,129,.05)' : 'rgba(248,113,113,.05)',
                 border: `1px solid ${a.ok ? 'rgba(16,185,129,.2)' : 'rgba(248,113,113,.3)'}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+                display: 'flex', flexDirection: 'column', gap: 6,
               }}>
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-                  <span style={{ color: C.muted, fontFamily: 'monospace', fontSize: 11 }}>
-                    {a.name} {instances > 1 && <span style={{ color: C.gold, fontWeight: 700 }}>×{instances}</span>}
-                  </span>
-                  <span style={{ color: a.ok ? C.green : C.red, fontWeight: 600, fontSize: 11 }}>
-                    {a.need.toLocaleString()} / {a.capacity.toLocaleString()} {a.ok ? '✓' : '⚠ goulot'}
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                    <span style={{ color: C.muted, fontFamily: 'monospace', fontSize: 11 }}>
+                      {a.name} {instances > 1 && <span style={{ color: C.gold, fontWeight: 700 }}>×{instances}</span>}
+                    </span>
+                    <span style={{ color: a.ok ? C.green : C.red, fontWeight: 600, fontSize: 11 }}>
+                      {a.need.toLocaleString()} / {a.capacity.toLocaleString()} {a.ok ? '✓' : '⚠ goulot'}
+                    </span>
+                  </div>
+                  {scalable && (
+                    <ScaleButton
+                      agent={scalable}
+                      agentLabel={a.name}
+                      factor={a.ok ? 1 : 3}
+                      onScaled={(n) => setScaledInstances(s => ({ ...s, [a.name]: (s[a.name] ?? 1) * (a.ok ? (n > 1 ? n : 1) : 3) }))}
+                      onNeedStrategy={openStrategy}
+                    />
+                  )}
                 </div>
-                {scalable && (
-                  <ScaleButton
-                    agent={scalable}
-                    agentLabel={a.name}
-                    factor={a.ok ? 1 : 3}
-                    onScaled={(n) => setScaledInstances(s => ({ ...s, [a.name]: (s[a.name] ?? 1) * (a.ok ? (n > 1 ? n : 1) : 3) }))}
-                    onNeedStrategy={openStrategy}
-                  />
-                )}
+                {scalable && <ScaleReadiness agent={scalable} instances={instances} />}
               </div>
             )
           })}
@@ -1014,6 +1017,59 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   )
 }
+function ScaleReadiness({ agent, instances }: { agent: string; instances: number }) {
+  const [data, setData] = useState<any | null>(null)
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const r = await fetch('/api/minato/scale-readiness', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agent, currentInstances: instances }),
+        })
+        const d = await r.json()
+        if (!cancelled && d.ok) setData(d)
+      } catch {}
+    })()
+    return () => { cancelled = true }
+  }, [agent, instances])
+
+  if (!data) return null
+  const color = data.verdict === 'blocked' ? '#F87171' : data.verdict === 'unknown' ? '#F59E0B' : '#10B981'
+  const icon = data.verdict === 'blocked' ? '⛔' : data.verdict === 'unknown' ? '❓' : '✅'
+  return (
+    <div style={{ fontSize: 10, color: '#7D8BA0', borderTop: '1px dashed rgba(201,168,76,.1)', paddingTop: 4 }}>
+      <button onClick={() => setOpen(o => !o)} style={{ background: 'transparent', border: 'none', color, cursor: 'pointer', padding: 0, fontSize: 10, fontWeight: 600, textAlign: 'left' }}>
+        {icon} {data.verdictReason.slice(0, 140)} {open ? '▴' : '▾'}
+      </button>
+      {open && (
+        <div style={{ marginTop: 6, padding: 8, background: 'rgba(0,0,0,.25)', borderRadius: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div><span style={{ color: '#C9A84C', fontWeight: 700 }}>Partition :</span> {data.physics.partitionKey}</div>
+          <div><span style={{ color: '#C9A84C', fontWeight: 700 }}>Blocker :</span> {data.physics.blocker}</div>
+          {data.physics.notes && <div style={{ color: '#9BA8B8', fontStyle: 'italic' }}>{data.physics.notes}</div>}
+          <div style={{ marginTop: 4, borderTop: '1px solid rgba(201,168,76,.15)', paddingTop: 4 }}>
+            <span style={{ color: '#C9A84C', fontWeight: 700 }}>Providers & quotas par clé :</span>
+          </div>
+          {data.providerDetails.map((p: any) => (
+            <div key={p.provider} style={{ display: 'flex', gap: 6, flexWrap: 'wrap', fontFamily: 'monospace' }}>
+              <span style={{ color: '#E8E0D0' }}>{p.provider}</span>
+              <span style={{ color: '#7D8BA0' }}>· {p.unit}</span>
+              <span style={{ color: p.keysActive === 0 ? '#F87171' : p.keysActive === null ? '#F59E0B' : '#10B981' }}>
+                · clés actives: {p.keysActive === null ? '?' : p.keysActive}
+              </span>
+              {p.effectiveDaily !== null && <span style={{ color: '#60A5FA' }}>· effectif: {p.effectiveDaily.toLocaleString('fr-FR')}/j</span>}
+            </div>
+          ))}
+          <div style={{ marginTop: 6, fontSize: 9, color: '#5A6A7A', fontStyle: 'italic', lineHeight: 1.4 }}>
+            {data.minatoSets}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 type ScaleStatus = 'idle' | 'demandé' | 'spawning' | 'actif' | 'fini' | 'partiel' | 'err'
 
 function ScaleButton({ agent, agentLabel, factor, onScaled, onNeedStrategy }: { agent: string; agentLabel: string; factor: number; onScaled: (instances: number) => void; onNeedStrategy?: (agent: string, label: string) => void }) {
