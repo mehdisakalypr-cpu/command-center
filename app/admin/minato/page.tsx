@@ -1,5 +1,70 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+type CapacityRow = { label: string; actual: number; target: number; weekly_rate: number; kaioken_rate: number; remaining: number; eta_days: number | null; eta_days_kaioken: number | null; pct: number };
+type CapacityData = { ok: boolean; updated_at: string; rows: CapacityRow[]; global_eta_days: number | null; global_eta_kaioken: number | null; note?: string };
+
+function CapacitySection() {
+  const [data, setData] = useState<CapacityData | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    fetch("/api/minato/capacity")
+      .then((r) => r.json())
+      .then((d) => (d.ok ? setData(d) : setErr(d.error || "load failed")))
+      .catch((e) => setErr(String(e)));
+  }, []);
+
+  const fmt = (n: number) => n.toLocaleString("fr-FR");
+  const eta = (d: number | null) => (d === null ? "jamais" : d < 30 ? `${d}j` : d < 365 ? `${Math.round(d / 7)}sem` : `${Math.round(d / 30)}mois`);
+
+  return (
+    <div style={{ background: "#0A1A2E", padding: 16, borderRadius: 8, border: "1px solid rgba(201,168,76,.15)", marginBottom: 32 }}>
+      <div style={{ color: "#C9A84C", fontWeight: 600, fontSize: 16, marginBottom: 10 }}>⚡ Capacité technique vs objectifs</div>
+      {err && <div style={{ color: "#FF6B6B", fontSize: 13 }}>❌ {err}</div>}
+      {!data && !err && <div style={{ color: "#9BA8B8", fontSize: 13 }}>Chargement...</div>}
+      {data && (
+        <>
+          <div style={{ overflow: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: "rgba(255,255,255,.03)" }}>
+                  <th style={{ padding: "8px 10px", textAlign: "left", color: "#C9A84C", borderBottom: "1px solid rgba(201,168,76,.15)" }}>Métrique</th>
+                  <th style={{ padding: "8px 10px", textAlign: "right", color: "#9BA8B8" }}>Actuel</th>
+                  <th style={{ padding: "8px 10px", textAlign: "right", color: "#9BA8B8" }}>Cible</th>
+                  <th style={{ padding: "8px 10px", textAlign: "right", color: "#9BA8B8" }}>%</th>
+                  <th style={{ padding: "8px 10px", textAlign: "right", color: "#9BA8B8" }}>Reste</th>
+                  <th style={{ padding: "8px 10px", textAlign: "right", color: "#9BA8B8" }}>Rythme/sem</th>
+                  <th style={{ padding: "8px 10px", textAlign: "right", color: "#C9A84C" }}>ETA (actuel)</th>
+                  <th style={{ padding: "8px 10px", textAlign: "right", color: "#6BCB77" }}>ETA KAIOKEN×5</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.rows.map((r, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,.04)" }}>
+                    <td style={{ padding: "8px 10px", color: "#E8E0D0", fontWeight: 500 }}>{r.label}</td>
+                    <td style={{ padding: "8px 10px", textAlign: "right", color: "#E8E0D0" }}>{fmt(r.actual)}</td>
+                    <td style={{ padding: "8px 10px", textAlign: "right", color: "#9BA8B8" }}>{fmt(r.target)}</td>
+                    <td style={{ padding: "8px 10px", textAlign: "right", color: r.pct >= 50 ? "#6BCB77" : r.pct >= 10 ? "#C9A84C" : "#FF6B6B" }}>{r.pct}%</td>
+                    <td style={{ padding: "8px 10px", textAlign: "right", color: "#9BA8B8" }}>{fmt(r.remaining)}</td>
+                    <td style={{ padding: "8px 10px", textAlign: "right", color: "#9BA8B8" }}>{r.weekly_rate === 0 ? "❌ 0" : fmt(r.weekly_rate)}</td>
+                    <td style={{ padding: "8px 10px", textAlign: "right", color: r.eta_days === null ? "#FF6B6B" : r.eta_days > 365 ? "#FF6B6B" : "#C9A84C", fontWeight: 600 }}>{eta(r.eta_days)}</td>
+                    <td style={{ padding: "8px 10px", textAlign: "right", color: "#6BCB77", fontWeight: 600 }}>{eta(r.eta_days_kaioken)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ marginTop: 12, padding: 10, background: "rgba(0,0,0,.3)", borderRadius: 6, fontSize: 13 }}>
+            <span style={{ color: "#C9A84C" }}>🎯 ETA global (ligne la pire) :</span>{" "}
+            <b style={{ color: "#FF6B6B" }}>{eta(data.global_eta_days)}</b> actuel →{" "}
+            <b style={{ color: "#6BCB77" }}>{eta(data.global_eta_kaioken)}</b> avec KAIOKEN×5.
+            {data.note && <div style={{ color: "#9BA8B8", fontSize: 11, marginTop: 4, fontStyle: "italic" }}>{data.note}</div>}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 const C = {
   bg: "#040D1C",
@@ -151,6 +216,7 @@ export default function MinatoDocPage() {
     <div style={{ minHeight: "100vh", background: C.bg, color: C.text, padding: "32px 24px", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <LaunchPanel />
+        <CapacitySection />
         <header style={{ marginBottom: 32, borderBottom: C.border, paddingBottom: 16 }}>
           <h1 style={{ fontSize: 32, color: C.gold, margin: 0, letterSpacing: ".02em" }}>
             ⚡ MINATO × MANAGED AGENTS
