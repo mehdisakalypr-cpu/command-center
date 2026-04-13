@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 
 const C = {
   bg: "#040D1C",
@@ -103,10 +104,53 @@ const FORCE = [
   { label: "MINATO × MANAGED AGENTS (couplé)", desc: "🔥 Méthodologie Shonen + infra Anthropic. Skills = mémoire des règles. Versioning = SUK auto-improve. Custom tools = soldats locaux gratuits gardés. SSE = observabilité Aria. Coût maîtrisé (~80€ max). Autonomie 24/7." },
 ];
 
+function LaunchPanel() {
+  const [project, setProject] = useState("ofa");
+  const [message, setMessage] = useState("Lance Minato sur OFA : status_check puis KAIOKEN sur refresh-demos + recover-incomplete. Update Insights CC à la fin.");
+  const [launching, setLaunching] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const launch = async () => {
+    setLaunching(true);
+    setErr(null);
+    try {
+      const r = await fetch("/api/minato/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, project }) });
+      const j = await r.json();
+      if (!r.ok || !j.ok) throw new Error(j.error || "launch failed");
+      window.location.href = `/admin/minato/session/${j.session_id}`;
+    } catch (e) {
+      setErr(String(e));
+      setLaunching(false);
+    }
+  };
+
+  return (
+    <div style={{ background: C.card, padding: 16, borderRadius: 8, border: `1px solid ${C.gold}`, marginBottom: 32 }}>
+      <div style={{ color: C.gold, fontWeight: 600, marginBottom: 10, fontSize: 16 }}>🚀 Lancer une session Minato</div>
+      <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
+        {["ofa", "ftg", "estate", "shift", "cc"].map((p) => (
+          <button key={p} onClick={() => setProject(p)} style={{ padding: "6px 14px", background: project === p ? C.gold : "transparent", color: project === p ? C.bg : C.muted, border: `1px solid ${project === p ? C.gold : "rgba(255,255,255,.1)"}`, borderRadius: 6, cursor: "pointer", fontWeight: 600, fontSize: 13 }}>
+            {p.toUpperCase()}
+          </button>
+        ))}
+      </div>
+      <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} style={{ width: "100%", background: "rgba(0,0,0,.3)", color: C.text, border: `1px solid rgba(255,255,255,.1)`, borderRadius: 6, padding: 10, fontFamily: "inherit", fontSize: 13, resize: "vertical" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
+        <div style={{ color: C.muted, fontSize: 12 }}>💰 ~$0.20-3.00 par session · Stream live sur page dédiée</div>
+        <button onClick={launch} disabled={launching} style={{ padding: "8px 20px", background: launching ? C.muted : C.gold, color: C.bg, border: "none", borderRadius: 6, cursor: launching ? "not-allowed" : "pointer", fontWeight: 700, fontSize: 14 }}>
+          {launching ? "Démarrage..." : "⚡ Lancer"}
+        </button>
+      </div>
+      {err && <div style={{ color: "#FF6B6B", marginTop: 8, fontSize: 12 }}>❌ {err}</div>}
+    </div>
+  );
+}
+
 export default function MinatoDocPage() {
   return (
     <div style={{ minHeight: "100vh", background: C.bg, color: C.text, padding: "32px 24px", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <LaunchPanel />
         <header style={{ marginBottom: 32, borderBottom: C.border, paddingBottom: 16 }}>
           <h1 style={{ fontSize: 32, color: C.gold, margin: 0, letterSpacing: ".02em" }}>
             ⚡ MINATO × MANAGED AGENTS
