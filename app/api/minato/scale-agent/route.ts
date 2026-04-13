@@ -16,6 +16,7 @@ export const dynamic = 'force-dynamic'
 
 // Allowlist of agents. Must match the VPS worker.
 const AGENTS = [
+  // OFA pipeline
   'ofa:scout-osm',
   'ofa:hyperscale-scout',
   'ofa:generate-for-leads',
@@ -25,7 +26,18 @@ const AGENTS = [
   'ofa:classifier-auto',
   'ofa:reviews-checker',
   'ofa:fix-demos',
+  // FTG pipeline
+  'ftg:entrepreneur-scout',
+  'ftg:commerce-pitcher',
+  'ftg:email-nurture',
+  'ftg:investors-scout',
+  'ftg:exporters-scout',
+  'ftg:local-buyers-scout',
+  'ftg:web-scout',
+  'ftg:deal-flow-generator',
+  'ftg:dossier-builder',
   'ftg:seo-factory',
+  'ftg:auto-optimizer',
 ]
 
 const sb = () => createClient(

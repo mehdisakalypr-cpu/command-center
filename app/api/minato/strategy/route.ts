@@ -35,6 +35,17 @@ const AGENT_PROVIDERS: Record<string, string[]> = {
   'ofa:reviews-checker':     ['places'],
   'ofa:fix-demos':           ['cloudflare', 'huggingface', 'gemini'],
   'ftg:seo-factory':         ['gemini', 'groq'],
+  // FTG pipeline
+  'ftg:entrepreneur-scout':  ['gemini', 'groq', 'serper'],
+  'ftg:commerce-pitcher':    ['gemini', 'groq', 'resend'],
+  'ftg:email-nurture':       ['gemini', 'groq', 'resend'],
+  'ftg:investors-scout':     ['serper'],
+  'ftg:exporters-scout':     ['serper'],
+  'ftg:local-buyers-scout':  ['serper'],
+  'ftg:web-scout':           ['gemini', 'groq', 'serper'],
+  'ftg:deal-flow-generator': ['gemini', 'groq'],
+  'ftg:dossier-builder':     ['gemini', 'groq'],
+  'ftg:auto-optimizer':      ['gemini', 'groq'],
 }
 
 // === Catalogues ===

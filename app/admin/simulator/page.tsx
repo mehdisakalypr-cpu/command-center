@@ -392,6 +392,7 @@ function BusinessTab() {
           {results.capacity.map(a => {
             // Map business-tab agent names to scalable allowlist agents.
             const agentMap: Record<string, string> = {
+              // OFA
               'lead-scout': 'ofa:scout-osm',
               'contact-finder': 'ofa:enrich-contacts',
               'site-generator': 'ofa:generate-for-leads',
@@ -399,6 +400,15 @@ function BusinessTab() {
               'enterprise-scout': 'ofa:hyperscale-scout',
               'hotel-scout': 'ofa:hyperscale-scout',
               'demo-generator': 'ofa:generate-for-leads',
+              // FTG
+              'ftg-vc-scout': 'ftg:investors-scout',
+              'ftg-angel-scout': 'ftg:investors-scout',
+              'ftg-founder-scout': 'ftg:entrepreneur-scout',
+              'email-nurture': 'ftg:email-nurture',
+              'commerce-pitcher': 'ftg:commerce-pitcher',
+              'exporters-scout': 'ftg:exporters-scout',
+              'local-buyers-scout': 'ftg:local-buyers-scout',
+              'web-scout': 'ftg:web-scout',
             }
             const scalable = agentMap[a.name]
             const instances = scaledInstances[a.name] ?? 1
