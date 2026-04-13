@@ -120,6 +120,14 @@ export default function SimulatorPage() {
 /* ═══════════════════════════════════════════════════════════════════════
  * TAB 1 — BUSINESS (existant)
  * ═══════════════════════════════════════════════════════════════════════ */
+// Max values per product × objective type (cibles M12 top 1%).
+const OBJECTIVE_MAX: Record<Product, Record<ObjectiveType, number>> = {
+  ofa:           { mrr: 450_000,   clients: 30_000, revenue: 5_000_000 },
+  ftg:           { mrr: 1_000_000, clients: 20_408, revenue: 12_000_000 },
+  estate:        { mrr: 500_000,   clients: 2_500,  revenue: 6_000_000 },
+  shiftdynamics: { mrr: 250_000,   clients: 100,    revenue: 3_000_000 },
+}
+
 function BusinessTab() {
   const [product, setProduct] = useState<Product>('ofa')
   const [objectiveType, setObjectiveType] = useState<ObjectiveType>('mrr')
@@ -129,11 +137,32 @@ function BusinessTab() {
   const [funnel, setFunnel] = useState(PRODUCT_DEFAULTS.ofa.funnel)
   const [saving, setSaving] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
+  const [maxMode, setMaxMode] = useState(false)
+  const [savedValue, setSavedValue] = useState(10000)  // last manual value (toggle off → revient ici)
 
   function onProductChange(p: Product) {
     setProduct(p)
     setAvgMrr(PRODUCT_DEFAULTS[p].avgMrrPerClient)
     setFunnel(PRODUCT_DEFAULTS[p].funnel)
+    if (maxMode) setObjectiveValue(OBJECTIVE_MAX[p][objectiveType])
+  }
+
+  function onObjectiveTypeChange(t: ObjectiveType) {
+    setObjectiveType(t)
+    if (maxMode) setObjectiveValue(OBJECTIVE_MAX[product][t])
+  }
+
+  function toggleMax() {
+    if (maxMode) {
+      // OFF → revient à la dernière valeur manuelle
+      setMaxMode(false)
+      setObjectiveValue(savedValue)
+    } else {
+      // ON → mémorise la valeur courante puis passe au MAX
+      setSavedValue(objectiveValue)
+      setMaxMode(true)
+      setObjectiveValue(OBJECTIVE_MAX[product][objectiveType])
+    }
   }
 
   const results = useMemo(() => {
@@ -181,14 +210,46 @@ function BusinessTab() {
           </select>
         </Field>
         <Field label="Type d'objectif">
-          <select value={objectiveType} onChange={e => setObjectiveType(e.target.value as ObjectiveType)} style={selectStyle}>
+          <select value={objectiveType} onChange={e => onObjectiveTypeChange(e.target.value as ObjectiveType)} style={selectStyle}>
             <option value="mrr">MRR (revenus mensuels récurrents)</option>
             <option value="clients">Nombre de clients payants</option>
             <option value="revenue">Revenu total (one-time)</option>
           </select>
         </Field>
         <Field label={`Valeur (${objectiveType === 'mrr' ? '€/mois' : objectiveType === 'clients' ? 'clients' : '€ total'})`}>
-          <input type="number" value={objectiveValue} onChange={e => setObjectiveValue(+e.target.value || 0)} style={inputStyle} />
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              type="number"
+              value={objectiveValue}
+              disabled={maxMode}
+              onChange={e => {
+                const v = +e.target.value || 0
+                setObjectiveValue(v)
+                if (!maxMode) setSavedValue(v)
+              }}
+              style={{ ...inputStyle, flex: 1, opacity: maxMode ? 0.6 : 1 }}
+            />
+            <button
+              type="button"
+              onClick={toggleMax}
+              title={maxMode
+                ? `Cliquer pour revenir à ${savedValue.toLocaleString('fr-FR')}`
+                : `Cliquer pour passer au MAX (${OBJECTIVE_MAX[product][objectiveType].toLocaleString('fr-FR')})`}
+              style={{
+                padding: '6px 14px',
+                background: maxMode ? C.gold : 'transparent',
+                color: maxMode ? C.bg : C.gold,
+                border: `1px solid ${C.gold}`,
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: 12,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {maxMode ? '✓ MAX' : 'MAX'}
+            </button>
+          </div>
         </Field>
         <Field label="Horizon (jours)">
           <input type="number" value={horizonDays} onChange={e => setHorizonDays(+e.target.value || 30)} style={inputStyle} />
