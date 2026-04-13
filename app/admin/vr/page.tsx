@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import HumanTodoPanel from "@/components/HumanTodoPanel";
 
 /* ── Types ───────────────────────────────────────────────── */
 type VRData = Record<string, number>;
@@ -103,6 +104,7 @@ export default function VRPage() {
 
   return (
     <div style={{ padding: 24, color: C.text }}>
+      <HumanTodoPanel />
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
         <div>
