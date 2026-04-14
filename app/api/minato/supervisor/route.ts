@@ -52,10 +52,12 @@ export async function GET(req: NextRequest) {
 
   type StatusResp = { ok: boolean; utilization: number; active_bg: number; bg_jobs: Array<{ status: string }> }
   type CapacityResp = { rows: Array<{ label: string; actual: number; target: number; remaining: number }> }
+  type BudgetResp = { ok: boolean; cap_eur: number; spent_eur: number; remaining_eur: number; allowed: boolean; tier_mode: string; pct_used: number }
 
-  const [status, capacity] = await Promise.all([
+  const [status, capacity, budget] = await Promise.all([
     j<StatusResp>(origin, '/api/compute/status'),
     j<CapacityResp>(origin, '/api/minato/capacity'),
+    j<BudgetResp>(origin, '/api/minato/budget'),
   ])
 
   const utilization = status?.utilization ?? 0
@@ -84,11 +86,19 @@ export async function GET(req: NextRequest) {
 
   const actions = layer === 'C1' ? [] : layer === 'C2' ? C2_ACTIONS : C3_ACTIONS
 
-  const budget = {
-    monthly_cap_eur: 150,
+  const budgetBlock = budget ?? null
+  const budgetOut = {
+    monthly_cap_eur: budgetBlock?.cap_eur ?? 150,
+    spent_eur: budgetBlock?.spent_eur ?? 0,
+    remaining_eur: budgetBlock?.remaining_eur ?? 150,
+    pct_used: budgetBlock?.pct_used ?? 0,
+    tier_mode: budgetBlock?.tier_mode ?? 'T1',
+    allowed: budgetBlock?.allowed ?? true,
     usage_based: false,
-    circuit_breaker: 'T0 only si quota payant sature',
   }
+
+  // Circuit breaker : si budget saturé, force C3 à rester en T0 uniquement.
+  const paidActionsBlocked = !budgetOut.allowed || budgetOut.tier_mode.startsWith('T0')
 
   return NextResponse.json({
     ok: true,
@@ -102,7 +112,12 @@ export async function GET(req: NextRequest) {
       utilization_pct: Math.round(utilization * 100),
     },
     actions,
-    budget,
+    budget: budgetOut,
+    circuit_breaker: {
+      paid_actions_blocked: paidActionsBlocked,
+      tier_mode: budgetOut.tier_mode,
+      note: paidActionsBlocked ? 'T0 only — bascule free-tier forcée' : 'T1 autorisé',
+    },
     capacity_rows: rows,
     hint: layer === 'C3'
       ? 'Chaque action C3 DOIT être mesurable (delta TAM, delta conv, delta pricing_options) et loggée.'

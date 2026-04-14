@@ -24,7 +24,8 @@ type Supervisor = {
   reason: string
   signals: { queue_depth: number; target_gap_pct: number; provider_slack_pct: number; utilization_pct: number }
   actions: { layer: string; kind: string; icon: string; rationale: string }[]
-  budget: { monthly_cap_eur: number; usage_based: boolean; circuit_breaker: string }
+  budget: { monthly_cap_eur: number; spent_eur: number; remaining_eur: number; pct_used: number; tier_mode: string; allowed: boolean; usage_based: boolean }
+  circuit_breaker: { paid_actions_blocked: boolean; tier_mode: string; note: string }
   hint: string
 }
 
@@ -206,11 +207,16 @@ function SupervisorBandeau({ s }: { s: Supervisor }) {
           </div>
           <div style={{ fontSize: 12, color: 'rgba(226,232,240,.6)', marginTop: 12, fontStyle: 'italic' }}>{s.reason}</div>
         </div>
-        <div style={{ minWidth: 180, textAlign: 'right' }}>
+        <div style={{ minWidth: 200, textAlign: 'right' }}>
           <div style={{ fontSize: 11, letterSpacing: '.15em', color: 'rgba(226,232,240,.5)' }}>BUDGET</div>
-          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>{s.budget.monthly_cap_eur}€/mo</div>
-          <div style={{ fontSize: 11, color: s.budget.usage_based ? '#EF4444' : '#10B981', marginTop: 2 }}>
-            {s.budget.usage_based ? '⚠️ usage-based' : '✓ zéro usage-based'}
+          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>
+            {s.budget.spent_eur.toFixed(2)}€ / {s.budget.monthly_cap_eur}€
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(226,232,240,.55)', marginTop: 2 }}>
+            restant {s.budget.remaining_eur.toFixed(2)}€ · {s.budget.pct_used.toFixed(0)}% utilisé
+          </div>
+          <div style={{ fontSize: 11, marginTop: 4, color: s.circuit_breaker.paid_actions_blocked ? '#EF4444' : '#10B981', fontWeight: 600 }}>
+            {s.circuit_breaker.paid_actions_blocked ? `⛔ ${s.circuit_breaker.tier_mode}` : `✓ ${s.circuit_breaker.tier_mode}`}
           </div>
         </div>
       </div>
