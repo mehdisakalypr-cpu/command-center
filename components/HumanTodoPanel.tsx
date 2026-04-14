@@ -27,6 +27,13 @@ const HUMAN_TASKS: HumanTask[] = [
   { id: "stripe-live", group: "Settlement", label: "Stripe: passer en mode live (vérification entreprise)", url: "https://dashboard.stripe.com/account/onboarding", impact: "Encaisser vrais paiements OFA/FTG" },
   { id: "claude-2", group: "Boost (€20/mo)", label: "Souscrire 2e compte Claude Code (€20)", url: "https://claude.ai/upgrade", impact: "+context parallèle pour Minato" },
   { id: "resend-pro", group: "Boost ($20/mo)", label: "Resend Pro $20/mo (50K emails)", url: "https://resend.com/settings/billing", impact: "500x volume vs free" },
+  { id: "stripe-seo-geo-pro-m", group: "OFA Pricing SEO/GEO", label: "Stripe: créer price SEO_GEO_PRO_MONTHLY 29$/mo", url: "https://dashboard.stripe.com/products", impact: "Active tier Pro 29$/mo (+$29 AVG MRR)" },
+  { id: "stripe-seo-geo-pro-y", group: "OFA Pricing SEO/GEO", label: "Stripe: price SEO_GEO_PRO_YEARLY 290$/yr (10x)", url: "https://dashboard.stripe.com/products", impact: "Annual Pro prepay" },
+  { id: "stripe-seo-geo-elite-m", group: "OFA Pricing SEO/GEO", label: "Stripe: price SEO_GEO_ELITE_MONTHLY 39$/mo", url: "https://dashboard.stripe.com/products", impact: "Tier Elite 39$/mo (no-brainer gap)" },
+  { id: "stripe-seo-geo-elite-y", group: "OFA Pricing SEO/GEO", label: "Stripe: price SEO_GEO_ELITE_YEARLY 390$/yr (10x)", url: "https://dashboard.stripe.com/products", impact: "Annual Elite" },
+  { id: "vercel-env-stripe-seo-geo", group: "OFA Pricing SEO/GEO", label: "Vercel: pousser STRIPE_PRICE_SEO_GEO_{PRO,ELITE}_{MONTHLY,YEARLY} env vars (site-factory prod)", url: "https://vercel.com/", impact: "Connecte les 4 price IDs au checkout" },
+  { id: "supabase-migration-geo-lps", group: "OFA LP GEO", label: "Supabase: appliquer migration 20260414100000_geo_landing_pages.sql", url: "https://supabase.com/dashboard", impact: "Active table geo_landing_pages + RLS" },
+  { id: "cron-geo-lps-monthly", group: "OFA LP GEO", label: "Cron mensuel: scripts/generate-geo-lps.ts --tier=pro --limit=100 --publish", url: "", impact: "3 LP/mois/site Pro = trafic SEO+GEO" },
 ];
 
 export default function HumanTodoPanel() {
