@@ -9,28 +9,42 @@ type Tab = 'business' | 'velocity' | 'keys'
 const PRODUCT_DEFAULTS: Record<Product, {
   label: string
   avgMrrPerClient: number
+  /** Prix one-shot encaissé au Mois 1 (0 si pas d'offre d'achat). */
+  oneShotPrice: number
+  /** Part des paid qui choisissent l'offre one-shot (0..1). */
+  oneShotMix: number
   funnel: { id: string; label: string; defaultRate: number }[]
   agentsCapacity: { name: string; perDay: number }[]
 }> = {
   ofa: {
-    label: 'One For All', avgMrrPerClient: 14.98,
+    // Modernization pivot (2026-04-14): cible leads avec site existant, pitch
+    // before/after quantifié (ugliness + SEO + revenue gain). TAM ×10,
+    // extraction contact ×2, conversion ×2.6 vs funnel scout-from-scratch.
+    // Pricing v2: Achat 149€ + 9.99€/mo (~70% des paid) // Abo 19.99€/mo (~30%).
+    // avgMrr reflète le mix récurrent : 0.7×9.99 + 0.3×19.99 = 12.99.
+    label: 'One For All', avgMrrPerClient: 12.99, oneShotPrice: 149, oneShotMix: 0.7,
     funnel: [
-      { id: 'enriched',   label: 'Lead → enrichi (score ≥ 2 canaux)',    defaultRate: 0.35 },
-      { id: 'pitched',    label: 'Enrichi → pitché multi-canal',         defaultRate: 0.95 },
-      { id: 'opened',     label: 'Pitché → ouvert/lu',                   defaultRate: 0.50 },
-      { id: 'responded',  label: 'Ouvert → réponse engagée',             defaultRate: 0.08 },
-      { id: 'demo',       label: 'Réponse → demo/intérêt concret',       defaultRate: 0.45 },
-      { id: 'paid',       label: 'Demo → client payant',                 defaultRate: 0.28 },
+      { id: 'siteAnalyzed',     label: 'Lead → site analysé',                  defaultRate: 0.95 },
+      { id: 'uglyQualified',    label: 'Analysé → ugly ≥ 50 (pitch-worthy)',   defaultRate: 0.55 },
+      { id: 'contactExtracted', label: 'Ugly → email/phone extrait',           defaultRate: 0.70 },
+      { id: 'pitched',          label: 'Contact → pitch before/after',         defaultRate: 0.95 },
+      { id: 'opened',           label: 'Pitché → ouvert (personnalisé)',       defaultRate: 0.55 },
+      { id: 'responded',        label: 'Ouvert → réponse (ROI chiffré)',       defaultRate: 0.12 },
+      { id: 'demo',             label: 'Réponse → preview 3 designs vue',      defaultRate: 0.55 },
+      { id: 'paid',             label: 'Preview → achat 149€',                 defaultRate: 0.35 },
     ],
     agentsCapacity: [
-      { name: 'lead-scout',      perDay: 5000 },
-      { name: 'contact-finder',  perDay: 2000 },
-      { name: 'site-generator',  perDay: 2000 },
-      { name: 'pitcher',         perDay: 2500 },
+      { name: 'website-scout',      perDay: 20000 },
+      { name: 'screenshot-capture', perDay: 8000 },
+      { name: 'lighthouse-audit',   perDay: 6000 },
+      { name: 'seo-geo-audit',      perDay: 4000 },
+      { name: 'contact-extractor',  perDay: 8000 },
+      { name: 'site-generator',     perDay: 2000 },
+      { name: 'pitcher',            perDay: 4000 },
     ],
   },
   ftg: {
-    label: 'Feel The Gap', avgMrrPerClient: 49,
+    label: 'Feel The Gap', avgMrrPerClient: 49, oneShotPrice: 0, oneShotMix: 0,
     funnel: [
       { id: 'sourced',    label: 'Prospect sourcé',                        defaultRate: 1 },
       { id: 'enriched',   label: 'Sourcé → contact trouvé (max canaux)',   defaultRate: 0.50 },
@@ -48,7 +62,7 @@ const PRODUCT_DEFAULTS: Record<Product, {
     ],
   },
   estate: {
-    label: 'The Estate', avgMrrPerClient: 199,
+    label: 'The Estate', avgMrrPerClient: 199, oneShotPrice: 0, oneShotMix: 0,
     funnel: [
       { id: 'enriched',  label: 'Hôtel identifié → contact trouvé',   defaultRate: 0.40 },
       { id: 'pitched',   label: 'Contact → pitch envoyé',             defaultRate: 0.95 },
@@ -63,7 +77,7 @@ const PRODUCT_DEFAULTS: Record<Product, {
     ],
   },
   shiftdynamics: {
-    label: 'Shift Dynamics', avgMrrPerClient: 2500,
+    label: 'Shift Dynamics', avgMrrPerClient: 2500, oneShotPrice: 0, oneShotMix: 0,
     funnel: [
       { id: 'enriched',  label: 'Entreprise cible → décideur trouvé', defaultRate: 0.30 },
       { id: 'pitched',   label: 'Décideur → LinkedIn/email envoyé',   defaultRate: 0.90 },
@@ -156,6 +170,8 @@ function BusinessTab() {
   const [objectiveValue, setObjectiveValue] = useState(10000)
   const [horizonDays, setHorizonDays] = useState(30)
   const [avgMrr, setAvgMrr] = useState(PRODUCT_DEFAULTS.ofa.avgMrrPerClient)
+  const [oneShotPrice, setOneShotPrice] = useState(PRODUCT_DEFAULTS.ofa.oneShotPrice)
+  const [oneShotMix, setOneShotMix] = useState(PRODUCT_DEFAULTS.ofa.oneShotMix)
   const [funnel, setFunnel] = useState(PRODUCT_DEFAULTS.ofa.funnel)
   const [saving, setSaving] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
@@ -199,6 +215,8 @@ function BusinessTab() {
         setSavedValue(a.objectiveValue ?? 10000)
         setHorizonDays(a.horizonDays ?? 30)
         if (typeof a.avgMrr === 'number') setAvgMrr(a.avgMrr)
+        if (typeof a.oneShotPrice === 'number') setOneShotPrice(a.oneShotPrice)
+        if (typeof a.oneShotMix === 'number') setOneShotMix(a.oneShotMix)
         if (Array.isArray(a.funnel)) setFunnel(a.funnel)
         setMaxMode(!!a.maxMode)
         // NOTE: do NOT recompute fetchMaxPotential here — the value the user
@@ -239,6 +257,8 @@ function BusinessTab() {
   async function onProductChange(p: Product) {
     setProduct(p)
     setAvgMrr(PRODUCT_DEFAULTS[p].avgMrrPerClient)
+    setOneShotPrice(PRODUCT_DEFAULTS[p].oneShotPrice)
+    setOneShotMix(PRODUCT_DEFAULTS[p].oneShotMix)
     setFunnel(PRODUCT_DEFAULTS[p].funnel)
     if (maxMode) {
       const v = await fetchMaxPotential(p, objectiveType, horizonDays)
@@ -270,8 +290,12 @@ function BusinessTab() {
   }
 
   const results = useMemo(() => {
+    // CA Mois 1 par client payant (one-shot × mix) + MRR récurrent dès M2.
+    const caPerPaid = oneShotPrice * oneShotMix
     const paidNeeded = objectiveType === 'mrr' ? Math.ceil(objectiveValue / avgMrr)
-      : objectiveType === 'clients' ? objectiveValue : Math.ceil(objectiveValue / 149)
+      : objectiveType === 'clients' ? objectiveValue
+      // Revenu total = CA M1 + 11 mois de MRR (convention: "revenu total Y1").
+      : Math.ceil(objectiveValue / (caPerPaid + avgMrr * 11 || 1))
     const totalConv = funnel.reduce((acc, s) => acc * s.defaultRate, 1)
     const leadsNeeded = Math.ceil(paidNeeded / totalConv)
     const stageVolumes = funnel.reduce<{ id: string; label: string; volume: number }[]>((acc, s, i) => {
@@ -280,6 +304,7 @@ function BusinessTab() {
       return acc
     }, [])
     const mrr = paidNeeded * avgMrr
+    const caM1 = paidNeeded * caPerPaid
     const capacity = PRODUCT_DEFAULTS[product].agentsCapacity.map(a => {
       const need = a.name.includes('scout') ? leadsNeeded
         : a.name.includes('contact-finder') ? Math.ceil(leadsNeeded * (funnel[0]?.defaultRate || 0.35))
@@ -290,15 +315,15 @@ function BusinessTab() {
       const capTotal = a.perDay * horizonDays * instances
       return { name: a.name, need, capacity: capTotal, ok: capTotal >= need, instances }
     })
-    return { paidNeeded, leadsNeeded, stageVolumes, mrr, capacity, totalConv }
-  }, [objectiveType, objectiveValue, avgMrr, funnel, product, horizonDays, scaledInstances])
+    return { paidNeeded, leadsNeeded, stageVolumes, mrr, caM1, capacity, totalConv }
+  }, [objectiveType, objectiveValue, avgMrr, oneShotPrice, oneShotMix, funnel, product, horizonDays, scaledInstances])
 
   async function saveAndActivate() {
     setSaving(true)
     try {
       const res = await fetch('/api/simulator/save', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product, objectiveType, objectiveValue, horizonDays, avgMrr, funnel, results, maxMode }),
+        body: JSON.stringify({ product, objectiveType, objectiveValue, horizonDays, avgMrr, oneShotPrice, oneShotMix, funnel, results, maxMode }),
       })
       const data = await res.json()
       if (res.ok) setSavedId(data.id); else alert(data.error || 'Erreur')
@@ -375,8 +400,14 @@ function BusinessTab() {
             </div>
           </div>
         )}
-        <Field label="MRR moyen par client (€)">
+        <Field label="MRR moyen par client (€ / mois, dès M2)">
           <input type="number" step="0.01" value={avgMrr} onChange={e => setAvgMrr(+e.target.value || 0)} style={inputStyle} />
+        </Field>
+        <Field label="Prix one-shot M1 (€, 0 si pas d'offre d'achat)">
+          <input type="number" step="1" value={oneShotPrice} onChange={e => setOneShotPrice(+e.target.value || 0)} style={inputStyle} />
+        </Field>
+        <Field label="Mix offre one-shot (0–1, part des paid qui achètent)">
+          <input type="number" step="0.05" min={0} max={1} value={oneShotMix} onChange={e => setOneShotMix(Math.max(0, Math.min(1, +e.target.value || 0)))} style={inputStyle} />
         </Field>
 
         <h2 style={{ ...headerGold, marginTop: 24 }}>Funnel</h2>
@@ -396,7 +427,8 @@ function BusinessTab() {
         <h2 style={{ ...headerGold, color: C.green }}>Simulation</h2>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
           <Kpi label="Clients payants" value={results.paidNeeded.toLocaleString()} color={C.gold} />
-          <Kpi label="MRR atteint" value={`${Math.round(results.mrr).toLocaleString()} €`} color={C.green} />
+          <Kpi label="CA Mois 1 (one-shot)" value={`${Math.round(results.caM1).toLocaleString()} €`} color={C.blue} />
+          <Kpi label="MRR récurrent (dès M2)" value={`${Math.round(results.mrr).toLocaleString()} €`} color={C.green} />
           <Kpi label="Leads à scouter" value={results.leadsNeeded.toLocaleString()} color={C.text} />
           <Kpi label="Conversion globale" value={`${(results.totalConv * 100).toFixed(3)} %`} color={C.text} />
         </div>
