@@ -42,6 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/simulator', label: 'Simulateur', icon: '🧮', desc: 'Objectifs → plan' },
       { href: '/admin/insights',  label: 'Insights',   icon: '🧠', desc: 'Stratégie & benchmark' },
       { href: '/admin/minato',    label: 'Minato × MA', icon: '⚡', desc: 'Hybride Shonen + Managed Agents' },
+      { href: '/admin/minato-arsenal', label: 'Arsenal ⚡×24', icon: '🗡️', desc: '24 techniques Shonen × features' },
       { href: '/admin/creator',   label: 'Creator',    icon: '🐉', desc: 'Power level Saiyan + progression' },
     ],
   },
