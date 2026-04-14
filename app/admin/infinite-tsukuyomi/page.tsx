@@ -11,32 +11,55 @@ const C = {
 
 const TARGET_MRR_EUR = 28000
 
-// Les 8 modes d'overshoot que les agents exécutent automatiquement quand idle.
-// Ordre = priorité ROI marginal (Shikamaru).
-const OVERSHOOT_MODES = [
-  { emoji: '⚓', worker: 'NAMI', name: 'Scout territoires tier 2/3', impact: '+5-10k leads/j zéro coût', priority: 10 },
-  { emoji: '🦊', worker: 'KURAMA', name: 'Regen sites pour top 1% qualité', impact: '+uplift perceived value ×2', priority: 9 },
-  { emoji: '📢', worker: 'OUTREACH', name: 'Multi-canal amplify (email+WA+SMS)', impact: '+conversion rate ×1.4', priority: 9 },
-  { emoji: '⚡', worker: 'MINATO', name: 'LP GEO extra au-delà du quota Pro', impact: '+trafic long-tail +30%', priority: 8 },
-  { emoji: '🐈‍⬛', worker: 'BEERUS', name: 'Veille concurrentielle → distill patterns', impact: '+quality moat design', priority: 7 },
-  { emoji: '💚', worker: 'DEKU', name: 'Classifier auto-improve', impact: '+precision archetype ×1.2', priority: 6 },
-  { emoji: '🟦', worker: 'RIMURU', name: 'Méta-agents SUK — assimilate capacities', impact: 'compound self-improvement', priority: 6 },
-  { emoji: '🌀', worker: 'EXPLORER', name: 'Nouveaux canaux (TikTok/Reddit/YT Shorts)', impact: 'channel diversification', priority: 5 },
+// 3 couches hiérarchiques :
+// L1 Exécution normale · L2 Amplification (NEJI) · L3 Infinite Tsukuyomi (élève le potentiel)
+const LAYERS = [
+  {
+    id: 1, label: 'Couche 1 — Exécution normale', color: '#3B82F6',
+    trigger: 'Queue de tâches > 0',
+    goal: 'Tenir le planning nominal',
+    actions: [
+      { emoji: '⚡', name: 'Exécuter les tâches en queue Minato', owner: 'agents workers' },
+    ],
+  },
+  {
+    id: 2, label: 'Couche 2 — Amplification (NEJI 👁️)', color: '#A78BFA',
+    trigger: 'Queue vide ET cible pas encore atteinte',
+    goal: 'Accélérer l\'atteinte de la cible',
+    actions: [
+      { emoji: '⚓', name: 'Scout territoires tier 2/3 (+5-10k leads/j)', owner: 'NAMI' },
+      { emoji: '🦊', name: 'Regen sites top 1% qualité', owner: 'KURAMA' },
+      { emoji: '📢', name: 'Outreach multi-canal email+WA+SMS', owner: 'OUTREACH' },
+      { emoji: '⚡', name: 'LP GEO extra au-delà quota Pro', owner: 'MINATO' },
+    ],
+  },
+  {
+    id: 3, label: 'Couche 3 — Infinite Tsukuyomi 🌑 (élève le potentiel)', color: '#C084FC',
+    trigger: 'Queue vide ET cible atteinte — buy marge de manœuvre',
+    goal: 'Augmenter le POTENTIEL des objectifs — rend les cibles suivantes objectivement plus faciles',
+    actions: [
+      { emoji: '📈', name: 'Augmenter TAM (pays/verticales/archétypes)', owner: 'EXPLORER' },
+      { emoji: '🎯', name: 'Améliorer conversion upstream (bench/A/B)', owner: 'BEERUS' },
+      { emoji: '💰', name: 'Élargir pricing options (tiers/add-ons/bundles)', owner: 'NAMI' },
+      { emoji: '🧬', name: 'Data moat (propension/saisonnalité/stack)', owner: 'DEKU' },
+      { emoji: '🏗️', name: 'Infra proactive (cache/CDN/DB tuning)', owner: 'SHIKAMARU' },
+      { emoji: '🎨', name: 'Qualité produit (designs/templates/photos uniques)', owner: 'MUSTANG' },
+      { emoji: '🤝', name: 'Partenariats/distribution (Zapier, Make, listings)', owner: 'NAMI REINVEST' },
+      { emoji: '📚', name: 'Content organique (blog, YT, Reddit, TikTok)', owner: 'EXPLORER' },
+    ],
+  },
 ]
 
 export default function InfiniteTsukuyomiPage() {
   const [mrrCurrent, setMrrCurrent] = useState(0)
-  const [overshootPct, setOvershootPct] = useState(0)
-  const [activeModes, setActiveModes] = useState<string[]>([])
+  const [queueSize, setQueueSize] = useState(0)
 
-  useEffect(() => {
-    // Stub: on load, mark 4-6 modes as active (à wire sur API /minato/neji)
-    setMrrCurrent(0)
-    setActiveModes(OVERSHOOT_MODES.slice(0, 5).map(m => m.name))
-  }, [])
+  useEffect(() => { setMrrCurrent(0); setQueueSize(0) }, [])
 
   const overshootAmount = Math.max(0, mrrCurrent - TARGET_MRR_EUR)
   const overshootRatio = TARGET_MRR_EUR > 0 ? overshootAmount / TARGET_MRR_EUR : 0
+  const targetHit = mrrCurrent >= TARGET_MRR_EUR
+  const activeLayer = queueSize > 0 ? 1 : !targetHit ? 2 : 3
 
   return (
     <div style={{ padding: 24, color: C.text, maxWidth: 1400, margin: '0 auto', background: `radial-gradient(circle at top, ${C.violet}15, transparent 60%)` }}>
@@ -71,31 +94,48 @@ export default function InfiniteTsukuyomiPage() {
       </section>
 
       <section style={{ marginBottom: 28 }}>
-        <h2 style={{ fontSize: '.95rem', fontWeight: 700, color: C.violet, margin: '0 0 12px', borderLeft: `3px solid ${C.violet}`, paddingLeft: 10 }}>
-          🌀 8 modes d&apos;overshoot (actifs quand agents idle)
+        <h2 style={{ fontSize: '.95rem', fontWeight: 700, color: C.violet, margin: '0 0 6px', borderLeft: `3px solid ${C.violet}`, paddingLeft: 10 }}>
+          🪜 Hiérarchie en 3 couches
         </h2>
-        <div style={{ display: 'grid', gap: 10 }}>
-          {OVERSHOOT_MODES.map(m => {
-            const isActive = activeModes.includes(m.name)
+        <p style={{ fontSize: '.8rem', color: C.muted, margin: '0 0 14px', paddingLeft: 13 }}>
+          Couche active actuellement : <b style={{ color: LAYERS[activeLayer - 1].color }}>Couche {activeLayer}</b>
+        </p>
+        <div style={{ display: 'grid', gap: 14 }}>
+          {LAYERS.map(layer => {
+            const isActive = layer.id === activeLayer
             return (
-              <div key={m.name} style={{
-                padding: 12, borderRadius: 6, background: C.bg,
-                border: `1px solid ${isActive ? C.green : C.dim}33`,
-                display: 'flex', alignItems: 'center', gap: 12,
-                opacity: isActive ? 1 : 0.6,
+              <div key={layer.id} style={{
+                padding: 14, borderRadius: 8, background: C.bg,
+                border: `2px solid ${isActive ? layer.color : layer.color + '30'}`,
+                opacity: isActive ? 1 : 0.5,
+                boxShadow: isActive ? `0 0 20px ${layer.color}30` : 'none',
               }}>
-                <span style={{ fontSize: '1.4rem' }}>{m.emoji}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <span style={{ fontSize: '.72rem', padding: '2px 6px', borderRadius: 3, background: isActive ? `${C.green}30` : `${C.dim}30`, color: isActive ? C.green : C.dim, fontWeight: 700 }}>
-                      {isActive ? '● ACTIVE' : '○ IDLE'}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <div style={{ fontSize: '.95rem', fontWeight: 700, color: layer.color }}>
+                    {layer.label}
+                  </div>
+                  {isActive && (
+                    <span style={{ fontSize: '.68rem', padding: '2px 8px', borderRadius: 3, background: layer.color, color: C.bg, fontWeight: 800, letterSpacing: '.05em' }}>
+                      ● ACTIVE
                     </span>
-                    <span style={{ fontSize: '.75rem', color: C.purple, fontWeight: 600 }}>{m.worker}</span>
-                    <span style={{ fontSize: '.9rem', fontWeight: 600 }}>{m.name}</span>
-                  </div>
-                  <div style={{ fontSize: '.78rem', color: C.muted, marginTop: 4 }}>
-                    Impact : <span style={{ color: C.amber }}>{m.impact}</span> · Priorité {m.priority}/10
-                  </div>
+                  )}
+                </div>
+                <div style={{ fontSize: '.76rem', color: C.muted, marginBottom: 4 }}>
+                  <b style={{ color: C.text }}>Trigger :</b> {layer.trigger}
+                </div>
+                <div style={{ fontSize: '.76rem', color: C.muted, marginBottom: 10 }}>
+                  <b style={{ color: C.text }}>Goal :</b> {layer.goal}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 6 }}>
+                  {layer.actions.map(a => (
+                    <div key={a.name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', background: 'rgba(255,255,255,.03)', borderRadius: 4 }}>
+                      <span style={{ fontSize: '1rem' }}>{a.emoji}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '.78rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.name}</div>
+                        <div style={{ fontSize: '.65rem', color: C.purple }}>{a.owner}</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )
