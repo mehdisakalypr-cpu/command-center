@@ -45,6 +45,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/minato',    label: 'Minato × MA', icon: '⚡', desc: 'Hybride Shonen + Managed Agents' },
       { href: '/admin/minato-arsenal', label: 'Arsenal ⚡×25', icon: '🗡️', desc: '25 techniques Shonen × features' },
       { href: '/admin/neji', label: 'Neji 👁️ Défense', icon: '👁️', desc: 'Zone défense 360° — sur-couverture zero-cost' },
+      { href: '/admin/infinite-tsukuyomi', label: 'Infinite Tsukuyomi 🌑', icon: '🌑', desc: 'Rêve éternel — agents never idle, overshoot vers l\'infini' },
       { href: '/admin/creator',   label: 'Creator',    icon: '🐉', desc: 'Power level Saiyan + progression' },
     ],
   },

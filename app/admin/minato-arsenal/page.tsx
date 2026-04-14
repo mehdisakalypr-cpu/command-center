@@ -57,6 +57,12 @@ const LEVELS: { label: string; color: string; desc: string; techs: Tech[] }[] = 
     ],
   },
   {
+    label: 'Niveau ∞ — Dépassement perpétuel', color: '#C084FC', desc: 'Rêve éternel. Agents never idle. Overshoot vers l\'infini.',
+    techs: [
+      { emoji: '🌑', name: 'INFINITE TSUKUYOMI', char: 'Madara Uchiha', anime: 'Naruto', role: 'Rêve éternel de dépassement — aucun agent idle, overshoot continu CA/MRR sous NEJI, budget 150€/mo max', status: 'live' },
+    ],
+  },
+  {
     label: 'Niveau 5 — Garde-fous', color: '#EF4444', desc: 'Sécurité, discipline, vérification',
     techs: [
       { emoji: '🔒', name: 'AEGIS', char: 'Aegis Shield', anime: '—', role: 'Sécurité — reset pw jamais bypass login, mindset attaquant', status: 'live' },
