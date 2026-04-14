@@ -22,7 +22,10 @@ const PRODUCT_DEFAULTS: Record<Product, {
     // extraction contact ×2, conversion ×2.6 vs funnel scout-from-scratch.
     // Pricing v2: Achat 149€ + 9.99€/mo (~70% des paid) // Abo 19.99€/mo (~30%).
     // avgMrr reflète le mix récurrent : 0.7×9.99 + 0.3×19.99 = 12.99.
-    label: 'One For All', avgMrrPerClient: 12.99, oneShotPrice: 149, oneShotMix: 0.7,
+    // Modernization cohort = cible qualifiée (site existant → déjà payée au moins
+    // un webmaster une fois), d'où oneShotMix 0.82 (la majorité préfère l'Achat
+    // 149€ + maint vs l'Abo).
+    label: 'One For All', avgMrrPerClient: 11.79, oneShotPrice: 149, oneShotMix: 0.82,
     funnel: [
       { id: 'siteAnalyzed',     label: 'Lead → site analysé',                  defaultRate: 0.95 },
       { id: 'uglyQualified',    label: 'Analysé → ugly ≥ 50 (pitch-worthy)',   defaultRate: 0.55 },
@@ -164,8 +167,46 @@ const SCALE_AGENT_MAP: Record<string, string> = {
   'web-scout':          'ftg:web-scout',
 }
 
+// OFA cohorts: "scratch" = scout from zero (ancien funnel), "modernization" =
+// cible sites existants + pitch before/after (défaut actuel). Bascule
+// instantanée pour comparer les 2 scénarios côte à côte.
+type OfaCohort = 'scratch' | 'modernization'
+const OFA_COHORTS: Record<OfaCohort, {
+  label: string; avgMrrPerClient: number; oneShotPrice: number; oneShotMix: number
+  funnel: { id: string; label: string; defaultRate: number }[]
+}> = {
+  modernization: {
+    label: 'Modernization (sites existants)',
+    avgMrrPerClient: 11.79, oneShotPrice: 149, oneShotMix: 0.82,
+    funnel: [
+      { id: 'siteAnalyzed',     label: 'Lead → site analysé',                  defaultRate: 0.95 },
+      { id: 'uglyQualified',    label: 'Analysé → ugly ≥ 50 (pitch-worthy)',   defaultRate: 0.55 },
+      { id: 'contactExtracted', label: 'Ugly → email/phone extrait',           defaultRate: 0.70 },
+      { id: 'pitched',          label: 'Contact → pitch before/after',         defaultRate: 0.95 },
+      { id: 'opened',           label: 'Pitché → ouvert (personnalisé)',       defaultRate: 0.55 },
+      { id: 'responded',        label: 'Ouvert → réponse (ROI chiffré)',       defaultRate: 0.12 },
+      { id: 'demo',             label: 'Réponse → preview 3 designs vue',      defaultRate: 0.55 },
+      { id: 'paid',             label: 'Preview → achat 149€',                 defaultRate: 0.35 },
+    ],
+  },
+  scratch: {
+    label: 'Scratch (scout lead froid)',
+    avgMrrPerClient: 12.99, oneShotPrice: 149, oneShotMix: 0.65,
+    funnel: [
+      { id: 'sourced',          label: 'Lead froid sourcé (OSM/GPlaces)',      defaultRate: 1 },
+      { id: 'enriched',         label: 'Sourcé → contact trouvé (Hunter)',     defaultRate: 0.15 },
+      { id: 'pitched',          label: 'Contact → pitch générique envoyé',     defaultRate: 0.90 },
+      { id: 'opened',           label: 'Pitché → ouvert',                      defaultRate: 0.30 },
+      { id: 'responded',        label: 'Ouvert → réponse',                     defaultRate: 0.06 },
+      { id: 'demo',             label: 'Réponse → demo vue',                   defaultRate: 0.40 },
+      { id: 'paid',             label: 'Demo → achat 149€',                    defaultRate: 0.08 },
+    ],
+  },
+}
+
 function BusinessTab() {
   const [product, setProduct] = useState<Product>('ofa')
+  const [ofaCohort, setOfaCohort] = useState<OfaCohort>('modernization')
   const [objectiveType, setObjectiveType] = useState<ObjectiveType>('mrr')
   const [objectiveValue, setObjectiveValue] = useState(10000)
   const [horizonDays, setHorizonDays] = useState(30)
@@ -254,6 +295,15 @@ function BusinessTab() {
     return null
   }
 
+  function applyOfaCohort(c: OfaCohort) {
+    setOfaCohort(c)
+    const def = OFA_COHORTS[c]
+    setAvgMrr(def.avgMrrPerClient)
+    setOneShotPrice(def.oneShotPrice)
+    setOneShotMix(def.oneShotMix)
+    setFunnel(def.funnel)
+  }
+
   async function onProductChange(p: Product) {
     setProduct(p)
     setAvgMrr(PRODUCT_DEFAULTS[p].avgMrrPerClient)
@@ -339,6 +389,24 @@ function BusinessTab() {
             {Object.entries(PRODUCT_DEFAULTS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
         </Field>
+        {product === 'ofa' && (
+          <Field label="Cohort OFA">
+            <div style={{ display: 'flex', gap: 6 }}>
+              {(['modernization', 'scratch'] as const).map(c => (
+                <button key={c} type="button" onClick={() => applyOfaCohort(c)}
+                  style={{
+                    flex: 1, padding: '7px 10px', fontSize: 11, fontWeight: 700,
+                    background: ofaCohort === c ? C.gold : 'transparent',
+                    color: ofaCohort === c ? C.bg : C.text,
+                    border: `1px solid ${ofaCohort === c ? C.gold : C.border}`,
+                    borderRadius: 6, cursor: 'pointer', letterSpacing: '.04em',
+                  }}>
+                  {OFA_COHORTS[c].label}
+                </button>
+              ))}
+            </div>
+          </Field>
+        )}
         <Field label="Type d'objectif">
           <select value={objectiveType} onChange={e => onObjectiveTypeChange(e.target.value as ObjectiveType)} style={selectStyle}>
             <option value="mrr">MRR (revenus mensuels récurrents)</option>
