@@ -48,6 +48,7 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: 'Structure', icon: '🏛️', items: [
+      { href: '/admin/go-live', label: 'Go-live', icon: '🏁', desc: '4 actions humaines qui démarrent la course (LLC · OA · SS-4 · CPA)' },
       { href: '/admin/llc', label: 'LLC Wyoming', icon: '🇺🇸', desc: 'Formation LLC, Mercury, Trust, fiscalité' },
       { href: '/admin/documents', label: 'Documents', icon: '📑', desc: 'Contrats signés · factures · Stripe↔Mercury · stack comptable' },
       { href: '/admin/infra', label: 'Infra capacity', icon: '🟢', desc: '% capacité providers · auto-scale · alertes · coût mensuel' },
