@@ -40,6 +40,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Stratégie', icon: '🧠', items: [
       { href: '/admin/vr',        label: 'V/R',        icon: '🎯', desc: 'Vision vs Réalisé' },
       { href: '/admin/simulator', label: 'Simulateur', icon: '🧮', desc: 'Objectifs → plan' },
+      { href: '/admin/mrr-max-scenarios', label: 'MRR MAX 3×', icon: '🌌', desc: 'T0 / T0+T1 / T0+T1+Resend — comparaison coût/ROI' },
       { href: '/admin/insights',  label: 'Insights',   icon: '🧠', desc: 'Stratégie & benchmark' },
       { href: '/admin/minato',    label: 'Minato × MA', icon: '⚡', desc: 'Hybride Shonen + Managed Agents' },
       { href: '/admin/minato-arsenal', label: 'Arsenal ⚡×24', icon: '🗡️', desc: '24 techniques Shonen × features' },
