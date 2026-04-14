@@ -17,11 +17,23 @@ type Status = {
   enabled_at: string | null
 }
 
+type Supervisor = {
+  ok: boolean
+  ts: string
+  layer: 'C1' | 'C2' | 'C3'
+  reason: string
+  signals: { queue_depth: number; target_gap_pct: number; provider_slack_pct: number; utilization_pct: number }
+  actions: { layer: string; kind: string; icon: string; rationale: string }[]
+  budget: { monthly_cap_eur: number; usage_based: boolean; circuit_breaker: string }
+  hint: string
+}
+
 const REFRESH_MS = 60_000
 
 export default function ComputePage() {
   const [status, setStatus] = useState<Status | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [supervisor, setSupervisor] = useState<Supervisor | null>(null)
+  const [, setLoading] = useState(false)
   const [history, setHistory] = useState<number[]>([])
   const [dispatchLog, setDispatchLog] = useState<string | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -29,12 +41,15 @@ export default function ComputePage() {
   const fetchStatus = useCallback(async () => {
     try {
       setLoading(true)
-      const r = await fetch('/api/compute/status', { cache: 'no-store' })
-      const d: Status = await r.json()
-      if (d.ok) {
-        setStatus(d)
-        setHistory(h => [...h.slice(-59), d.utilization])
+      const [sr, sp] = await Promise.all([
+        fetch('/api/compute/status', { cache: 'no-store' }).then(r => r.json()).catch(() => null),
+        fetch('/api/minato/supervisor', { cache: 'no-store' }).then(r => r.json()).catch(() => null),
+      ])
+      if (sr?.ok) {
+        setStatus(sr)
+        setHistory(h => [...h.slice(-59), sr.utilization])
       }
+      if (sp?.ok) setSupervisor(sp)
     } finally { setLoading(false) }
   }, [])
 
@@ -92,6 +107,8 @@ export default function ComputePage() {
             </label>
           </div>
         </header>
+
+        {supervisor && <SupervisorBandeau s={supervisor} />}
 
         <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 32, alignItems: 'start' }}>
           {/* Left: vertical counter (proof) */}
@@ -158,6 +175,70 @@ export default function ComputePage() {
           Règle NO LAZY MODE · le bouton MAX envoie un pulse Minato à Claude (bridge + Telegram). La case MAX sticky maintient au maximum en continu. Auto-watchdog Minato toutes les 5 min.
         </div>
       </div>
+    </div>
+  )
+}
+
+const LAYER_META = {
+  C1: { icon: '⚡', label: 'EXÉCUTION NORMALE', color: '#10B981', sub: 'Agents en queue — Minato standard' },
+  C2: { icon: '👁️', label: 'AMPLIFICATION NEJI', color: '#C9A84C', sub: 'Queue vide — défense absolue 360°, sur-amplifie l\'existant' },
+  C3: { icon: '🌑', label: 'INFINITE TSUKUYOMI', color: '#A855F7', sub: 'Cibles atteintes — élève le potentiel vers l\'infini' },
+} as const
+
+function SupervisorBandeau({ s }: { s: Supervisor }) {
+  const meta = LAYER_META[s.layer]
+  return (
+    <div style={{ background: 'rgba(255,255,255,.04)', border: `1px solid ${meta.color}55`, borderRadius: 12, padding: 20, marginBottom: 24 }}>
+      <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <div style={{ minWidth: 220 }}>
+          <div style={{ fontSize: 11, letterSpacing: '.15em', color: 'rgba(226,232,240,.5)' }}>COUCHE ACTIVE</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: meta.color, marginTop: 4 }}>{meta.icon} {s.layer}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2, color: meta.color }}>{meta.label}</div>
+          <div style={{ fontSize: 12, color: 'rgba(226,232,240,.55)', marginTop: 4 }}>{meta.sub}</div>
+        </div>
+        <div style={{ flex: 1, minWidth: 280 }}>
+          <div style={{ fontSize: 11, letterSpacing: '.15em', color: 'rgba(226,232,240,.5)' }}>SIGNAUX</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 8 }}>
+            <MiniStat label="queue" value={`${s.signals.queue_depth}`} />
+            <MiniStat label="gap cible" value={`${s.signals.target_gap_pct}%`} />
+            <MiniStat label="slack" value={`${s.signals.provider_slack_pct}%`} />
+            <MiniStat label="util" value={`${s.signals.utilization_pct}%`} />
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(226,232,240,.6)', marginTop: 12, fontStyle: 'italic' }}>{s.reason}</div>
+        </div>
+        <div style={{ minWidth: 180, textAlign: 'right' }}>
+          <div style={{ fontSize: 11, letterSpacing: '.15em', color: 'rgba(226,232,240,.5)' }}>BUDGET</div>
+          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>{s.budget.monthly_cap_eur}€/mo</div>
+          <div style={{ fontSize: 11, color: s.budget.usage_based ? '#EF4444' : '#10B981', marginTop: 2 }}>
+            {s.budget.usage_based ? '⚠️ usage-based' : '✓ zéro usage-based'}
+          </div>
+        </div>
+      </div>
+      {s.actions.length > 0 && (
+        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,.06)' }}>
+          <div style={{ fontSize: 11, letterSpacing: '.15em', color: 'rgba(226,232,240,.5)', marginBottom: 8 }}>
+            ACTIONS RECOMMANDÉES ({s.actions.length})
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 8 }}>
+            {s.actions.map(a => (
+              <div key={a.kind} style={{ background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)', borderRadius: 8, padding: '10px 12px' }}>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{a.icon} {a.kind}</div>
+                <div style={{ fontSize: 12, color: 'rgba(226,232,240,.6)', marginTop: 2 }}>{a.rationale}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div style={{ marginTop: 10, fontSize: 11, color: 'rgba(226,232,240,.4)' }}>💡 {s.hint}</div>
+    </div>
+  )
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ background: 'rgba(255,255,255,.03)', borderRadius: 6, padding: '6px 10px' }}>
+      <div style={{ fontSize: 10, letterSpacing: '.1em', color: 'rgba(226,232,240,.45)' }}>{label.toUpperCase()}</div>
+      <div style={{ fontSize: 16, fontWeight: 700, marginTop: 2 }}>{value}</div>
     </div>
   )
 }
