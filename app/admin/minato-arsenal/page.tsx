@@ -35,6 +35,7 @@ const LEVELS: { label: string; color: string; desc: string; techs: Tech[] }[] = 
       { emoji: '🩵', name: 'GOJO', char: 'Satoru Gojo', anime: 'JJK', role: 'Limitless — scan quotas free-tier, infinité d\'options', status: 'live' },
       { emoji: '🟦', name: 'RIMURU', char: 'Rimuru Tempest', anime: 'Tensei Slime', role: 'SUK — méta-agents qui assimilent et s\'auto-améliorent', status: 'live' },
       { emoji: '🧠', name: 'SHIKAMARU', char: 'Shikamaru Nara', anime: 'Naruto', role: 'R&B — data + content + revenue stratège', status: 'live' },
+      { emoji: '👁️', name: 'NEJI', char: 'Neji Hyūga', anime: 'Naruto', role: 'Défense absolue 360° — superviseur sur-couverture zero-cost (Byakugan quotas + amplifications sous Minato)', status: 'live' },
     ],
   },
   {
