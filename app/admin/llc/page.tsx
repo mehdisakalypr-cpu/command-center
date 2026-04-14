@@ -8,7 +8,7 @@ const C = {
   purple: '#A78BFA', blue: '#3B82F6', red: '#EF4444',
 }
 
-type Phase = 'now' | 'after_ein' | 'after_mercury' | 'annual' | 'phase2_trust' | 'defer'
+type Phase = 'urgent' | 'now' | 'after_ein' | 'after_mercury' | 'annual' | 'phase2_trust' | 'defer'
 
 type LlcAction = {
   id: string
@@ -23,6 +23,7 @@ type LlcAction = {
 }
 
 const PHASES: { key: Phase; label: string; color: string; desc: string }[] = [
+  { key: 'urgent', label: '🚨 Avant expatriation France', color: C.red, desc: 'Exit tax + choix résidence — bloque tout le reste' },
   { key: 'now', label: '🚀 À faire maintenant', color: C.gold, desc: 'Étape 1 — commander la LLC + filer docs' },
   { key: 'after_ein', label: '📬 Une fois l\'EIN reçu (4-6 sem)', color: C.blue, desc: 'Ouvrir banque + DBA + Stripe' },
   { key: 'after_mercury', label: '🏦 Une fois Mercury ouvert', color: C.purple, desc: 'Brancher le business' },
@@ -32,6 +33,32 @@ const PHASES: { key: Phase; label: string; color: string; desc: string }[] = [
 ]
 
 const ACTIONS: LlcAction[] = [
+  // URGENT — before France expat
+  {
+    id: 'france-exit-tax', phase: 'urgent',
+    title: '🇫🇷 RDV fiscaliste France — check exit tax AVANT départ',
+    cost: '€200-400 (1h consultation)',
+    risk: 'Exit tax si plus-values latentes >€800k ou détention >50% sociétés',
+    detail: 'Validation : DDFE (déclaration départ fiscale), comptes étranger à déclarer, sortie du régime français propre. Annuaire CFE ou plateforme fiscalitemax / Wemind / BNRC Avocats.',
+  },
+  {
+    id: 'choose-residence', phase: 'urgent',
+    title: '🌍 Décider résidence finale : Portugal NHR / Espagne Beckham / Maroc',
+    detail: 'Reco préliminaire : Portugal NHR (IFICI) = 0% dividendes étrangers 10 ans + C-Corp LLC → ~21% total effectif. Espagne Beckham = 6 ans limité. Maroc = ~30% (pas de régime spécial).',
+  },
+  {
+    id: 'portugal-fiscalist', phase: 'urgent',
+    title: '🇵🇹 RDV fiscaliste Portugal (si NHR choisi) — Belion / Fresh Portugal / DMS Legal',
+    cost: '€500-1500 setup + audit',
+    detail: 'Valider éligibilité NHR/IFICI, stratégie C-Corp LLC, calendrier NIF + résidence (3-6 mois). Alternative Espagne : fiscaliste Beckham Law. Maroc : fiscaliste international Rabat/Casa.',
+  },
+  {
+    id: 'c-corp-election', phase: 'urgent',
+    title: '📝 Planifier élection C-Corp (Form 8832 dans les 75j formation LLC)',
+    detail: 'Obligatoire si Portugal NHR choisi — sinon LLC disregarded = revenus remontent en activité perso et Portugal taxe ~28%. Le CPA non-résident gère le filing 8832.',
+    risk: 'Deadline 75 jours stricts après formation LLC',
+  },
+
   // NOW
   {
     id: 'name-check', phase: 'now',
