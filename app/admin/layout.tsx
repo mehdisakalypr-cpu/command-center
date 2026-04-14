@@ -49,6 +49,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Structure', icon: '🏛️', items: [
       { href: '/admin/llc', label: 'LLC Wyoming', icon: '🇺🇸', desc: 'Formation LLC, Mercury, Trust, fiscalité' },
+      { href: '/admin/documents', label: 'Documents', icon: '📑', desc: 'Contrats signés · factures · Stripe↔Mercury · stack comptable' },
     ],
   },
   {
