@@ -10,6 +10,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -41,6 +42,13 @@ function nextTierName(provider: string, current: string): string | null {
 }
 
 export async function POST(req: NextRequest) {
+  // Accept either admin session OR a shared cron secret in X-Cron-Secret header.
+  const cronSecret = process.env.CRON_SECRET
+  const headerSecret = req.headers.get('x-cron-secret')
+  const cronAuthed = !!(cronSecret && headerSecret && headerSecret === cronSecret)
+  if (!cronAuthed) {
+    const gate = await requireAdmin(); if (gate) return gate
+  }
   const body = await req.json().catch(() => null) as { samples?: Sample[] } | null
   if (!body?.samples?.length) return NextResponse.json({ ok: false, error: 'missing_samples' }, { status: 400 })
 
@@ -93,7 +101,11 @@ export async function POST(req: NextRequest) {
       if (target) {
         const r = await fetch(`${origin}/api/admin/infra/scale`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Ofa-Auto': '1' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Ofa-Auto': '1',
+            ...(process.env.INTERNAL_API_SECRET ? { 'X-Internal-Auth': process.env.INTERNAL_API_SECRET } : {}),
+          },
           body: JSON.stringify({
             provider: u.provider, scope: u.scope, target_tier_name: target,
             reason: `Auto-scale ${u.metric}=${u.value} (${pct.toFixed(1)}% of ${u.current_tier} cap)`,

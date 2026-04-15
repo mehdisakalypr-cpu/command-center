@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -24,6 +25,7 @@ const FALLBACK = [
 ]
 
 export async function GET() {
+  const gate = await requireAdmin(); if (gate) return gate
   try {
     const { data, error } = await db().from('go_live_milestones').select('*').order('id')
     if (error) return NextResponse.json({ ok: true, degraded: true, milestones: FALLBACK, error: error.message })
@@ -34,6 +36,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const gate = await requireAdmin(); if (gate) return gate
   const body = await req.json().catch(() => null) as { id?: string; status?: string; notes?: string } | null
   if (!body?.id || !body?.status) return NextResponse.json({ ok: false, error: 'missing_fields' }, { status: 400 })
   if (!['not_started','in_progress','blocked','done'].includes(body.status)) return NextResponse.json({ ok: false, error: 'invalid_status' }, { status: 400 })

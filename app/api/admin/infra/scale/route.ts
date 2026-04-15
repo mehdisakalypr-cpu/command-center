@@ -11,6 +11,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -26,6 +27,13 @@ function db() {
 }
 
 export async function POST(req: NextRequest) {
+  // Accept either admin session OR an internal server-to-server secret (used by ingest auto-scale).
+  const internalSecret = process.env.INTERNAL_API_SECRET
+  const headerSecret = req.headers.get('x-internal-auth')
+  const internalAuthed = !!(internalSecret && headerSecret && headerSecret === internalSecret)
+  if (!internalAuthed) {
+    const gate = await requireAdmin(); if (gate) return gate
+  }
   let body: Body
   try { body = await req.json() } catch { return NextResponse.json({ ok: false, error: 'invalid_json' }, { status: 400 }) }
   if (!body.provider || !body.scope || !body.target_tier_name || !body.reason) {
