@@ -4,10 +4,8 @@ import { requireAuth } from "@/lib/auth";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_ANON_KEY!,
 );
-
-const IS_VPS = process.env.DEPLOYMENT_ENV === "vps";
 
 /* ── Keepalive Supabase: simple query (works everywhere) ───── */
 async function keepaliveSupabase() {
@@ -23,11 +21,9 @@ async function healthCheck() {
   const results: string[] = [];
   const start = Date.now();
 
-  // Supabase connectivity
   const { error: sbErr } = await supabase.from("hotels").select("id").limit(1);
   results.push(sbErr ? `Supabase: ERREUR ${sbErr.message}` : "Supabase: OK");
 
-  // Ping services
   const urls = [
     ["The Estate", "https://the-estate-fo.netlify.app"],
     ["Shift Dynamics", process.env.SHIFT_DYNAMICS_URL ?? "https://consulting-on55melzp-mehdisakalypr-3843s-projects.vercel.app"],
@@ -49,22 +45,23 @@ async function healthCheck() {
   return results.join("\n");
 }
 
-/* ── VPS-only actions (PM2 restart) ─────────────────────────── */
-async function vpsAction(cmd: string) {
-  if (!IS_VPS) throw new Error("Action PM2 non disponible sur Vercel");
-  const { exec } = await import("child_process");
-  const { promisify } = await import("util");
-  const execAsync = promisify(exec);
-  const { stdout, stderr } = await execAsync(cmd, { timeout: 15_000 });
-  return (stdout + stderr).trim().slice(0, 500);
+/* ── VPS actions: enqueue into remote_action_requests. VPS cron polls. ── */
+async function enqueueRemoteAction(action: string, command: string, requestedBy?: string) {
+  const { data, error } = await supabase
+    .from("remote_action_requests")
+    .insert({ action, command, requested_by: requestedBy ?? null, status: "pending" })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  return `Action "${action}" mise en file d'attente (id=${data?.id}). Le cron VPS l'exécutera sous ~1 min.`;
 }
 
 /* ── Action dispatcher ──────────────────────────────────────── */
 const ACTIONS: Record<string, () => Promise<string>> = {
   "keepalive-supabase": keepaliveSupabase,
   "health-check":       healthCheck,
-  "restart-ftg":        () => vpsAction("pm2 restart feel-the-gap"),
-  "restart-cc":         () => vpsAction("pm2 restart command-center"),
+  "restart-ftg":        () => enqueueRemoteAction("restart-ftg", "pm2 restart feel-the-gap"),
+  "restart-cc":         () => enqueueRemoteAction("restart-cc", "pm2 restart command-center"),
 };
 
 export async function POST(req: NextRequest) {

@@ -7,41 +7,27 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY!
 );
 
+// Kept for UI compatibility; now reflects whether a fresh infra_samples row is available.
 const IS_VPS = process.env.DEPLOYMENT_ENV === "vps";
 
-/* ── VPS metrics (only when running on VPS) ────────────────── */
+/* ── VPS metrics: read latest row from infra_samples (VPS cron pushes it). ─ */
 async function getVpsMetrics() {
-  if (!IS_VPS) return null;
   try {
-    const { exec } = await import("child_process");
-    const { promisify } = await import("util");
-    const execAsync = promisify(exec);
-
-    const [memOut, dfOut, pm2Out] = await Promise.all([
-      execAsync("free -m | awk 'NR==2{print $2,$3,$7}'"),
-      execAsync("df -h / | awk 'NR==2{print $2,$3,$4,$5}'"),
-      execAsync("pm2 jlist 2>/dev/null"),
-    ]);
-
-    const [total, used, available] = memOut.stdout.trim().split(" ").map(Number);
-    const [diskTotal, diskUsed, diskFree, diskPct] = dfOut.stdout.trim().split(" ");
-
-    let pm2Processes: Array<{ name: string; status: string; memory: number; restarts: number }> = [];
-    try {
-      const raw = JSON.parse(pm2Out.stdout);
-      type Pm2Proc = { name: string; pm2_env?: { status?: string; restart_time?: number }; monit?: { memory?: number } };
-      pm2Processes = raw.map((p: Pm2Proc) => ({
-        name: p.name,
-        status: p.pm2_env?.status ?? "unknown",
-        memory: Math.round((p.monit?.memory ?? 0) / 1024 / 1024),
-        restarts: p.pm2_env?.restart_time ?? 0,
-      }));
-    } catch { /* pm2 not available */ }
-
+    const { data } = await supabase
+      .from("infra_samples")
+      .select("*")
+      .order("captured_at", { ascending: false })
+      .limit(1);
+    const row = data?.[0];
+    if (!row) return null;
+    const total = Number(row.ram_total_mb ?? 0);
+    const used = Number(row.ram_used_mb ?? 0);
+    const available = Number(row.ram_free_mb ?? 0);
     return {
-      ram: { total, used, available, pct: Math.round((used / total) * 100) },
-      disk: { total: diskTotal, used: diskUsed, free: diskFree, pct: diskPct },
-      pm2: pm2Processes,
+      ram: { total, used, available, pct: total > 0 ? Math.round((used / total) * 100) : 0 },
+      disk: { total: row.disk_total, used: row.disk_used, free: row.disk_free, pct: row.disk_pct },
+      pm2: Array.isArray(row.pm2_processes) ? row.pm2_processes : [],
+      captured_at: row.captured_at,
     };
   } catch {
     return null;
@@ -157,15 +143,15 @@ async function pingService(url: string, timeoutMs = 5000): Promise<{ up: boolean
   }
 }
 
-/* ── Monitor logs (VPS only) ─────────────────────────────────── */
+/* ── Monitor logs: read health_tail from last infra_samples row ──────── */
 async function getLastHealthLog() {
-  if (!IS_VPS) return null;
   try {
-    const { exec } = await import("child_process");
-    const { promisify } = await import("util");
-    const execAsync = promisify(exec);
-    const { stdout } = await execAsync("tail -3 /root/monitor/logs/health.log 2>/dev/null");
-    return stdout.trim() || null;
+    const { data } = await supabase
+      .from("infra_samples")
+      .select("health_tail")
+      .order("captured_at", { ascending: false })
+      .limit(1);
+    return data?.[0]?.health_tail ?? null;
   } catch {
     return null;
   }

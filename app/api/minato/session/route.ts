@@ -4,17 +4,17 @@
  * Crée une session Minato côté Anthropic et renvoie { session_id }.
  * Le client peut ensuite s'abonner à /api/minato/session/[id]/stream.
  */
-import * as fs from 'fs'
-import * as path from 'path'
-
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
 function loadConfig() {
-  const p = path.join(process.cwd(), '.minato.json')
-  if (!fs.existsSync(p)) throw new Error('.minato.json missing — run scripts/setup-minato-agent.ts')
-  return JSON.parse(fs.readFileSync(p, 'utf8')) as { agent_id: string; environment_id: string }
+  const agent_id = process.env.MINATO_AGENT_ID
+  const environment_id = process.env.MINATO_ENVIRONMENT_ID
+  if (!agent_id || !environment_id) {
+    throw new Error('MINATO_AGENT_ID or MINATO_ENVIRONMENT_ID missing in env — set them (see .minato.json on VPS)')
+  }
+  return { agent_id, environment_id }
 }
 
 export async function POST(request: Request) {

@@ -125,23 +125,16 @@ async function getMrrTarget(): Promise<{ product?: string; objectiveValue?: numb
 }
 
 async function getInProgressJobs(): Promise<{ name: string; status: string; project: string }[]> {
-  // Reuse compute/status logic at a distance: tail known logs + count alive PIDs cheaply.
-  const fs = await import('node:fs')
-  const candidates = [
-    ['/tmp/osm-scout-v4.log', 'osm-scout', 'ofa'],
-    ['/tmp/gen-reachable-v2.log', 'gen-reachable', 'ofa'],
-    ['/tmp/enrich-osm.log', 'enrich-contacts', 'ofa'],
-    ['/tmp/ftg-seo.log', 'seo-factory', 'ftg'],
-  ]
-  const out: { name: string; status: string; project: string }[] = []
-  for (const [p, name, project] of candidates) {
-    try {
-      const st = fs.statSync(p)
-      const ageMin = (Date.now() - st.mtimeMs) / 60000
-      out.push({ name, status: ageMin < 5 ? 'running' : ageMin < 30 ? 'idle' : 'stale', project })
-    } catch { out.push({ name, status: 'absent', project }) }
-  }
-  return out
+  // Read the last compute_samples row — bg_jobs already contains recency status.
+  try {
+    const { data } = await sb()
+      .from('compute_samples')
+      .select('bg_jobs')
+      .order('captured_at', { ascending: false })
+      .limit(1)
+    const bg = (data?.[0]?.bg_jobs as { name: string; status: string; project: string }[] | null) ?? []
+    return bg.map(j => ({ name: j.name, status: j.status, project: j.project }))
+  } catch { return [] }
 }
 
 function categorizeError(errMsg: string | null, lastLogTail: string): { category: 'CAN_SCALE' | 'CANNOT_BECAUSE' | 'CAN_IF' | 'NEED_FREE_ACCOUNTS' | 'NEED_FIXED_SUB' | 'BUG'; reason: string; blocked_provider?: string } {
@@ -161,12 +154,15 @@ function categorizeError(errMsg: string | null, lastLogTail: string): { category
   return { category: 'CANNOT_BECAUSE', reason: errMsg.slice(0, 200) }
 }
 
-function tailLog(path?: string, lines = 30): string {
-  if (!path) return ''
+async function tailLog(path?: string, reqId?: number, lines = 30): Promise<string> {
+  if (!path && !reqId) return ''
   try {
-    const fs = require('node:fs') as typeof import('node:fs')
-    const buf = fs.readFileSync(path, 'utf8')
-    return buf.split('\n').slice(-lines).join('\n')
+    let q = sb().from('minato_strategy_logs').select('tail').order('captured_at', { ascending: false }).limit(1)
+    if (reqId) q = q.eq('scale_req_id', reqId)
+    else if (path) q = q.eq('log_path', path)
+    const { data } = await q
+    const tail = (data?.[0]?.tail as string | null) ?? ''
+    return tail.split('\n').slice(-lines).join('\n')
   } catch { return '' }
 }
 
@@ -183,7 +179,7 @@ export async function POST(req: NextRequest) {
     const { data } = await sb().from('scale_requests').select('*').eq('agent', agent).order('requested_at', { ascending: false }).limit(1)
     lastReq = data?.[0] ?? null
   }
-  const logTail = tailLog(lastReq?.log_paths?.[0], 30)
+  const logTail = await tailLog(lastReq?.log_paths?.[0], lastReq?.id, 30)
   const diagnosis = categorizeError(lastReq?.error_msg ?? null, logTail)
 
   // 2. Active accounts vs needed providers.
