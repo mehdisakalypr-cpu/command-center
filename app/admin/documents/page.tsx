@@ -11,6 +11,27 @@ export const dynamic = 'force-dynamic'
 
 const GOLD = '#C9A84C'
 
+function DownloadCard({ emoji, title, subtitle, meta, href, view, filename }: {
+  emoji: string; title: string; subtitle: string; meta: string; href: string; view: string; filename: string
+}) {
+  return (
+    <div className="border border-white/10 rounded-xl p-4 bg-white/[0.02] hover:bg-white/[0.04] transition">
+      <div className="flex items-start gap-3">
+        <span className="text-2xl">{emoji}</span>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-sm">{title}</div>
+          <div className="text-xs text-gray-400 mt-0.5 truncate">{subtitle}</div>
+          <div className="text-[11px] text-gray-500 mt-1">{meta}</div>
+          <div className="flex gap-2 mt-3">
+            <a href={href} download={filename} className="text-xs px-3 py-1.5 rounded-md bg-[#C9A84C]/10 border border-[#C9A84C]/30 text-[#C9A84C] hover:bg-[#C9A84C]/20">Télécharger PDF</a>
+            <a href={view} target="_blank" rel="noreferrer" className="text-xs px-3 py-1.5 rounded-md border border-white/10 text-gray-300 hover:bg-white/5">Voir en ligne</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function db() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!,
@@ -119,6 +140,25 @@ export default async function DocumentsAdminPage() {
           </div>
           <div className="text-[11px] text-gray-500 mt-2">Format : <code>{'{PREFIX}-{OFA|FTG|LLC}-{YYYY}-{SEQ5}[-{R|V|D|T}]'}</code></div>
         </div>
+
+        {/* Rapports & docs téléchargeables — liens directs PDF générés par nos apps */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold">📥 Rapports téléchargeables</h2>
+            <span className="text-[11px] text-gray-500">PDF générés à la demande</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <DownloadCard
+              emoji="🇲🇦"
+              title="Maroc — Filière avicole"
+              subtitle="Top 5 exploitations · Zalar, Koutoubia, Dar El Fellous, ALF Sahel, Matinales"
+              meta="Carte + adresses + capacités + checklist anti-bullshit"
+              href={`${process.env.FTG_URL ?? 'https://feel-the-gap.vercel.app'}/api/reports/morocco-poultry`}
+              view={`${process.env.FTG_URL ?? 'https://feel-the-gap.vercel.app'}/reports/morocco-poultry`}
+              filename="ftg-rapport-maroc-aviculture.pdf"
+            />
+          </div>
+        </section>
 
         {/* Contrats signés */}
         <section className="mb-8">
