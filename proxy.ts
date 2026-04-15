@@ -9,7 +9,6 @@ const PUBLIC_PAGE_PREFIXES = [
 const PUBLIC_API = new Set([
   "/api/auth/webauthn/authenticate",
   "/api/auth/webauthn/check",
-  "/api/auth/reset-password",
 ]);
 const PUBLIC_API_PREFIXES = [
   "/api/auth/callback",
