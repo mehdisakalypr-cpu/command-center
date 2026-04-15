@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 
 type Product = 'ofa' | 'ftg' | 'estate' | 'shiftdynamics'
 type ObjectiveType = 'mrr' | 'clients' | 'revenue'
-type Tab = 'business' | 'velocity' | 'keys'
+type Tab = 'business' | 'velocity' | 'keys' | 'matrix'
 
 const PRODUCT_DEFAULTS: Record<Product, {
   label: string
@@ -112,6 +112,7 @@ export default function SimulatorPage() {
       <div style={{ display: 'flex', gap: 6, marginBottom: 20, borderBottom: `1px solid ${C.border}` }}>
         {([
           ['business', '🎯 Business (objectif revenus)'],
+          ['matrix',   '🔀 Matrice 3×3 (scénario × mix pricing)'],
           ['velocity', '⚡ Vitesse de production'],
           ['keys',     '🔑 Registre clés API'],
         ] as [Tab, string][]).map(([k, label]) => (
@@ -128,6 +129,7 @@ export default function SimulatorPage() {
       </div>
 
       {tab === 'business' && <BusinessTab />}
+      {tab === 'matrix' && <MatrixTab />}
       {tab === 'velocity' && <VelocityTab />}
       {tab === 'keys' && <KeysTab />}
     </div>
@@ -1532,6 +1534,228 @@ function ScenarioHistory({ product, refreshKey }: { product: string; refreshKey:
           )
         })}
       </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * TAB 4 — MATRIX 3×3 (scénario × mix pricing)
+ * MRR MAX blocker #5 — compare conservative/median/high × mostly_abo /
+ * mostly_achat / mostly_seogeo for the same objective. Single "Push agents"
+ * button uses the selected cell's leadsPerDay as the target.
+ * ═══════════════════════════════════════════════════════════════════════ */
+type MxProduct = 'ofa' | 'ftg'
+type MxScenario = 'conservative' | 'median' | 'high'
+type MxMix = 'mostly_abo' | 'mostly_achat' | 'mostly_seogeo'
+type MxObjective = 'mrr' | 'clients'
+
+interface MxResult {
+  scenario: MxScenario
+  mixId: MxMix
+  paidClients: number
+  leadsNeeded: number
+  leadsPerDay: number
+  sitesPerDay: number
+  dailyRevenue: number
+  mrrMonth: number
+  oneShotM1: number
+  totalConv: number
+  pricing: { mrrPerClient: number; oneShotPerClient: number }
+  gap: { mrrGap: number; paidGap: number; leadsGap: number } | null
+}
+
+function MatrixTab() {
+  const [product, setProduct] = useState<MxProduct>('ofa')
+  const [objectiveType, setObjectiveType] = useState<MxObjective>('mrr')
+  const [objectiveValue, setObjectiveValue] = useState(10000)
+  const [horizonDays, setHorizonDays] = useState(30)
+  const [loading, setLoading] = useState(false)
+  const [matrix, setMatrix] = useState<MxResult[] | null>(null)
+  const [current, setCurrent] = useState<{ leadsCount: number; paidCount: number; currentMrr: number } | null>(null)
+  const [selected, setSelected] = useState<{ scenario: MxScenario; mix: MxMix }>({ scenario: 'median', mix: 'mostly_abo' })
+  const [pushing, setPushing] = useState(false)
+  const [pushLog, setPushLog] = useState<string[]>([])
+
+  async function runCompute() {
+    setLoading(true); setMatrix(null)
+    try {
+      const r = await fetch('/api/simulator/compute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product, objectiveType, objectiveValue, horizonDays,
+          scenario: selected.scenario, mix: selected.mix, matrix: true,
+        }),
+      })
+      const d = await r.json()
+      if (!d.ok) throw new Error(d.error || 'compute failed')
+      setMatrix(d.matrix)
+      setCurrent(d.current)
+    } catch (e: any) {
+      alert(String(e.message || e))
+    } finally { setLoading(false) }
+  }
+
+  useEffect(() => { runCompute() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selectedResult = useMemo(() => {
+    if (!matrix) return null
+    return matrix.find(m => m.scenario === selected.scenario && m.mixId === selected.mix) ?? null
+  }, [matrix, selected])
+
+  async function pushAgents() {
+    if (!selectedResult) return
+    setPushing(true); setPushLog([])
+    try {
+      const lpd = selectedResult.leadsPerDay
+      const targets: { agent: string; instances: number }[] = product === 'ofa'
+        ? [
+            { agent: 'ofa:hyperscale-scout', instances: Math.min(10, Math.max(1, Math.ceil(lpd / 20000))) },
+            { agent: 'ofa:outreach',         instances: Math.min(10, Math.max(1, Math.ceil(lpd / 4000))) },
+          ]
+        : [
+            { agent: 'ftg:entrepreneur-scout', instances: Math.min(10, Math.max(1, Math.ceil(lpd / 5000))) },
+            { agent: 'ftg:commerce-pitcher',   instances: Math.min(10, Math.max(1, Math.ceil(lpd / 2000))) },
+          ]
+      const logs: string[] = []
+      for (const t of targets) {
+        const r = await fetch('/api/minato/scale-agent', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agent: t.agent, instances: t.instances, requester: 'simulator-matrix' }),
+        })
+        const d = await r.json()
+        logs.push(`${t.agent} ×${t.instances} → ${d.ok ? `queued #${d.id}` : `❌ ${d.error}`}`)
+      }
+      setPushLog(logs)
+    } finally { setPushing(false) }
+  }
+
+  const scenarios: MxScenario[] = ['conservative', 'median', 'high']
+  const mixes: { id: MxMix; label: string }[] = [
+    { id: 'mostly_abo',    label: 'Mostly Abo' },
+    { id: 'mostly_achat',  label: 'Mostly Achat + maint' },
+    { id: 'mostly_seogeo', label: 'Mostly SEO+GEO' },
+  ]
+  const scenarioLabels: Record<MxScenario, string> = {
+    conservative: 'Garanti', median: 'Médian', high: 'High',
+  }
+
+  const MX_C = {
+    bg: '#0B0F17', card: '#121826', border: 'rgba(201,168,76,.15)',
+    gold: '#C9A84C', green: '#10B981', muted: '#5A6A7A', text: '#E8E0D0',
+  }
+  const th: React.CSSProperties = { textAlign: 'left', padding: '10px 12px', fontSize: 11, fontWeight: 700, color: MX_C.gold, letterSpacing: '.06em', borderBottom: `1px solid ${MX_C.border}` }
+  const td: React.CSSProperties = { padding: '10px 12px', fontSize: 12, color: MX_C.text, borderBottom: '1px solid rgba(201,168,76,.08)' }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ background: MX_C.card, border: `1px solid ${MX_C.border}`, borderRadius: 8, padding: 16 }}>
+        <h2 style={{ color: MX_C.gold, fontSize: 14, fontWeight: 700, margin: 0, marginBottom: 12, letterSpacing: '.06em' }}>🔀 Matrice 3×3 — scénario × mix pricing</h2>
+        <p style={{ color: MX_C.muted, fontSize: 11, marginTop: 0, marginBottom: 14 }}>
+          Pour un même objectif, compare 3 scénarios (conservative / médian / high) × 3 mix pricing OFA (Abo, Achat+maint, SEO+GEO).
+          Pricing: Achat 149$ + 9.99/mo · Abo 19.99/mo · SEO+GEO Pro 39/mo · Elite 79/mo.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: 10, alignItems: 'end' }}>
+          <div>
+            <div style={{ fontSize: 10, color: MX_C.muted, marginBottom: 4, letterSpacing: '.08em', textTransform: 'uppercase' }}>Produit</div>
+            <select value={product} onChange={e => setProduct(e.target.value as MxProduct)} style={{ width: '100%', padding: 8, background: MX_C.bg, color: MX_C.text, border: `1px solid ${MX_C.border}`, borderRadius: 4, fontSize: 12 }}>
+              <option value="ofa">One For All (OFA)</option>
+              <option value="ftg">Feel The Gap (FTG)</option>
+            </select>
+          </div>
+          <div>
+            <div style={{ fontSize: 10, color: MX_C.muted, marginBottom: 4, letterSpacing: '.08em', textTransform: 'uppercase' }}>Objectif</div>
+            <select value={objectiveType} onChange={e => setObjectiveType(e.target.value as MxObjective)} style={{ width: '100%', padding: 8, background: MX_C.bg, color: MX_C.text, border: `1px solid ${MX_C.border}`, borderRadius: 4, fontSize: 12 }}>
+              <option value="mrr">MRR (€/mois)</option>
+              <option value="clients">Nb clients payants</option>
+            </select>
+          </div>
+          <div>
+            <div style={{ fontSize: 10, color: MX_C.muted, marginBottom: 4, letterSpacing: '.08em', textTransform: 'uppercase' }}>Valeur</div>
+            <input type="number" value={objectiveValue} onChange={e => setObjectiveValue(Number(e.target.value) || 0)} style={{ width: '100%', padding: 8, background: MX_C.bg, color: MX_C.text, border: `1px solid ${MX_C.border}`, borderRadius: 4, fontSize: 12 }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 10, color: MX_C.muted, marginBottom: 4, letterSpacing: '.08em', textTransform: 'uppercase' }}>Horizon</div>
+            <select value={horizonDays} onChange={e => setHorizonDays(Number(e.target.value))} style={{ width: '100%', padding: 8, background: MX_C.bg, color: MX_C.text, border: `1px solid ${MX_C.border}`, borderRadius: 4, fontSize: 12 }}>
+              <option value={30}>30 jours</option>
+              <option value={60}>60 jours</option>
+              <option value={90}>90 jours</option>
+            </select>
+          </div>
+          <button onClick={runCompute} disabled={loading} style={{ padding: '10px 16px', background: MX_C.gold, color: MX_C.bg, border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 700, cursor: loading ? 'wait' : 'pointer', letterSpacing: '.06em' }}>
+            {loading ? '…' : 'Calculer'}
+          </button>
+        </div>
+        {current && (
+          <div style={{ marginTop: 12, fontSize: 11, color: MX_C.muted }}>
+            État actuel ({horizonDays}j): <b style={{ color: MX_C.text }}>{current.leadsCount.toLocaleString('fr-FR')}</b> leads · <b style={{ color: MX_C.text }}>{current.paidCount.toLocaleString('fr-FR')}</b> paid · <b style={{ color: MX_C.text }}>{current.currentMrr.toLocaleString('fr-FR')}€</b> MRR
+          </div>
+        )}
+      </div>
+
+      {matrix && (
+        <div style={{ background: MX_C.card, border: `1px solid ${MX_C.border}`, borderRadius: 8, padding: 16, overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 780 }}>
+            <thead>
+              <tr>
+                <th style={th}>Scénario ↓ / Mix →</th>
+                {mixes.map(m => <th key={m.id} style={th}>{m.label}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {scenarios.map(sc => (
+                <tr key={sc}>
+                  <td style={{ ...td, fontWeight: 700, color: MX_C.gold }}>{scenarioLabels[sc]}</td>
+                  {mixes.map(mx => {
+                    const cell = matrix.find(r => r.scenario === sc && r.mixId === mx.id)
+                    if (!cell) return <td key={mx.id} style={td}>—</td>
+                    const isSel = selected.scenario === sc && selected.mix === mx.id
+                    return (
+                      <td key={mx.id} style={{ ...td, background: isSel ? 'rgba(201,168,76,.08)' : 'transparent', borderLeft: isSel ? `2px solid ${MX_C.gold}` : '2px solid transparent', cursor: 'pointer' }}
+                          onClick={() => setSelected({ scenario: sc, mix: mx.id })}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: MX_C.text }}>{cell.paidClients.toLocaleString('fr-FR')} paid</div>
+                        <div style={{ fontSize: 10, color: MX_C.muted, marginTop: 3 }}>
+                          {cell.leadsPerDay.toLocaleString('fr-FR')} leads/j · {cell.sitesPerDay}/j sites
+                        </div>
+                        <div style={{ fontSize: 10, color: '#10B981', marginTop: 3 }}>
+                          {cell.mrrMonth.toLocaleString('fr-FR')}€/mo · {cell.dailyRevenue.toLocaleString('fr-FR')}€/j
+                        </div>
+                        <div style={{ fontSize: 9, color: MX_C.muted, marginTop: 2 }}>
+                          conv {(cell.totalConv * 100).toFixed(3)}% · ARPU {cell.pricing.mrrPerClient}€
+                        </div>
+                        {cell.gap && cell.gap.paidGap > 0 && (
+                          <div style={{ fontSize: 9, color: '#F87171', marginTop: 2 }}>
+                            gap: +{cell.gap.paidGap} paid · +{cell.gap.mrrGap.toLocaleString('fr-FR')}€ MRR
+                          </div>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {selectedResult && (
+            <div style={{ marginTop: 16, padding: 12, background: 'rgba(201,168,76,.04)', border: `1px solid ${MX_C.border}`, borderRadius: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                <div style={{ fontSize: 11, color: MX_C.text }}>
+                  Sélection: <b style={{ color: MX_C.gold }}>{scenarioLabels[selected.scenario]} × {mixes.find(m => m.id === selected.mix)?.label}</b>
+                  {' · '}<span style={{ color: MX_C.muted }}>{selectedResult.leadsPerDay.toLocaleString('fr-FR')} leads/j requis</span>
+                </div>
+                <button onClick={pushAgents} disabled={pushing} style={{ padding: '8px 14px', background: pushing ? MX_C.muted : MX_C.green, color: '#fff', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: pushing ? 'wait' : 'pointer', letterSpacing: '.06em' }}>
+                  {pushing ? '…' : '🚀 Push agents → rebalance'}
+                </button>
+              </div>
+              {pushLog.length > 0 && (
+                <div style={{ marginTop: 10, fontSize: 10, fontFamily: 'monospace', color: MX_C.muted, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {pushLog.map((l, i) => <div key={i}>{l}</div>)}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
