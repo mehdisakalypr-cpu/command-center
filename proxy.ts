@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { rateLimit, getClientIp } from "./lib/rate-limit";
 
 const PUBLIC_PAGES = new Set(["/"]);
 const PUBLIC_PAGE_PREFIXES = [
@@ -32,6 +33,19 @@ export async function proxy(request: NextRequest) {
   if (isStaticAsset(pathname)) return NextResponse.next();
   if (isPublicPage(pathname)) return NextResponse.next();
   if (pathname.startsWith("/api/") && isPublicApi(pathname)) return NextResponse.next();
+
+  // Global rate-limit for /api/* (sliding window, 100 req / 60s / IP).
+  // Upstash-backed in prod, in-memory fallback dev. Skips static + public pages.
+  if (pathname.startsWith("/api/")) {
+    const ip = getClientIp(request);
+    const rl = await rateLimit({ key: `api:${ip}`, limit: 100, windowSec: 60 });
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: "rate_limited", retryAfter: rl.retryAfter },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfter) } },
+      );
+    }
+  }
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
