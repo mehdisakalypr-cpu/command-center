@@ -5,6 +5,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createSupabaseBrowser } from '@/lib/supabase'
 import { useLang } from '@/components/LanguageProvider'
+import TurnstileWidget from '@/components/TurnstileWidget'
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
 
 export default function LoginPage() {
   const router = useRouter()
@@ -138,23 +141,45 @@ export default function LoginPage() {
     // signInWithPassword calls fail with phantom "invalid credentials".
     try { await sb.auth.signOut({ scope: 'local' }) } catch { /* ignore */ }
 
-    const { data: signInData, error: err } = await sb.auth.signInWithPassword({
-      email: normalizedEmail,
-      password,
+    // Go through our rate-limited server proxy with Turnstile verification
+    // instead of calling Supabase directly from the browser. Adds:
+    //   - IP rate-limit (5 / 5 min)
+    //   - per-email rate-limit (10 / 15 min)
+    //   - server-side Cloudflare Turnstile verify (when TURNSTILE_SECRET_KEY set)
+    const captchaToken = (typeof window !== 'undefined'
+      ? (window as unknown as { __turnstileToken?: string }).__turnstileToken
+      : undefined)
+    const resp = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: normalizedEmail, password, captchaToken }),
     })
-    if (err) {
-      console.error('[login] signInWithPassword failed', err)
-      const msg = err.message === 'Invalid login credentials'
+    if (resp.status === 429) {
+      const j = await resp.json().catch(() => ({}))
+      const wait = j.retryAfter ? ` (retry in ${j.retryAfter}s)` : ''
+      setError(`${j.error || 'Too many attempts'}${wait}`)
+      setLoading(false)
+      return
+    }
+    if (!resp.ok) {
+      const j = await resp.json().catch(() => ({}))
+      const raw = j.error || 'Login failed'
+      const msg = raw === 'Invalid login credentials' || raw === 'Invalid credentials'
         ? 'Email ou mot de passe incorrect.'
-        : err.message === 'Email not confirmed'
+        : raw === 'Email not confirmed'
           ? "Email non confirmé. Vérifiez votre boîte mail."
-          : err.message
+          : raw === 'Captcha required' || raw === 'Captcha verification failed'
+            ? 'Vérification captcha échouée. Rechargez la page et réessayez.'
+            : raw
       setError(msg)
       setLoading(false)
       return
     }
+    const { access_token, refresh_token } = await resp.json()
+    const { data: sessionData, error: setErr } = await sb.auth.setSession({ access_token, refresh_token })
+    if (setErr) { setError(setErr.message); setLoading(false); return }
 
-    const token = signInData.session?.access_token
+    const token = sessionData.session?.access_token ?? access_token
     const accessRes = await fetch('/api/auth/check-access', {
       credentials: 'include',
       headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -321,6 +346,8 @@ export default function LoginPage() {
               />
               <span>Rester connecté <span className="text-gray-600">(90 jours)</span></span>
             </label>
+            {/* Cloudflare Turnstile — interaction-only, noop when site key absent */}
+            <TurnstileWidget siteKey={TURNSTILE_SITE_KEY} action="cc-login" />
             <button
               type="submit" disabled={loading}
               className="w-full py-2.5 bg-[#C9A84C] text-[#07090F] font-bold rounded-xl hover:bg-[#E8C97A] transition-colors disabled:opacity-50 text-sm"
