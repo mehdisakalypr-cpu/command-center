@@ -22,6 +22,7 @@ const NAV_GROUPS: NavGroupX[] = [
       { href: '/admin/simulator',         label: 'Simulateur',  icon: '🧮', desc: 'Objectifs → plan', subgroup: 'Stratégie' },
       { href: '/admin/mrr-max-scenarios', label: 'MRR MAX 3×',  icon: '🌌', desc: 'T0/T0+T1/Resend coût/ROI', subgroup: 'Stratégie' },
       { href: '/admin/globe',             label: 'BANKAI',      icon: '🗡️', desc: 'Revenue Globe 3D temps réel · multi-sites', subgroup: 'Stratégie' },
+      { href: '/admin/ftg-launch',        label: 'FTG Launch',  icon: '🚀', desc: 'Budget + MRR M1 scenarios + leviers 15 mai', subgroup: 'Stratégie' },
       { href: '/admin/insights',          label: 'Insights',    icon: '🧠', desc: 'Stratégie & benchmark', subgroup: 'Stratégie' },
       { href: '/admin/code-map',          label: 'Code Map',    icon: '🗺️', desc: 'Architecture projets' },
     ],
