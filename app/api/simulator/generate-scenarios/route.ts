@@ -3,33 +3,65 @@ import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'nodejs'
 
+// Pricing mixes: how the paid base splits across tiers. The resulting avgMrr
+// drives everything downstream. Keep these labels visible in the UI.
+type PricingMix = { id: string; label: string; avgMrr: number; why: string }
+
 // Per-product defaults (mirrors /admin/simulator/page.tsx). Keep in sync.
 const PRODUCT_DEFAULTS: Record<string, {
   avgMrr: number
+  pricingMixes: PricingMix[]
   funnel: { id: string; label: string; defaultRate: number }[]
   agentsCapacity: { name: string; perDay: number }[]
   maxByObjective: Record<string, number>
 }> = {
   ofa: {
-    avgMrr: 14.98,
+    // Modernization pivot (2026-04-14): we now target businesses that ALREADY
+    // have a website and pitch a free before/after. TAM jumps from ~1M scouted
+    // contacts to ~10M+ globally scrapable sites. Contact-extraction yield
+    // also jumps (legal pages expose email) so the funnel is ~2.6× better.
+    avgMrr: 14.98, // €149 one-shot + €9.99/mo maintenance avg across 12m
+    // OFA pricing mixes reflect SEO GEO tier uptake on top of base (149€+9.99/mo):
+    //   - core: 100% achat+maintenance, no SEO tier (baseline 14.98€)
+    //   - seo_pro: 30% des payants prennent SEO GEO Pro 39€/mo → avgMrr += 0.3×39 = 11.70
+    //   - seo_elite: 15% Elite 79€ + 20% Pro 39€ → avgMrr += 0.15×79 + 0.20×39 = 19.65
+    pricingMixes: [
+      { id: 'core',      label: 'Mix core (100% achat seul)',         avgMrr: 14.98,              why: 'Aucun SEO GEO actif. Socle minimal.' },
+      { id: 'seo_pro',   label: 'Mix Pro (30% SEO Pro 39€/mo)',       avgMrr: 14.98 + 11.70,      why: 'Tier SEO GEO Pro vendu à 30% des payants. Auto-financé.' },
+      { id: 'seo_elite', label: 'Mix Elite (15% Elite + 20% Pro)',    avgMrr: 14.98 + 11.85 + 7.80, why: 'Mix mature — Elite 79€ à 15%, Pro 39€ à 20%, reste core.' },
+    ],
     funnel: [
-      { id: 'enriched',  label: 'Lead → enrichi',               defaultRate: 0.35 },
-      { id: 'pitched',   label: 'Enrichi → pitché multi-canal', defaultRate: 0.95 },
-      { id: 'opened',    label: 'Pitché → ouvert/lu',           defaultRate: 0.50 },
-      { id: 'responded', label: 'Ouvert → réponse engagée',     defaultRate: 0.08 },
-      { id: 'demo',      label: 'Réponse → demo concret',       defaultRate: 0.45 },
-      { id: 'paid',      label: 'Demo → payant',                defaultRate: 0.28 },
+      { id: 'siteAnalyzed',     label: 'Lead → site analysé (platform/mobile)', defaultRate: 0.95 },
+      { id: 'uglyQualified',    label: 'Analysé → ugly-score ≥ 50 (pitch-worthy)', defaultRate: 0.55 },
+      { id: 'contactExtracted', label: 'Ugly → email/phone extrait (legal pages)', defaultRate: 0.70 },
+      { id: 'pitched',          label: 'Contact → pitch before/after envoyé',     defaultRate: 0.95 },
+      { id: 'opened',           label: 'Pitché → ouvert (personnalisé)',          defaultRate: 0.55 },
+      { id: 'responded',        label: 'Ouvert → réponse (ROI chiffré)',          defaultRate: 0.12 },
+      { id: 'demo',             label: 'Réponse → preview 3 designs visités',     defaultRate: 0.55 },
+      { id: 'paid',             label: 'Preview → achat 149€',                    defaultRate: 0.35 },
     ],
     agentsCapacity: [
-      { name: 'lead-scout',     perDay: 5000 },
-      { name: 'contact-finder', perDay: 2000 },
-      { name: 'site-generator', perDay: 2000 },
-      { name: 'pitcher',        perDay: 2500 },
+      { name: 'website-scout',     perDay: 20000 }, // fetch + platform detection is cheap
+      { name: 'screenshot-capture', perDay: 8000 }, // ScreenshotOne rate-limit band
+      { name: 'lighthouse-audit',  perDay: 6000 },  // PageSpeed API free tier
+      { name: 'seo-geo-audit',     perDay: 4000 },  // Serper queries per lead
+      { name: 'contact-extractor', perDay: 8000 },  // regex first, LLM fallback
+      { name: 'site-generator',    perDay: 2000 },  // existing
+      { name: 'pitcher',           perDay: 4000 },  // multi-channel (email/WA/SMS)
     ],
-    maxByObjective: { mrr: 450_000, clients: 30_000, revenue: 5_000_000 },
+    maxByObjective: { mrr: 1_500_000, clients: 150_000, revenue: 30_000_000 },
   },
   ftg: {
     avgMrr: 49,
+    // FTG pricing mixes reflect plan distribution across paying users:
+    //   - data_heavy: 80% Data 29 + 15% Strategy 99 + 5% Premium 149 = 38.30
+    //   - balanced: 50% Data 29 + 35% Strategy 99 + 15% Premium 149 = 71.50
+    //   - premium: 30% Data 29 + 40% Strategy 99 + 30% Premium 149 = 93.00
+    pricingMixes: [
+      { id: 'data_heavy', label: 'Mix Data-heavy (80/15/5)',   avgMrr: 0.80 * 29 + 0.15 * 99 + 0.05 * 149,  why: 'Onboarding majoritairement gratuit → Data. Upsell non agressif.' },
+      { id: 'balanced',   label: 'Mix équilibré (50/35/15)',   avgMrr: 0.50 * 29 + 0.35 * 99 + 0.15 * 149,  why: 'Funnel mature avec upsell Strategy actif et quelques Premium.' },
+      { id: 'premium',    label: 'Mix Premium (30/40/30)',     avgMrr: 0.30 * 29 + 0.40 * 99 + 0.30 * 149,  why: 'Cible entrepreneurs early-adopters — passer Free→Premium rapidement.' },
+    ],
     funnel: [
       { id: 'sourced',    label: 'Prospect sourcé',            defaultRate: 1 },
       { id: 'enriched',   label: 'Sourcé → contact trouvé',    defaultRate: 0.50 },
@@ -74,11 +106,21 @@ function computeResults(
   }, [])
   const mrr = paidNeeded * avgMrr
   const capacity = p.agentsCapacity.map(a => {
-    const need = a.name.includes('scout') ? leadsNeeded
-      : a.name.includes('contact-finder') ? Math.ceil(leadsNeeded * (funnel[0]?.defaultRate || 0.35))
-      : a.name.includes('pitcher') ? Math.ceil(leadsNeeded * 0.3)
-      : a.name.includes('site-generator') ? Math.ceil(leadsNeeded * 0.4)
-      : a.name.includes('email-nurture') ? Math.ceil(leadsNeeded * 0.5)
+    // Coarse mapping of per-stage volume to the agent that serves it.
+    // Keep this in sync with the funnel stage ids above.
+    const stageRate = (id: string): number => funnel.find(s => s.id === id)?.defaultRate ?? 1
+    const n = a.name
+    const qualifiedLeads = Math.ceil(leadsNeeded * stageRate('siteAnalyzed') * stageRate('uglyQualified'))
+    const need = n.includes('website-scout') ? leadsNeeded
+      : n.includes('screenshot-capture') ? qualifiedLeads
+      : n.includes('lighthouse-audit') ? qualifiedLeads
+      : n.includes('seo-geo-audit') ? qualifiedLeads
+      : n.includes('contact-extractor') ? qualifiedLeads
+      : n.includes('site-generator') ? Math.ceil(qualifiedLeads * stageRate('contactExtracted'))
+      : n.includes('pitcher') ? Math.ceil(qualifiedLeads * stageRate('contactExtracted') * stageRate('pitched'))
+      : n.includes('contact-finder') ? Math.ceil(leadsNeeded * (funnel[0]?.defaultRate || 0.35))
+      : n.includes('email-nurture') ? Math.ceil(leadsNeeded * 0.5)
+      : n.includes('scout') ? leadsNeeded
       : leadsNeeded
     const capTotal = a.perDay * horizonDays
     return { name: a.name, need, capacity: capTotal, ok: capTotal >= need, perDay: a.perDay }
@@ -135,30 +177,33 @@ export async function POST(req: Request) {
     },
   ]
 
-  const scenarios = tiers.map(t => {
-    const funnel = bendFunnel(p.funnel, t.bias)
-    const results = computeResults(p, 'mrr', t.mrr, horizonDays, funnel, p.avgMrr)
-    // Suggested scale multiplier per goulot agent so the UI can spawn fixes.
-    const scaleSuggestions = results.capacity
-      .filter(a => !a.ok)
-      .map(a => ({
-        name: a.name,
-        instances: Math.min(10, Math.max(2, Math.ceil(a.need / a.capacity))),
-        reason: `Besoin ${a.need.toLocaleString('fr-FR')} vs capacité ${a.capacity.toLocaleString('fr-FR')} (×1)`,
-      }))
-    return {
-      tier: t.name,
-      label: t.label,
-      why: t.why,
-      objectiveType: 'mrr' as const,
-      objectiveValue: t.mrr,
-      horizonDays,
-      avgMrr: p.avgMrr,
-      funnel,
-      results,
-      scaleSuggestions,
-    }
-  })
+  // Cartesian product: 3 biais × 3 mix pricing = 9 scénarios.
+  const scenarios = tiers.flatMap(t =>
+    p.pricingMixes.map(mix => {
+      const funnel = bendFunnel(p.funnel, t.bias)
+      const results = computeResults(p, 'mrr', t.mrr, horizonDays, funnel, mix.avgMrr)
+      const scaleSuggestions = results.capacity
+        .filter(a => !a.ok)
+        .map(a => ({
+          name: a.name,
+          instances: Math.min(10, Math.max(2, Math.ceil(a.need / a.capacity))),
+          reason: `Besoin ${a.need.toLocaleString('fr-FR')} vs capacité ${a.capacity.toLocaleString('fr-FR')} (×1)`,
+        }))
+      return {
+        tier: t.name,
+        mix: mix.id,
+        label: `${t.label} · ${mix.label}`,
+        why: `${t.why} · ${mix.why}`,
+        objectiveType: 'mrr' as const,
+        objectiveValue: t.mrr,
+        horizonDays,
+        avgMrr: Math.round(mix.avgMrr * 100) / 100,
+        funnel,
+        results,
+        scaleSuggestions,
+      }
+    }),
+  )
 
-  return NextResponse.json({ ok: true, product, ctx, scenarios })
+  return NextResponse.json({ ok: true, product, ctx, scenarios, pricingMixes: p.pricingMixes })
 }

@@ -1337,6 +1337,7 @@ function Kpi({ label, value, color }: { label: string; value: string; color: str
 
 type MinatoScenario = {
   tier: 'conservative' | 'balanced' | 'aggressive'
+  mix?: string
   label: string
   why: string
   objectiveType: 'mrr' | 'clients' | 'revenue'
@@ -1346,6 +1347,10 @@ type MinatoScenario = {
   funnel: { id: string; label: string; defaultRate: number }[]
   results: { paidNeeded: number; leadsNeeded: number; mrr: number; capacity: { name: string; need: number; capacity: number; ok: boolean; perDay: number }[] }
   scaleSuggestions: { name: string; instances: number; reason: string }[]
+}
+
+function scenarioKey(s: MinatoScenario): string {
+  return s.mix ? `${s.tier}-${s.mix}` : s.tier
 }
 
 function MinatoScenarios({ product, horizonDays, onApply }: {
@@ -1374,8 +1379,9 @@ function MinatoScenarios({ product, horizonDays, onApply }: {
   }
 
   async function choose(s: MinatoScenario) {
-    setApplying(s.tier)
-    try { await onApply(s); setApplied(s.tier) }
+    const k = scenarioKey(s)
+    setApplying(k)
+    try { await onApply(s); setApplied(k) }
     finally { setApplying(null) }
   }
 
@@ -1391,7 +1397,7 @@ function MinatoScenarios({ product, horizonDays, onApply }: {
         <h3 style={subH}>🧠 Scénarios Minato</h3>
         <button onClick={generate} disabled={loading}
           style={{ padding: '6px 12px', background: loading ? 'transparent' : '#C9A84C', color: loading ? '#C9A84C' : '#000', border: '1px solid #C9A84C', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: loading ? 'wait' : 'pointer' }}>
-          {loading ? '… Minato réfléchit' : scenarios ? '🔄 Regénérer' : '⚡ Générer 3 scénarios'}
+          {loading ? '… Minato réfléchit' : scenarios ? '🔄 Regénérer' : '⚡ Générer 9 scénarios (3 biais × 3 mix)'}
         </button>
       </div>
       {err && <p style={{ color: '#F87171', fontSize: 11 }}>✗ {err}</p>}
@@ -1399,11 +1405,12 @@ function MinatoScenarios({ product, horizonDays, onApply }: {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {scenarios.map(s => {
             const color = tierColors[s.tier]
-            const isApplied = applied === s.tier
-            const isApplying = applying === s.tier
+            const k = scenarioKey(s)
+            const isApplied = applied === k
+            const isApplying = applying === k
             const gouls = s.results.capacity.filter(c => !c.ok).length
             return (
-              <div key={s.tier} style={{
+              <div key={k} style={{
                 padding: 12, borderRadius: 8,
                 background: isApplied ? 'rgba(16,185,129,.08)' : 'rgba(255,255,255,.02)',
                 border: `1px solid ${isApplied ? 'rgba(16,185,129,.3)' : color + '40'}`,
