@@ -7,62 +7,62 @@ import { useState, useEffect } from 'react'
 type NavItem = { href: string; label: string; icon: string; desc: string }
 type NavGroup = { label: string; icon: string; items: NavItem[] }
 
-const NAV_GROUPS: NavGroup[] = [
+// Refactor 2026-04-16: 7→5 groupes (menu compact). Sous-headers dans `subgroup` regroupent les paires
+// qui se recoupent visuellement (Plans+Payments, Démo+Parcours, Go-live+PVP, LLC+Documents, Infra+Publish Health).
+// Sous-headers décoratifs uniquement — chaque page reste accessible individuellement.
+type NavItemX = NavItem & { subgroup?: string }
+type NavGroupX = { label: string; icon: string; items: NavItemX[] }
+
+const NAV_GROUPS: NavGroupX[] = [
   {
-    label: 'Supervision', icon: '🔭', items: [
-      { href: '/admin/overview',  label: 'Overview',  icon: '🏠', desc: 'Vue d\'ensemble' },
-      { href: '/admin/dashboard', label: 'Dashboard', icon: '📊', desc: 'Monitoring & VPS' },
-      { href: '/admin/code-map',  label: 'Code Map',  icon: '🗺️', desc: 'Architecture projets' },
+    label: 'Pilotage', icon: '🔭', items: [
+      { href: '/admin/overview',          label: 'Overview',    icon: '🏠', desc: 'Vue d\'ensemble' },
+      { href: '/admin/dashboard',         label: 'Dashboard',   icon: '📊', desc: 'Monitoring & VPS' },
+      { href: '/admin/vr',                label: 'V/R',         icon: '🎯', desc: 'Vision vs Réalisé' },
+      { href: '/admin/simulator',         label: 'Simulateur',  icon: '🧮', desc: 'Objectifs → plan', subgroup: 'Stratégie' },
+      { href: '/admin/mrr-max-scenarios', label: 'MRR MAX 3×',  icon: '🌌', desc: 'T0/T0+T1/Resend coût/ROI', subgroup: 'Stratégie' },
+      { href: '/admin/insights',          label: 'Insights',    icon: '🧠', desc: 'Stratégie & benchmark', subgroup: 'Stratégie' },
+      { href: '/admin/code-map',          label: 'Code Map',    icon: '🗺️', desc: 'Architecture projets' },
     ],
   },
   {
-    label: 'Contenu', icon: '✏️', items: [
-      { href: '/admin/cms',           label: 'CMS',      icon: '✏️', desc: '3 sites' },
-      { href: '/admin/demo',          label: 'Démo',     icon: '🎭', desc: 'Comptes test' },
-      { href: '/admin/demo-parcours', label: 'Parcours', icon: '🧭', desc: 'Tours guidés' },
-    ],
-  },
-  {
-    label: 'Clients', icon: '👥', items: [
-      { href: '/admin/crm',     label: 'CRM',     icon: '👥', desc: 'Utilisateurs' },
-      { href: '/admin/tickets', label: 'Tickets', icon: '🎫', desc: 'Support & refunds' },
+    label: 'Agents', icon: '⚡', items: [
+      { href: '/admin/minato',       label: 'Minato',       icon: '⚡', desc: 'Shonen + Managed · Arsenal · NEJI · Infinite Tsukuyomi' },
+      { href: '/admin/orchestrator', label: 'Orchestrator', icon: '⚙️', desc: '6 phases pipeline live', subgroup: 'Pipeline' },
+      { href: '/admin/capacity',     label: 'Capacity OFA', icon: '📈', desc: 'Pipeline sites/emails/enrich', subgroup: 'Pipeline' },
+      { href: '/admin/creator',      label: 'Creator',      icon: '🐉', desc: 'Power level Saiyan + progression' },
+      { href: '/admin/typologies',   label: 'Typologies',   icon: '🌳', desc: 'Arbre + sources + patterns' },
+      { href: '/admin/routines',     label: 'Routines',     icon: '🌀', desc: 'Cron + self-critique méta-loop weekly' },
     ],
   },
   {
     label: 'Revenus', icon: '💰', items: [
       { href: '/admin/campaigns', label: 'Campagnes', icon: '📡', desc: 'Funnels & outreach' },
-      { href: '/admin/plans',     label: 'Plans',     icon: '🧾', desc: 'Tiers & analytics' },
       { href: '/admin/revenue',   label: 'Revenus',   icon: '💰', desc: 'Ventes & marges' },
-      { href: '/admin/payments',  label: 'Payments',  icon: '💳', desc: 'Stripe test sheet' },
+      { href: '/admin/plans',     label: 'Plans',     icon: '🧾', desc: 'Tiers & analytics', subgroup: 'Stripe' },
+      { href: '/admin/payments',  label: 'Payments',  icon: '💳', desc: 'Stripe test sheet', subgroup: 'Stripe' },
     ],
   },
   {
-    label: 'Stratégie', icon: '🧠', items: [
-      { href: '/admin/vr',        label: 'V/R',        icon: '🎯', desc: 'Vision vs Réalisé' },
-      { href: '/admin/simulator', label: 'Simulateur', icon: '🧮', desc: 'Objectifs → plan' },
-      { href: '/admin/mrr-max-scenarios', label: 'MRR MAX 3×', icon: '🌌', desc: 'T0 / T0+T1 / T0+T1+Resend — comparaison coût/ROI' },
-      { href: '/admin/insights',  label: 'Insights',   icon: '🧠', desc: 'Stratégie & benchmark' },
-      { href: '/admin/minato',    label: 'Minato', icon: '⚡', desc: 'Hybride Shonen + Managed Agents · Arsenal · NEJI · Infinite Tsukuyomi (modules internes)' },
-      { href: '/admin/creator',   label: 'Creator',    icon: '🐉', desc: 'Power level Saiyan + progression' },
+    label: 'Ops & Contenu', icon: '👥', items: [
+      { href: '/admin/crm',           label: 'CRM',      icon: '👥', desc: 'Utilisateurs' },
+      { href: '/admin/tickets',       label: 'Tickets',  icon: '🎫', desc: 'Support & refunds' },
+      { href: '/admin/cms',           label: 'CMS',      icon: '✏️', desc: '3 sites' },
+      { href: '/admin/demo',          label: 'Démo',     icon: '🎭', desc: 'Comptes test', subgroup: 'Onboarding' },
+      { href: '/admin/demo-parcours', label: 'Parcours', icon: '🧭', desc: 'Tours guidés', subgroup: 'Onboarding' },
     ],
   },
   {
-    label: 'Structure', icon: '🏛️', items: [
-      { href: '/admin/go-live', label: 'Go-live', icon: '🏁', desc: '4 actions humaines qui démarrent la course (LLC · OA · SS-4 · CPA)' },
-      { href: '/admin/llc', label: 'LLC Wyoming', icon: '🇺🇸', desc: 'Formation LLC, Mercury, Trust, fiscalité' },
-      { href: '/admin/documents', label: 'Documents', icon: '📑', desc: 'Contrats signés · factures · Stripe↔Mercury · stack comptable' },
-      { href: '/admin/infra', label: 'Infra capacity', icon: '🟢', desc: '% capacité providers · auto-scale · alertes · coût mensuel' },
-      { href: '/admin/platforms', label: 'Platforms', icon: '🏗️', desc: 'Vue standardisée par produit : Docs · Compta · Prod Launch' },
-    ],
-  },
-  {
-    label: 'Go-live', icon: '🚀', items: [
-      { href: '/admin/pvp', label: 'Pre-prod vs Prod', icon: '🚀', desc: 'Checklist avant mise en prod' },
-      { href: '/admin/capacity', label: 'Capacity OFA', icon: '📈', desc: 'Pipeline sites/emails/enrich' },
-      { href: '/admin/typologies', label: 'Typologies', icon: '🌳', desc: 'Arbre + sources + patterns' },
-      { href: '/admin/orchestrator', label: 'Orchestrator', icon: '⚙️', desc: '6 phases pipeline live' },
-      { href: '/admin/publish-health', label: 'Publish Health', icon: '🩺', desc: 'Drafts + gate 100% images' },
-      { href: '/admin/smtp-setup', label: 'SMTP Setup', icon: '📧', desc: 'Resend × Supabase 2-min guide' },
+    label: 'Structure & Tech', icon: '🏛️', items: [
+      { href: '/admin/go-live',        label: 'Go-live',          icon: '🏁', desc: '4 actions humaines (LLC·OA·SS-4·CPA)', subgroup: 'Mise en prod' },
+      { href: '/admin/pvp',            label: 'Pre-prod vs Prod', icon: '🚀', desc: 'Checklist avant prod', subgroup: 'Mise en prod' },
+      { href: '/admin/llc',            label: 'LLC Wyoming',      icon: '🇺🇸', desc: 'Formation, Mercury, Trust', subgroup: 'Légal' },
+      { href: '/admin/documents',      label: 'Documents',        icon: '📑', desc: 'Contrats · factures · compta', subgroup: 'Légal' },
+      { href: '/admin/platforms',      label: 'Platforms',        icon: '🏗️', desc: 'Vue par produit (Docs·Compta·Prod)' },
+      { href: '/admin/infra',          label: 'Infra capacity',   icon: '🟢', desc: '% providers · auto-scale · coût/mo', subgroup: 'Health' },
+      { href: '/admin/publish-health', label: 'Publish Health',   icon: '🩺', desc: 'Drafts + gate 100% images', subgroup: 'Health' },
+      { href: '/admin/security',       label: 'Sécurité',         icon: '🛡️', desc: 'Cockpit OWASP ASVS' },
+      { href: '/admin/smtp-setup',     label: 'SMTP Setup',       icon: '📧', desc: 'Resend × Supabase 2-min guide' },
     ],
   },
 ]
@@ -216,10 +216,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </div>
                 )}
 
-                {open && group.items.map(item => {
+                {open && group.items.map((item, idx) => {
                   const active = pathname === item.href || (item.href !== '/admin/overview' && item.href !== '/admin/dashboard' && pathname.startsWith(item.href))
+                  const prevSubgroup = idx > 0 ? group.items[idx - 1].subgroup : undefined
+                  const showSubHeader = expanded && item.subgroup && item.subgroup !== prevSubgroup
                   return (
-                    <Link key={item.href} href={item.href} title={!expanded ? item.label : undefined} style={{
+                    <div key={item.href}>
+                    {showSubHeader && (
+                      <div style={{ padding: '6px 12px 2px 22px', color: '#5A6A7A', fontSize: 9, letterSpacing: '.18em', textTransform: 'uppercase', fontWeight: 600 }}>
+                        {item.subgroup}
+                      </div>
+                    )}
+                    <Link href={item.href} title={!expanded ? item.label : undefined} style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: 10,
@@ -242,6 +250,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         </div>
                       )}
                     </Link>
+                    </div>
                   )
                 })}
               </div>
