@@ -21,6 +21,7 @@ const NAV_GROUPS: NavGroupX[] = [
       { href: '/admin/vr',                label: 'V/R',         icon: '🎯', desc: 'Vision vs Réalisé' },
       { href: '/admin/simulator',         label: 'Simulateur',  icon: '🧮', desc: 'Objectifs → plan', subgroup: 'Stratégie' },
       { href: '/admin/mrr-max-scenarios', label: 'MRR MAX 3×',  icon: '🌌', desc: 'T0/T0+T1/Resend coût/ROI', subgroup: 'Stratégie' },
+      { href: '/admin/globe',             label: 'BANKAI',      icon: '🗡️', desc: 'Revenue Globe 3D temps réel · multi-sites', subgroup: 'Stratégie' },
       { href: '/admin/insights',          label: 'Insights',    icon: '🧠', desc: 'Stratégie & benchmark', subgroup: 'Stratégie' },
       { href: '/admin/code-map',          label: 'Code Map',    icon: '🗺️', desc: 'Architecture projets' },
     ],
