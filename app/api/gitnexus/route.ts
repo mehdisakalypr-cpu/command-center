@@ -12,7 +12,13 @@ import { createClient } from '@supabase/supabase-js'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const sb = () => createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!)
+// RLS on gitnexus_snapshots is locked-by-default (0 policies). Use service_role
+// server-side to read; the proxy.ts already requires an authenticated user.
+const sb = () => createClient(
+  process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_ANON_KEY!,
+  { auth: { persistSession: false } },
+)
 
 export async function GET(req: NextRequest) {
   const repo = req.nextUrl.searchParams.get('repo')

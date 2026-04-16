@@ -44,3 +44,29 @@ const dir = path.join(process.cwd(), 'public')
 mkdirSync(dir, { recursive: true })
 writeFileSync(path.join(dir, 'gitnexus-snapshot.json'), JSON.stringify(payload))
 console.log(`✓ snapshot written — ${overview.length} repos`)
+
+// --push-db: also push to Supabase gitnexus_snapshots so /admin/code-map works on Vercel.
+if (process.argv.includes('--push-db')) {
+  const supaUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supaKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supaUrl || !supaKey) {
+    console.error('✗ --push-db: SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY required')
+    process.exit(1)
+  }
+  const body = JSON.stringify({ repos: overview, source: 'vps-cron' })
+  const res = await fetch(`${supaUrl}/rest/v1/gitnexus_snapshots`, {
+    method: 'POST',
+    headers: {
+      apikey: supaKey,
+      Authorization: `Bearer ${supaKey}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body,
+  })
+  if (!res.ok) {
+    console.error(`✗ push-db failed: HTTP ${res.status} — ${await res.text()}`)
+    process.exit(1)
+  }
+  console.log(`✓ pushed to gitnexus_snapshots (${Math.round(body.length/1024)} KB)`)
+}
