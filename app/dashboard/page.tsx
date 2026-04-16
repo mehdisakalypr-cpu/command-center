@@ -448,6 +448,15 @@ export default function DashboardPage() {
               <span style={{ color: "#10B981", fontWeight: 700, fontSize: ".75rem" }}>Revenue — Nami 70/30</span>
               <span style={{ color: "#5A6A7A", fontSize: ".6rem" }}>MRR cumule FTG + OFA, reinvestissement</span>
             </Link>
+            <Link href="/dashboard/simulator" style={{
+              display: "flex", flexDirection: "column", gap: 8, padding: "16px 20px",
+              background: "rgba(96,165,250,.06)", border: "1px solid rgba(96,165,250,.2)",
+              textDecoration: "none", transition: "all .15s",
+            }}>
+              <span style={{ fontSize: "1.4rem" }}>🧮</span>
+              <span style={{ color: "#60A5FA", fontWeight: 700, fontSize: ".75rem" }}>Business Simulator</span>
+              <span style={{ color: "#5A6A7A", fontSize: ".6rem" }}>Objectif MRR/clients → funnel + push agents (5 produits)</span>
+            </Link>
             <Link href="/admin/code-map" style={{
               display: "flex", flexDirection: "column", gap: 8, padding: "16px 20px",
               background: "rgba(96,165,250,.06)", border: "1px solid rgba(96,165,250,.2)",

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 
-type Product = 'ofa' | 'ftg' | 'estate' | 'shiftdynamics'
+type Product = 'ofa' | 'ftg' | 'estate' | 'shiftdynamics' | 'cc'
 type ObjectiveType = 'mrr' | 'clients' | 'revenue'
 type Tab = 'business' | 'velocity' | 'keys' | 'matrix'
 
@@ -93,6 +93,18 @@ const PRODUCT_DEFAULTS: Record<Product, {
       { name: 'contact-finder',   perDay: 500 },
     ],
   },
+  cc: {
+    label: 'Command Center (interne)', avgMrrPerClient: 0, oneShotPrice: 0, oneShotMix: 0,
+    funnel: [
+      { id: 'usage',     label: 'Action déclenchée → succès',          defaultRate: 0.85 },
+      { id: 'recurrent', label: 'Succès → réutilisation /sem',         defaultRate: 0.50 },
+    ],
+    agentsCapacity: [
+      { name: 'aria-voice',         perDay: 200 },
+      { name: 'metrics-collector',  perDay: 1440 },
+      { name: 'session-logger',     perDay: 1000 },
+    ],
+  },
 }
 
 const C = {
@@ -145,6 +157,7 @@ const OBJECTIVE_MAX: Record<Product, Record<ObjectiveType, number>> = {
   ftg:           { mrr: 1_000_000, clients: 20_408, revenue: 12_000_000 },
   estate:        { mrr: 500_000,   clients: 2_500,  revenue: 6_000_000 },
   shiftdynamics: { mrr: 250_000,   clients: 100,    revenue: 3_000_000 },
+  cc:            { mrr: 0,         clients: 0,      revenue: 0 },
 }
 
 // Maps capacity-row display names → Giant Piccolo agent IDs. Keep in sync with
