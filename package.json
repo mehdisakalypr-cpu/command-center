@@ -14,7 +14,7 @@
     "@supabase/supabase-js": "^2.101.1",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.2",
-    "next": "16.2.2",
+    "next": "^16.2.4",
     "otplib": "^13.4.0",
     "qrcode": "^1.5.4",
     "react": "19.2.4",
