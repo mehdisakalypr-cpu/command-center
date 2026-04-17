@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { authFetch } from '@/lib/auth-v2/client-fetch'
+import { createSupabaseBrowser } from '@/lib/auth-v2/supabase'
 
 type NavItem = { href: string; label: string; icon: string; desc: string }
 type NavGroup = { label: string; icon: string; items: NavItem[] }
@@ -288,7 +290,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {expanded && <span>Aria Voice</span>}
           </Link>
         </div>
+
+        {/* Logout */}
+        <div style={{ padding: '6px 4px', borderTop: '1px solid rgba(201,168,76,.15)', flexShrink: 0 }}>
+          <LogoutButton expanded={expanded} />
+        </div>
       </aside>
+
+      {/* (LogoutButton defined below) */}
 
       {/* Main content */}
       <main style={{
@@ -304,5 +313,38 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </main>
     </div>
+  )
+}
+
+function LogoutButton({ expanded }: { expanded: boolean }) {
+  const [busy, setBusy] = useState(false)
+  async function handleLogout() {
+    if (busy) return
+    setBusy(true)
+    try {
+      try { await authFetch('/api/auth/logout', { method: 'POST' }) } catch { /* noop */ }
+      try { await createSupabaseBrowser().auth.signOut() } catch { /* noop */ }
+    } finally {
+      window.location.assign('/auth/login')
+    }
+  }
+  return (
+    <button
+      type="button"
+      onClick={handleLogout}
+      disabled={busy}
+      title={!expanded ? 'Se déconnecter' : undefined}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+        padding: expanded ? '8px 10px' : '8px 0',
+        justifyContent: expanded ? 'flex-start' : 'center',
+        borderRadius: 8, border: 'none', background: 'transparent',
+        color: '#E06A6A', fontSize: 12, cursor: busy ? 'default' : 'pointer',
+        opacity: busy ? 0.6 : 1,
+      }}
+    >
+      <span style={{ fontSize: 16 }}>🚪</span>
+      {expanded && <span>{busy ? 'Déconnexion…' : 'Se déconnecter'}</span>}
+    </button>
   )
 }
