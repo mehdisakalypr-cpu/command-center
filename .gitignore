@@ -42,3 +42,6 @@ next-env.d.ts
 .gitnexus
 .env*
 .minato.json
+
+# auth-v1 rollback snapshot (local only)
+.auth-v1-backup/
