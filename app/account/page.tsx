@@ -87,7 +87,7 @@ function PasswordChangeBlock({ email }: { email: string }) {
       <label style={{ display: 'block', fontSize: 11, color: '#9CA3AF', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>Confirmer</label>
       <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required style={inputStyle} autoComplete="new-password" />
       {err && <div style={{ background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.3)', borderRadius: 8, padding: 10, fontSize: 13, color: '#FCA5A5', marginBottom: 10 }}>{err}</div>}
-      {ok && <div style={{ background: 'rgba(52,211,153,.1)', border: '1px solid rgba(52,211,153,.3)', borderRadius: 8, padding: 10, fontSize: 13, color: '#6EE7B7', marginBottom: 10 }}>✓ Mot de passe mis à jour. Reconnecte-toi avec le nouveau.</div>}
+      {ok && <div style={{ background: 'rgba(52,211,153,.1)', border: '1px solid rgba(52,211,153,.3)', borderRadius: 8, padding: 10, fontSize: 13, color: '#6EE7B7', marginBottom: 10 }}>✓ Mot de passe mis à jour. Ta session reste active — pas besoin de te reconnecter.</div>}
       <button type="submit" disabled={loading} style={{ width: '100%', padding: 11, background: '#C9A84C', color: '#07090F', border: 0, borderRadius: 8, fontWeight: 700, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.6 : 1, fontFamily: 'inherit', fontSize: 14 }}>
         {loading ? 'Mise à jour…' : 'Changer le mot de passe'}
       </button>

@@ -9,12 +9,12 @@ type Revenue = { mrrOfa: number; mrrFtg: number; mrrSeo: number; totalMrr: numbe
 
 /* ── Objectifs 30 avril 2026 (Vision) ─────────────────── */
 const TARGETS_APRIL_30: Record<string, { label: string; target: number; category: string }> = {
-  // OFA
-  generatedSites:     { label: "OFA Sites generees",           target: 111573, category: "ofa" },
-  publishedSites:     { label: "OFA Sites publies",            target: 100000, category: "ofa" },
-  commerceLeads:      { label: "OFA Commerce Leads",           target: 588819, category: "ofa" },
-  pitchedLeads:       { label: "OFA Pitches envoyes",          target: 33472,  category: "ofa" },
-  onboardedLeads:     { label: "OFA Onboardes",                target: 1674,   category: "ofa" },
+  // OFA — re-calibré 2026-04-14 après pivot Modernization (TAM ×10, conversion ×2.6)
+  generatedSites:     { label: "OFA Sites generees",           target: 350000, category: "ofa" },
+  publishedSites:     { label: "OFA Sites publies",            target: 234000, category: "ofa" },
+  commerceLeads:      { label: "OFA Sites scannes",            target: 640000, category: "ofa" },
+  pitchedLeads:       { label: "OFA Pitches before/after",     target: 234000, category: "ofa" },
+  onboardedLeads:     { label: "OFA Clients payants",          target: 5390,   category: "ofa" },
   // FTG Data
   opportunities:      { label: "Opportunites FTG",             target: 518923, category: "ftg_data" },
   businessPlans:      { label: "Business Plans enrichis",      target: 22045,  category: "ftg_data" },

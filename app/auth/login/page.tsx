@@ -136,61 +136,35 @@ export default function LoginPage() {
     const sb = createSupabaseBrowser()
     const normalizedEmail = email.trim().toLowerCase()
 
-    // Clear any stale session before signing in. Prevents "sticky" recovery
-    // sessions from the password reset flow that can make subsequent
-    // signInWithPassword calls fail with phantom "invalid credentials".
-    try { await sb.auth.signOut({ scope: 'local' }) } catch { /* ignore */ }
-
-    // Go through our rate-limited server proxy with Turnstile verification
-    // instead of calling Supabase directly from the browser. Adds:
-    //   - IP rate-limit (5 / 5 min)
-    //   - per-email rate-limit (10 / 15 min)
-    //   - server-side Cloudflare Turnstile verify (when TURNSTILE_SECRET_KEY set)
-    const captchaToken = (typeof window !== 'undefined'
-      ? (window as unknown as { __turnstileToken?: string }).__turnstileToken
-      : undefined)
-    const resp = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: normalizedEmail, password, captchaToken }),
+    // Direct-to-Supabase client-side login. Simpler, more reliable, fewer
+    // moving parts — no middleware chicken-and-egg risk. Rate-limit is
+    // enforced by Supabase GoTrue itself + the check-access site-gate below.
+    const { data, error: signErr } = await sb.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
     })
-    if (resp.status === 429) {
-      const j = await resp.json().catch(() => ({}))
-      const wait = j.retryAfter ? ` (retry in ${j.retryAfter}s)` : ''
-      setError(`${j.error || 'Too many attempts'}${wait}`)
-      setLoading(false)
-      return
-    }
-    if (!resp.ok) {
-      const j = await resp.json().catch(() => ({}))
-      const raw = j.error || 'Login failed'
-      const msg = raw === 'Invalid login credentials' || raw === 'Invalid credentials'
-        ? 'Email ou mot de passe incorrect.'
-        : raw === 'Email not confirmed'
-          ? "Email non confirmé. Vérifiez votre boîte mail."
-          : raw === 'Captcha required' || raw === 'Captcha verification failed'
-            ? 'Vérification captcha échouée. Rechargez la page et réessayez.'
-            : raw
+    if (signErr || !data.session) {
+      const raw = signErr?.message ?? 'Login failed'
+      const msg = raw.toLowerCase().includes('invalid') ? 'Email ou mot de passe incorrect.'
+        : raw.toLowerCase().includes('not confirmed') ? 'Email non confirmé. Vérifiez votre boîte mail.'
+        : raw.toLowerCase().includes('rate') ? 'Trop de tentatives. Patientez quelques minutes.'
+        : raw
       setError(msg)
       setLoading(false)
       return
     }
-    const { access_token, refresh_token } = await resp.json()
-    const { data: sessionData, error: setErr } = await sb.auth.setSession({ access_token, refresh_token })
-    if (setErr) { setError(setErr.message); setLoading(false); return }
 
-    const token = sessionData.session?.access_token ?? access_token
+    // Session cookie is now set by the SDK. Verify site_access before redirecting.
     const accessRes = await fetch('/api/auth/check-access', {
       credentials: 'include',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: { Authorization: `Bearer ${data.session.access_token}` },
     })
     if (!accessRes.ok) {
-      const body = await accessRes.json().catch(() => ({}))
-      console.error('[login] check-access failed', accessRes.status, body)
-      await sb.auth.signOut()
       const msg = accessRes.status === 403
         ? "Ce compte n'a pas accès à Command Center. Contactez l'admin pour activer l'accès."
         : "Session invalide. Réessayez."
+      console.error('[login] check-access failed', accessRes.status)
+      await sb.auth.signOut()
       setError(msg)
       setLoading(false)
       return

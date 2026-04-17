@@ -1,0 +1,3966 @@
+{
+  "version": "1.0",
+  "computed_at": "2026-04-15T15:51:01.016Z",
+  "countries": [
+    {
+      "iso2": "US",
+      "iso3": "USA",
+      "name": "United States",
+      "currency": "USD",
+      "multiplier": 1,
+      "components": {
+        "wb": 1,
+        "bm": 1,
+        "numbeo": 1,
+        "imf": 1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.000Z"
+    },
+    {
+      "iso2": "CA",
+      "iso3": "CAN",
+      "name": "Canada",
+      "currency": "CAD",
+      "multiplier": 0.8,
+      "components": {
+        "wb": 0.709,
+        "bm": 0.876,
+        "numbeo": 0.907,
+        "imf": 0.813
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.000Z"
+    },
+    {
+      "iso2": "MX",
+      "iso3": "MEX",
+      "name": "Mexico",
+      "currency": "MXN",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.304,
+        "bm": 0.676,
+        "numbeo": 0.467,
+        "imf": 0.49
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.000Z"
+    },
+    {
+      "iso2": "GT",
+      "iso3": "GTM",
+      "name": "Guatemala",
+      "currency": "GTQ",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.155,
+        "bm": 0.726,
+        "numbeo": 0.528,
+        "imf": 0.327
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.000Z"
+    },
+    {
+      "iso2": "HN",
+      "iso3": "HND",
+      "name": "Honduras",
+      "currency": "HNL",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.634,
+        "numbeo": 0.502,
+        "imf": 0.225
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.000Z"
+    },
+    {
+      "iso2": "SV",
+      "iso3": "SLV",
+      "name": "El Salvador",
+      "currency": "USD",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.137,
+        "bm": 0.701,
+        "numbeo": 0.572,
+        "imf": 0.304
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.000Z"
+    },
+    {
+      "iso2": "NI",
+      "iso3": "NIC",
+      "name": "Nicaragua",
+      "currency": "NIO",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.601,
+        "numbeo": 0.466,
+        "imf": 0.239
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.001Z"
+    },
+    {
+      "iso2": "CR",
+      "iso3": "CRI",
+      "name": "Costa Rica",
+      "currency": "CRC",
+      "multiplier": 0.55,
+      "components": {
+        "wb": 0.323,
+        "bm": 0.826,
+        "numbeo": 0.679,
+        "imf": 0.507
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.001Z"
+    },
+    {
+      "iso2": "PA",
+      "iso3": "PAN",
+      "name": "Panama",
+      "currency": "PAB",
+      "multiplier": 0.6,
+      "components": {
+        "wb": 0.472,
+        "bm": 0.751,
+        "numbeo": 0.705,
+        "imf": 0.637
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.001Z"
+    },
+    {
+      "iso2": "CU",
+      "iso3": "CUB",
+      "name": "Cuba",
+      "currency": "CUP",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.144,
+        "bm": 0.417,
+        "numbeo": 0.411,
+        "imf": 0.313
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.001Z"
+    },
+    {
+      "iso2": "DO",
+      "iso3": "DOM",
+      "name": "Dominican Republic",
+      "currency": "DOP",
+      "multiplier": 0.5,
+      "components": {
+        "wb": 0.299,
+        "bm": 0.684,
+        "numbeo": 0.584,
+        "imf": 0.485
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.001Z"
+    },
+    {
+      "iso2": "HT",
+      "iso3": "HTI",
+      "name": "Haiti",
+      "currency": "HTG",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.467,
+        "numbeo": 0.44,
+        "imf": 0.136
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.001Z"
+    },
+    {
+      "iso2": "JM",
+      "iso3": "JAM",
+      "name": "Jamaica",
+      "currency": "JMD",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.144,
+        "bm": 0.76,
+        "numbeo": 0.719,
+        "imf": 0.312
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.001Z"
+    },
+    {
+      "iso2": "TT",
+      "iso3": "TTO",
+      "name": "Trinidad and Tobago",
+      "currency": "TTD",
+      "multiplier": 0.55,
+      "components": {
+        "wb": 0.361,
+        "bm": 0.801,
+        "numbeo": 0.691,
+        "imf": 0.542
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "BS",
+      "iso3": "BHS",
+      "name": "Bahamas",
+      "currency": "BSD",
+      "multiplier": 0.75,
+      "components": {
+        "wb": 0.527,
+        "bm": 0.935,
+        "numbeo": 0.933,
+        "imf": 0.681
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "BB",
+      "iso3": "BRB",
+      "name": "Barbados",
+      "currency": "BBD",
+      "multiplier": 0.55,
+      "components": {
+        "wb": 0.275,
+        "bm": 0.851,
+        "numbeo": 0.829,
+        "imf": 0.461
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "BZ",
+      "iso3": "BLZ",
+      "name": "Belize",
+      "currency": "BZD",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.142,
+        "bm": 0.659,
+        "numbeo": 0.546,
+        "imf": 0.31
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "BR",
+      "iso3": "BRA",
+      "name": "Brazil",
+      "currency": "BRL",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.247,
+        "bm": 0.81,
+        "numbeo": 0.48,
+        "imf": 0.432
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "AR",
+      "iso3": "ARG",
+      "name": "Argentina",
+      "currency": "ARS",
+      "multiplier": 0.5,
+      "components": {
+        "wb": 0.336,
+        "bm": 0.826,
+        "numbeo": 0.412,
+        "imf": 0.52
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "CL",
+      "iso3": "CHL",
+      "name": "Chile",
+      "currency": "CLP",
+      "multiplier": 0.55,
+      "components": {
+        "wb": 0.39,
+        "bm": 0.781,
+        "numbeo": 0.59,
+        "imf": 0.568
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "CO",
+      "iso3": "COL",
+      "name": "Colombia",
+      "currency": "COP",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.242,
+        "bm": 0.701,
+        "numbeo": 0.414,
+        "imf": 0.427
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "PE",
+      "iso3": "PER",
+      "name": "Peru",
+      "currency": "PEN",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.203,
+        "bm": 0.693,
+        "numbeo": 0.469,
+        "imf": 0.384
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "VE",
+      "iso3": "VEN",
+      "name": "Venezuela",
+      "currency": "VES",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.501,
+        "numbeo": 0.43,
+        "imf": 0.241
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "EC",
+      "iso3": "ECU",
+      "name": "Ecuador",
+      "currency": "USD",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.17,
+        "bm": 0.668,
+        "numbeo": 0.534,
+        "imf": 0.345
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "BO",
+      "iso3": "BOL",
+      "name": "Bolivia",
+      "currency": "BOB",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.119,
+        "bm": 0.593,
+        "numbeo": 0.452,
+        "imf": 0.278
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "PY",
+      "iso3": "PRY",
+      "name": "Paraguay",
+      "currency": "PYG",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.196,
+        "bm": 0.634,
+        "numbeo": 0.422,
+        "imf": 0.377
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "UY",
+      "iso3": "URY",
+      "name": "Uruguay",
+      "currency": "UYU",
+      "multiplier": 0.6,
+      "components": {
+        "wb": 0.385,
+        "bm": 0.893,
+        "numbeo": 0.745,
+        "imf": 0.564
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "GY",
+      "iso3": "GUY",
+      "name": "Guyana",
+      "currency": "GYD",
+      "multiplier": 0.8,
+      "components": {
+        "wb": 0.939,
+        "bm": 0.684,
+        "numbeo": 0.573,
+        "imf": 0.963
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "SR",
+      "iso3": "SUR",
+      "name": "Suriname",
+      "currency": "SRD",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.228,
+        "bm": 0.651,
+        "numbeo": 0.533,
+        "imf": 0.412
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "FR",
+      "iso3": "FRA",
+      "name": "France",
+      "currency": "EUR",
+      "multiplier": 0.8,
+      "components": {
+        "wb": 0.707,
+        "bm": 0.927,
+        "numbeo": 0.904,
+        "imf": 0.812
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "DE",
+      "iso3": "DEU",
+      "name": "Germany",
+      "currency": "EUR",
+      "multiplier": 0.85,
+      "components": {
+        "wb": 0.788,
+        "bm": 0.918,
+        "numbeo": 0.866,
+        "imf": 0.867
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "IT",
+      "iso3": "ITA",
+      "name": "Italy",
+      "currency": "EUR",
+      "multiplier": 0.75,
+      "components": {
+        "wb": 0.666,
+        "bm": 0.868,
+        "numbeo": 0.811,
+        "imf": 0.784
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "ES",
+      "iso3": "ESP",
+      "name": "Spain",
+      "currency": "EUR",
+      "multiplier": 0.7,
+      "components": {
+        "wb": 0.591,
+        "bm": 0.86,
+        "numbeo": 0.731,
+        "imf": 0.73
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "PT",
+      "iso3": "PRT",
+      "name": "Portugal",
+      "currency": "EUR",
+      "multiplier": 0.65,
+      "components": {
+        "wb": 0.519,
+        "bm": 0.81,
+        "numbeo": 0.691,
+        "imf": 0.675
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "NL",
+      "iso3": "NLD",
+      "name": "Netherlands",
+      "currency": "EUR",
+      "multiplier": 0.95,
+      "components": {
+        "wb": 0.907,
+        "bm": 0.985,
+        "numbeo": 0.933,
+        "imf": 0.943
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "BE",
+      "iso3": "BEL",
+      "name": "Belgium",
+      "currency": "EUR",
+      "multiplier": 0.9,
+      "components": {
+        "wb": 0.797,
+        "bm": 0.96,
+        "numbeo": 0.918,
+        "imf": 0.873
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "LU",
+      "iso3": "LUX",
+      "name": "Luxembourg",
+      "currency": "EUR",
+      "multiplier": 1.2,
+      "components": {
+        "wb": 1.3,
+        "bm": 1.035,
+        "numbeo": 1.091,
+        "imf": 1.3
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "AT",
+      "iso3": "AUT",
+      "name": "Austria",
+      "currency": "EUR",
+      "multiplier": 0.9,
+      "components": {
+        "wb": 0.842,
+        "bm": 0.977,
+        "numbeo": 0.906,
+        "imf": 0.902
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "CH",
+      "iso3": "CHE",
+      "name": "Switzerland",
+      "currency": "CHF",
+      "multiplier": 1.15,
+      "components": {
+        "wb": 1.077,
+        "bm": 1.285,
+        "numbeo": 1.301,
+        "imf": 1.045
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "IE",
+      "iso3": "IRL",
+      "name": "Ireland",
+      "currency": "EUR",
+      "multiplier": 1.15,
+      "components": {
+        "wb": 1.3,
+        "bm": 0.943,
+        "numbeo": 0.961,
+        "imf": 1.269
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "GB",
+      "iso3": "GBR",
+      "name": "United Kingdom",
+      "currency": "GBP",
+      "multiplier": 0.8,
+      "components": {
+        "wb": 0.69,
+        "bm": 0.91,
+        "numbeo": 0.892,
+        "imf": 0.8
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "MT",
+      "iso3": "MLT",
+      "name": "Malta",
+      "currency": "EUR",
+      "multiplier": 0.8,
+      "components": {
+        "wb": 0.726,
+        "bm": 0.826,
+        "numbeo": 0.772,
+        "imf": 0.825
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "GR",
+      "iso3": "GRC",
+      "name": "Greece",
+      "currency": "EUR",
+      "multiplier": 0.65,
+      "components": {
+        "wb": 0.482,
+        "bm": 0.826,
+        "numbeo": 0.705,
+        "imf": 0.646
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "PR",
+      "iso3": "PRI",
+      "name": "Puerto Rico",
+      "currency": "USD",
+      "multiplier": 0.7,
+      "components": {
+        "wb": 0.516,
+        "bm": 0.851,
+        "numbeo": 0.864,
+        "imf": 0.673
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "GL",
+      "iso3": "GRL",
+      "name": "Greenland",
+      "currency": "DKK",
+      "multiplier": 0.85,
+      "components": {
+        "wb": 0.679,
+        "bm": 0.977,
+        "numbeo": 1.05,
+        "imf": 0.793
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "NC",
+      "iso3": "NCL",
+      "name": "New Caledonia",
+      "currency": "XPF",
+      "multiplier": 0.65,
+      "components": {
+        "wb": 0.373,
+        "bm": 0.902,
+        "numbeo": 0.957,
+        "imf": 0.554
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "PF",
+      "iso3": "PYF",
+      "name": "French Polynesia",
+      "currency": "XPF",
+      "multiplier": 0.6,
+      "components": {
+        "wb": 0.32,
+        "bm": 0.868,
+        "numbeo": 0.931,
+        "imf": 0.505
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "CY",
+      "iso3": "CYP",
+      "name": "Cyprus",
+      "currency": "EUR",
+      "multiplier": 0.75,
+      "components": {
+        "wb": 0.68,
+        "bm": 0.835,
+        "numbeo": 0.785,
+        "imf": 0.793
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "MC",
+      "iso3": "MCO",
+      "name": "Monaco",
+      "currency": "EUR",
+      "multiplier": 1.2,
+      "components": {
+        "wb": 1.3,
+        "bm": 1.068,
+        "numbeo": 1.262,
+        "imf": 1.196
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "LI",
+      "iso3": "LIE",
+      "name": "Liechtenstein",
+      "currency": "CHF",
+      "multiplier": 1.25,
+      "components": {
+        "wb": 1.3,
+        "bm": 1.277,
+        "numbeo": 1.289,
+        "imf": 1.3
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "AD",
+      "iso3": "AND",
+      "name": "Andorra",
+      "currency": "EUR",
+      "multiplier": 0.85,
+      "components": {
+        "wb": 0.799,
+        "bm": 0.935,
+        "numbeo": 0.904,
+        "imf": 0.874
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "SM",
+      "iso3": "SMR",
+      "name": "San Marino",
+      "currency": "EUR",
+      "multiplier": 0.85,
+      "components": {
+        "wb": 0.791,
+        "bm": 0.885,
+        "numbeo": 0.851,
+        "imf": 0.868
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "VA",
+      "iso3": "VAT",
+      "name": "Vatican City",
+      "currency": "EUR",
+      "multiplier": 0.8,
+      "components": {
+        "wb": 0.703,
+        "bm": 0.876,
+        "numbeo": 0.851,
+        "imf": 0.809
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "SE",
+      "iso3": "SWE",
+      "name": "Sweden",
+      "currency": "SEK",
+      "multiplier": 0.85,
+      "components": {
+        "wb": 0.796,
+        "bm": 0.902,
+        "numbeo": 0.85,
+        "imf": 0.872
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "NO",
+      "iso3": "NOR",
+      "name": "Norway",
+      "currency": "NOK",
+      "multiplier": 1.05,
+      "components": {
+        "wb": 1.03,
+        "bm": 1.043,
+        "numbeo": 1.054,
+        "imf": 1.018
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "DK",
+      "iso3": "DNK",
+      "name": "Denmark",
+      "currency": "DKK",
+      "multiplier": 0.95,
+      "components": {
+        "wb": 0.909,
+        "bm": 0.968,
+        "numbeo": 1.038,
+        "imf": 0.945
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "FI",
+      "iso3": "FIN",
+      "name": "Finland",
+      "currency": "EUR",
+      "multiplier": 0.85,
+      "components": {
+        "wb": 0.713,
+        "bm": 0.993,
+        "numbeo": 0.944,
+        "imf": 0.816
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "IS",
+      "iso3": "ISL",
+      "name": "Iceland",
+      "currency": "ISK",
+      "multiplier": 1.05,
+      "components": {
+        "wb": 0.881,
+        "bm": 1.244,
+        "numbeo": 1.183,
+        "imf": 0.927
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "PL",
+      "iso3": "POL",
+      "name": "Poland",
+      "currency": "PLN",
+      "multiplier": 0.65,
+      "components": {
+        "wb": 0.575,
+        "bm": 0.76,
+        "numbeo": 0.546,
+        "imf": 0.717
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "CZ",
+      "iso3": "CZE",
+      "name": "Czechia",
+      "currency": "CZK",
+      "multiplier": 0.7,
+      "components": {
+        "wb": 0.601,
+        "bm": 0.835,
+        "numbeo": 0.638,
+        "imf": 0.737
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.005Z"
+    },
+    {
+      "iso2": "SK",
+      "iso3": "SVK",
+      "name": "Slovakia",
+      "currency": "EUR",
+      "multiplier": 0.65,
+      "components": {
+        "wb": 0.503,
+        "bm": 0.81,
+        "numbeo": 0.626,
+        "imf": 0.662
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "HU",
+      "iso3": "HUN",
+      "name": "Hungary",
+      "currency": "HUF",
+      "multiplier": 0.65,
+      "components": {
+        "wb": 0.535,
+        "bm": 0.751,
+        "numbeo": 0.571,
+        "imf": 0.687
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "RO",
+      "iso3": "ROU",
+      "name": "Romania",
+      "currency": "RON",
+      "multiplier": 0.6,
+      "components": {
+        "wb": 0.531,
+        "bm": 0.718,
+        "numbeo": 0.533,
+        "imf": 0.684
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "BG",
+      "iso3": "BGR",
+      "name": "Bulgaria",
+      "currency": "BGN",
+      "multiplier": 0.55,
+      "components": {
+        "wb": 0.421,
+        "bm": 0.659,
+        "numbeo": 0.506,
+        "imf": 0.595
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "HR",
+      "iso3": "HRV",
+      "name": "Croatia",
+      "currency": "EUR",
+      "multiplier": 0.6,
+      "components": {
+        "wb": 0.517,
+        "bm": 0.743,
+        "numbeo": 0.611,
+        "imf": 0.673
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "SI",
+      "iso3": "SVN",
+      "name": "Slovenia",
+      "currency": "EUR",
+      "multiplier": 0.7,
+      "components": {
+        "wb": 0.624,
+        "bm": 0.826,
+        "numbeo": 0.679,
+        "imf": 0.754
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "EE",
+      "iso3": "EST",
+      "name": "Estonia",
+      "currency": "EUR",
+      "multiplier": 0.65,
+      "components": {
+        "wb": 0.547,
+        "bm": 0.785,
+        "numbeo": 0.666,
+        "imf": 0.696
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "LV",
+      "iso3": "LVA",
+      "name": "Latvia",
+      "currency": "EUR",
+      "multiplier": 0.65,
+      "components": {
+        "wb": 0.51,
+        "bm": 0.76,
+        "numbeo": 0.639,
+        "imf": 0.668
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "LT",
+      "iso3": "LTU",
+      "name": "Lithuania",
+      "currency": "EUR",
+      "multiplier": 0.7,
+      "components": {
+        "wb": 0.602,
+        "bm": 0.768,
+        "numbeo": 0.626,
+        "imf": 0.737
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "RS",
+      "iso3": "SRB",
+      "name": "Serbia",
+      "currency": "RSD",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.316,
+        "bm": 0.651,
+        "numbeo": 0.493,
+        "imf": 0.501
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "BA",
+      "iso3": "BIH",
+      "name": "Bosnia and Herzegovina",
+      "currency": "BAM",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.279,
+        "bm": 0.626,
+        "numbeo": 0.48,
+        "imf": 0.465
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "MK",
+      "iso3": "MKD",
+      "name": "North Macedonia",
+      "currency": "MKD",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.251,
+        "bm": 0.601,
+        "numbeo": 0.453,
+        "imf": 0.436
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "ME",
+      "iso3": "MNE",
+      "name": "Montenegro",
+      "currency": "EUR",
+      "multiplier": 0.5,
+      "components": {
+        "wb": 0.361,
+        "bm": 0.659,
+        "numbeo": 0.52,
+        "imf": 0.543
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "AL",
+      "iso3": "ALB",
+      "name": "Albania",
+      "currency": "ALL",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.228,
+        "bm": 0.618,
+        "numbeo": 0.467,
+        "imf": 0.412
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "XK",
+      "iso3": "XKX",
+      "name": "Kosovo",
+      "currency": "EUR",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.192,
+        "bm": 0.584,
+        "numbeo": 0.44,
+        "imf": 0.372
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "MD",
+      "iso3": "MDA",
+      "name": "Moldova",
+      "currency": "MDL",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.223,
+        "bm": 0.568,
+        "numbeo": 0.427,
+        "imf": 0.407
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "UA",
+      "iso3": "UKR",
+      "name": "Ukraine",
+      "currency": "UAH",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.177,
+        "bm": 0.518,
+        "numbeo": 0.386,
+        "imf": 0.354
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "BY",
+      "iso3": "BLR",
+      "name": "Belarus",
+      "currency": "BYN",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.292,
+        "bm": 0.534,
+        "numbeo": 0.4,
+        "imf": 0.478
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "RU",
+      "iso3": "RUS",
+      "name": "Russia",
+      "currency": "RUB",
+      "multiplier": 0.5,
+      "components": {
+        "wb": 0.517,
+        "bm": 0.384,
+        "numbeo": 0.44,
+        "imf": 0.673
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "TR",
+      "iso3": "TUR",
+      "name": "Türkiye",
+      "currency": "TRY",
+      "multiplier": 0.6,
+      "components": {
+        "wb": 0.514,
+        "bm": 0.785,
+        "numbeo": 0.465,
+        "imf": 0.671
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "IL",
+      "iso3": "ISR",
+      "name": "Israel",
+      "currency": "ILS",
+      "multiplier": 0.8,
+      "components": {
+        "wb": 0.683,
+        "bm": 0.893,
+        "numbeo": 0.947,
+        "imf": 0.795
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "SA",
+      "iso3": "SAU",
+      "name": "Saudi Arabia",
+      "currency": "SAR",
+      "multiplier": 0.8,
+      "components": {
+        "wb": 0.824,
+        "bm": 0.76,
+        "numbeo": 0.599,
+        "imf": 0.89
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "AE",
+      "iso3": "ARE",
+      "name": "United Arab Emirates",
+      "currency": "AED",
+      "multiplier": 1,
+      "components": {
+        "wb": 1.134,
+        "bm": 0.835,
+        "numbeo": 0.823,
+        "imf": 1.079
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "QA",
+      "iso3": "QAT",
+      "name": "Qatar",
+      "currency": "QAR",
+      "multiplier": 1.05,
+      "components": {
+        "wb": 1.3,
+        "bm": 0.826,
+        "numbeo": 0.811,
+        "imf": 1.219
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "BH",
+      "iso3": "BHR",
+      "name": "Bahrain",
+      "currency": "BHD",
+      "multiplier": 0.8,
+      "components": {
+        "wb": 0.741,
+        "bm": 0.793,
+        "numbeo": 0.772,
+        "imf": 0.835
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "KW",
+      "iso3": "KWT",
+      "name": "Kuwait",
+      "currency": "KWD",
+      "multiplier": 0.75,
+      "components": {
+        "wb": 0.675,
+        "bm": 0.81,
+        "numbeo": 0.757,
+        "imf": 0.79
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "OM",
+      "iso3": "OMN",
+      "name": "Oman",
+      "currency": "OMR",
+      "multiplier": 0.65,
+      "components": {
+        "wb": 0.516,
+        "bm": 0.776,
+        "numbeo": 0.719,
+        "imf": 0.672
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "JO",
+      "iso3": "JOR",
+      "name": "Jordan",
+      "currency": "JOD",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.154,
+        "bm": 0.668,
+        "numbeo": 0.598,
+        "imf": 0.325
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "LB",
+      "iso3": "LBN",
+      "name": "Lebanon",
+      "currency": "LBP",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.176,
+        "bm": 0.584,
+        "numbeo": 0.493,
+        "imf": 0.353
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "IQ",
+      "iso3": "IRQ",
+      "name": "Iraq",
+      "currency": "IQD",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.134,
+        "bm": 0.568,
+        "numbeo": 0.44,
+        "imf": 0.3
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "IR",
+      "iso3": "IRN",
+      "name": "Iran",
+      "currency": "IRR",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.223,
+        "bm": 0.417,
+        "numbeo": 0.374,
+        "imf": 0.406
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "SY",
+      "iso3": "SYR",
+      "name": "Syria",
+      "currency": "SYP",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.367,
+        "numbeo": 0.346,
+        "imf": 0.144
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "YE",
+      "iso3": "YEM",
+      "name": "Yemen",
+      "currency": "YER",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.384,
+        "numbeo": 0.361,
+        "imf": 0.107
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "PS",
+      "iso3": "PSE",
+      "name": "Palestine",
+      "currency": "ILS",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.634,
+        "numbeo": 0.533,
+        "imf": 0.205
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "CN",
+      "iso3": "CHN",
+      "name": "China",
+      "currency": "CNY",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.293,
+        "bm": 0.584,
+        "numbeo": 0.52,
+        "imf": 0.479
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "JP",
+      "iso3": "JPN",
+      "name": "Japan",
+      "currency": "JPY",
+      "multiplier": 0.6,
+      "components": {
+        "wb": 0.607,
+        "bm": 0.526,
+        "numbeo": 0.626,
+        "imf": 0.741
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "KR",
+      "iso3": "KOR",
+      "name": "South Korea",
+      "currency": "KRW",
+      "multiplier": 0.75,
+      "components": {
+        "wb": 0.664,
+        "bm": 0.76,
+        "numbeo": 0.811,
+        "imf": 0.782
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "KP",
+      "iso3": "PRK",
+      "name": "North Korea",
+      "currency": "KPW",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.334,
+        "numbeo": 0.331,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "TW",
+      "iso3": "TWN",
+      "name": "Taiwan",
+      "currency": "TWD",
+      "multiplier": 0.75,
+      "components": {
+        "wb": 0.9,
+        "bm": 0.476,
+        "numbeo": 0.704,
+        "imf": 0.939
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "HK",
+      "iso3": "HKG",
+      "name": "Hong Kong",
+      "currency": "HKD",
+      "multiplier": 0.85,
+      "components": {
+        "wb": 0.88,
+        "bm": 0.492,
+        "numbeo": 1.076,
+        "imf": 0.926
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "MO",
+      "iso3": "MAC",
+      "name": "Macao",
+      "currency": "MOP",
+      "multiplier": 0.9,
+      "components": {
+        "wb": 1.049,
+        "bm": 0.501,
+        "numbeo": 0.997,
+        "imf": 1.029
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "SG",
+      "iso3": "SGP",
+      "name": "Singapore",
+      "currency": "SGD",
+      "multiplier": 1.15,
+      "components": {
+        "wb": 1.3,
+        "bm": 0.81,
+        "numbeo": 1.116,
+        "imf": 1.3
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "MY",
+      "iso3": "MYS",
+      "name": "Malaysia",
+      "currency": "MYR",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.455,
+        "bm": 0.376,
+        "numbeo": 0.467,
+        "imf": 0.624
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "TH",
+      "iso3": "THA",
+      "name": "Thailand",
+      "currency": "THB",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.266,
+        "bm": 0.618,
+        "numbeo": 0.493,
+        "imf": 0.451
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "VN",
+      "iso3": "VNM",
+      "name": "Vietnam",
+      "currency": "VND",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.181,
+        "bm": 0.484,
+        "numbeo": 0.414,
+        "imf": 0.359
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "ID",
+      "iso3": "IDN",
+      "name": "Indonesia",
+      "currency": "IDR",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.188,
+        "bm": 0.401,
+        "numbeo": 0.4,
+        "imf": 0.367
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "PH",
+      "iso3": "PHL",
+      "name": "Philippines",
+      "currency": "PHP",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.139,
+        "bm": 0.518,
+        "numbeo": 0.426,
+        "imf": 0.307
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "IN",
+      "iso3": "IND",
+      "name": "India",
+      "currency": "INR",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.13,
+        "bm": 0.426,
+        "numbeo": 0.281,
+        "imf": 0.294
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "PK",
+      "iso3": "PAK",
+      "name": "Pakistan",
+      "currency": "PKR",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.351,
+        "numbeo": 0.255,
+        "imf": 0.219
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "BD",
+      "iso3": "BGD",
+      "name": "Bangladesh",
+      "currency": "BDT",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.108,
+        "bm": 0.367,
+        "numbeo": 0.306,
+        "imf": 0.262
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "LK",
+      "iso3": "LKA",
+      "name": "Sri Lanka",
+      "currency": "LKR",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.179,
+        "bm": 0.451,
+        "numbeo": 0.373,
+        "imf": 0.356
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "NP",
+      "iso3": "NPL",
+      "name": "Nepal",
+      "currency": "NPR",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.417,
+        "numbeo": 0.333,
+        "imf": 0.196
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "BT",
+      "iso3": "BTN",
+      "name": "Bhutan",
+      "currency": "BTN",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.173,
+        "bm": 0.434,
+        "numbeo": 0.374,
+        "imf": 0.349
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "MV",
+      "iso3": "MDV",
+      "name": "Maldives",
+      "currency": "MVR",
+      "multiplier": 0.5,
+      "components": {
+        "wb": 0.306,
+        "bm": 0.684,
+        "numbeo": 0.679,
+        "imf": 0.491
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "MM",
+      "iso3": "MMR",
+      "name": "Myanmar",
+      "currency": "MMK",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.351,
+        "numbeo": 0.32,
+        "imf": 0.185
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "KH",
+      "iso3": "KHM",
+      "name": "Cambodia",
+      "currency": "KHR",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.476,
+        "numbeo": 0.373,
+        "imf": 0.204
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "LA",
+      "iso3": "LAO",
+      "name": "Laos",
+      "currency": "LAK",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.121,
+        "bm": 0.417,
+        "numbeo": 0.333,
+        "imf": 0.282
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "MN",
+      "iso3": "MNG",
+      "name": "Mongolia",
+      "currency": "MNT",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.189,
+        "bm": 0.534,
+        "numbeo": 0.453,
+        "imf": 0.368
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "KZ",
+      "iso3": "KAZ",
+      "name": "Kazakhstan",
+      "currency": "KZT",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.405,
+        "bm": 0.509,
+        "numbeo": 0.374,
+        "imf": 0.581
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "UZ",
+      "iso3": "UZB",
+      "name": "Uzbekistan",
+      "currency": "UZS",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.13,
+        "bm": 0.467,
+        "numbeo": 0.333,
+        "imf": 0.294
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "KG",
+      "iso3": "KGZ",
+      "name": "Kyrgyzstan",
+      "currency": "KGS",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.442,
+        "numbeo": 0.32,
+        "imf": 0.231
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "TJ",
+      "iso3": "TJK",
+      "name": "Tajikistan",
+      "currency": "TJS",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.417,
+        "numbeo": 0.308,
+        "imf": 0.202
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "TM",
+      "iso3": "TKM",
+      "name": "Turkmenistan",
+      "currency": "TMT",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.248,
+        "bm": 0.484,
+        "numbeo": 0.386,
+        "imf": 0.433
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "AF",
+      "iso3": "AFG",
+      "name": "Afghanistan",
+      "currency": "AFN",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.334,
+        "numbeo": 0.293,
+        "imf": 0.108
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "AM",
+      "iso3": "ARM",
+      "name": "Armenia",
+      "currency": "AMD",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.259,
+        "bm": 0.551,
+        "numbeo": 0.426,
+        "imf": 0.445
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "AZ",
+      "iso3": "AZE",
+      "name": "Azerbaijan",
+      "currency": "AZN",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.243,
+        "bm": 0.518,
+        "numbeo": 0.4,
+        "imf": 0.428
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "GE",
+      "iso3": "GEO",
+      "name": "Georgia",
+      "currency": "GEL",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.29,
+        "bm": 0.593,
+        "numbeo": 0.453,
+        "imf": 0.476
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "TL",
+      "iso3": "TLS",
+      "name": "Timor-Leste",
+      "currency": "USD",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.417,
+        "numbeo": 0.373,
+        "imf": 0.178
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "BN",
+      "iso3": "BRN",
+      "name": "Brunei",
+      "currency": "BND",
+      "multiplier": 0.8,
+      "components": {
+        "wb": 0.978,
+        "bm": 0.634,
+        "numbeo": 0.612,
+        "imf": 0.987
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "AU",
+      "iso3": "AUS",
+      "name": "Australia",
+      "currency": "AUD",
+      "multiplier": 0.85,
+      "components": {
+        "wb": 0.784,
+        "bm": 0.851,
+        "numbeo": 0.903,
+        "imf": 0.864
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "NZ",
+      "iso3": "NZL",
+      "name": "New Zealand",
+      "currency": "NZD",
+      "multiplier": 0.75,
+      "components": {
+        "wb": 0.633,
+        "bm": 0.868,
+        "numbeo": 0.85,
+        "imf": 0.76
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "PG",
+      "iso3": "PNG",
+      "name": "Papua New Guinea",
+      "currency": "PGK",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.534,
+        "numbeo": 0.52,
+        "imf": 0.171
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "FJ",
+      "iso3": "FJI",
+      "name": "Fiji",
+      "currency": "FJD",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.185,
+        "bm": 0.618,
+        "numbeo": 0.546,
+        "imf": 0.363
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "SB",
+      "iso3": "SLB",
+      "name": "Solomon Islands",
+      "currency": "SBD",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.518,
+        "numbeo": 0.493,
+        "imf": 0.125
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "VU",
+      "iso3": "VUT",
+      "name": "Vanuatu",
+      "currency": "VUV",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.534,
+        "numbeo": 0.506,
+        "imf": 0.144
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "WS",
+      "iso3": "WSM",
+      "name": "Samoa",
+      "currency": "WST",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.551,
+        "numbeo": 0.52,
+        "imf": 0.22
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "TO",
+      "iso3": "TON",
+      "name": "Tonga",
+      "currency": "TOP",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.534,
+        "numbeo": 0.493,
+        "imf": 0.229
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "KI",
+      "iso3": "KIR",
+      "name": "Kiribati",
+      "currency": "AUD",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.501,
+        "numbeo": 0.48,
+        "imf": 0.119
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "MH",
+      "iso3": "MHL",
+      "name": "Marshall Islands",
+      "currency": "USD",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.568,
+        "numbeo": 0.532,
+        "imf": 0.225
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "FM",
+      "iso3": "FSM",
+      "name": "Micronesia",
+      "currency": "USD",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.568,
+        "numbeo": 0.533,
+        "imf": 0.162
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "PW",
+      "iso3": "PLW",
+      "name": "Palau",
+      "currency": "USD",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.185,
+        "bm": 0.634,
+        "numbeo": 0.612,
+        "imf": 0.363
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "NR",
+      "iso3": "NRU",
+      "name": "Nauru",
+      "currency": "AUD",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.144,
+        "bm": 0.551,
+        "numbeo": 0.532,
+        "imf": 0.312
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "TV",
+      "iso3": "TUV",
+      "name": "Tuvalu",
+      "currency": "AUD",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.534,
+        "numbeo": 0.52,
+        "imf": 0.191
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "CK",
+      "iso3": "COK",
+      "name": "Cook Islands",
+      "currency": "NZD",
+      "multiplier": 0.45,
+      "components": {
+        "wb": 0.221,
+        "bm": 0.668,
+        "numbeo": 0.639,
+        "imf": 0.405
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "EG",
+      "iso3": "EGY",
+      "name": "Egypt",
+      "currency": "EGP",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.206,
+        "bm": 0.401,
+        "numbeo": 0.32,
+        "imf": 0.388
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "MA",
+      "iso3": "MAR",
+      "name": "Morocco",
+      "currency": "MAD",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.122,
+        "bm": 0.518,
+        "numbeo": 0.4,
+        "imf": 0.283
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "DZ",
+      "iso3": "DZA",
+      "name": "Algeria",
+      "currency": "DZD",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.16,
+        "bm": 0.434,
+        "numbeo": 0.346,
+        "imf": 0.333
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "TN",
+      "iso3": "TUN",
+      "name": "Tunisia",
+      "currency": "TND",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.167,
+        "bm": 0.484,
+        "numbeo": 0.374,
+        "imf": 0.342
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "LY",
+      "iso3": "LBY",
+      "name": "Libya",
+      "currency": "LYD",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.258,
+        "bm": 0.451,
+        "numbeo": 0.361,
+        "imf": 0.443
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "SD",
+      "iso3": "SDN",
+      "name": "Sudan",
+      "currency": "SDG",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.301,
+        "numbeo": 0.294,
+        "imf": 0.161
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "SS",
+      "iso3": "SSD",
+      "name": "South Sudan",
+      "currency": "SSP",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.284,
+        "numbeo": 0.268,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "ET",
+      "iso3": "ETH",
+      "name": "Ethiopia",
+      "currency": "ETB",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.317,
+        "numbeo": 0.28,
+        "imf": 0.15
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "KE",
+      "iso3": "KEN",
+      "name": "Kenya",
+      "currency": "KES",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.467,
+        "numbeo": 0.4,
+        "imf": 0.224
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "TZ",
+      "iso3": "TZA",
+      "name": "Tanzania",
+      "currency": "TZS",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.367,
+        "numbeo": 0.32,
+        "imf": 0.148
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "UG",
+      "iso3": "UGA",
+      "name": "Uganda",
+      "currency": "UGX",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.351,
+        "numbeo": 0.308,
+        "imf": 0.136
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "RW",
+      "iso3": "RWA",
+      "name": "Rwanda",
+      "currency": "RWF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.367,
+        "numbeo": 0.32,
+        "imf": 0.135
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "BI",
+      "iso3": "BDI",
+      "name": "Burundi",
+      "currency": "BIF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.267,
+        "numbeo": 0.266,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "SO",
+      "iso3": "SOM",
+      "name": "Somalia",
+      "currency": "SOS",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.284,
+        "numbeo": 0.28,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "DJ",
+      "iso3": "DJI",
+      "name": "Djibouti",
+      "currency": "DJF",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.384,
+        "numbeo": 0.333,
+        "imf": 0.216
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.006Z"
+    },
+    {
+      "iso2": "ER",
+      "iso3": "ERI",
+      "name": "Eritrea",
+      "currency": "ERN",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.267,
+        "numbeo": 0.266,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "NG",
+      "iso3": "NGA",
+      "name": "Nigeria",
+      "currency": "NGN",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.25,
+        "numbeo": 0.266,
+        "imf": 0.207
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "GH",
+      "iso3": "GHA",
+      "name": "Ghana",
+      "currency": "GHS",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.334,
+        "numbeo": 0.294,
+        "imf": 0.229
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "CI",
+      "iso3": "CIV",
+      "name": "Côte d'Ivoire",
+      "currency": "XOF",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.434,
+        "numbeo": 0.346,
+        "imf": 0.224
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "SN",
+      "iso3": "SEN",
+      "name": "Senegal",
+      "currency": "XOF",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.417,
+        "numbeo": 0.333,
+        "imf": 0.164
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "ML",
+      "iso3": "MLI",
+      "name": "Mali",
+      "currency": "XOF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.384,
+        "numbeo": 0.306,
+        "imf": 0.124
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "BF",
+      "iso3": "BFA",
+      "name": "Burkina Faso",
+      "currency": "XOF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.367,
+        "numbeo": 0.293,
+        "imf": 0.121
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "NE",
+      "iso3": "NER",
+      "name": "Niger",
+      "currency": "XOF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.334,
+        "numbeo": 0.28,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "TD",
+      "iso3": "TCD",
+      "name": "Chad",
+      "currency": "XAF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.301,
+        "numbeo": 0.268,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "BJ",
+      "iso3": "BEN",
+      "name": "Benin",
+      "currency": "XOF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.367,
+        "numbeo": 0.306,
+        "imf": 0.166
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "TG",
+      "iso3": "TGO",
+      "name": "Togo",
+      "currency": "XOF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.359,
+        "numbeo": 0.294,
+        "imf": 0.123
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "GN",
+      "iso3": "GIN",
+      "name": "Guinea",
+      "currency": "GNF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.351,
+        "numbeo": 0.293,
+        "imf": 0.147
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "GW",
+      "iso3": "GNB",
+      "name": "Guinea-Bissau",
+      "currency": "XOF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.334,
+        "numbeo": 0.28,
+        "imf": 0.118
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "SL",
+      "iso3": "SLE",
+      "name": "Sierra Leone",
+      "currency": "SLL",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.317,
+        "numbeo": 0.28,
+        "imf": 0.107
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "LR",
+      "iso3": "LBR",
+      "name": "Liberia",
+      "currency": "LRD",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.334,
+        "numbeo": 0.306,
+        "imf": 0.103
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "GM",
+      "iso3": "GMB",
+      "name": "Gambia",
+      "currency": "GMD",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.334,
+        "numbeo": 0.306,
+        "imf": 0.128
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "CV",
+      "iso3": "CPV",
+      "name": "Cabo Verde",
+      "currency": "CVE",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.106,
+        "bm": 0.484,
+        "numbeo": 0.399,
+        "imf": 0.26
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "MR",
+      "iso3": "MRT",
+      "name": "Mauritania",
+      "currency": "MRU",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.384,
+        "numbeo": 0.32,
+        "imf": 0.219
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "CM",
+      "iso3": "CMR",
+      "name": "Cameroon",
+      "currency": "XAF",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.417,
+        "numbeo": 0.333,
+        "imf": 0.171
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "CF",
+      "iso3": "CAF",
+      "name": "Central African Republic",
+      "currency": "XAF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.301,
+        "numbeo": 0.266,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "GA",
+      "iso3": "GAB",
+      "name": "Gabon",
+      "currency": "XAF",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.19,
+        "bm": 0.518,
+        "numbeo": 0.412,
+        "imf": 0.369
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "CG",
+      "iso3": "COG",
+      "name": "Congo",
+      "currency": "XAF",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.401,
+        "numbeo": 0.333,
+        "imf": 0.166
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "CD",
+      "iso3": "COD",
+      "name": "DR Congo",
+      "currency": "CDF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.284,
+        "numbeo": 0.265,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "AO",
+      "iso3": "AGO",
+      "name": "Angola",
+      "currency": "AOA",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.384,
+        "numbeo": 0.333,
+        "imf": 0.226
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.007Z"
+    },
+    {
+      "iso2": "ZM",
+      "iso3": "ZMB",
+      "name": "Zambia",
+      "currency": "ZMW",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.367,
+        "numbeo": 0.306,
+        "imf": 0.15
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "ZW",
+      "iso3": "ZWE",
+      "name": "Zimbabwe",
+      "currency": "ZWL",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.384,
+        "numbeo": 0.32,
+        "imf": 0.138
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "MW",
+      "iso3": "MWI",
+      "name": "Malawi",
+      "currency": "MWK",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.301,
+        "numbeo": 0.268,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "MZ",
+      "iso3": "MOZ",
+      "name": "Mozambique",
+      "currency": "MZN",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.334,
+        "numbeo": 0.28,
+        "imf": 0.1
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "BW",
+      "iso3": "BWA",
+      "name": "Botswana",
+      "currency": "BWP",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.241,
+        "bm": 0.501,
+        "numbeo": 0.453,
+        "imf": 0.426
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "NA",
+      "iso3": "NAM",
+      "name": "Namibia",
+      "currency": "NAD",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.151,
+        "bm": 0.518,
+        "numbeo": 0.465,
+        "imf": 0.322
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "LS",
+      "iso3": "LSO",
+      "name": "Lesotho",
+      "currency": "LSL",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.451,
+        "numbeo": 0.386,
+        "imf": 0.13
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "SZ",
+      "iso3": "SWZ",
+      "name": "Eswatini",
+      "currency": "SZL",
+      "multiplier": 0.3,
+      "components": {
+        "wb": 0.138,
+        "bm": 0.476,
+        "numbeo": 0.399,
+        "imf": 0.305
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "ZA",
+      "iso3": "ZAF",
+      "name": "South Africa",
+      "currency": "ZAR",
+      "multiplier": 0.35,
+      "components": {
+        "wb": 0.19,
+        "bm": 0.484,
+        "numbeo": 0.48,
+        "imf": 0.369
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "MG",
+      "iso3": "MDG",
+      "name": "Madagascar",
+      "currency": "MGA",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.301,
+        "numbeo": 0.281,
+        "imf": 0.102
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "MU",
+      "iso3": "MUS",
+      "name": "Mauritius",
+      "currency": "MUR",
+      "multiplier": 0.5,
+      "components": {
+        "wb": 0.359,
+        "bm": 0.568,
+        "numbeo": 0.505,
+        "imf": 0.541
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "SC",
+      "iso3": "SYC",
+      "name": "Seychelles",
+      "currency": "SCR",
+      "multiplier": 0.55,
+      "components": {
+        "wb": 0.421,
+        "bm": 0.659,
+        "numbeo": 0.612,
+        "imf": 0.595
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "KM",
+      "iso3": "COM",
+      "name": "Comoros",
+      "currency": "KMF",
+      "multiplier": 0.2,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.351,
+        "numbeo": 0.306,
+        "imf": 0.152
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "ST",
+      "iso3": "STP",
+      "name": "São Tomé and Príncipe",
+      "currency": "STN",
+      "multiplier": 0.25,
+      "components": {
+        "wb": 0.1,
+        "bm": 0.384,
+        "numbeo": 0.346,
+        "imf": 0.179
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    },
+    {
+      "iso2": "GQ",
+      "iso3": "GNQ",
+      "name": "Equatorial Guinea",
+      "currency": "XAF",
+      "multiplier": 0.4,
+      "components": {
+        "wb": 0.232,
+        "bm": 0.534,
+        "numbeo": 0.426,
+        "imf": 0.416
+      },
+      "source_weights": {
+        "wb": 0.35,
+        "bm": 0.25,
+        "numbeo": 0.2,
+        "imf": 0.2
+      },
+      "computed_at": "2026-04-15T15:51:01.016Z"
+    }
+  ]
+}
