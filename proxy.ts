@@ -9,6 +9,14 @@ const PUBLIC_PAGE_PREFIXES = [
 ];
 const PUBLIC_API = new Set([
   "/api/auth/login",                  // server-side login proxy (rate-limit + Turnstile)
+  "/api/auth/register",               // signup (rate-limit + HIBP + Turnstile)
+  "/api/auth/logout",                 // clear session
+  "/api/auth/csrf",                   // CSRF token mint (no auth required)
+  "/api/auth/forgot",                 // request reset OTP
+  "/api/auth/reset",                  // consume reset OTP
+  "/api/auth/magic-link/start",       // request magic link email
+  "/api/auth/magic-link/verify",      // verify magic link token
+  "/api/auth/mfa/verify",             // consume mfa_token during login
   "/api/auth/check-access",           // post-login site_access verify
   "/api/auth/check-email-access",     // pre-login biometric gate
   "/api/auth/webauthn/authenticate",
