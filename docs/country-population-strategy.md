@@ -83,12 +83,78 @@ Dès qu'un pays signe, les 5-10 voisins suivent par mimétisme (FOMO gouv). Exem
 
 ---
 
+## 🌱 Tier "Solo Producer" €19.99/mo — segment de masse post-IA
+
+### Contexte sociologique (ajouté 2026-04-17)
+
+L'IA déplace massivement les emplois tertiaires (30-40 % des cols blancs menacés sur 2026-2035, McKinsey GI). Cette vague crée un reflux vers :
+- **Métiers manuels** (artisanat, agriculture, construction)
+- **Auto-suffisance** (potagers, micro-fermes, permaculture, homesteading)
+- **Acquisition d'un lopin de terre** par peur de perdre son emploi (400k néo-paysans projetés France d'ici 2030 — INRAE)
+- **Circuits courts local-to-local** (AMAP, CSA, marchés fermiers ×3 en 5 ans)
+
+**Marché adressable** :
+- France : 2-3M personnes envisagent installation rurale/micro-agri d'ici 2030
+- Europe : 15-25M
+- USA + Canada : 30-50M homesteaders + aspirants
+- **Monde** : 200-400M (inclut Afrique rurale, Asie du Sud, LatAm)
+
+### Le produit
+
+**Tunnel serré, prix accessible** : **€19.99/mo** pour 1 pays × 1 opportunité × parcours complet.
+
+**Inclus :**
+- Fiche opportunité complète (volumes, marges, concurrents locaux)
+- Business plan micro-production (PDF + Excel financier)
+- 10 modules formation vidéo (plantation / transformation / packaging / vente)
+- Matching fournisseurs locaux (semences, matériel, emballage, transport)
+- Boutique en ligne intégrée (`{prénom}.feel-the-gap.shop`)
+- Matching clients B2C locaux (AMAP, bio, restaurants, marchés)
+- Assistant IA 24/7
+
+**Add-ons (upsell naturel) :**
+- +1 opportunité : +€5/mo
+- +1 pays : +€5/mo
+- Certification bio / HVE : €99 one-shot
+- Coaching humain mensuel (30 min visio) : +€29/mo
+- Accès financement (dossier complet + intermédiation BPI/région) : 2 % origination fee
+
+### Impact sur la trajectoire
+
+| Scénario Solo Producer Y5 | Nb abonnés | ARR Solo |
+|---|---|---|
+| Conservateur (0.5 % adressable) | 500 000 | €120M |
+| Médian (2 %) | 2 000 000 | €480M |
+| Agressif (5 %, push gouv) | 5 000 000 | €1.2Mds |
+| **Hockey-stick Y8** | **30 000 000** | **€7.2Mds** |
+
+### Pourquoi ça amplifie la souveraineté
+
+1. **États adorent** : solution pour chômeurs tertiaires + souveraineté alimentaire = double argument politique
+2. **Moat data agricole hyperlocal** : 1M fermes géolocalisées avec rendement, méthode, climat
+3. **Marketplace take-rate direct** : producteur → consommateur B2C via FTG = 3-5 % commission
+4. **Partenariats institutionnels** : ADEME, INRAE, Terre de Liens (FR), FAO, IFAD, AGRA (Afrique), NERPIS (Asie)
+5. **Marketing zéro coût** : contenu YouTube/TikTok permaculture-homesteading (~50M audience EN/FR)
+
+### Risques spécifiques
+
+| Risque | Mitigation |
+|---|---|
+| Churn B2C élevé (10-15 % vs 2-5 % B2B) | UX gamifiée + coaching humain rétention + abonnement annuel -20 % |
+| Support massif | IA conversationnelle + forum peer-to-peer + FAQ exhaustive |
+| Saisonnalité agri | Annuel upfront préféré (€192/an au lieu de €20×12 = €240) |
+| UX complexité débutants | Mobile-first absolu + onboarding 10 étapes guidé |
+| Fraud / fake signups | Email verif + anti-sybil IP + KYC soft au 1er add-on |
+
+---
+
 ## 💰 Revenue stack repensé (pas de SaaS-only)
 
 | Stream | Mécanique | Y1 | Y3 | Y5 |
 |---|---|---|---|---|
 | **State Sovereign partnerships** | 5-150 pays × €200K-€1M/an | €1M | €30M | €150M |
-| **Entrepreneur freemium → paid** | Gratuit core + premium €10-30/mo | €2M | €50M | €1.5Mds |
+| **Solo Producer** ⭐ €19.99/mo | 1 pays × 1 opp × parcours complet (post-IA déplacement tertiaire + retour à la terre) | €5M | €200M | €1.2Mds |
+| **Entrepreneur freemium → paid** | Gratuit core + premium €29-299/mo (Data/Strategy/Premium/Ultimate) | €2M | €50M | €1.5Mds |
 | **Marketplace take-rate** | 2-5 % sur GMV B2B signé | €6M | €240M | €2.4Mds |
 | **Origination fees financement** | 2-5 % sur deals financés via plateforme | €1M | €30M | €200M |
 | **Training + certifications** | €30-200/cours, €500-5K/cert | €2M | €20M | €100M |
@@ -97,23 +163,23 @@ Dès qu'un pays signe, les 5-10 voisins suivent par mimétisme (FOMO gouv). Exem
 | **Assurance trade courtage** | Commission 5-10 % sur export credit (Atradius/Coface) | €0.5M | €15M | €100M |
 | **API publique + white-label consulting** | Tiers institutionnels (voir FTG strategy master) | €0.5M | €5M | €30M |
 | **Ads & sponsoring producteurs** | Featured listings, homepage promotions | €0 | €5M | €50M |
-| **TOTAL ARR** | — | **€13.5M** | **€420M** | **€4.66Mds** |
+| **TOTAL ARR** | — | **€18.5M** | **€620M** | **€5.86Mds** (+€1.2Mds Solo Producer) |
 
 ---
 
 ## 📊 Trajectoire révisée bootstrap + M&A (7-8 ans)
 
-| Année | States signés | Entrepreneurs actifs | GMV marketplace annuel | **ARR total** | Capital cumulé levé | Dilution founder |
-|---|---|---|---|---|---|---|
-| **Y0 (2026)** | 0 | 1 000 | €5M | €14M | €0 (bootstrap) | **0 %** |
-| Y1 (2027) | 5 | 50 000 | €200M | **€55M** | €3-5M (self) | 0 % |
-| Y2 (2028) | 20 | 500 000 | €2 Mds | **€250M** | €20-30M (round unique) | **10-15 %** |
-| Y3 (2029) | 50 | 2 000 000 | €8 Mds | **€800M** | +€30M (M&A data) | 12-17 % |
-| Y4 (2030) | 100 | 8 000 000 | €30 Mds | **€2.5 Mds** | +€50M (M&A consolidation) | 13-18 % |
-| **Y5 (2031)** | **150** | **15 000 000** | **€80 Mds** | **€5-8 Mds** | **€100-150M total** | **< 20 %** |
-| Y6 (2032) | 180 | 25 M | €150 Mds | €10-15 Mds | — | idem |
-| Y7 (2033) | 200 | 35 M | €250 Mds | €20-30 Mds | — | idem |
-| **Y8 (2034)** | **200+** | **50 M** | **€400 Mds** | **€40-50 Mds** | — | **< 20 %** |
+| Année | States | Solo Producers | Entrepreneurs classique | GMV marketplace | **ARR total** | Capital cumulé | Dilution |
+|---|---|---|---|---|---|---|---|
+| **Y0 (2026)** | 0 | 0 | 1 000 | €5M | €14M | €0 | **0 %** |
+| Y1 (2027) | 5 | 20 000 | 50 000 | €250M | **€60M** | €3-5M (self) | 0 % |
+| Y2 (2028) | 20 | 150 000 | 500 000 | €2.5 Mds | **€340M** | €20-30M (round unique) | **10-15 %** |
+| Y3 (2029) | 50 | 800 000 | 2 000 000 | €10 Mds | **€1.1 Mds** | +€30M (M&A data) | 12-17 % |
+| Y4 (2030) | 100 | 3 000 000 | 5 000 000 | €40 Mds | **€3.5 Mds** | +€50M (M&A consolidation) | 13-18 % |
+| **Y5 (2031)** | **150** | **8 000 000** | **10 000 000** | **€100 Mds** | **€8-12 Mds** | **€100-150M total** | **< 20 %** |
+| Y6 (2032) | 180 | 15 M | 18 M | €200 Mds | €15-20 Mds | — | idem |
+| Y7 (2033) | 200 | 25 M | 30 M | €350 Mds | €25-35 Mds | — | idem |
+| **Y8 (2034)** | **200+** | **30 M** | **40 M** | **€500 Mds** | **€40-60 Mds** | — | **< 20 %** |
 
 ### Dépassement Bloomberg
 - Bloomberg : $13Mds CA. **Atteint Y5-Y6** avec cette trajectoire.
