@@ -2,7 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { rateLimit, getClientIp } from "./lib/rate-limit";
 
-const PUBLIC_PAGES = new Set(["/"]);
+// CC is a private admin tool — no public pages. Everything (including "/" which
+// hosts the Aria voice interface) requires authentication.
+const PUBLIC_PAGES = new Set<string>([]);
 const PUBLIC_PAGE_PREFIXES = [
   "/auth/",      // login, register, forgot, reset-password, callback, biometric-setup
   "/login",      // legacy redirect page
