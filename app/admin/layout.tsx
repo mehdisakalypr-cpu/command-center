@@ -306,13 +306,63 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         minWidth: 0,
         display: 'flex',
         flexDirection: 'column',
+        position: 'relative',
         ...(isMobile ? { marginLeft: W_CLOSED } : {}),
       }}>
+        {/* Floating top-right logout */}
+        <div style={{
+          position: 'absolute',
+          top: 12,
+          right: 14,
+          zIndex: 50,
+        }}>
+          <TopbarLogoutButton />
+        </div>
+
         <div style={{ flex: 1, overflow: 'auto' }}>
           {children}
         </div>
       </main>
     </div>
+  )
+}
+
+function TopbarLogoutButton() {
+  const [busy, setBusy] = useState(false)
+  async function handleLogout() {
+    if (busy) return
+    setBusy(true)
+    try {
+      try { await authFetch('/api/auth/logout', { method: 'POST' }) } catch { /* noop */ }
+      try { await createSupabaseBrowser().auth.signOut() } catch { /* noop */ }
+    } finally {
+      window.location.assign('/auth/login')
+    }
+  }
+  return (
+    <button
+      type="button"
+      onClick={handleLogout}
+      disabled={busy}
+      title="Se déconnecter"
+      aria-label="Se déconnecter"
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        padding: '6px 12px',
+        border: '1px solid rgba(224,106,106,.35)',
+        borderRadius: 8,
+        background: 'rgba(224,106,106,.08)',
+        color: '#E06A6A',
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: busy ? 'default' : 'pointer',
+        opacity: busy ? 0.6 : 1,
+        backdropFilter: 'blur(8px)',
+      }}
+    >
+      <span style={{ fontSize: 14 }}>🚪</span>
+      <span>{busy ? 'Déconnexion…' : 'Se déconnecter'}</span>
+    </button>
   )
 }
 
