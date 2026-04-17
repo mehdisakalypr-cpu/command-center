@@ -57,10 +57,13 @@ export async function proxy(request: NextRequest) {
     {
       cookies: {
         getAll() { return request.cookies.getAll(); },
+        // Persist Supabase's refreshed session cookies onto BOTH request + response
+        // without recreating the response (which drops cookies from previous iterations).
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            response.cookies.set(name, value, options);
+          });
         },
       },
     }
@@ -87,6 +90,6 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
-export const proxyConfig = {
+export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };
