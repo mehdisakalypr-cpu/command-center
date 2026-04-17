@@ -8,6 +8,9 @@ const PUBLIC_PAGE_PREFIXES = [
   "/login",      // legacy redirect page
 ];
 const PUBLIC_API = new Set([
+  "/api/auth/login",                  // server-side login proxy (rate-limit + Turnstile)
+  "/api/auth/check-access",           // post-login site_access verify
+  "/api/auth/check-email-access",     // pre-login biometric gate
   "/api/auth/webauthn/authenticate",
   "/api/auth/webauthn/check",
 ]);
