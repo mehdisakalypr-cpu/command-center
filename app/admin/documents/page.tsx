@@ -149,6 +149,15 @@ export default async function DocumentsAdminPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <DownloadCard
+              emoji="📑"
+              title="FTG vs Bloomberg / Reuters — Analyse stratégique"
+              subtitle="Positionnement orthogonal · 7 moats · AI matching · souveraineté · trajectoire Y0-Y8"
+              meta="12 pages · ARR log-scale + dépassement Bloomberg Y5-Y6 · pipeline Y1 €1,75M"
+              href={`${process.env.FTG_URL ?? 'https://feel-the-gap.vercel.app'}/api/reports/ftg-vs-bloomberg-reuters`}
+              view={`${process.env.FTG_URL ?? 'https://feel-the-gap.vercel.app'}/api/reports/ftg-vs-bloomberg-reuters`}
+              filename="ftg-vs-bloomberg-reuters-v1.pdf"
+            />
+            <DownloadCard
               emoji="🇲🇦"
               title="Maroc — Filière avicole"
               subtitle="Top 5 exploitations · Zalar, Koutoubia, Dar El Fellous, ALF Sahel, Matinales"
