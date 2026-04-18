@@ -1,0 +1,63 @@
+name: auth-e2e
+
+# Runs the E2E auth regression suite (scripts/test-auth-e2e.ts) on every PR
+# to main. Guards against the chicken-and-egg middleware class of bugs + login
+# rate-limit + site_access isolation regressions.
+#
+# Required repo secrets (Settings -> Secrets and variables -> Actions):
+#   AUTH_E2E_BASE_URL           - deployed URL to hit (NOT prod; use preview)
+#   AUTH_E2E_EMAIL              - test user email (ideally dedicated e2e user)
+#   AUTH_E2E_PASSWORD           - test user password
+#   AUTH_E2E_SUPABASE_URL       - test Supabase project URL (NOT prod)
+#   AUTH_E2E_SUPABASE_ANON_KEY  - test Supabase anon key
+#   AUTH_E2E_SERVICE_ROLE_KEY   - test Supabase service role
+#
+# If any required secret is missing the job exits with a clear message so PR
+# authors know to ping ops rather than seeing a cryptic failure.
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  auth-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Guard required secrets present
+        env:
+          AUTH_E2E_BASE_URL: ${{ secrets.AUTH_E2E_BASE_URL }}
+          AUTH_E2E_EMAIL: ${{ secrets.AUTH_E2E_EMAIL }}
+          AUTH_E2E_PASSWORD: ${{ secrets.AUTH_E2E_PASSWORD }}
+        run: |
+          missing=""
+          [ -z "$AUTH_E2E_BASE_URL" ] && missing="$missing AUTH_E2E_BASE_URL"
+          [ -z "$AUTH_E2E_EMAIL" ]    && missing="$missing AUTH_E2E_EMAIL"
+          [ -z "$AUTH_E2E_PASSWORD" ] && missing="$missing AUTH_E2E_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required auth-e2e secrets:$missing"
+            echo "Configure them under repo Settings -> Secrets and variables -> Actions."
+            echo "Point AUTH_E2E_BASE_URL + AUTH_E2E_SUPABASE_URL at a TEST env, not prod."
+            exit 1
+          fi
+
+      - name: Run auth E2E suite
+        env:
+          TEST_BASE_URL: ${{ secrets.AUTH_E2E_BASE_URL }}
+          TEST_EMAIL: ${{ secrets.AUTH_E2E_EMAIL }}
+          TEST_PASSWORD: ${{ secrets.AUTH_E2E_PASSWORD }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.AUTH_E2E_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.AUTH_E2E_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.AUTH_E2E_SERVICE_ROLE_KEY }}
+        run: npm run test:auth
