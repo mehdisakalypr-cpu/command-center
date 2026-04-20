@@ -34,7 +34,7 @@ create table if not exists infrastructure_subscriptions (
   ended_at        timestamptz,
   cost_eur_month  numeric not null default 0,
   notes           text,
-  unique (provider, scope) deferrable initially deferred
+  unique (provider, scope)
 );
 
 -- Usage samples ingested from provider APIs (or manual)
