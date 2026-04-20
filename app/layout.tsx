@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/components/LanguageProvider";
+import MaintenanceBanner from "@/components/MaintenanceBanner";
 
 export const metadata: Metadata = {
   title: "Command Center",
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body>
+        <MaintenanceBanner />
         <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
