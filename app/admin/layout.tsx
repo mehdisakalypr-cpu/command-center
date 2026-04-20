@@ -12,7 +12,7 @@ type NavGroup = { label: string; icon: string; items: NavItem[] }
 // Refactor 2026-04-16: 7→5 groupes (menu compact). Sous-headers dans `subgroup` regroupent les paires
 // qui se recoupent visuellement (Plans+Payments, Démo+Parcours, Go-live+PVP, LLC+Documents, Infra+Publish Health).
 // Sous-headers décoratifs uniquement — chaque page reste accessible individuellement.
-type NavItemX = NavItem & { subgroup?: string }
+type NavItemX = NavItem & { subgroup?: string; external?: boolean }
 type NavGroupX = { label: string; icon: string; items: NavItemX[] }
 
 const NAV_GROUPS: NavGroupX[] = [
@@ -52,6 +52,10 @@ const NAV_GROUPS: NavGroupX[] = [
       { href: '/admin/crm',           label: 'CRM',      icon: '👥', desc: 'Utilisateurs' },
       { href: '/admin/tickets',       label: 'Tickets',  icon: '🎫', desc: 'Support & refunds' },
       { href: '/admin/cms',           label: 'CMS',      icon: '✏️', desc: '3 sites' },
+      { href: '/admin/ad-factory',    label: 'Ad Factory', icon: '🎬', desc: 'Hub moteur vidéos IA' },
+      { href: 'https://feel-the-gap.vercel.app/admin/ad-factory/avatars',  label: 'Avatars',  icon: '🎭', desc: 'Générer avatars IA (nano-banana)', subgroup: 'Ad Factory', external: true },
+      { href: 'https://feel-the-gap.vercel.app/admin/ad-factory/scenes',   label: 'Scenes',   icon: '🌆', desc: 'Backgrounds animés', subgroup: 'Ad Factory', external: true },
+      { href: 'https://feel-the-gap.vercel.app/admin/ad-factory/projects', label: 'Projets',  icon: '🎞️', desc: 'Scénarios + studio édition', subgroup: 'Ad Factory', external: true },
       { href: '/admin/demo',          label: 'Démo',     icon: '🎭', desc: 'Comptes test', subgroup: 'Onboarding' },
       { href: '/admin/demo-parcours', label: 'Parcours', icon: '🧭', desc: 'Tours guidés', subgroup: 'Onboarding' },
     ],
@@ -82,6 +86,22 @@ const W_CLOSED = 56
 
 const STORAGE_KEY_GROUPS = 'cc_admin_nav_groups'
 
+function linkBoxStyle(active: boolean, expanded: boolean): React.CSSProperties {
+  return {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    padding: expanded ? '6px 12px 6px 22px' : '8px 0',
+    justifyContent: expanded ? 'flex-start' : 'center',
+    borderRadius: 8,
+    textDecoration: 'none',
+    background: active ? 'rgba(201,168,76,.1)' : 'transparent',
+    border: active ? '1px solid rgba(201,168,76,.2)' : '1px solid transparent',
+    transition: 'all .15s',
+    minHeight: 32,
+  }
+}
+
 function initialGroupsOpen(pathname: string): Record<string, boolean> {
   const base: Record<string, boolean> = {}
   for (const g of NAV_GROUPS) {
@@ -107,16 +127,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     try { localStorage.setItem(STORAGE_KEY_GROUPS, JSON.stringify(groupsOpen)) } catch {}
   }, [groupsOpen])
 
-  // When navigating to a section, ensure its group is open
-  useEffect(() => {
-    setGroupsOpen((cur) => {
-      const next = { ...cur }
-      for (const g of NAV_GROUPS) {
-        if (g.items.some((i) => pathname.startsWith(i.href))) next[g.label] = true
-      }
-      return next
-    })
-  }, [pathname])
+  // Note 2026-04-18 : retiré l'auto-open-on-nav qui override le collapse user.
+  // initialGroupsOpen(pathname) gère l'état initial ; ensuite les toggles user persistent.
 
   useEffect(() => {
     const check = () => {
@@ -200,16 +212,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     type="button"
                     onClick={() => setGroupsOpen(s => ({ ...s, [group.label]: !open }))}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      padding: '6px 10px', margin: '4px 4px 2px',
-                      border: 'none', background: 'transparent', cursor: 'pointer',
-                      color: hasActive ? '#C9A84C' : '#7D8BA0',
-                      fontSize: 10, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase',
+                      display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                      padding: '10px 14px', margin: '8px 4px 4px',
+                      border: 'none', background: hasActive ? 'rgba(201,168,76,.08)' : 'transparent',
+                      cursor: 'pointer', borderRadius: 6,
+                      color: hasActive ? '#C9A84C' : '#C4CDD8',
+                      fontSize: 13, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase',
+                      borderLeft: hasActive ? '3px solid #C9A84C' : '3px solid transparent',
+                      transition: 'all .15s',
                     }}
                   >
-                    <span style={{ fontSize: 12 }}>{group.icon}</span>
+                    <span style={{ fontSize: 16 }}>{group.icon}</span>
                     <span>{group.label}</span>
-                    <span style={{ marginLeft: 'auto', fontSize: 9, opacity: .7 }}>{open ? '▾' : '▸'}</span>
+                    <span style={{ marginLeft: 'auto', fontSize: 12, opacity: .8, color: hasActive ? '#C9A84C' : '#7D8BA0' }}>
+                      {open ? '▾' : '▸'}
+                    </span>
                   </button>
                 ) : (
                   <div style={{
@@ -231,29 +248,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         {item.subgroup}
                       </div>
                     )}
-                    <Link href={item.href} title={!expanded ? item.label : undefined} style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      padding: expanded ? '6px 12px 6px 22px' : '8px 0',
-                      justifyContent: expanded ? 'flex-start' : 'center',
-                      borderRadius: 8,
-                      textDecoration: 'none',
-                      background: active ? 'rgba(201,168,76,.1)' : 'transparent',
-                      border: active ? '1px solid rgba(201,168,76,.2)' : '1px solid transparent',
-                      transition: 'all .15s',
-                      minHeight: 32,
-                    }}>
-                      <span style={{ fontSize: 14, flexShrink: 0 }}>{item.icon}</span>
-                      {expanded && (
-                        <div style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                          <div style={{ color: active ? '#C9A84C' : '#E8E0D0', fontSize: 12.5, fontWeight: active ? 600 : 400 }}>
-                            {item.label}
+                    {item.external ? (
+                      <a href={item.href} target="_blank" rel="noopener noreferrer" title={!expanded ? item.label : undefined} style={linkBoxStyle(active, expanded)}>
+                        <span style={{ fontSize: 14, flexShrink: 0 }}>{item.icon}</span>
+                        {expanded && (
+                          <div style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                            <div style={{ color: active ? '#C9A84C' : '#E8E0D0', fontSize: 12.5, fontWeight: active ? 600 : 400 }}>
+                              {item.label} <span style={{ color: '#5A6A7A', fontSize: 9 }}>↗</span>
+                            </div>
+                            <div style={{ color: '#5A6A7A', fontSize: 10 }}>{item.desc}</div>
                           </div>
-                          <div style={{ color: '#5A6A7A', fontSize: 10 }}>{item.desc}</div>
-                        </div>
-                      )}
-                    </Link>
+                        )}
+                      </a>
+                    ) : (
+                      <Link href={item.href} title={!expanded ? item.label : undefined} style={linkBoxStyle(active, expanded)}>
+                        <span style={{ fontSize: 14, flexShrink: 0 }}>{item.icon}</span>
+                        {expanded && (
+                          <div style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                            <div style={{ color: active ? '#C9A84C' : '#E8E0D0', fontSize: 12.5, fontWeight: active ? 600 : 400 }}>
+                              {item.label}
+                            </div>
+                            <div style={{ color: '#5A6A7A', fontSize: 10 }}>{item.desc}</div>
+                          </div>
+                        )}
+                      </Link>
+                    )}
                     </div>
                   )
                 })}
