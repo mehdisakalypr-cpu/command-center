@@ -47,6 +47,14 @@ export async function proxy(request: NextRequest) {
   if (isPublicPage(pathname)) return NextResponse.next();
   if (pathname.startsWith("/api/") && isPublicApi(pathname)) return NextResponse.next();
 
+  // Cron-authed endpoints: laisser passer si X-Cron-Secret correspond.
+  // Le route handler revalidera (requireAdmin fallback) — le middleware ne fait que
+  // ne pas bloquer pour les jobs automatisés (VPS cron, Vercel cron).
+  const cronHeader = request.headers.get("x-cron-secret");
+  if (cronHeader && process.env.CRON_SECRET && cronHeader === process.env.CRON_SECRET) {
+    return NextResponse.next();
+  }
+
   // Global rate-limit for /api/* (sliding window, 100 req / 60s / IP).
   // Upstash-backed in prod, in-memory fallback dev. Skips static + public pages.
   if (pathname.startsWith("/api/")) {
