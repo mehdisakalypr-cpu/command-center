@@ -78,64 +78,70 @@ const C = {
 
 const SCHEMA = String.raw`
 ┌─────────────────────────────────────────────────────────────────┐
-│  MINATO ORCHESTRATOR — Managed Agent (infra Anthropic)          │
-│  ────────────────────────────────────────────────────────────   │
-│  Agent versionné · claude-opus-4-6 · Skills chargés à la demande│
+│  MINATO ORCHESTRATOR — Managed Agent (Opus 4.7 / 1M ctx)        │
+│  Agent versionné · Skills on-demand · SHAKA mode autonome       │
 │                                                                 │
-│   ┌─ KAKASHI ──────┐  ┌─ SUK ──────────┐  ┌─ GENKIDAMA ───┐    │
-│   │ scan briques   │  │ versioning auto│  │ objectifs 100%│    │
-│   │ avant code     │  │ amélioration   │  │ check progrès │    │
-│   └────────────────┘  └────────────────┘  └───────────────┘    │
-│                                                                 │
-│   ┌─ NAMI ─────────────────────────────────────────────────┐    │
-│   │ scout → builder → pitcher (3 custom tools chaînés)     │    │
-│   └────────────────────────────────────────────────────────┘    │
-│                                                                 │
-│   ┌─ KAIOKEN ──────────────────────────────────────────────┐    │
-│   │ Promise.all(N agents locaux) — parallèle massif        │    │
-│   └────────────────────────────────────────────────────────┘    │
-│                                                                 │
+│  NIVEAU 1 Exécution   → KAKASHI · KURAMA · TANJIRO · KURAPIKA   │
+│                         MUSTANG · DEKU · KAMADO · AKAME         │
+│  NIVEAU 2 Scaling     → KAIOKEN · GIANT PICCOLO · GOJO          │
+│                         RIMURU · SHIKAMARU · NEJI               │
+│  NIVEAU 3 Commerce    → NAMI · AAM · NAMI REINVEST              │
+│                         LELOUCH · JIRAIYA                       │
+│  NIVEAU 4 Benchmark   → BEERUS · SENKU-bench · GENKIDAMA        │
+│  NIVEAU 5 Garde-fous  → AEGIS · NO LAZY · SHISUI                │
+│                         SENKU (root-cause) · DOKHO · SHAKA      │
+│  NIVEAU 6 Content     → ITACHI (trade) · HANCOCK (prod)         │
+│                         ROCK LEE · KUSHINA · MIGHT GUY · MERLIN │
+│  NIVEAU 7 Cascade     → 10 providers LLM · APOLLO · RADAR · SHIPPO │
+│  NIVEAU ∞             → INFINITE TSUKUYOMI (never-idle)         │
 └────────────────────────┬────────────────────────────────────────┘
-                         │ custom tools (SSE event stream)
+                         │ custom tools + SSE event stream
                          ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  WEBHOOK BRIDGE — Command Center (Vercel, déjà déployé)         │
-│  POST /api/minato/run-tool { tool, args, project }              │
+│  CASCADE LLM 10 providers (agents/providers.ts · FTG)           │
+│  Gemini×4 → Groq×2 → OpenAI×4 → Mistral → Together              │
+│  Auto-fallback payant quand free tier saturé ($0.05/15 jobs)    │
 └────────────────────────┬────────────────────────────────────────┘
-                         │ HTTP / SSH
+                         │ HTTP / SSH bridge CC
        ┌─────────────────┼─────────────────┐
        ▼                 ▼                 ▼
 ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
 │  FTG (VPS)   │  │  OFA (VPS)   │  │  Estate      │
-│  ─────────── │  │  ─────────── │  │  ─────────── │
 │  hyperscale  │  │  refresh     │  │  scout PY    │
-│  scout       │  │  recover     │  │  → Vercel    │
-│  social      │  │  classify    │  │              │
-│  seo-factory │  │  outreach    │  │              │
-│              │  │  hyperscale  │  │              │
+│  content 3.0 │  │  recover     │  │  Netlify     │
+│  marketplace │  │  classify    │  │              │
+│  deal rooms  │  │  outreach    │  │              │
 └──────────────┘  └──────────────┘  └──────────────┘
-   tsx + Gemini      tsx + Gemini      Python free
-   FREE (0€)         FREE (0€)         FREE (0€)
+   10 providers      10 providers       Python free
+   ~$0.05/job        ~$0.05/job         0€
 `;
 
 const MAPPING = [
   { minato: "KAKASHI — scan briques avant code", ma: "Skill `kakashi-bricks-index.md` + tool `scan_existing_bricks(keyword)`" },
-  { minato: "SUK — méta-agents auto-améliorants", ma: "Agent versioning natif. Chaque amélioration prompt = nouvelle version. Sessions critiques pinnent la version stable." },
-  { minato: "R&B — Research + Business", ma: "2 agents séparés (research-agent, business-agent) appelés comme custom tools par Minato Orchestrator" },
+  { minato: "SUK / RIMURU — méta-agents auto-améliorants", ma: "Agent versioning natif. Chaque amélioration prompt = nouvelle version. Sessions critiques pinnent la version stable." },
+  { minato: "SHIKAMARU — R&B data+content+revenue", ma: "Agent spécialisé research appelé comme custom tool par l'orchestrator" },
   { minato: "KAIOKEN — parallèle massif", ma: "Promise.all côté custom tool : 1 call lance N scripts en parallèle sur le VPS" },
-  { minato: "NAMI — scout → build → pitch", ma: "Pipeline 3 custom tools chaînés. Minato décide quand déclencher selon état Genkidama" },
+  { minato: "NAMI — scout → build → pitch", ma: "Pipeline 3 custom tools chaînés. Orchestrator décide quand déclencher selon état Genkidama" },
   { minato: "GENKIDAMA — objectifs 100%", ma: "Skill `objectifs.md` (cibles par projet) + tool `check_genkidama_progress()` lit Supabase counts" },
+  { minato: "ITACHI / HANCOCK / ROCK LEE — content 3.0 FTG", ma: "Crons VPS 5min `content-generation` — trade plans, production plans, rich methods via cascade 10 providers" },
+  { minato: "CASCADE 10 providers", ma: "`agents/providers.ts` — Gemini ×4 keys → Groq ×2 → OpenAI ×4 → Mistral → Together. Auto-fallback sur 429/quota." },
+  { minato: "SENKU — root-cause audit", ma: "Skill obligatoire : replay E2E à chaque bug, jamais patch local seul" },
+  { minato: "DOKHO — guardian DB", ma: "Crons maintenance idempotents sur matviews/caches — `country_opportunity_stats_matview`, `opportunity_content_cache`, `product_country_videos_cache`" },
+  { minato: "SHAKA — mode autonome", ma: "Flag session : exécution sans confirmation utilisateur, propagation en continu" },
+  { minato: "NEJI — supervisor infinite overshoot", ma: "Monitoring cross-projet : si agent idle 5min → NAMI reload target, scale agents, jamais de capacity gap silencieuse" },
   { minato: "Commit toutes les 15-20 min", ma: "Hook auto à chaque session.status_idle (stop_reason=end_turn) → tool `commit_progress`" },
   { minato: "Update Insights CC", ma: "Tool `update_cc_insights` appelé après chaque batch → table `dashboard_insights`" },
-  { minato: "Per-site user isolation", ma: "Vault par projet → credentials cloisonnés (chaque projet son vault)" },
+  { minato: "Per-site user isolation", ma: "Vault par projet → credentials cloisonnés (FTG / OFA / CC / Estate vaults séparés)" },
 ];
 
 const COSTS = [
-  { layer: "Cerveau (Minato meta orchestrator)", tech: "Managed Agent Opus 4.6", cost: "~50€/mois" },
-  { layer: "Bras (R&B, Nami pipelines)", tech: "Managed Agent Opus 4.6", cost: "~30€/mois" },
-  { layer: "Soldats (scaling, scout, builder, social)", tech: "tsx + Gemini Flash gratuit", cost: "0€" },
-  { layer: "Réflexes (cron, monitoring)", tech: "PM2 + bash", cost: "0€" },
-  { layer: "POC minimal (Minato seul, 1-2 runs/jour)", tech: "Managed Agent Opus 4.6", cost: "~10-15€/mois" },
+  { layer: "Cerveau (Minato orchestrator)", tech: "Managed Agent Opus 4.7 · 1M context", cost: "~50€/mois" },
+  { layer: "Bras (Shikamaru R&B, Nami pipelines, Kushina content)", tech: "Managed Agent Opus 4.7", cost: "~30€/mois" },
+  { layer: "Soldats niveau 1 (Kakashi scan, Kurama images, Akame gate)", tech: "tsx + Gemini Flash gratuit", cost: "0€" },
+  { layer: "Content 3.0 (Itachi, Hancock, Rock Lee)", tech: "Cascade 10 providers — free tier d'abord, OpenAI fallback", cost: "~5€/mois" },
+  { layer: "Réflexes (Dokho crons, Neji monitoring)", tech: "PM2 + bash", cost: "0€" },
+  { layer: "POC minimal (Minato seul, 1-2 runs/jour)", tech: "Managed Agent Opus 4.7", cost: "~10-15€/mois" },
+  { layer: "Infinite Tsukuyomi (agents never-idle 24/7)", tech: "Cumul stack complet", cost: "~150€/mois max (plafond NEJI)" },
 ];
 
 const GAINS = [
@@ -219,12 +225,21 @@ export default function MinatoDocPage() {
         <CapacitySection />
         <header style={{ marginBottom: 32, borderBottom: C.border, paddingBottom: 16 }}>
           <h1 style={{ fontSize: 32, color: C.gold, margin: 0, letterSpacing: ".02em" }}>
-            ⚡ MINATO × MANAGED AGENTS
+            ⚡ MINATO × MANAGED AGENTS — v2 (Shaka 2026-04-21)
           </h1>
           <p style={{ color: C.muted, marginTop: 8, fontSize: 14 }}>
-            Architecture hybride — Méthodologie Shonen Ultimate Skill couplée à l'infra agent hébergée d'Anthropic.
-            Doc de référence pour orchestration multi-projets (FTG · OFA · Estate · Shift · CC).
+            Architecture hybride — Méthodologie Shonen Ultimate Skill couplée à Opus 4.7 (1M context).
+            <strong style={{ color: C.gold }}> 32 agents × 7 niveaux + ∞</strong>, cascade LLM 10 providers, mode SHAKA autonome.
+            Orchestration multi-projets (FTG · OFA · Estate · Shift · CC).
           </p>
+          <div style={{ marginTop: 12, padding: 10, background: `${C.gold}10`, border: `1px dashed ${C.gold}40`, borderRadius: 6, fontSize: 12, color: C.muted }}>
+            <strong style={{ color: C.gold }}>⚡ Nouveautés 2026-04-20→21 :</strong>
+            {' '}Cascade LLM 10 providers débloquée (OpenAI fallback gratuit quand Gemini/Groq saturé){' · '}
+            Content-gen FTG (Shisui + Shikamaru/Itachi/Hancock/RockLee){' · '}
+            Marketplace fee tiered fixe + PPP (anti-fraude 2.5%){' · '}
+            Store single-site-per-seller B2B/B2C adaptatif{' · '}
+            CRM unifié (pipeline matches + deal rooms + warm network).
+          </div>
         </header>
 
         <section style={{ marginBottom: 32 }}>
@@ -368,7 +383,7 @@ export default function MinatoDocPage() {
         </section>
 
         <footer style={{ marginTop: 40, paddingTop: 16, borderTop: C.border, color: C.muted, fontSize: 12, textAlign: "center" }}>
-          Doc Minato × Managed Agents · v1 · 2026-04-13 · Command Center Admin
+          Doc Minato × Managed Agents · v2 · 2026-04-21 (Shaka) · Command Center Admin
         </footer>
       </div>
     </div>

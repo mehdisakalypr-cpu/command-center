@@ -68,6 +68,29 @@ const LEVELS: { label: string; color: string; desc: string; techs: Tech[] }[] = 
       { emoji: '🔒', name: 'AEGIS', char: 'Aegis Shield', anime: '—', role: 'Sécurité — reset pw jamais bypass login, mindset attaquant', status: 'live' },
       { emoji: '🚫', name: 'NO LAZY', char: 'Saitama mode entraînement', anime: 'OPM', role: 'Interdit de s\'arrêter, compteur compute CC = preuve', status: 'live' },
       { emoji: '🪞', name: 'SHISUI', char: 'Shisui Uchiha', anime: 'Naruto', role: 'Miroir — relire son travail avant de dire "c\'est fait"', status: 'live' },
+      { emoji: '🧪', name: 'SENKU', char: 'Senku Ishigami', anime: 'Dr Stone', role: 'Root-cause audit — jamais juste patch local, replay E2E à chaque bug', status: 'live' },
+      { emoji: '⚖️', name: 'DOKHO', char: 'Dokho', anime: 'Saint Seiya', role: 'Guardian DB/matviews/caches — crons maintenance silencieuse idempotents', status: 'live' },
+      { emoji: '🧘', name: 'SHAKA', char: 'Shaka of Virgo', anime: 'Saint Seiya', role: 'Mode autonome — exécution sans validation, jamais demander confirmation pour étapes évidentes', status: 'live' },
+    ],
+  },
+  {
+    label: 'Niveau 6 — Content & Substance', color: '#F472B6', desc: 'Génération de contenu métier enrichi, pipelines FTG pré/post-audit',
+    techs: [
+      { emoji: '🌙', name: 'ITACHI', char: 'Itachi Uchiha', anime: 'Naruto', role: 'Trade plan builder — country×product 360° (économie, politique, douanes)', status: 'live' },
+      { emoji: '💖', name: 'HANCOCK', char: 'Boa Hancock', anime: 'One Piece', role: 'Production plan seducer — storytelling producer × marché × SHISUI production 3.0', status: 'live' },
+      { emoji: '🥋', name: 'ROCK LEE', char: 'Rock Lee', anime: 'Naruto', role: 'Ouvrier content rich — génère méthodes 3.0 + rich_content v2 en boucle 8 guren lotus', status: 'live' },
+      { emoji: '🌀', name: 'KUSHINA', char: 'Kushina Uzumaki', anime: 'Naruto', role: 'Multi-agent chainer — TOP TRIANGLE (Shikamaru + Might Guy + Merlin) sur FTG arsenal', status: 'live' },
+      { emoji: '🏋️', name: 'MIGHT GUY', char: 'Maito Gai', anime: 'Naruto', role: '8 Gates — pousse les agents au dépassement physique (scale agents au-delà free tier)', status: 'live' },
+      { emoji: '🧙', name: 'MERLIN', char: 'Merlin', anime: '7 Deadly Sins', role: 'Magie analytique — transformations data massives (194 pays × 323 produits = 62k opps)', status: 'live' },
+    ],
+  },
+  {
+    label: 'Niveau 7 — Cascade infra', color: '#06B6D4', desc: 'Infra providers fallback, jamais de blocage sur free tier',
+    techs: [
+      { emoji: '🌊', name: 'CASCADE 10', char: 'Providers chain', anime: '—', role: '10 providers LLM (Gemini×4 / Groq×2 / OpenAI×4 + Mistral + Together) — fallback automatique', status: 'live' },
+      { emoji: '🎴', name: 'APOLLO', char: 'Apollo.io bridge', anime: '—', role: 'Warm + cold prospection : LinkedIn + email finder + personas (alex/maria/thomas)', status: 'live' },
+      { emoji: '🪙', name: 'STRIPE RADAR', char: 'Radar anti-fraud', anime: '—', role: 'BLOCK/REVIEW/ALLOW + 3DS dynamic + webhooks EFW/disputes', status: 'live' },
+      { emoji: '📦', name: 'SHIPPO', char: 'Shipping rates', anime: '—', role: 'Dynamic rates + labels + cron shipments-labels 07h UTC', status: 'live' },
     ],
   },
 ]
@@ -91,7 +114,7 @@ export default function MinatoArsenalPage() {
       <header style={{ marginBottom: 32, textAlign: 'center' }}>
         <div style={{ fontSize: '3rem', marginBottom: 8 }}>⚡</div>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: C.gold, margin: 0 }}>
-          Minato Arsenal — 24 Techniques
+          Minato Arsenal — {totalTechs} Techniques
         </h1>
         <p style={{ color: C.muted, fontSize: '.9rem', margin: '8px 0 0' }}>
           Chaque feature a son personnage d&apos;anime + rôle métier. {live}/{totalTechs} LIVE en prod.
