@@ -54,9 +54,28 @@ const S = {
   }),
 };
 
+type ViewFilter = "all" | "churn" | "upgrade" | "billed";
+
+/** Seuil en jours pour considérer un user churn-risk. */
+const CHURN_DAYS_THRESHOLD = 30;
+
+function isChurnRisk(p: Profile): boolean {
+  if (p.is_billed || p.is_demo || p.is_admin || p.is_delegate_admin) return false;
+  const ageDays = (Date.now() - new Date(p.created_at).getTime()) / 86_400_000;
+  if (ageDays < CHURN_DAYS_THRESHOLD) return false;
+  if ((p.ai_credits ?? 0) > 0) return false;
+  if (p.tier && p.tier !== "explorer") return false;
+  return true;
+}
+
+function isUpgradeIntent(p: Profile): boolean {
+  return (p.tier === "explorer" || !p.tier) && (p.ai_credits ?? 0) > 0 && !p.is_billed;
+}
+
 export default function CrmPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [search, setSearch] = useState("");
+  const [view, setView] = useState<ViewFilter>("all");
   const [selected, setSelected] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -76,18 +95,47 @@ export default function CrmPage() {
     })();
   }, []);
 
+  const viewed = view === "churn"
+    ? profiles.filter(isChurnRisk)
+    : view === "upgrade"
+      ? profiles.filter(isUpgradeIntent)
+      : view === "billed"
+        ? profiles.filter(p => p.is_billed)
+        : profiles;
+
   const filtered = search
-    ? profiles.filter(p =>
+    ? viewed.filter(p =>
         p.email?.toLowerCase().includes(search.toLowerCase()) ||
         p.full_name?.toLowerCase().includes(search.toLowerCase())
       )
-    : profiles;
+    : viewed;
 
   const totalUsers = profiles.length;
   const billedUsers = profiles.filter(p => p.is_billed).length;
   const demoUsers = profiles.filter(p => p.is_demo).length;
   const adminUsers = profiles.filter(p => p.is_admin || p.is_delegate_admin).length;
-  const upgradeIntents = profiles.filter(p => (p.tier === "explorer" || !p.tier) && (p.ai_credits ?? 0) > 0);
+  const churnCount = profiles.filter(isChurnRisk).length;
+  const upgradeCount = profiles.filter(isUpgradeIntent).length;
+
+  function exportCsv(rows: Profile[]) {
+    const headers = ["email", "full_name", "tier", "ai_credits", "is_billed", "is_demo", "created_at"];
+    const csv = [
+      headers.join(","),
+      ...rows.map(r => headers.map(h => {
+        const v = (r as Record<string, unknown>)[h];
+        if (v == null) return "";
+        const s = String(v).replace(/"/g, '""');
+        return /[",\n]/.test(s) ? `"${s}"` : s;
+      }).join(",")),
+    ].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `crm-users-${view}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <div style={S.page}>
@@ -97,16 +145,38 @@ export default function CrmPage() {
 
         {!loading && !error && (
           <>
-            {/* Stats Row */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-              <div style={S.stat}>
+            {/* Stats Row (cliquable : filtre view) */}
+            <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
+              <button
+                onClick={() => setView("all")}
+                style={{ ...S.stat, cursor: "pointer", border: view === "all" ? "1px solid #C9A84C" : "1px solid rgba(255,255,255,.06)", fontFamily: "inherit" }}
+              >
                 <div style={S.statVal}>{totalUsers}</div>
                 <div style={S.statLabel}>Total</div>
-              </div>
-              <div style={S.stat}>
+              </button>
+              <button
+                onClick={() => setView("billed")}
+                style={{ ...S.stat, cursor: "pointer", border: view === "billed" ? "1px solid #10B981" : "1px solid rgba(255,255,255,.06)", fontFamily: "inherit" }}
+              >
                 <div style={{ ...S.statVal, color: "#10B981" }}>{billedUsers}</div>
                 <div style={S.statLabel}>Factures</div>
-              </div>
+              </button>
+              <button
+                onClick={() => setView("upgrade")}
+                style={{ ...S.stat, cursor: "pointer", border: view === "upgrade" ? "1px solid #F59E0B" : "1px solid rgba(255,255,255,.06)", fontFamily: "inherit" }}
+                title="Free tier avec credits consommés → candidat upgrade"
+              >
+                <div style={{ ...S.statVal, color: "#F59E0B" }}>{upgradeCount}</div>
+                <div style={S.statLabel}>🎯 Upgrade intent</div>
+              </button>
+              <button
+                onClick={() => setView("churn")}
+                style={{ ...S.stat, cursor: "pointer", border: view === "churn" ? "1px solid #EF4444" : "1px solid rgba(255,255,255,.06)", fontFamily: "inherit" }}
+                title={`Inscrits depuis ≥${CHURN_DAYS_THRESHOLD}j · free tier · 0 crédit · jamais payé`}
+              >
+                <div style={{ ...S.statVal, color: "#EF4444" }}>{churnCount}</div>
+                <div style={S.statLabel}>⚠️ Churn risk</div>
+              </button>
               <div style={S.stat}>
                 <div style={{ ...S.statVal, color: "#8B5CF6" }}>{demoUsers}</div>
                 <div style={S.statLabel}>Demo</div>
@@ -121,6 +191,15 @@ export default function CrmPage() {
                   <div style={S.statLabel}>{tier}</div>
                 </div>
               ))}
+              {filtered.length > 0 && view !== "all" && (
+                <button
+                  onClick={() => exportCsv(filtered)}
+                  style={{ marginLeft: "auto", padding: "8px 14px", background: "rgba(201,168,76,.08)", border: "1px solid #C9A84C", color: "#C9A84C", fontSize: ".7rem", cursor: "pointer", fontFamily: "inherit" }}
+                  title={`Export ${filtered.length} users en CSV pour campagne`}
+                >
+                  📥 Export CSV ({filtered.length})
+                </button>
+              )}
             </div>
 
             {/* Detail Panel */}
@@ -177,21 +256,83 @@ export default function CrmPage() {
                   <div style={S.detailRow}>
                     <span style={S.detailLabel}>Stripe Customer</span>
                     <span style={{ ...S.detailValue, fontSize: ".58rem", fontFamily: "monospace" }}>
-                      {selected.stripe_customer_id || "-"}
+                      {selected.stripe_customer_id ? (
+                        <a
+                          href={`https://dashboard.stripe.com/customers/${selected.stripe_customer_id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ color: "#60A5FA", textDecoration: "none" }}
+                          title="Ouvrir sur Stripe Dashboard"
+                        >
+                          {selected.stripe_customer_id} ↗
+                        </a>
+                      ) : "-"}
                     </span>
                   </div>
                   <div style={S.detailRow}>
                     <span style={S.detailLabel}>Stripe Sub</span>
                     <span style={{ ...S.detailValue, fontSize: ".58rem", fontFamily: "monospace" }}>
-                      {selected.stripe_subscription_id || "-"}
+                      {selected.stripe_subscription_id ? (
+                        <a
+                          href={`https://dashboard.stripe.com/subscriptions/${selected.stripe_subscription_id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ color: "#60A5FA", textDecoration: "none" }}
+                          title="Ouvrir sur Stripe Dashboard"
+                        >
+                          {selected.stripe_subscription_id} ↗
+                        </a>
+                      ) : "-"}
                     </span>
                   </div>
                   <div style={S.detailRow}>
                     <span style={S.detailLabel}>Inscription</span>
                     <span style={S.detailValue}>
                       {new Date(selected.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                      {" · "}
+                      <span style={{ color: "#5A6A7A" }}>
+                        ({Math.floor((Date.now() - new Date(selected.created_at).getTime()) / 86_400_000)}j)
+                      </span>
                     </span>
                   </div>
+                </div>
+
+                {/* Quick actions : Stripe + Resend + Flags */}
+                <div style={{ display: "flex", gap: 8, marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.06)", flexWrap: "wrap" }}>
+                  {selected.stripe_customer_id && (
+                    <a
+                      href={`https://dashboard.stripe.com/customers/${selected.stripe_customer_id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ padding: "6px 12px", background: "rgba(96,165,250,.1)", border: "1px solid rgba(96,165,250,.3)", color: "#60A5FA", fontSize: ".68rem", textDecoration: "none", borderRadius: 3 }}
+                    >
+                      🔗 Stripe customer
+                    </a>
+                  )}
+                  <a
+                    href={`https://resend.com/emails?q=${encodeURIComponent(selected.email)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ padding: "6px 12px", background: "rgba(245,158,11,.1)", border: "1px solid rgba(245,158,11,.3)", color: "#F59E0B", fontSize: ".68rem", textDecoration: "none", borderRadius: 3 }}
+                  >
+                    📧 Resend emails
+                  </a>
+                  <a
+                    href={`mailto:${selected.email}`}
+                    style={{ padding: "6px 12px", background: "rgba(201,168,76,.1)", border: "1px solid rgba(201,168,76,.3)", color: "#C9A84C", fontSize: ".68rem", textDecoration: "none", borderRadius: 3 }}
+                  >
+                    ✉️ Email direct
+                  </a>
+                  {isChurnRisk(selected) && (
+                    <span style={{ padding: "6px 12px", background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.3)", color: "#EF4444", fontSize: ".68rem", borderRadius: 3 }}>
+                      ⚠️ Churn risk
+                    </span>
+                  )}
+                  {isUpgradeIntent(selected) && (
+                    <span style={{ padding: "6px 12px", background: "rgba(245,158,11,.1)", border: "1px solid rgba(245,158,11,.3)", color: "#F59E0B", fontSize: ".68rem", borderRadius: 3 }}>
+                      🎯 Upgrade intent
+                    </span>
+                  )}
                 </div>
               </div>
             )}
