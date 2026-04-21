@@ -762,25 +762,52 @@ function BusinessTab() {
 const PERIOD_OPTIONS = [3, 6, 12, 24, 36] as const
 type PeriodMonths = typeof PERIOD_OPTIONS[number]
 
+// 3 scenarios applied on top of the base objective — same across products.
+// garanti = conservative (60% target, 4% post-growth, 8% churn)
+// median  = realistic (100% target, 8%, 5%)
+// high    = aggressive (150% target, 14%, 3%)
+const SCENARIOS = {
+  garanti: { label: '🛡 Garanti', color: '#60A5FA', targetMult: 0.60, growth: 4, churn: 8 },
+  median:  { label: '🎯 Médian',  color: '#C9A84C', targetMult: 1.00, growth: 8, churn: 5 },
+  high:    { label: '🚀 High',    color: '#10B981', targetMult: 1.50, growth: 14, churn: 3 },
+} as const
+type ScenarioKey = keyof typeof SCENARIOS
+
 function TrajectoryChart({
   product, objectiveType, objectiveValue, horizonDays,
 }: { product: Product; objectiveType: ObjectiveType; objectiveValue: number; horizonDays: number }) {
   const [period, setPeriod] = useState<PeriodMonths>(12)
-  const [postGrowthPct, setPostGrowthPct] = useState(8)   // % MoM once target hit
-  const [churnPct, setChurnPct] = useState(5)             // % monthly churn (MRR only)
+  const [visible, setVisible] = useState<Record<ScenarioKey, boolean>>({ garanti: true, median: true, high: true })
 
-  const data = useMemo(() => computeTrajectory({
-    objectiveType, objectiveValue, horizonDays,
-    periodMonths: period, postGrowthMoMPct: postGrowthPct, churnMoMPct: churnPct,
-  }), [objectiveType, objectiveValue, horizonDays, period, postGrowthPct, churnPct])
+  // Compute 3 trajectories (one per scenario) so user can compare at a glance
+  const series = useMemo(() => {
+    const out: Record<ScenarioKey, ReturnType<typeof computeTrajectory>> = {} as any
+    for (const [k, s] of Object.entries(SCENARIOS) as [ScenarioKey, typeof SCENARIOS[ScenarioKey]][]) {
+      out[k] = computeTrajectory({
+        objectiveType,
+        objectiveValue: objectiveValue * s.targetMult,
+        horizonDays,
+        periodMonths: period,
+        postGrowthMoMPct: s.growth,
+        churnMoMPct: s.churn,
+      })
+    }
+    return out
+  }, [objectiveType, objectiveValue, horizonDays, period])
+
+  // Keep legacy single-curve ref for other UI bits
+  const data = series.median
 
   // Chart dims
   const W = 900, H = 300, PAD = { top: 20, right: 60, bottom: 40, left: 80 }
-  const maxY = Math.max(...data.map(d => d.value), 1)
+  // Scale Y on max across visible scenarios so high scenario fits
+  const visibleVals = (Object.entries(series) as [ScenarioKey, ReturnType<typeof computeTrajectory>][])
+    .filter(([k]) => visible[k]).flatMap(([, s]) => s.map(d => d.value))
+  const maxY = Math.max(...visibleVals, 1)
   const xOf = (i: number) => PAD.left + (i / (data.length - 1)) * (W - PAD.left - PAD.right)
   const yOf = (v: number) => H - PAD.bottom - (v / maxY) * (H - PAD.top - PAD.bottom)
-  const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xOf(i)} ${yOf(d.value)}`).join(' ')
-  const areaPath = `${linePath} L ${xOf(data.length - 1)} ${H - PAD.bottom} L ${xOf(0)} ${H - PAD.bottom} Z`
+  const buildLinePath = (s: ReturnType<typeof computeTrajectory>) =>
+    s.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xOf(i)} ${yOf(d.value)}`).join(' ')
 
   // Y-axis ticks (5 lines)
   const yTicks = [0, 0.25, 0.5, 0.75, 1].map(f => ({ f, v: Math.round(maxY * f) }))
@@ -809,12 +836,16 @@ function TrajectoryChart({
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 12, fontSize: 11, color: C.muted }}>
-        <label>Croissance post-cible : <input type="number" min={0} max={50} value={postGrowthPct} onChange={e => setPostGrowthPct(+e.target.value || 0)} style={{ ...inputStyle, width: 60, padding: '2px 6px' }} />% MoM</label>
-        {objectiveType === 'mrr' && (
-          <label>Churn : <input type="number" min={0} max={30} value={churnPct} onChange={e => setChurnPct(+e.target.value || 0)} style={{ ...inputStyle, width: 60, padding: '2px 6px' }} />% /mois</label>
-        )}
-        <span>Target = <strong style={{ color: C.gold }}>{fmt(objectiveValue)}</strong> à M+{Math.round(horizonDays / 30)}</span>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12, fontSize: 11, color: C.muted, alignItems: 'center' }}>
+        <span style={{ fontWeight: 700 }}>Scenarios :</span>
+        {(Object.entries(SCENARIOS) as [ScenarioKey, typeof SCENARIOS[ScenarioKey]][]).map(([k, s]) => (
+          <label key={k} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, cursor: 'pointer', padding: '3px 8px', borderRadius: 4, background: visible[k] ? `${s.color}22` : 'transparent', border: `1px solid ${visible[k] ? s.color : C.border}` }}>
+            <input type="checkbox" checked={visible[k]} onChange={e => setVisible({ ...visible, [k]: e.target.checked })} style={{ accentColor: s.color }} />
+            <span style={{ color: s.color, fontWeight: 600 }}>{s.label}</span>
+            <span style={{ color: C.muted }}>target×{s.targetMult} · +{s.growth}%MoM · churn {s.churn}%</span>
+          </label>
+        ))}
+        <span style={{ marginLeft: 'auto' }}>Base = <strong style={{ color: C.gold }}>{fmt(objectiveValue)}</strong> à M+{Math.round(horizonDays / 30)}</span>
       </div>
 
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 300 }}>
@@ -832,30 +863,45 @@ function TrajectoryChart({
             <text key={i} x={xOf(i)} y={H - PAD.bottom + 16} textAnchor="middle" fontSize="9" fill={C.muted}>{d.label}</text>
           )
         })}
-        {/* Target line */}
-        <line x1={PAD.left} y1={yOf(objectiveValue)} x2={W - PAD.right} y2={yOf(objectiveValue)} stroke={C.green} strokeDasharray="4 6" strokeWidth={1} opacity={0.5} />
-        <text x={W - PAD.right - 5} y={yOf(objectiveValue) - 4} textAnchor="end" fontSize="10" fill={C.green}>target {fmt(objectiveValue)}</text>
         {/* Horizon marker */}
         {(() => {
           const idx = data.findIndex(d => d.monthIdx >= Math.round(horizonDays / 30))
           if (idx < 0) return null
           return (
-            <line x1={xOf(idx)} y1={PAD.top} x2={xOf(idx)} y2={H - PAD.bottom} stroke={C.gold} strokeDasharray="2 4" opacity={0.4} />
+            <line x1={xOf(idx)} y1={PAD.top} x2={xOf(idx)} y2={H - PAD.bottom} stroke={C.muted} strokeDasharray="2 4" opacity={0.3} />
           )
         })()}
-        {/* Area + line */}
-        <path d={areaPath} fill={C.gold} opacity={0.08} />
-        <path d={linePath} fill="none" stroke={C.gold} strokeWidth={2} />
-        {/* Data points */}
-        {data.map((d, i) => (
-          <circle key={i} cx={xOf(i)} cy={yOf(d.value)} r={3} fill={C.gold}>
-            <title>M+{d.monthIdx}: {fmt(d.value)}</title>
-          </circle>
-        ))}
+        {/* 3 scenario curves */}
+        {(Object.entries(SCENARIOS) as [ScenarioKey, typeof SCENARIOS[ScenarioKey]][]).map(([k, s]) => {
+          if (!visible[k]) return null
+          const serie = series[k]
+          return (
+            <g key={k}>
+              <path d={buildLinePath(serie)} fill="none" stroke={s.color} strokeWidth={2} opacity={0.85} />
+              {serie.map((d, i) => (
+                <circle key={i} cx={xOf(i)} cy={yOf(d.value)} r={2.5} fill={s.color} opacity={0.7}>
+                  <title>{s.label} · M+{d.monthIdx}: {fmt(d.value)}</title>
+                </circle>
+              ))}
+              {/* End-of-period label */}
+              <text x={xOf(serie.length - 1) + 5} y={yOf(serie[serie.length - 1].value) + 4} fontSize="10" fill={s.color} fontWeight={700}>
+                {fmt(serie[serie.length - 1].value)}
+              </text>
+            </g>
+          )
+        })}
       </svg>
 
-      <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>
-        Courbe : croissance accélérée (^1.5) jusqu'au target M+{Math.round(horizonDays / 30)}, puis +{postGrowthPct}% MoM{objectiveType === 'mrr' ? ` (net de ${churnPct}% churn)` : ''}. Point final M+{period} : <strong style={{ color: C.gold }}>{fmt(data[data.length - 1].value)}</strong>.
+      <div style={{ fontSize: 11, color: C.muted, marginTop: 8, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+        {(Object.entries(SCENARIOS) as [ScenarioKey, typeof SCENARIOS[ScenarioKey]][]).map(([k, s]) => (
+          <div key={k} style={{ opacity: visible[k] ? 1 : 0.4 }}>
+            <strong style={{ color: s.color }}>{s.label}</strong> — M+{period} :{' '}
+            <strong>{fmt(series[k][series[k].length - 1].value)}</strong>
+            <div style={{ fontSize: 10, color: C.muted }}>
+              target {fmt(objectiveValue * s.targetMult)} · +{s.growth}%/mo{objectiveType === 'mrr' ? ` · churn ${s.churn}%` : ''}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
