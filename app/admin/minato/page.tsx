@@ -229,7 +229,7 @@ export default function MinatoDocPage() {
           </h1>
           <p style={{ color: C.muted, marginTop: 8, fontSize: 14 }}>
             Architecture hybride — Méthodologie Shonen Ultimate Skill couplée à Opus 4.7 (1M context).
-            <strong style={{ color: C.gold }}> 32 agents × 7 niveaux + ∞</strong>, cascade LLM 10 providers, mode SHAKA autonome.
+            <strong style={{ color: C.gold }}> Arsenal étendu — 7 niveaux + ∞</strong>, cascade LLM 10 providers, mode SHAKA autonome.
             Orchestration multi-projets (FTG · OFA · Estate · Shift · CC).
           </p>
           <div style={{ marginTop: 12, padding: 10, background: `${C.gold}10`, border: `1px dashed ${C.gold}40`, borderRadius: 6, fontSize: 12, color: C.muted }}>
