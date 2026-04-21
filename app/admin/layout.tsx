@@ -44,21 +44,18 @@ const NAV_GROUPS: NavGroupX[] = [
     label: 'Revenus', icon: '💰', items: [
       { href: '/admin/campaigns', label: 'Campagnes', icon: '📡', desc: 'Funnels & outreach' },
       { href: '/admin/revenue',   label: 'Revenus',   icon: '💰', desc: 'Ventes & marges' },
-      { href: '/admin/plans',     label: 'Plans',     icon: '🧾', desc: 'Tiers & analytics', subgroup: 'Stripe' },
-      { href: '/admin/payments',  label: 'Payments',  icon: '💳', desc: 'Stripe test sheet', subgroup: 'Stripe' },
+      { href: '/admin/plans',     label: 'Plans',     icon: '🧾', desc: 'Tiers & analytics' },
     ],
   },
   {
     label: 'Ops & Contenu', icon: '👥', items: [
-      { href: '/admin/crm',           label: 'CRM',      icon: '👥', desc: 'Utilisateurs' },
+      { href: '/admin/crm-hub',       label: 'CRM Hub',  icon: '👥', desc: 'Users · Leads · Démo · Parcours' },
       { href: '/admin/tickets',       label: 'Tickets',  icon: '🎫', desc: 'Support & refunds' },
       { href: '/admin/cms',           label: 'CMS',      icon: '✏️', desc: '3 sites' },
       { href: '/admin/ad-factory',    label: 'Ad Factory', icon: '🎬', desc: 'Hub moteur vidéos IA' },
       { href: 'https://feel-the-gap.vercel.app/admin/ad-factory/avatars',  label: 'Avatars',  icon: '🎭', desc: 'Générer avatars IA (nano-banana)', subgroup: 'Ad Factory', external: true },
       { href: 'https://feel-the-gap.vercel.app/admin/ad-factory/scenes',   label: 'Scenes',   icon: '🌆', desc: 'Backgrounds animés', subgroup: 'Ad Factory', external: true },
       { href: 'https://feel-the-gap.vercel.app/admin/ad-factory/projects', label: 'Projets',  icon: '🎞️', desc: 'Scénarios + studio édition', subgroup: 'Ad Factory', external: true },
-      { href: '/admin/demo',          label: 'Démo',     icon: '🎭', desc: 'Comptes test', subgroup: 'Onboarding' },
-      { href: '/admin/demo-parcours', label: 'Parcours', icon: '🧭', desc: 'Tours guidés', subgroup: 'Onboarding' },
     ],
   },
   {

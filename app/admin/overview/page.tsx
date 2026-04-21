@@ -21,11 +21,10 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 const QUICK_LINKS = [
-  { href: "/admin/crm", label: "CRM", icon: "👥" },
-  { href: "/admin/analytics", label: "Analytics", icon: "📈" },
+  { href: "/admin/crm-hub", label: "CRM Hub", icon: "👥" },
   { href: "/admin/cms", label: "CMS", icon: "✏️" },
   { href: "/admin/plans", label: "Plans", icon: "💳" },
-  { href: "/admin/demo", label: "Demo", icon: "🎭" },
+  { href: "/admin/simulator", label: "Simulateur", icon: "🧮" },
   { href: "/admin/data", label: "Data", icon: "🗄️" },
 ];
 
