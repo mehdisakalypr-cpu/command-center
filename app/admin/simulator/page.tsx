@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 
-type Product = 'ofa' | 'ftg' | 'estate' | 'shiftdynamics' | 'cc'
+type Product = 'ofa' | 'ftg' | 'estate' | 'shiftdynamics' | 'cc' | 'all'
 type ObjectiveType = 'mrr' | 'clients' | 'revenue'
 type Tab = 'business' | 'velocity' | 'keys' | 'matrix'
 
@@ -121,7 +121,34 @@ const PRODUCT_DEFAULTS: Record<Product, {
       { name: 'session-logger',     perDay: 1000 },
     ],
   },
+  // Cumul portfolio — weighted aggregate of ofa+ftg+estate+shiftdynamics.
+  // CC exclu (produit interne, MRR=0). Computed via PRODUCT_AGG_KEYS.
+  all: {
+    label: '🔀 Tous (portfolio cumulé)',
+    avgMrrPerClient: 105,  // weighted avg: (ofa 11.79 * 0.35) + (ftg 76 * 0.40) + (estate 199 * 0.15) + (shift 2500 * 0.10) ≈ 310 — actually dominated by shift. Use blended mid-range.
+    oneShotPrice: 149,
+    oneShotMix: 0.30,
+    funnel: [
+      { id: 'sourced',    label: 'Prospect sourcé (tous canaux)',             defaultRate: 1 },
+      { id: 'qualified',  label: 'Sourcé → qualifié (gap_match ou ugly)',     defaultRate: 0.55 },
+      { id: 'contacted',  label: 'Qualifié → contact extrait',                defaultRate: 0.65 },
+      { id: 'pitched',    label: 'Contact → pitch envoyé',                    defaultRate: 0.92 },
+      { id: 'responded',  label: 'Pitch → réponse',                           defaultRate: 0.08 },
+      { id: 'demo',       label: 'Réponse → demo/call',                       defaultRate: 0.50 },
+      { id: 'paid',       label: 'Demo → paying customer',                    defaultRate: 0.25 },
+    ],
+    agentsCapacity: [
+      { name: 'scouts-all',        perDay: 25000 },  // OFA 20k + FTG 3.6k + estate 300 + shift 200
+      { name: 'contact-finders',   perDay: 10000 },
+      { name: 'content-pipeline',  perDay: 2000 },
+      { name: 'pitchers-all',      perDay: 7000 },
+      { name: 'site-generators',   perDay: 2000 },
+    ],
+  },
 }
+
+// Which products aggregate in "all" — cc exclu (interne, no revenue)
+const PRODUCT_AGG_KEYS: Product[] = ['ofa', 'ftg', 'estate', 'shiftdynamics']
 
 const C = {
   bg: '#040D1C', card: '#071425', border: 'rgba(201,168,76,.15)',
@@ -174,6 +201,8 @@ const OBJECTIVE_MAX: Record<Product, Record<ObjectiveType, number>> = {
   estate:        { mrr: 500_000,   clients: 2_500,  revenue: 6_000_000 },
   shiftdynamics: { mrr: 250_000,   clients: 100,    revenue: 3_000_000 },
   cc:            { mrr: 0,         clients: 0,      revenue: 0 },
+  // Cumul portfolio = somme des caps principaux (top 1% multi-site)
+  all:           { mrr: 2_200_000, clients: 53_008, revenue: 26_000_000 },
 }
 
 // Maps capacity-row display names → Giant Piccolo agent IDs. Keep in sync with
@@ -412,6 +441,7 @@ function BusinessTab() {
   }
 
   return (
+    <>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
       <div style={panelStyle}>
         <h2 style={headerGold}>Objectif</h2>
@@ -719,7 +749,152 @@ function BusinessTab() {
         )}
       </div>
     </div>
+
+    <TrajectoryChart product={product} objectiveType={objectiveType} objectiveValue={objectiveValue} horizonDays={horizonDays} />
+    </>
   )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * TRAJECTORY CHART — projection mensuelle avec période custom
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+const PERIOD_OPTIONS = [3, 6, 12, 24, 36] as const
+type PeriodMonths = typeof PERIOD_OPTIONS[number]
+
+function TrajectoryChart({
+  product, objectiveType, objectiveValue, horizonDays,
+}: { product: Product; objectiveType: ObjectiveType; objectiveValue: number; horizonDays: number }) {
+  const [period, setPeriod] = useState<PeriodMonths>(12)
+  const [postGrowthPct, setPostGrowthPct] = useState(8)   // % MoM once target hit
+  const [churnPct, setChurnPct] = useState(5)             // % monthly churn (MRR only)
+
+  const data = useMemo(() => computeTrajectory({
+    objectiveType, objectiveValue, horizonDays,
+    periodMonths: period, postGrowthMoMPct: postGrowthPct, churnMoMPct: churnPct,
+  }), [objectiveType, objectiveValue, horizonDays, period, postGrowthPct, churnPct])
+
+  // Chart dims
+  const W = 900, H = 300, PAD = { top: 20, right: 60, bottom: 40, left: 80 }
+  const maxY = Math.max(...data.map(d => d.value), 1)
+  const xOf = (i: number) => PAD.left + (i / (data.length - 1)) * (W - PAD.left - PAD.right)
+  const yOf = (v: number) => H - PAD.bottom - (v / maxY) * (H - PAD.top - PAD.bottom)
+  const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xOf(i)} ${yOf(d.value)}`).join(' ')
+  const areaPath = `${linePath} L ${xOf(data.length - 1)} ${H - PAD.bottom} L ${xOf(0)} ${H - PAD.bottom} Z`
+
+  // Y-axis ticks (5 lines)
+  const yTicks = [0, 0.25, 0.5, 0.75, 1].map(f => ({ f, v: Math.round(maxY * f) }))
+
+  const unit = objectiveType === 'clients' ? '' : '€'
+  const fmt = (n: number) => objectiveType === 'clients'
+    ? n.toLocaleString('fr-FR')
+    : n >= 1_000_000 ? `${(n/1_000_000).toFixed(1)}M${unit}`
+      : n >= 1_000 ? `${(n/1_000).toFixed(0)}k${unit}`
+      : `${n}${unit}`
+
+  return (
+    <div style={{ ...panelStyle, marginTop: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+        <h2 style={headerGold}>📈 Trajectoire — {PRODUCT_DEFAULTS[product].label}</h2>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {PERIOD_OPTIONS.map(m => (
+            <button key={m} onClick={() => setPeriod(m)} style={{
+              padding: '6px 12px', fontSize: 11, fontWeight: 700,
+              background: period === m ? C.gold : 'transparent',
+              color: period === m ? C.bg : C.muted,
+              border: `1px solid ${period === m ? C.gold : C.border}`,
+              borderRadius: 4, cursor: 'pointer',
+            }}>{m} mois</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 12, fontSize: 11, color: C.muted }}>
+        <label>Croissance post-cible : <input type="number" min={0} max={50} value={postGrowthPct} onChange={e => setPostGrowthPct(+e.target.value || 0)} style={{ ...inputStyle, width: 60, padding: '2px 6px' }} />% MoM</label>
+        {objectiveType === 'mrr' && (
+          <label>Churn : <input type="number" min={0} max={30} value={churnPct} onChange={e => setChurnPct(+e.target.value || 0)} style={{ ...inputStyle, width: 60, padding: '2px 6px' }} />% /mois</label>
+        )}
+        <span>Target = <strong style={{ color: C.gold }}>{fmt(objectiveValue)}</strong> à M+{Math.round(horizonDays / 30)}</span>
+      </div>
+
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 300 }}>
+        {/* Y-axis grid */}
+        {yTicks.map((t, i) => (
+          <g key={i}>
+            <line x1={PAD.left} y1={yOf(t.v)} x2={W - PAD.right} y2={yOf(t.v)} stroke="rgba(201,168,76,.08)" strokeDasharray="2 4" />
+            <text x={PAD.left - 10} y={yOf(t.v) + 4} textAnchor="end" fontSize="10" fill={C.muted}>{fmt(t.v)}</text>
+          </g>
+        ))}
+        {/* X-axis labels (monthly) */}
+        {data.map((d, i) => {
+          if (i % Math.max(1, Math.floor(data.length / 12)) !== 0) return null
+          return (
+            <text key={i} x={xOf(i)} y={H - PAD.bottom + 16} textAnchor="middle" fontSize="9" fill={C.muted}>{d.label}</text>
+          )
+        })}
+        {/* Target line */}
+        <line x1={PAD.left} y1={yOf(objectiveValue)} x2={W - PAD.right} y2={yOf(objectiveValue)} stroke={C.green} strokeDasharray="4 6" strokeWidth={1} opacity={0.5} />
+        <text x={W - PAD.right - 5} y={yOf(objectiveValue) - 4} textAnchor="end" fontSize="10" fill={C.green}>target {fmt(objectiveValue)}</text>
+        {/* Horizon marker */}
+        {(() => {
+          const idx = data.findIndex(d => d.monthIdx >= Math.round(horizonDays / 30))
+          if (idx < 0) return null
+          return (
+            <line x1={xOf(idx)} y1={PAD.top} x2={xOf(idx)} y2={H - PAD.bottom} stroke={C.gold} strokeDasharray="2 4" opacity={0.4} />
+          )
+        })()}
+        {/* Area + line */}
+        <path d={areaPath} fill={C.gold} opacity={0.08} />
+        <path d={linePath} fill="none" stroke={C.gold} strokeWidth={2} />
+        {/* Data points */}
+        {data.map((d, i) => (
+          <circle key={i} cx={xOf(i)} cy={yOf(d.value)} r={3} fill={C.gold}>
+            <title>M+{d.monthIdx}: {fmt(d.value)}</title>
+          </circle>
+        ))}
+      </svg>
+
+      <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>
+        Courbe : croissance accélérée (^1.5) jusqu'au target M+{Math.round(horizonDays / 30)}, puis +{postGrowthPct}% MoM{objectiveType === 'mrr' ? ` (net de ${churnPct}% churn)` : ''}. Point final M+{period} : <strong style={{ color: C.gold }}>{fmt(data[data.length - 1].value)}</strong>.
+      </div>
+    </div>
+  )
+}
+
+function computeTrajectory(opts: {
+  objectiveType: ObjectiveType
+  objectiveValue: number
+  horizonDays: number
+  periodMonths: number
+  postGrowthMoMPct: number
+  churnMoMPct: number
+}): Array<{ monthIdx: number; label: string; value: number }> {
+  const { objectiveType, objectiveValue, horizonDays, periodMonths, postGrowthMoMPct, churnMoMPct } = opts
+  const horizonMonths = Math.max(1, horizonDays / 30)
+  const out: Array<{ monthIdx: number; label: string; value: number }> = []
+  const now = new Date()
+
+  for (let m = 0; m <= periodMonths; m++) {
+    let value = 0
+    if (m === 0) {
+      value = 0
+    } else if (m <= horizonMonths) {
+      // Pre-target: accelerating curve (t/T)^1.5
+      const t = m / horizonMonths
+      value = objectiveValue * Math.pow(t, 1.5)
+    } else {
+      // Post-target: target × (1 + postGrowth)^(m - horizon), net of churn for MRR
+      const postMonths = m - horizonMonths
+      const effectiveGrowth = objectiveType === 'mrr'
+        ? Math.max(0, postGrowthMoMPct - churnMoMPct) / 100
+        : postGrowthMoMPct / 100
+      value = objectiveValue * Math.pow(1 + effectiveGrowth, postMonths)
+    }
+    const d = new Date(now.getFullYear(), now.getMonth() + m, 1)
+    const label = d.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })
+    out.push({ monthIdx: m, label, value: Math.round(value) })
+  }
+  return out
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
