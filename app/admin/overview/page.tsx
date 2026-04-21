@@ -72,6 +72,8 @@ export default function OverviewPage() {
   const [totalOpportunities, setTotalOpportunities] = useState(0);
   const [totalBPs, setTotalBPs] = useState(0);
   const [totalReports, setTotalReports] = useState(0);
+  const [newLast7d, setNewLast7d] = useState(0);
+  const [withCredits, setWithCredits] = useState(0);
 
   const [recentProfiles, setRecentProfiles] = useState<RecentProfile[]>([]);
   const [tierStats, setTierStats] = useState<TierStat[]>([]);
@@ -99,6 +101,8 @@ export default function OverviewPage() {
         setTotalOpportunities(stats.opportunities);
         setTotalBPs(stats.businessPlans);
         setTotalReports(stats.reports);
+        setNewLast7d(stats.newLast7d ?? 0);
+        setWithCredits(stats.withCredits ?? 0);
         setRecentProfiles(profiles);
 
         // Build tier stats from tiers object
@@ -138,6 +142,14 @@ export default function OverviewPage() {
                 <div style={S.card}>
                   <div style={S.cardVal("#C9A84C")}>{totalUsers}</div>
                   <div style={S.cardLabel}>Utilisateurs FTG</div>
+                </div>
+                <div style={S.card}>
+                  <div style={S.cardVal("#10B981")}>{newLast7d}</div>
+                  <div style={S.cardLabel}>Nouveaux 7j</div>
+                </div>
+                <div style={S.card}>
+                  <div style={S.cardVal("#60A5FA")}>{withCredits}</div>
+                  <div style={S.cardLabel}>Avec credits IA</div>
                 </div>
                 <div style={S.card}>
                   <div style={S.cardVal("#3B82F6")}>{totalCountries}</div>

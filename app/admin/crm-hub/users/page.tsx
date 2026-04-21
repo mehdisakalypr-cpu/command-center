@@ -91,12 +91,6 @@ export default function CrmPage() {
 
   return (
     <div style={S.page}>
-      <div style={S.header}>
-        <span style={S.title}>CRM</span>
-        <span style={S.sub}>Feel The Gap - Utilisateurs</span>
-        <span style={{ ...S.sub, marginLeft: "auto" }}>{profiles.length} profils</span>
-      </div>
-
       <div style={S.body}>
         {loading && <div style={{ color: "#5A6A7A", fontSize: ".72rem" }}>Chargement des profils...</div>}
         {error && <div style={{ color: "#EF4444", fontSize: ".72rem" }}>{error}</div>}

@@ -127,11 +127,6 @@ export default function DemoPage() {
   return (
     <div style={S.page}>
       {toast && <div style={S.toast}>{toast}</div>}
-      <div style={S.header}>
-        <span style={S.title}>Demo</span>
-        <span style={S.sub}>Comptes de demonstration Feel The Gap</span>
-      </div>
-
       <div style={S.body}>
         {loading && <div style={{ color: "#5A6A7A", fontSize: ".72rem" }}>Chargement...</div>}
         {error && <div style={{ color: "#EF4444", fontSize: ".72rem" }}>{error}</div>}

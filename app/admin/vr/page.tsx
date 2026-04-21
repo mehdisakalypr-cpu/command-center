@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import HumanTodoPanel from "@/components/HumanTodoPanel";
+import { StrategyNav } from "@/components/StrategyNav";
 
 /* ── Types ───────────────────────────────────────────────── */
 type VRData = Record<string, number>;
@@ -86,10 +87,13 @@ export default function VRPage() {
   }, []);
 
   if (loading) return (
-    <div style={{ padding: 24, color: C.text }}>
-      <HumanTodoPanel />
-      <div style={{ padding: 40, textAlign: "center", color: C.gold }}>Chargement V/R...</div>
-    </div>
+    <>
+      <StrategyNav active="vr" />
+      <div style={{ padding: 24, color: C.text }}>
+        <HumanTodoPanel />
+        <div style={{ padding: 40, textAlign: "center", color: C.gold }}>Chargement V/R...</div>
+      </div>
+    </>
   );
 
   const entries = Object.entries(TARGETS_APRIL_30)
@@ -104,6 +108,8 @@ export default function VRPage() {
   const globalPct = totalTarget > 0 ? (totalReal / totalTarget) * 100 : 0;
 
   return (
+    <>
+    <StrategyNav active="vr" />
     <div style={{ padding: 24, color: C.text }}>
       <HumanTodoPanel />
       {/* Header */}
@@ -276,6 +282,7 @@ export default function VRPage() {
         <SummaryCard label="Total MRR" real={revenue?.totalMrr || 0} target={116573} color={C.gold} suffix=" EUR" />
       </div>
     </div>
+    </>
   );
 }
 

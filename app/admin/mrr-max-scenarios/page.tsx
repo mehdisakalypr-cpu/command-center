@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { StrategyNav } from '@/components/StrategyNav'
 
 const C = {
   bg: '#0A1A2E', gold: '#C9A84C', text: '#E8E0D0',
@@ -145,6 +146,8 @@ export default function MrrMaxScenariosPage() {
     s.netAnnual > best.netAnnual ? s : best, computed[0])
 
   return (
+    <>
+    <StrategyNav active="mrr-max" />
     <div style={{ padding: 24, color: C.text, maxWidth: 1400, margin: '0 auto' }}>
       <header style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: C.gold, margin: 0 }}>
@@ -232,6 +235,7 @@ export default function MrrMaxScenariosPage() {
         À ajuster avec scénarios réels Stripe + funnel CC.
       </footer>
     </div>
+    </>
   )
 }
 

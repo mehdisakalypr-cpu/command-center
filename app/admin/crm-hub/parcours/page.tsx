@@ -224,15 +224,6 @@ export default function DemoParcoursPage() {
         <Toast msg={toast.msg} ok={toast.ok} onClose={() => setToast(null)} />
       )}
 
-      {/* Header */}
-      <div style={S.header}>
-        <span style={{ fontSize: 16 }}>🎯</span>
-        <span style={S.title}>Parcours démo</span>
-        <span style={{ fontSize: '.6rem', color: '#5A6A7A' }}>
-          Demandes d&apos;accès et tours guidés Feel The Gap
-        </span>
-      </div>
-
       {/* Tabs */}
       <div style={{ padding: '12px 24px', borderBottom: '1px solid rgba(255,255,255,.04)', display: 'flex', gap: 6 }}>
         <button style={tabStyle(tab === 'demandes')} onClick={() => setTab('demandes')}>

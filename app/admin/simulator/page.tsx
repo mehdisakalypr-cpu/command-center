@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
+import { StrategyNav } from '@/components/StrategyNav'
 
 type Product = 'ofa' | 'ftg' | 'estate' | 'shiftdynamics' | 'cc' | 'all'
 type ObjectiveType = 'mrr' | 'clients' | 'revenue'
@@ -442,7 +443,8 @@ function BusinessTab() {
 
   return (
     <>
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+    <StrategyNav active="simulator" />
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, padding: '16px 20px 0' }}>
       <div style={panelStyle}>
         <h2 style={headerGold}>Objectif</h2>
         <Field label="Produit">
