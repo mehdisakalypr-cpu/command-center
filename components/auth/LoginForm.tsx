@@ -178,6 +178,13 @@ export function LoginForm({
       return
     }
     setBusy(true)
+    // Reset the Turnstile widget on ANY exit path — tokens are single-use, so a
+    // stale token on retry otherwise produces timeout-or-duplicate / invalid-input-response.
+    const resetCaptcha = () => {
+      try { window.turnstile?.reset() } catch { /* noop */ }
+      window.__turnstileToken = null
+      setTurnstileToken(null)
+    }
     try {
       const captchaToken = turnstileToken || (typeof window !== 'undefined' ? window.__turnstileToken ?? null : null)
       const res = await fetch('/api/auth/login', {
@@ -190,7 +197,14 @@ export function LoginForm({
         | { ok?: boolean; require_mfa?: boolean; mfa_token?: string; access_token?: string; refresh_token?: string; token_hash?: string; type?: 'magiclink' | 'email'; error?: string }
         | null
       if (!res.ok || !json?.ok) {
-        setError(json?.error === 'Accès non autorisé' ? 'Accès non autorisé' : 'Identifiants invalides')
+        // Surface the ACTUAL server message. Masking every failure as "Identifiants
+        // invalides" caused support incidents where users password-reset in circles
+        // while the real error was Turnstile / rate-limit / captcha.
+        const msg = (typeof json?.error === 'string' && json.error.length > 0)
+          ? json.error
+          : (res.status === 429 ? 'Trop de tentatives. Réessayez plus tard.' : 'Identifiants invalides')
+        setError(msg)
+        resetCaptcha()
         setBusy(false)
         return
       }
@@ -230,6 +244,7 @@ export function LoginForm({
         })
         if (otpErr) {
           setError('Identifiants invalides')
+          resetCaptcha()
           setBusy(false)
           return
         }
@@ -244,6 +259,7 @@ export function LoginForm({
         })
         if (setErr) {
           setError('Identifiants invalides')
+          resetCaptcha()
           setBusy(false)
           return
         }
@@ -252,8 +268,10 @@ export function LoginForm({
       }
       // Unexpected shape
       setError('Identifiants invalides')
+      resetCaptcha()
     } catch {
       setError('Identifiants invalides')
+      resetCaptcha()
     } finally {
       setBusy(false)
     }
