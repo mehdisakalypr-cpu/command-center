@@ -34,6 +34,9 @@ const DEFAULT_RULES: Record<string, AlertRule> = {
   scout_job_failed_consecutive: { channels: ['telegram'], debounceSec: 3600 },
   disk_space_low: { channels: ['email'], debounceSec: 7200 },
   test_alert: { channels: ['telegram'], debounceSec: 0 },
+  auth_turnstile_spike: { channels: ['telegram', 'email'], debounceSec: 900 },
+  auth_reset_email_failed: { channels: ['telegram', 'email'], debounceSec: 900 },
+  auth_login_fail_ip_spike: { channels: ['telegram'], debounceSec: 1800 },
 }
 
 function loadRules(): Record<string, AlertRule> {
