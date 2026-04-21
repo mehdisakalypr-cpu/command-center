@@ -115,7 +115,8 @@ export default function CrmPage() {
   const demoUsers = profiles.filter(p => p.is_demo).length;
   const adminUsers = profiles.filter(p => p.is_admin || p.is_delegate_admin).length;
   const churnCount = profiles.filter(isChurnRisk).length;
-  const upgradeCount = profiles.filter(isUpgradeIntent).length;
+  const upgradeIntents = profiles.filter(isUpgradeIntent);
+  const upgradeCount = upgradeIntents.length;
 
   function exportCsv(rows: Profile[]) {
     const headers = ["email", "full_name", "tier", "ai_credits", "is_billed", "is_demo", "created_at"];
