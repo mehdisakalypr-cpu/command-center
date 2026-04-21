@@ -47,21 +47,37 @@ const PRODUCT_DEFAULTS: Record<Product, {
     ],
   },
   ftg: {
-    label: 'Feel The Gap', avgMrrPerClient: 49, oneShotPrice: 0, oneShotMix: 0,
+    // Tiers actuels FTG (2026-04-21): Data 29 / Strategy 99 / Premium 149 / Ultimate 299.
+    // Mix probable soft launch : 50% Data + 35% Strategy + 12% Premium + 3% Ultimate
+    //                           = 14.5 + 34.65 + 17.88 + 8.97 = €76/client/mo.
+    // Funnel rates pré-launch calibrés sur hypothèses Minato :
+    //   - Content filled (Eishi) = ×2 demo→paid (contenu riche immédiat = confiance)
+    //   - Enriched = 60% (Apollo + Hunter + Places combinés)
+    //   - Demo = 50% des réponses (augmenté car parcours démo guidé)
+    label: 'Feel The Gap', avgMrrPerClient: 76, oneShotPrice: 0, oneShotMix: 0,
     funnel: [
-      { id: 'sourced',    label: 'Prospect sourcé',                        defaultRate: 1 },
-      { id: 'enriched',   label: 'Sourcé → contact trouvé (max canaux)',   defaultRate: 0.50 },
-      { id: 'outreached', label: 'Contact → outreach envoyé',              defaultRate: 0.90 },
-      { id: 'responded',  label: 'Outreach → réponse',                     defaultRate: 0.05 },
-      { id: 'demo',       label: 'Réponse → demo',                         defaultRate: 0.40 },
-      { id: 'paid',       label: 'Demo → abonné',                          defaultRate: 0.20 },
+      { id: 'sourced',      label: 'Prospect sourcé',                              defaultRate: 1 },
+      { id: 'enriched',     label: 'Sourcé → contact trouvé (max canaux)',         defaultRate: 0.60 },
+      { id: 'outreached',   label: 'Contact → outreach envoyé',                    defaultRate: 0.92 },
+      { id: 'responded',    label: 'Outreach → réponse (perso + ROI)',             defaultRate: 0.07 },
+      { id: 'demo',         label: 'Réponse → parcours démo guidé',                defaultRate: 0.50 },
+      { id: 'contentReady', label: 'Démo → parcours rempli (Eishi layer 1)',       defaultRate: 0.85 },
+      { id: 'paid',         label: 'Contenu rempli → abonné (×2 vs vide)',         defaultRate: 0.28 },
     ],
     agentsCapacity: [
-      { name: 'ftg-vc-scout',    perDay: 500 },
-      { name: 'ftg-angel-scout', perDay: 300 },
+      // Scout/contact pipeline (acquisition)
+      { name: 'ftg-vc-scout',      perDay: 500 },
+      { name: 'ftg-angel-scout',   perDay: 300 },
       { name: 'ftg-founder-scout', perDay: 800 },
-      { name: 'contact-finder',  perDay: 1500 },
-      { name: 'email-nurture',   perDay: 3000 },
+      { name: 'scout-osm-overpass', perDay: 2000 },
+      { name: 'contact-finder',    perDay: 1500 },
+      // Content generation pipeline (conversion enabler — Eishi/Rock Lee fill cache)
+      { name: 'shisui-orchestrator', perDay: 1440 },  // 20 jobs × 4 concurrent × 12 cycles/hr × 24 = 11520 theoretical, clamped by LLM rate
+      { name: 'rock-lee-v2-videos',  perDay: 4320 },  // 30 pairs × 6 cycles/hr × 24
+      { name: 'eishi-base-content',  perDay: 2880 },  // 10 triples × 4 cycles/hr × 24
+      // Outreach & nurture
+      { name: 'email-nurture',    perDay: 3000 },
+      { name: 'outreach-engine',  perDay: 1200 },
     ],
   },
   estate: {
