@@ -71,7 +71,7 @@ export default function ApiKeysAdminPage() {
   useEffect(() => { refresh() }, [])
 
   return (
-    <div style={{ color: '#E8EEF7', padding: '24px 32px', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ color: '#E8EEF7', padding: '24px 32px', fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       <header style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, color: GOLD }}>API Keys · Gemini Pool</h1>
         <p style={{ color: '#94A3B8', margin: '6px 0 0' }}>

@@ -21,7 +21,7 @@ export default function CrmHubLayout({ children }: { children: React.ReactNode }
       flexDirection: 'column',
       height: '100%',
       color: '#E8E0D0',
-      fontFamily: 'Inter, sans-serif',
+      fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif",
       background: '#040D1C',
     }}>
       <header style={{

@@ -11,7 +11,7 @@ const SUPABASE_URL = 'https://supabase.com/dashboard/project/jebuagyeapkltyjitos
 
 export default function SmtpSetupPage() {
   return (
-    <div style={{ color: '#E8EEF7', padding: '24px 32px', fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 960 }}>
+    <div style={{ color: '#E8EEF7', padding: '24px 32px', fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif", maxWidth: 960 }}>
       <header style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, color: GOLD }}>SMTP Setup — Resend × Supabase</h1>
         <p style={{ color: '#94A3B8', margin: '6px 0 0' }}>

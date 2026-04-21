@@ -72,7 +72,7 @@ export default function CredentialsClient() {
   const siteCreds = creds.filter(c => c.site_slug === selectedSite)
 
   return (
-    <div style={{ padding: 24, color: C.text, fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ padding: 24, color: C.text, fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>🔐 Coffre-fort Credentials Sociaux</h1>

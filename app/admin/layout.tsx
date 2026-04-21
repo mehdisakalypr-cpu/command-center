@@ -147,7 +147,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const w = expanded ? W_OPEN : W_CLOSED
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#040D1C', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#040D1C', fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
 
       {/* Mobile overlay when expanded */}
       {isMobile && expanded && (

@@ -124,7 +124,7 @@ export default async function CreatorPage() {
   const pathD = curvePoints.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
 
   return (
-    <div style={{ color: '#E8EEF7', padding: '24px 32px', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ color: '#E8EEF7', padding: '24px 32px', fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       <style>{ANIM_CSS}</style>
       <header style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, color: GOLD }}>Creator Performance</h1>

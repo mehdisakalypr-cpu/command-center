@@ -151,7 +151,7 @@ export default function RevenuePage() {
   const marginPct = ((margin / totalRev) * 100).toFixed(1)
 
   return (
-    <div style={{ padding: '24px 28px 48px', maxWidth: 1200, margin: '0 auto', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ padding: '24px 28px 48px', maxWidth: 1200, margin: '0 auto', fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
 
       {/* ═══ Header ═══ */}
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 16, marginBottom: 28 }}>

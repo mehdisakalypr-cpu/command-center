@@ -35,7 +35,7 @@ export default function RevenuePage() {
   const profit = Math.round(totalReal * 0.3);
 
   return (
-    <div style={{ padding: 24, color: "#E8E0D0", fontFamily: "Inter, sans-serif" }}>
+    <div style={{ padding: 24, color: "#E8E0D0", fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       <h1 style={{ fontSize: "1.3rem", fontWeight: 700, marginBottom: 4 }}>Revenue Centralise — Nami 70/30</h1>
       <p style={{ fontSize: ".7rem", color: "#5A6A7A", marginBottom: 24 }}>
         FTG + OFA cumule — AAM autofinancement — Reinvest 70% / Profit 30%

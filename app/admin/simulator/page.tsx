@@ -159,7 +159,7 @@ const C = {
 export default function SimulatorPage() {
   const [tab, setTab] = useState<Tab>('business')
   return (
-    <div style={{ padding: 24, color: C.text, fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ padding: 24, color: C.text, fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>Simulateurs & Opérations</h1>
       <p style={{ color: C.muted, fontSize: 13, marginBottom: 20 }}>
         Pilote business (revenus/funnel), vitesse de production (leviers capacité) et registre des clés API.

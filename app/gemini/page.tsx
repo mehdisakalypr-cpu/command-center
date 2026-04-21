@@ -99,7 +99,7 @@ export default function GeminiPage() {
       position: "fixed", inset: 0,
       background: "#030314",
       display: "flex", flexDirection: "column",
-      fontFamily: "'Inter', system-ui, sans-serif",
+      fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif",
       overflow: "hidden",
     }}>
       <style>{`

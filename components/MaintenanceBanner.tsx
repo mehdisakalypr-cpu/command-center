@@ -35,7 +35,7 @@ export default function MaintenanceBanner() {
         background: 'linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)',
         color: '#1F2937',
         padding: '10px 16px',
-        fontFamily: 'Inter, system-ui, sans-serif',
+        fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif",
         fontSize: 13,
         fontWeight: 600,
         textAlign: 'center',

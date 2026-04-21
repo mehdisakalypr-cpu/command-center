@@ -163,7 +163,7 @@ export default function DashboardPage() {
   };
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", background: "#040D1C", display: "flex", alignItems: "center", justifyContent: "center", color: "#C9A84C", fontFamily: "Inter, sans-serif", fontSize: ".8rem", letterSpacing: ".1em" }}>
+    <div style={{ minHeight: "100vh", background: "#040D1C", display: "flex", alignItems: "center", justifyContent: "center", color: "#C9A84C", fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif", fontSize: ".8rem", letterSpacing: ".1em" }}>
       Chargement des métriques…
     </div>
   );
@@ -179,7 +179,7 @@ export default function DashboardPage() {
   const totalTierUsers = Object.values(ftg?.tiers ?? {}).reduce((a, b) => a + b, 0);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#040D1C", color: "#E8E0D0", fontFamily: "Inter, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#040D1C", color: "#E8E0D0", fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       <style>{`
         * { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }

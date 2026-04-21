@@ -173,7 +173,7 @@ export default function CmsPage() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", color: "#E8E0D0", fontFamily: "Inter, sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", color: "#E8E0D0", fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       {toast && <div style={S.toast}>{toast}</div>}
 
       {/* Header */}

@@ -42,7 +42,7 @@ export default function RoutinesPage() {
   if (loading) return <div style={{ padding: 24, color: C.text }}>Chargement…</div>
 
   return (
-    <div style={{ padding: 24, color: C.text, fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ padding: 24, color: C.text, fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>🌀 Routines</h1>
       <p style={{ color: C.muted, fontSize: 13, marginBottom: 20 }}>
         Catalog des cron + scripts qui pilotent automatisation. Self-critique méta-loop weekly Sun 6am.

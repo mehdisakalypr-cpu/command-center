@@ -357,7 +357,7 @@ export default function InsightsPage() {
   // List view
   if (!activeReport) {
     return (
-      <div style={{ color: C.text, fontFamily: "Inter, sans-serif" }}>
+      <div style={{ color: C.text, fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
         <div style={{ background: C.header, borderBottom: C.border, padding: "12px 24px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <span style={{ fontSize: ".7rem", letterSpacing: ".16em", textTransform: "uppercase", color: C.gold, fontWeight: 600 }}>Insights</span>
           <span style={{ fontSize: ".6rem", color: C.dim }}>Analyses stratégiques & benchmarks</span>
@@ -633,7 +633,7 @@ export default function InsightsPage() {
 
   // Detail view
   return (
-    <div style={{ color: C.text, fontFamily: "Inter, sans-serif", display: "flex", flexDirection: "column", height: "100%" }}>
+    <div style={{ color: C.text, fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif", display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Header */}
       <div style={{ background: C.header, borderBottom: C.border, padding: "10px 20px", display: "flex", alignItems: "center", gap: 10, flexShrink: 0, flexWrap: "wrap" }}>
         <button onClick={() => { setActiveReport(null); stopSpeaking(); }} style={{ background: "none", border: "1px solid rgba(255,255,255,.1)", color: C.muted, padding: "4px 10px", fontSize: 11, cursor: "pointer", fontFamily: "inherit", borderRadius: 4 }}>

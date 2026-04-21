@@ -159,7 +159,7 @@ export default function DashboardPage() {
   const totalTierUsers = Object.values(ftg?.tiers ?? {}).reduce((a, b) => a + b, 0);
 
   return (
-    <div style={{ color: "#E8E0D0", fontFamily: "Inter, sans-serif" }}>
+    <div style={{ color: "#E8E0D0", fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes fadeIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }`}</style>
 
       {/* Header bar */}
