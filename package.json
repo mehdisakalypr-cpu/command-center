@@ -9,6 +9,7 @@
     "test:auth": "tsx scripts/test-auth-e2e.ts"
   },
   "dependencies": {
+    "@e2b/code-interpreter": "^2.4.0",
     "@simplewebauthn/browser": "^13.3.0",
     "@simplewebauthn/server": "^13.3.0",
     "@supabase/ssr": "^0.10.2",
