@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import type { IdeaRow, LeverageConfigUI, Envelope, Filters } from '../types';
+import { MIN_AUTONOMY_PASS } from '../types';
 import DeepDiveDrawer from './DeepDiveDrawer';
 import ControlsBar from './ControlsBar';
 
@@ -15,6 +16,7 @@ function bestConfigForEnvelope(idea: IdeaRow, env: Envelope): LeverageConfigUI |
 }
 
 function passesFilters(idea: IdeaRow, f: Filters): boolean {
+  if (f.hideBelowThreshold && (idea.autonomy_score ?? 0) < MIN_AUTONOMY_PASS) return false;
   if (f.categories && f.categories.length && !f.categories.includes(idea.category)) return false;
   if (f.elasticity === 'high' && idea.leverage_elasticity !== 'high') return false;
   if (f.elasticity === 'exclude_flat' && idea.leverage_elasticity === 'flat') return false;
@@ -26,7 +28,7 @@ function passesFilters(idea: IdeaRow, f: Filters): boolean {
 export default function IdeasTable({ initialIdeas }: { initialIdeas: IdeaRow[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [envelope, setEnvelope] = useState<Envelope>({ budgetEur: 0, workers: 1 });
-  const [filters, setFilters] = useState<Filters>({ categories: null, elasticity: 'all', llcGate: 'all' });
+  const [filters, setFilters] = useState<Filters>({ categories: null, elasticity: 'all', llcGate: 'all', hideBelowThreshold: true });
 
   const ranked = useMemo(() => {
     const withBest = initialIdeas
@@ -42,9 +44,13 @@ export default function IdeasTable({ initialIdeas }: { initialIdeas: IdeaRow[] }
     return withBest;
   }, [initialIdeas, envelope, filters]);
 
+  const passingCount = initialIdeas.filter(i => (i.autonomy_score ?? 0) >= MIN_AUTONOMY_PASS).length;
+  const belowCount = initialIdeas.length - passingCount;
   const emptyMsg = initialIdeas.length === 0
     ? 'Aucune proie encore. Lance Hisoka avec le bouton ci-dessus.'
-    : `Aucune idée ne correspond aux filtres. ${initialIdeas.length} idées masquées.`;
+    : filters.hideBelowThreshold
+      ? `${belowCount} idées sous seuil masquées. Active "Inclure les insuffisants" pour les voir.`
+      : `Aucune idée ne correspond aux filtres. ${initialIdeas.length} idées masquées.`;
 
   return (
     <>

@@ -36,7 +36,12 @@ export type Filters = {
   categories: string[] | null;   // null = all
   elasticity: 'all' | 'high' | 'exclude_flat';
   llcGate: 'all' | 'doable_now' | 'post_expat_ok';
+  /** Hide ideas below Hisoka scoring thresholds (default true). */
+  hideBelowThreshold: boolean;
 };
+
+/** Hisoka scoring thresholds — mirrors lib/hisoka/scoring.ts MIN_AUTONOMY. */
+export const MIN_AUTONOMY_PASS = 0.9;
 
 export const ALL_CATEGORIES = [
   'middleware_api', 'data_platform', 'productized_service',

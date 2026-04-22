@@ -96,6 +96,16 @@ export default function ControlsBar({ envelope, filters, onEnvelope, onFilters }
             <option value="post_expat_ok">post-expat OK</option>
           </select>
         </label>
+        <label style={{ display: 'flex', gap: 6, alignItems: 'center', cursor: 'pointer' }}
+               title="Masque les idées avec autonomy_score < 0.9 (seuil Hisoka MIN_AUTONOMY)">
+          <input
+            type="checkbox"
+            checked={filters.hideBelowThreshold}
+            onChange={e => onFilters({ ...filters, hideBelowThreshold: e.target.checked })}
+            style={{ accentColor: '#C9A84C' }}
+          />
+          <span>Masquer scoring insuffisant (&lt; 0.9)</span>
+        </label>
       </div>
     </div>
   );
