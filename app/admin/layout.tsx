@@ -21,6 +21,7 @@ const NAV_GROUPS: NavGroupX[] = [
   {
     label: 'Pilotage', icon: '🔭', items: [
       { href: '/admin/overview',          label: 'Overview',    icon: '🏠', desc: 'Vue d\'ensemble' },
+      { href: '/admin/businesses',        label: 'Businesses',  icon: '🏢', desc: 'Registre multi-business · scope rubriques' },
       { href: '/admin/dashboard',         label: 'Dashboard',   icon: '📊', desc: 'Monitoring & VPS' },
       { href: '/admin/vr',                label: 'V/R',         icon: '🎯', desc: 'Vision vs Réalisé' },
       { href: '/admin/simulator',         label: 'Simulateur',  icon: '🧮', desc: 'Objectifs → plan', subgroup: 'Stratégie' },
