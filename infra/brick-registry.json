@@ -1,0 +1,94 @@
+{
+  "bricks": [
+    {
+      "id": "auth_webauthn",
+      "name": "WebAuthn biometric auth + Supabase + site_access",
+      "projects_using": ["ftg", "ofa", "cc", "estate"],
+      "files_pointer": "feel-the-gap/lib/auth, command-center/lib/auth-v2",
+      "saves_dev_weeks": 4,
+      "maturity": "production",
+      "enables": ["user auth on any new site", "cross-site sessions", "admin gating"]
+    },
+    {
+      "id": "marketplace_matching",
+      "name": "B2B matching engine with commission",
+      "projects_using": ["ftg"],
+      "saves_dev_weeks": 6,
+      "maturity": "production",
+      "enables": ["2-sided marketplaces with escrow", "supply/demand scoring"],
+      "requires": ["auth_webauthn", "stripe_subs_tier"]
+    },
+    {
+      "id": "scraper_oignon",
+      "name": "Multi-source scraper (HN/PH/Reddit/Trends)",
+      "projects_using": ["ofa", "cc"],
+      "saves_dev_weeks": 3,
+      "maturity": "production",
+      "enables": ["signal harvesting", "competitor monitoring", "lead enrichment"]
+    },
+    {
+      "id": "image_cascade",
+      "name": "9-source image generation cascade with free-tier failover",
+      "projects_using": ["ofa", "ftg"],
+      "saves_dev_weeks": 5,
+      "maturity": "production",
+      "enables": ["illustrated content at scale", "hero images", "product shots"]
+    },
+    {
+      "id": "llm_cascade",
+      "name": "Multi-provider LLM with prompt-cache + locale-aware",
+      "projects_using": ["ftg", "cc", "ofa"],
+      "saves_dev_weeks": 4,
+      "maturity": "production",
+      "enables": ["any LLM-powered feature", "multi-lang content"]
+    },
+    {
+      "id": "stripe_subs_tier",
+      "name": "Stripe subscriptions with tier-gating matrix",
+      "projects_using": ["ftg", "cc"],
+      "saves_dev_weeks": 3,
+      "maturity": "production",
+      "enables": ["tiered pricing", "usage metering", "dunning"]
+    },
+    {
+      "id": "geo_pricing",
+      "name": "Per-country pricing with 195 multipliers (PPP + BigMac + Numbeo)",
+      "projects_using": ["ftg"],
+      "saves_dev_weeks": 2,
+      "maturity": "production",
+      "enables": ["fair regional pricing", "PPP-adjusted offers"]
+    },
+    {
+      "id": "i18n_helpers",
+      "name": "Multi-locale helpers + 12 Supabase lang tables",
+      "projects_using": ["ftg", "cc", "ofa"],
+      "saves_dev_weeks": 3,
+      "maturity": "production",
+      "enables": ["any site in 12+ languages"]
+    },
+    {
+      "id": "warm_outreach",
+      "name": "Warm-network dispatcher + 3 persona sequences",
+      "projects_using": ["ftg"],
+      "saves_dev_weeks": 4,
+      "maturity": "production",
+      "enables": ["automated cold email at scale", "CRM-free outbound"]
+    },
+    {
+      "id": "video_gen",
+      "name": "Seedance + ElevenLabs video pipeline",
+      "projects_using": ["ftg"],
+      "saves_dev_weeks": 3,
+      "maturity": "production",
+      "enables": ["ad videos", "product demos", "tutorials"]
+    },
+    {
+      "id": "cc_fleet",
+      "name": "N-worker CC fleet (tickets + claims + scoring + anti-loop)",
+      "projects_using": ["cc"],
+      "saves_dev_weeks": 8,
+      "maturity": "beta",
+      "enables": ["parallel AI dev execution"]
+    }
+  ]
+}
