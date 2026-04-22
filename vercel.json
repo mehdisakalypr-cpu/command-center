@@ -1,4 +1,5 @@
 {
+  "alias": ["cc-dashboard.vercel.app"],
   "crons": [
     {
       "path": "/api/cron/refresh-country-pricing",
