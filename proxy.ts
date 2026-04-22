@@ -42,8 +42,52 @@ function isPublicApi(p: string) {
   return PUBLIC_API_PREFIXES.some(x => p.startsWith(x));
 }
 
+// Public root domain for SaaS landings. Subdomains `{slug}.gapup.io` are
+// rewritten to `/saas/{slug}/...` transparently. Admin is blocked on this host.
+const PUBLIC_ROOT_HOST = "gapup.io";
+
+function hostSlug(host: string | null): string | null {
+  if (!host) return null;
+  const h = host.toLowerCase().split(":")[0];
+  if (h === PUBLIC_ROOT_HOST || h === `www.${PUBLIC_ROOT_HOST}`) return "__root__";
+  if (h.endsWith(`.${PUBLIC_ROOT_HOST}`)) {
+    return h.slice(0, h.length - PUBLIC_ROOT_HOST.length - 1);
+  }
+  return null;
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const host = request.headers.get("host");
+
+  // Wildcard *.gapup.io — rewrite public SaaS landings and block admin paths.
+  const slug = hostSlug(host);
+  if (slug && slug !== "__root__") {
+    // Block admin + internal APIs from leaking onto the public host.
+    if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
+      return NextResponse.rewrite(new URL("/404", request.url));
+    }
+    // Don't double-rewrite if already targeting /saas/{slug}.
+    if (!pathname.startsWith("/saas/") && !pathname.startsWith("/api/saas/") && !isStaticAsset(pathname)) {
+      const url = request.nextUrl.clone();
+      // /foo → /saas/{slug}/foo , / → /saas/{slug}
+      url.pathname = pathname === "/" ? `/saas/${slug}` : `/saas/${slug}${pathname}`;
+      return NextResponse.rewrite(url);
+    }
+  }
+  if (slug === "__root__") {
+    // Root gapup.io: for now, forward to a simple landing. If /root or
+    // /hubs/gapup page exists, use that; otherwise serve a generic hub.
+    if (pathname === "/" || pathname === "") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/hubs/gapup";
+      return NextResponse.rewrite(url);
+    }
+    // Same admin block as subdomains.
+    if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
+      return NextResponse.rewrite(new URL("/404", request.url));
+    }
+  }
 
   if (isStaticAsset(pathname)) return NextResponse.next();
   if (isPublicPage(pathname)) return NextResponse.next();
