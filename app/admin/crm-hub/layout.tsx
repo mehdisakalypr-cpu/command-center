@@ -8,6 +8,7 @@ const GOLD = '#C9A84C'
 const TABS = [
   { href: '/admin/crm-hub/users',    label: 'Utilisateurs', icon: '👥', desc: 'Profils FTG, tiers, Stripe' },
   { href: '/admin/crm-hub/leads',    label: 'Leads',        icon: '🎯', desc: 'Pipeline funnel par produit' },
+  { href: '/admin/crm-hub/clients',  label: 'Clients SaaS', icon: '🪪', desc: 'Magic-link signups + waitlist scopés par business' },
   { href: '/admin/crm-hub/demo',     label: 'Démo',         icon: '🎭', desc: 'Comptes test partagés' },
   { href: '/admin/crm-hub/parcours', label: 'Parcours',     icon: '🧭', desc: 'Demandes démo + tours guidés' },
 ]
