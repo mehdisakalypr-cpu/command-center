@@ -1,0 +1,14 @@
+{
+  "cases": [
+    { "id": "co_1", "niche": "sous vide cooking", "target_audience": "home chefs", "word_count_min": 400 },
+    { "id": "co_2", "niche": "ergonomic mechanical keyboards", "target_audience": "programmers", "word_count_min": 500 },
+    { "id": "co_3", "niche": "urban beekeeping", "target_audience": "city dwellers", "word_count_min": 400 },
+    { "id": "co_4", "niche": "Dvorak typing layout", "target_audience": "writers", "word_count_min": 400 },
+    { "id": "co_5", "niche": "lo-fi beats production", "target_audience": "aspiring producers", "word_count_min": 400 },
+    { "id": "co_6", "niche": "air-plant care", "target_audience": "apartment dwellers", "word_count_min": 400 },
+    { "id": "co_7", "niche": "backyard chicken breeds", "target_audience": "hobby farmers", "word_count_min": 400 },
+    { "id": "co_8", "niche": "fountain pen ink reviews", "target_audience": "stationery nerds", "word_count_min": 400 },
+    { "id": "co_9", "niche": "introvert-friendly hobbies", "target_audience": "introverts", "word_count_min": 400 },
+    { "id": "co_10", "niche": "raw honey foraging", "target_audience": "naturalists", "word_count_min": 400 }
+  ]
+}

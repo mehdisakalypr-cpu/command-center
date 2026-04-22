@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import ArchitectureDiagram from '@/app/admin/_shared/ArchitectureDiagram';
 
 type CapacityRow = { label: string; actual: number; target: number; weekly_rate: number; kaioken_rate: number; remaining: number; eta_days: number | null; eta_days_kaioken: number | null; pct: number };
 type CapacityData = { ok: boolean; updated_at: string; rows: CapacityRow[]; global_eta_days: number | null; global_eta_kaioken: number | null; note?: string };
@@ -168,6 +169,70 @@ const BENEFITS = [
   "🛡️ **Container isolé par session** : graceful shutdown, reschedule auto si crash, plus de PM2 qui meurt",
   "📊 **Observabilité native** : SSE event stream complet, logs structurés, usage tracking auto",
 ];
+
+const MINATO_ARCHITECTURE = `flowchart TD
+  subgraph Intake["Ticket Intake"]
+    I1[Hisoka Push-to-Minato<br/>Phase 4B] --> T[minato_tickets table<br/>state=queued]
+    I2[Manual admin insert] --> T
+    I3[Cron-based agent<br/>auto-generated] --> T
+  end
+
+  subgraph Dispatch["Dispatcher — capability-based"]
+    T --> D1{scope overlap check}
+    D1 -->|clear| D2[Match<br/>required_caps vs<br/>cc_workers.capabilities]
+    D1 -->|blocked| B[state=blocked]
+    D2 --> D3[MRR-aware score<br/>priority × impact × 1/tokens]
+    D3 --> D4{assign}
+  end
+
+  subgraph Workers["CC Fleet (dormant until 2nd compte)"]
+    D4 --> W1[cc-main<br/>interactive toi]
+    D4 -.post-2nd-compte.-> W2[cc-worker-1<br/>autonomous]
+    D4 -.-> W3[cc-worker-N<br/>scale horizontally]
+  end
+
+  subgraph Arsenal["Minato Arsenal — 24 techniques"]
+    X1[Shaka 🧘 autonomous]
+    X2[Kakashi 🔍 reuse scanner]
+    X3[Senku 🔬 root-cause]
+    X4[Dokho ⚖️ maintenance]
+    X5[Neji 🎯 overshoot]
+    X6[Kurama 🦊 image cascade]
+    X7[... +18 more]
+  end
+
+  W1 --> X1
+  W1 --> X2
+  W2 -.-> X1
+  W2 -.-> X2
+
+  subgraph Flow["Ticket Flow"]
+    W1 --> P1[claim ticket<br/>state=in_progress]
+    P1 --> P2[execute<br/>heartbeat 60s]
+    P2 --> P3{tests vert?}
+    P3 -->|yes| P4[open PR<br/>state=pr_open]
+    P3 -->|no| P5[retry x2<br/>then state=failed]
+    P4 --> P6{auto-merge OK?}
+    P6 -->|safe scope| P7[auto-merge<br/>state=merged → done]
+    P6 -->|critical| P8[review human<br/>toi]
+  end
+
+  subgraph Observability["Observability"]
+    O1[/admin/cc-fleet<br/>grid workers]
+    O2[/admin/minato<br/>queue + arsenal]
+    O3[minato_audit<br/>immutable log]
+  end
+
+  P2 --> O3
+  T --> O2
+  W1 --> O1
+
+  style X1 fill:#C9A84C,color:#0A1A2E
+  style P7 fill:#6BCB77,color:#0A1A2E
+  style P5 fill:#FF6B6B,color:#fff
+  style W2 stroke-dasharray:5 5
+  style W3 stroke-dasharray:5 5
+`;
 
 const FORCE = [
   { label: "Minato seul", desc: "Philosophie d'orchestration manuelle. Tu lances les scripts. Pas d'auto-pilote, pas de mémoire inter-session, pas d'observabilité native. Gratuit, fonctionne aujourd'hui." },
@@ -385,6 +450,8 @@ export default function MinatoDocPage() {
         <footer style={{ marginTop: 40, paddingTop: 16, borderTop: C.border, color: C.muted, fontSize: 12, textAlign: "center" }}>
           Doc Minato × Managed Agents · v2 · 2026-04-21 (Shaka) · Command Center Admin
         </footer>
+
+        <ArchitectureDiagram title="🏗 Architecture Minato" mermaid={MINATO_ARCHITECTURE} />
       </div>
     </div>
   );
