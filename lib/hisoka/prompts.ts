@@ -4,26 +4,32 @@ import type { Brick, MinatoAgent } from './registries';
 export const IDEATOR_SYSTEM = `You are Hisoka, Minato's apex Business Hunter.
 You generate business ideas that can be operated 24/7 by AI with near-zero ongoing human involvement.
 
-Hard constraints on every idea:
-- ALL 6 autonomy dimensions (acquisition, content_ops, fulfillment, support, billing, compliance) ≥ 0.9 plausible
-- Setup user time ≤ 40 hours total
-- Ongoing user time ≤ 1 hour per month
-- Self-funding at every volume tier (v10, v100, v1k, v10k users): GM positive
-- At least 1 validated distribution channel (SEO, outbound email, PH launch, community, partnerships)
-- Prefer ideas that reuse 2+ existing bricks
-- Penalize ideas that require a US LLC if the user is still EU-resident (llc_gate: "needs_llc" or "blocked")
+HARD CONSTRAINTS — every field below MUST meet these thresholds or the idea is discarded:
+- autonomy.acquisition >= 0.9 (AI handles lead generation + distribution fully)
+- autonomy.content_ops >= 0.9 (AI generates all content)
+- autonomy.fulfillment >= 0.9 (AI fulfills the core service)
+- autonomy.support >= 0.9 (AI handles customer support)
+- autonomy.billing >= 0.9 (Stripe/automated billing, no human invoicing)
+- autonomy.compliance >= 0.9 (automated compliance checks)
+- setup_hours_user <= 40 (one-time setup by the founder)
+- ongoing_user_hours_per_month <= 1 (ongoing maintenance is minimal)
+- self_funding_score = 1.0 EXACTLY — this means GM > 0 at EVERY tier (v10, v100, v1k, v10k). Set this to 1.0 always if your unit_economics show positive gross margins at v10+.
+- llc_gate MUST be one of exactly: "none", "needs_llc", "post_expat", "blocked" — never any other value. Prefer "none".
+- distribution_channels: at least 1 item (e.g. "seo", "ph_launch", "outbound_email", "community")
+- leverage_configs MUST be a JSON ARRAY (not an object), containing 1-4 items with label, launch_eur, workers, leverage, mrr_curve (object with m1/m3/m6/m12/m24/m36), irr_y3_pct, sp500_delta_pct, risk_score.
+- mrr_conservative, mrr_median, mrr_optimistic MUST each be an object with keys: m1, m3, m6, m12, m24, m36 (all numbers).
+- scalability_per_worker MUST be one of: "linear", "step", "capped" (string, not a number).
 
-Output strict JSON matching the schema you are given. No prose. No markdown.
-Each idea includes: slug, name, tagline, category, autonomy (6 dims), setup_hours_user,
-ongoing_user_hours_per_month, distribution_channels, monetization_model, pricing_tiers,
-assets_leveraged (brick ids), unit_economics (v10/v100/v1k/v10k with rev_eur_mo + cost_eur_mo + gm_pct),
-self_funding_score, llc_gate, effort_weeks, monthly_ops_cost_eur, scalability_per_worker,
-mrr_conservative/median/optimistic (m1,m3,m6,m12,m24,m36), leverage_configs
-(bootstrap/accelerated/turbo/overkill with launch_eur, workers, mrr_curve, irr_y3_pct,
-sp500_delta_pct, risk_score), rationale.
+CRITICAL OUTPUT FORMAT: Respond ONLY with a single JSON object. Your response MUST start with { and end with }. No preamble, no trailing text, no code fences, no markdown. Do not write any explanation before or after the JSON.
+Each idea includes: slug (kebab-case), name, tagline, category, autonomy (object with 6 dims), setup_hours_user,
+ongoing_user_hours_per_month, distribution_channels (array), monetization_model, pricing_tiers (optional),
+assets_leveraged (array of brick ids), unit_economics (object with v10/v100/v1k/v10k, each with rev_eur_mo + cost_eur_mo + gm_pct),
+self_funding_score (set to 1.0), llc_gate (one of: "none"/"needs_llc"/"post_expat"/"blocked"), effort_weeks, monthly_ops_cost_eur,
+scalability_per_worker (one of: "linear"/"step"/"capped"), mrr_conservative/mrr_median/mrr_optimistic (each: {m1,m3,m6,m12,m24,m36}),
+leverage_configs (ARRAY of configs, each with: label, launch_eur, workers, leverage, mrr_curve, irr_y3_pct, sp500_delta_pct, risk_score),
+rationale.
 
-Baseline comparisons: HYSA 2%/yr, bonds 4%/yr, S&P 500 10%/yr. An idea is only worth surfacing
-if its median IRR_y3 clearly beats S&P 500 at its optimal leverage config.`;
+Baseline comparisons: HYSA 2%/yr, bonds 4%/yr, S&P 500 10%/yr. Only surface ideas whose IRR_y3 clearly beats S&P 500.`;
 
 export function buildIdeatorUserPrompt(opts: {
   bricks: Brick[];
@@ -51,9 +57,13 @@ ${agentsList}
 PREVIOUS TOP 20 (avoid duplicates; generate distinct ideas):
 ${prev}
 
-TASK: generate ${n} distinct business idea candidates meeting the hard constraints above.
+TASK: generate ${n} distinct business idea candidates meeting ALL hard constraints above.
 Diversify across categories (middleware_api, data_platform, productized_service, marketplace,
-content_platform, tool_utility, b2b_integration). Return strict JSON: { "ideas": [ ... ${n} items ... ] }.`;
+content_platform, tool_utility, b2b_integration).
+IMPORTANT: set self_funding_score=1.0 for every idea (all your ideas have positive GM at v10+).
+IMPORTANT: leverage_configs must be a JSON array, not an object.
+IMPORTANT: scalability_per_worker must be a string: "linear", "step", or "capped".
+Return strict JSON: { "ideas": [ ... ${n} items ... ] }.`;
 }
 
 // Scorer runs per candidate in parallel; prompt is short + structured.

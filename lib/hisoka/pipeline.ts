@@ -51,25 +51,43 @@ export async function runDiscovery(
       {
         system: IDEATOR_SYSTEM,
         prompt: userPrompt,
-        model: 'anthropic/claude-sonnet-4-6',
+        // Groq uses llama-4-scout by default (handles large structured JSON outputs, free).
+        // OpenRouter will try the specified model; if the account has credit it uses the paid model,
+        // otherwise falls through to free models (capped at 4096 output tokens).
+        model: 'anthropic/claude-3-5-haiku',
         temperature: 0.8,
-        maxTokens: 8000,
+        maxTokens: 16000,
       },
       {
         project: 'cc',
-        order: ['openrouter'],
+        // Groq first (free, large outputs, reliable JSON), then openrouter as fallback.
+        order: ['groq', 'openrouter', 'anthropic', 'openai'],
       },
     );
     const costEur = (gen.costUsd ?? 0) * 0.92;
 
-    // 4. Parse — extractJSON grabs first JSON object/array from raw text
-    let parsed: { ideas: ScoredIdea[] };
+    // 4. Parse — strip code fences defensively, then extractJSON grabs first JSON object/array.
+    // If the JSON is truncated (output cutoff), extract all complete idea objects with regex.
+    const cleanedText = gen.text.replace(/^```(?:json)?\n?|\n?```$/g, '').trim();
+    let ideas: ScoredIdea[] = [];
     try {
-      parsed = extractJSON<{ ideas: ScoredIdea[] }>(gen.text);
-    } catch (e) {
-      throw new Error(`LLM JSON parse failed: ${String(e).slice(0, 200)}`);
+      const parsed = extractJSON<{ ideas: ScoredIdea[] }>(cleanedText);
+      ideas = parsed.ideas ?? [];
+    } catch (_parseErr) {
+      // Attempt partial recovery: grab every complete top-level object in the ideas array.
+      // Match objects that start with {"slug": and end with a balanced brace.
+      const partialMatches = cleanedText.matchAll(/\{\s*"slug"\s*:\s*"[^"]+".+?\}(?=\s*[,\]])/gs);
+      for (const m of partialMatches) {
+        try {
+          const obj = JSON.parse(m[0]) as ScoredIdea;
+          if (obj.slug && obj.name) ideas.push(obj);
+        } catch { /* skip malformed */ }
+      }
+      if (ideas.length === 0) {
+        throw new Error(`LLM JSON parse failed (no recoverable ideas) | raw=${gen.text.slice(0, 400)}`);
+      }
+      console.warn(`[hisoka] JSON truncated — recovered ${ideas.length} ideas via partial parse`);
     }
-    const ideas = parsed.ideas ?? [];
 
     // 5. Filter + score
     const scored = ideas
