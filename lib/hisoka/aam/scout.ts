@@ -1,25 +1,25 @@
 import { withFallback, extractJSON } from '@/lib/ai-pool/cascade';
 import type { AutomationGap, Candidate } from './types';
 
-const SYSTEM = `You are Mei Hatsume, a mad inventor scout. Given an automation gap, you compose narrow search queries to find existing tools that could close it. You return ranked candidates with one-line justifications. Strict JSON only.`;
+const SYSTEM = `You are Mei Hatsume, a mad inventor scout. Given an automation gap, you compose narrow search queries to find existing tools that could close it. Output ONLY a JSON object. No preamble, no trailing prose, no markdown fences. Start your response with { and end with }.`;
 
 const GH_SEARCH = 'https://api.github.com/search/repositories';
 const HN_SEARCH = 'https://hn.algolia.com/api/v1/search';
 
 export async function scoutCandidates(gap: AutomationGap, maxPerSource = 3): Promise<Candidate[]> {
-  const prompt = `Gap on dimension "${gap.dim}": ${gap.description}. Propose 3 narrow search queries (GitHub repo topics/keywords that maximize finding mature tools that close this gap). Return JSON: { "queries": ["<q1>", "<q2>", "<q3>"] }`;
+  const prompt = `Gap on dimension "${gap.dim}": ${gap.description}. Propose 2 narrow search queries (GitHub repo topics/keywords that maximize finding mature tools that close this gap). Output: { "queries": ["<q1>", "<q2>"] }`;
   const gen = await withFallback(
-    // 1200 tokens — Gemini often wraps strict JSON in ```json fences + whitespace
-    // that can push a 3-query payload past 400 tokens, causing mid-string
-    // truncation that even repairTruncatedJSON can't recover (no closing `}`).
-    { system: SYSTEM, prompt, model: 'llama-4-scout-17b-16e-instruct', temperature: 0.4, maxTokens: 1200 },
+    // 2400 tokens — covers Gemini's occasional preamble prose despite "JSON only".
+    // If prose eats 1000 tokens, 1400 remain for the payload which is plenty.
+    { system: SYSTEM, prompt, model: 'llama-4-scout-17b-16e-instruct', temperature: 0.4, maxTokens: 2400 },
     { project: 'cc', order: ['gemini','mistral','groq','openrouter','anthropic'] },
   );
-  // Strip markdown code fences defensively before parsing — Gemini sometimes
-  // ignores "Strict JSON only" and wraps in ```json ... ```.
-  const cleaned = gen.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+  // Strip markdown code fences + any prose preamble before the first `{`.
+  let cleaned = gen.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+  const firstBrace = cleaned.indexOf('{');
+  if (firstBrace > 0) cleaned = cleaned.slice(firstBrace);
   const parsed = extractJSON<{ queries: string[] }>(cleaned);
-  const queries = (parsed.queries ?? []).slice(0, 3);
+  const queries = (parsed.queries ?? []).slice(0, 2);
   if (queries.length === 0) return [];
 
   const candidates: Candidate[] = [];
