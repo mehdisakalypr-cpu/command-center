@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   }
   const { data } = await admin.from('business_ideas')
     .select('id, autonomy_score').eq('forge_status', 'idle')
-    .gte('autonomy_score', 0.75).lte('autonomy_score', 0.89)
+    .gte('autonomy_score', 0.75).lte('autonomy_score', 0.91)
     .lt('forge_attempts', 3).order('autonomy_score', { ascending: true }).limit(1);
   if (!data?.length) return NextResponse.json({ ok: false, error: 'empty queue' }, { status: 404 });
   const r = await forgeOne({ ideaId: (data[0] as { id: string }).id, admin });

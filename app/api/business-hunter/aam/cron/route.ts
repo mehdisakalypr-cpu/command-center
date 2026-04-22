@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   const costToday = (costRows ?? []).reduce((s, r) => s + Number((r as { cost_eur?: number }).cost_eur ?? 0), 0);
   if (costToday >= DAILY_BUDGET_EUR) return NextResponse.json({ ok: false, reason: 'daily budget reached', cost_today: costToday });
 
-  const { data: queue } = await admin.from('business_ideas').select('id').eq('forge_status','idle').gte('autonomy_score',0.75).lte('autonomy_score',0.89).lt('forge_attempts',3).order('autonomy_score',{ascending:true}).limit(MAX_PER_RUN);
+  const { data: queue } = await admin.from('business_ideas').select('id').eq('forge_status','idle').gte('autonomy_score',0.75).lte('autonomy_score',0.91).lt('forge_attempts',3).order('autonomy_score',{ascending:true}).limit(MAX_PER_RUN);
   const results: Array<{ idea_id: string; verdict: string; cost: number }> = [];
   for (const row of (queue ?? [])) {
     const r = await forgeOne({ ideaId: (row as { id: string }).id, admin });
