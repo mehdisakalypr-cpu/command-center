@@ -11,7 +11,7 @@ const MAX_PER_RUN = 5;
 const DAILY_BUDGET_EUR = 0.50;
 
 export async function POST(req: Request) {
-  const token = req.headers.get('x-cron-token');
+  const token = req.headers.get('x-cron-secret') ?? req.headers.get('x-cron-token');
   if (token !== process.env.CRON_SECRET) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   try { await fs.access(PAUSE_FILE); return NextResponse.json({ ok: false, paused: true }); } catch { /* not paused */ }
 

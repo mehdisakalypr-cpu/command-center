@@ -7,5 +7,5 @@ LOG_DIR=/root/monitor/logs
 mkdir -p "$LOG_DIR"
 TS=$(date +%FT%H:%M:%S)
 echo "[$TS] AAM cron firing" >> "$LOG_DIR/aam-cron.log"
-curl -s -X POST "$ENDPOINT" -H "x-cron-token: ${CRON_SECRET}" | tee -a "$LOG_DIR/aam-cron.log"
+curl -s -X POST "$ENDPOINT" -H "x-cron-secret: ${CRON_SECRET}" | tee -a "$LOG_DIR/aam-cron.log"
 echo "" >> "$LOG_DIR/aam-cron.log"
