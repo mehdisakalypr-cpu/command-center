@@ -17,9 +17,26 @@ export async function generateMetadata({ params }: PageProps) {
     .maybeSingle();
 
   const content = data?.landing_content as LandingContent | null;
+  const title = content?.hero_title ?? (data?.name as string | undefined) ?? 'SaaS';
+  const description = content?.hero_tagline ?? (data?.tagline as string | undefined);
+  const url = `https://cc-dashboard.vercel.app/saas/${slug}`;
+
   return {
-    title: content?.hero_title ?? (data?.name as string | undefined) ?? 'SaaS',
-    description: content?.hero_tagline ?? (data?.tagline as string | undefined) ?? undefined,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+      siteName: 'gapup.io',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 

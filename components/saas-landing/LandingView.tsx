@@ -102,8 +102,28 @@ export function LandingView({ slug, content }: { slug: string; content: LandingC
         </div>
       </section>
 
-      <footer className="border-t border-neutral-900 py-8 text-center text-sm text-neutral-500">
-        {content.footer_note}
+      <footer className="border-t border-neutral-900 py-8 px-6 text-sm text-neutral-500">
+        <div className="max-w-3xl mx-auto space-y-4">
+          <p className="text-center">{content.footer_note}</p>
+          <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs">
+            <a href={`/saas/${slug}/privacy`} className="hover:text-neutral-300">
+              {content.lang === 'fr' ? 'Confidentialité' : 'Privacy'}
+            </a>
+            <a href={`/saas/${slug}/terms`} className="hover:text-neutral-300">
+              {content.lang === 'fr' ? 'Conditions' : 'Terms'}
+            </a>
+            <a href="mailto:hello@gapup.io" className="hover:text-neutral-300">
+              Contact
+            </a>
+            <span className="text-neutral-700">·</span>
+            <span
+              className="text-neutral-600"
+              title={content.lang === 'fr' ? 'Construit en public par un fondateur solo' : 'Built in public by a solo founder'}
+            >
+              ⚡ {content.lang === 'fr' ? 'Projet indépendant' : 'Independent project'}
+            </span>
+          </div>
+        </div>
       </footer>
     </main>
   );
