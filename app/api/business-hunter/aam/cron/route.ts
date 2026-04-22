@@ -12,7 +12,7 @@ const DAILY_BUDGET_EUR = 0.50;
 
 export async function POST(req: Request) {
   const token = req.headers.get('x-cron-token');
-  if (token !== process.env.CRON_TOKEN) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
+  if (token !== process.env.CRON_SECRET) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   try { await fs.access(PAUSE_FILE); return NextResponse.json({ ok: false, paused: true }); } catch { /* not paused */ }
 
   const admin = createSupabaseAdmin();

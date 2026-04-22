@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
-  if (req.headers.get('x-cron-token') !== process.env.CRON_TOKEN) {
+  if (req.headers.get('x-cron-token') !== process.env.CRON_SECRET) {
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   }
   const admin = createSupabaseAdmin();
