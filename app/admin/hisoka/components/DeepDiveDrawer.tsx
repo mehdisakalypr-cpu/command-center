@@ -20,11 +20,38 @@ type IdeaFull = {
   leverage_configs?: unknown[];
   optimal_config?: unknown;
   leverage_elasticity?: string;
+  // Minato queue tracking
+  pushed_to_minato_at?: string | null;
+  minato_ticket_id?: string | null;
+};
+
+type PushResult = {
+  ok: boolean;
+  ticket_id?: string;
+  already_queued?: boolean;
+  error?: string;
+  pushed_at?: string;
 };
 
 export default function DeepDiveDrawer({ ideaId, onClose }: { ideaId: string; onClose: () => void }) {
   const [data, setData] = useState<{ idea?: IdeaFull } | null>(null);
   const [mc, setMc] = useState<McPercentiles | null>(null);
+  const [pushing, setPushing] = useState(false);
+  const [pushResult, setPushResult] = useState<PushResult | null>(null);
+
+  async function pushToMinato() {
+    if (!confirm('Push this idea to the Minato execution queue?')) return;
+    setPushing(true);
+    setPushResult(null);
+    try {
+      const r = await fetch(`/api/business-hunter/ideas/${ideaId}/push-to-minato`, { method: 'POST' });
+      setPushResult(await r.json());
+    } catch (e) {
+      setPushResult({ ok: false, error: String(e) });
+    } finally {
+      setPushing(false);
+    }
+  }
 
   useEffect(() => {
     fetch(`/api/business-hunter/ideas/${ideaId}`).then(r => r.json()).then(setData);
@@ -143,6 +170,53 @@ export default function DeepDiveDrawer({ ideaId, onClose }: { ideaId: string; on
             <div style={{ fontSize: 11 }}>{(data.idea.assets_leveraged ?? []).map((b: string) => (
               <span key={b} style={{ display: 'inline-block', margin: '2px 4px 2px 0', padding: '2px 8px', background: '#112233', borderRadius: 4 }}>+{b}</span>
             ))}</div>
+          </section>
+
+          {/* ── Push to Minato queue ── */}
+          <section style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid rgba(201,168,76,.15)' }}>
+            {/* Already queued (from DB, before any client push) */}
+            {data.idea.pushed_to_minato_at && !pushResult && (
+              <div style={{ padding: 8, background: 'rgba(107,203,119,.1)', borderRadius: 4, color: '#6BCB77', fontSize: 12 }}>
+                Already queued {new Date(data.idea.pushed_to_minato_at).toLocaleString('fr-FR')}
+                {data.idea.minato_ticket_id && ` · ticket ${data.idea.minato_ticket_id.slice(0, 8)}…`}
+              </div>
+            )}
+
+            {/* Push button — only shown if not yet queued and no result yet */}
+            {!data.idea.pushed_to_minato_at && !pushResult && (
+              <button
+                onClick={pushToMinato}
+                disabled={pushing}
+                style={{
+                  background: pushing ? '#555' : '#C9A84C',
+                  color: '#0A1A2E',
+                  fontWeight: 700,
+                  border: 'none',
+                  padding: '8px 14px',
+                  borderRadius: 4,
+                  cursor: pushing ? 'wait' : 'pointer',
+                  fontSize: 13,
+                }}
+              >
+                {pushing ? '▶ Queuing…' : '▶ Push to Minato queue'}
+              </button>
+            )}
+
+            {/* Success state after push */}
+            {pushResult && pushResult.ok && (
+              <div style={{ padding: 10, background: 'rgba(107,203,119,.1)', borderRadius: 4, color: '#6BCB77', fontSize: 12 }}>
+                {pushResult.already_queued ? 'Already in queue' : 'Queued successfully'}
+                {pushResult.ticket_id && ` · ticket ${pushResult.ticket_id.slice(0, 8)}…`}
+                {pushResult.pushed_at && ` · ${new Date(pushResult.pushed_at).toLocaleString('fr-FR')}`}
+              </div>
+            )}
+
+            {/* Error state */}
+            {pushResult && !pushResult.ok && (
+              <div style={{ padding: 10, background: '#330', borderRadius: 4, color: '#FF6B6B', fontSize: 12 }}>
+                Push failed: {pushResult.error}
+              </div>
+            )}
           </section>
         </>
       )}
