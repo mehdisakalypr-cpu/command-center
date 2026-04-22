@@ -12,9 +12,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   }
   try {
+    const url = new URL(req.url);
+    const countParam = Number(url.searchParams.get('count'));
+    const countTarget = Number.isFinite(countParam) && countParam > 0 ? Math.min(countParam, 30) : 5;
     const admin = createSupabaseAdmin();
-    const result = await runDiscovery(admin, { trigger: 'cron', countTarget: 5 });
-    return NextResponse.json({ ok: true, ...result });
+    const result = await runDiscovery(admin, { trigger: 'cron', countTarget });
+    return NextResponse.json({ ok: true, countTarget, ...result });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e).slice(0, 500) }, { status: 500 });
   }
