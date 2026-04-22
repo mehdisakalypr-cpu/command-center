@@ -58,13 +58,15 @@ function validate(c: unknown): c is LandingContent {
   if (typeof x.hero_title !== 'string' || x.hero_title.length === 0 || x.hero_title.length > 120) return false;
   if (typeof x.hero_tagline !== 'string' || x.hero_tagline.length === 0 || x.hero_tagline.length > 240) return false;
   if (typeof x.hero_cta !== 'string' || x.hero_cta.length === 0) return false;
-  if (!Array.isArray(x.features) || x.features.length < 3 || x.features.length > 6) return false;
+  if (!Array.isArray(x.features) || x.features.length < 2 || x.features.length > 8) return false;
   for (const f of x.features) {
     if (!f || typeof f !== 'object') return false;
     const ff = f as Record<string, unknown>;
-    if (typeof ff.title !== 'string' || typeof ff.description !== 'string' || typeof ff.icon !== 'string') return false;
+    if (typeof ff.title !== 'string' || typeof ff.description !== 'string') return false;
+    // Icon is optional — pad with default if missing (Gemini sometimes drops it)
+    if (typeof ff.icon !== 'string' || !ff.icon) ff.icon = '✨';
   }
-  if (!Array.isArray(x.faq) || x.faq.length < 3 || x.faq.length > 6) return false;
+  if (!Array.isArray(x.faq) || x.faq.length < 2 || x.faq.length > 8) return false;
   for (const q of x.faq) {
     if (!q || typeof q !== 'object') return false;
     const qq = q as Record<string, unknown>;
