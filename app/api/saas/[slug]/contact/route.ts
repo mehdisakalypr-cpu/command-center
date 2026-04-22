@@ -54,5 +54,36 @@ export async function POST(
   });
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
 
+  // Notify ops inbox via Resend — best-effort, don't fail the request on email hiccups.
+  const resendKey = process.env.RESEND_API_KEY;
+  const fromAddress = process.env.RESEND_FROM ?? 'hello@gapup.io';
+  const opsInbox = process.env.CONTACT_NOTIFY_TO ?? 'hello@gapup.io';
+  if (resendKey) {
+    const safeSubject = subject ? ` · ${subject.slice(0, 80)}` : '';
+    const html = [
+      `<p><strong>Slug:</strong> ${slug}</p>`,
+      `<p><strong>From:</strong> ${email}</p>`,
+      `<p><strong>Reason:</strong> ${reason}</p>`,
+      subject ? `<p><strong>Subject:</strong> ${subject}</p>` : '',
+      `<p><strong>Message:</strong></p><pre style="white-space:pre-wrap">${message.replace(/</g, '&lt;')}</pre>`,
+    ].filter(Boolean).join('\n');
+    try {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [opsInbox],
+          reply_to: email,
+          subject: `[${slug}] ${reason}${safeSubject}`,
+          html,
+        }),
+      });
+    } catch { /* non-fatal */ }
+  }
+
   return NextResponse.json({ ok: true });
 }
