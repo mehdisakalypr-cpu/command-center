@@ -13,6 +13,9 @@ type IdeaFull = {
   autonomy_compliance?: number;
   mrr_median?: unknown;
   assets_leveraged?: string[];
+  leverage_configs?: unknown[];
+  optimal_config?: unknown;
+  leverage_elasticity?: string;
 };
 
 export default function DeepDiveDrawer({ ideaId, onClose }: { ideaId: string; onClose: () => void }) {
@@ -57,6 +60,43 @@ export default function DeepDiveDrawer({ ideaId, onClose }: { ideaId: string; on
               {JSON.stringify(data.idea.mrr_median, null, 2)}
             </pre>
           </section>
+          {data.idea.leverage_configs && Array.isArray(data.idea.leverage_configs) && (
+            <section style={{ marginBottom: 16 }}>
+              <div style={{ color: '#C9A84C', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                Leverage Configs
+                {data.idea.leverage_elasticity && (
+                  <span style={{ marginLeft: 8, fontSize: 10, padding: '2px 6px', background: '#112233', borderRadius: 4, color: '#9BA8B8' }}>
+                    {data.idea.leverage_elasticity} elasticity
+                  </span>
+                )}
+              </div>
+              <table style={{ width: '100%', fontSize: 11, borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ color: '#9BA8B8' }}>
+                    {['', 'Launch', 'Workers', 'Leverage', 'IRR y3', 'Risk'].map(h => (
+                      <th key={h} style={{ padding: '4px 6px', textAlign: 'left', fontWeight: 500 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(data.idea.leverage_configs as Array<{ label: string; launch_eur: number; workers: number; leverage: number; irr_y3_pct?: number; risk_score?: number }>).map(c => {
+                    const optimalConfig = data.idea?.optimal_config as { label?: string } | undefined;
+                    const isOptimal = optimalConfig != null && optimalConfig.label === c.label;
+                    return (
+                      <tr key={c.label} style={{ borderTop: '1px solid rgba(255,255,255,.05)', background: isOptimal ? 'rgba(201,168,76,.08)' : 'transparent' }}>
+                        <td style={{ padding: '4px 6px' }}>{isOptimal ? '⭐ ' : ''}{c.label}</td>
+                        <td style={{ padding: '4px 6px' }}>€{c.launch_eur}</td>
+                        <td style={{ padding: '4px 6px' }}>{c.workers}</td>
+                        <td style={{ padding: '4px 6px', fontWeight: 600 }}>{Number(c.leverage).toFixed(1)}×</td>
+                        <td style={{ padding: '4px 6px' }}>{c.irr_y3_pct != null ? `${Number(c.irr_y3_pct).toFixed(0)}%` : '—'}</td>
+                        <td style={{ padding: '4px 6px' }}>{c.risk_score != null ? Number(c.risk_score).toFixed(2) : '—'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </section>
+          )}
           <section style={{ marginBottom: 16 }}>
             <div style={{ color: '#C9A84C', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Rationale</div>
             <div style={{ fontSize: 12, color: '#9BA8B8' }}>{data.idea.rationale}</div>
