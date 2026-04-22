@@ -45,12 +45,13 @@ export default async function Page({ params }: PageProps) {
   const admin = createSupabaseAdmin();
   const { data } = await admin
     .from('business_ideas')
-    .select('slug, landing_content')
+    .select('slug, name, landing_content')
     .eq('slug', slug)
     .maybeSingle();
 
   const content = data?.landing_content as LandingContent | null;
   if (!data || !content) return notFound();
 
-  return <LandingView slug={slug} content={content} />;
+  const name = (data.name as string) ?? slug;
+  return <LandingView slug={slug} content={content} name={name} />;
 }

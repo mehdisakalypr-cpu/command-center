@@ -2,8 +2,18 @@
 
 import { useState } from 'react';
 import type { LandingContent } from '@/lib/hisoka/saas-forge/types';
+import { AnimatedBackground } from './AnimatedBackground';
+import { TopNav } from './TopNav';
 
-export function LandingView({ slug, content }: { slug: string; content: LandingContent }) {
+export function LandingView({
+  slug,
+  content,
+  name,
+}: {
+  slug: string;
+  content: LandingContent;
+  name: string;
+}) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'err'>('idle');
   const [msg, setMsg] = useState('');
@@ -34,8 +44,11 @@ export function LandingView({ slug, content }: { slug: string; content: LandingC
   const emailPlaceholder = content.lang === 'fr' ? 'votre@email.com' : 'you@email.com';
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      <section className="mx-auto max-w-3xl px-6 pt-24 pb-16 text-center">
+    <>
+      <AnimatedBackground />
+      <TopNav slug={slug} name={name} lang={content.lang} />
+      <main className="relative min-h-screen text-neutral-100">
+        <section className="mx-auto max-w-3xl px-6 pt-20 pb-16 text-center">
         <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">
           {content.hero_title}
         </h1>
@@ -110,9 +123,15 @@ export function LandingView({ slug, content }: { slug: string; content: LandingC
               {content.lang === 'fr' ? 'Confidentialité' : 'Privacy'}
             </a>
             <a href={`/saas/${slug}/terms`} className="hover:text-neutral-300">
-              {content.lang === 'fr' ? 'Conditions' : 'Terms'}
+              {content.lang === 'fr' ? 'CGU' : 'Terms'}
             </a>
-            <a href="mailto:hello@gapup.io" className="hover:text-neutral-300">
+            <a href={`/saas/${slug}/cgv`} className="hover:text-neutral-300">
+              {content.lang === 'fr' ? 'CGV' : 'Sales terms'}
+            </a>
+            <a href={`/saas/${slug}/legal`} className="hover:text-neutral-300">
+              {content.lang === 'fr' ? 'Mentions légales' : 'Legal notice'}
+            </a>
+            <a href={`/saas/${slug}/contact`} className="hover:text-neutral-300">
               Contact
             </a>
             <span className="text-neutral-700">·</span>
@@ -125,6 +144,7 @@ export function LandingView({ slug, content }: { slug: string; content: LandingC
           </div>
         </div>
       </footer>
-    </main>
+      </main>
+    </>
   );
 }
