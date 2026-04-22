@@ -22,7 +22,10 @@ export async function scoutCandidates(gap: AutomationGap, maxPerSource = 3): Pro
 
   for (const q of queries) {
     try {
-      const url = `${GH_SEARCH}?q=${encodeURIComponent(q)}+stars:>=500+pushed:>2025-01-01&sort=stars&order=desc&per_page=${maxPerSource}`;
+      // Filter widened: stars:>=100 (was 500) + pushed:>2024-01-01 (was 2025-01-01).
+      // The previous filter was so strict that most LLM-generated queries returned
+      // zero matches, causing "no candidates found" on valid gaps.
+      const url = `${GH_SEARCH}?q=${encodeURIComponent(q)}+stars:>=100+pushed:>2024-01-01&sort=stars&order=desc&per_page=${maxPerSource}`;
       const res = await fetch(url, {
         headers: {
           'Accept': 'application/vnd.github+json',
