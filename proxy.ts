@@ -8,6 +8,7 @@ const PUBLIC_PAGES = new Set<string>([]);
 const PUBLIC_PAGE_PREFIXES = [
   "/auth/",      // login, register, forgot, reset-password, callback, biometric-setup
   "/login",      // legacy redirect page
+  "/saas/",      // Hisoka Phase 5 — public landings /saas/[slug]
 ];
 const PUBLIC_API = new Set([
   "/api/auth/login",                  // server-side login proxy (rate-limit + Turnstile)
@@ -26,6 +27,7 @@ const PUBLIC_API = new Set([
 ]);
 const PUBLIC_API_PREFIXES = [
   "/api/auth/callback",
+  "/api/saas/",       // Hisoka Phase 5 — waitlist POST from public landings
 ];
 
 function isStaticAsset(p: string) {
