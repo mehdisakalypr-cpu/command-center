@@ -15,9 +15,12 @@ export type MistralCall = {
 }
 
 export async function callMistral(apiKey: string, input: GenInput): Promise<MistralCall> {
-  const model = input.model?.startsWith('mistral/')
-    ? input.model.replace('mistral/', '')
-    : (input.model ?? 'mistral-small-latest')
+  // Only honor input.model if it's a Mistral-native hint. Otherwise default —
+  // the cascade can pass prefixes like `anthropic/*` that Mistral rejects 400.
+  let model: string
+  if (input.model?.startsWith('mistral/')) model = input.model.slice('mistral/'.length)
+  else if (input.model && /^(mistral|codestral|pixtral|magistral|ministral|open-mistral|open-mixtral|devstral)[-\w.]*$/.test(input.model)) model = input.model
+  else model = 'mistral-small-latest'
 
   const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
     method: 'POST',

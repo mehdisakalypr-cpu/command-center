@@ -15,10 +15,15 @@ export type GeminiCall = {
 }
 
 export async function callGemini(apiKey: string, input: GenInput): Promise<GeminiCall> {
-  const rawModel = input.model?.startsWith('gemini/')
-    ? input.model.replace('gemini/', '')
-    : (input.model ?? 'gemini-2.5-flash')
-  const model = rawModel.startsWith('models/') ? rawModel.slice('models/'.length) : rawModel
+  // Only honor input.model if it's a Gemini-native hint. Otherwise fall through
+  // to the free-tier default — the cascade passes through prefixes like
+  // `anthropic/claude-*` or `openai/gpt-*` that Google's API rejects as 400.
+  let rawModel: string
+  if (input.model?.startsWith('gemini/')) rawModel = input.model.slice('gemini/'.length)
+  else if (input.model?.startsWith('models/')) rawModel = input.model.slice('models/'.length)
+  else if (input.model && /^(gemini|gemma)[-\w.]+$/.test(input.model)) rawModel = input.model
+  else rawModel = 'gemini-2.5-flash'
+  const model = rawModel
 
   const body = {
     contents: [
