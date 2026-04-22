@@ -60,7 +60,9 @@ export default async function HisokaPage() {
   const [{ data: ideas }, { data: lastRun }, { data: recentRuns }] = await Promise.all([
     admin.from('business_ideas')
       .select('id, slug, name, tagline, category, autonomy_score, score, rank, llc_gate, assets_leveraged, leverage_configs, optimal_config, leverage_elasticity, mrr_median, deployed_url')
-      .not('rank', 'is', null).order('rank').limit(20),
+      .order('autonomy_score', { ascending: false, nullsFirst: false })
+      .order('score', { ascending: false, nullsFirst: false })
+      .limit(500),
     admin.from('business_hunter_runs')
       .select('started_at, status, cost_eur, ideas_upserted')
       .order('started_at', { ascending: false }).limit(1).maybeSingle(),
@@ -80,7 +82,7 @@ export default async function HisokaPage() {
           {' · '}
           Last hunt: {lastRun?.started_at ? new Date(lastRun.started_at).toLocaleString('fr-FR') : 'never'}
           {lastRun?.cost_eur ? ` · €${Number(lastRun.cost_eur).toFixed(2)}` : ''}
-          {' · '}{ideas?.length ?? 0} preys in top 20
+          {' · '}{ideas?.length ?? 0} preys scored
           <HeaderActions />
         </div>
       </div>
