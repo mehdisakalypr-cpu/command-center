@@ -1,0 +1,30 @@
+{
+  "minato_agents": [
+    { "id": "rock_lee_v2",  "icon": "🥋", "name": "Rock Lee v2 — persistent outreach & content push",
+      "covers_autonomy_dims": ["acquisition", "content_ops"], "status": "production", "ops_cost_eur_mo": 15 },
+    { "id": "shikamaru",    "icon": "🧠", "name": "Shikamaru — strategic opportunity matrix",
+      "covers_autonomy_dims": ["acquisition"], "status": "production" },
+    { "id": "shisui",       "icon": "🧪", "name": "Shisui — content generation pipeline",
+      "covers_autonomy_dims": ["content_ops"], "status": "production" },
+    { "id": "itachi",       "icon": "👁", "name": "Itachi — intent reader / classifier",
+      "covers_autonomy_dims": ["acquisition", "support"], "status": "production" },
+    { "id": "hancock",      "icon": "💄", "name": "Hancock — charm / persuasive copy",
+      "covers_autonomy_dims": ["acquisition", "content_ops"], "status": "production" },
+    { "id": "kakashi",      "icon": "🔍", "name": "Kakashi — copy ninja / brick-reuse scanner",
+      "covers_autonomy_dims": ["content_ops"], "status": "production" },
+    { "id": "kurama",       "icon": "🦊", "name": "Kurama — image cascade (9-source failover)",
+      "covers_autonomy_dims": ["content_ops"], "status": "production", "ops_cost_eur_mo": 0 },
+    { "id": "dokho",        "icon": "⚖️", "name": "Dokho — guardian (DB/matviews/caches)",
+      "covers_autonomy_dims": ["fulfillment", "compliance"], "status": "production" },
+    { "id": "neji",         "icon": "🎯", "name": "Neji — supervisor / infinite overshoot",
+      "covers_autonomy_dims": ["fulfillment"], "status": "production" },
+    { "id": "senku",        "icon": "🔬", "name": "Senku — root-cause auditor",
+      "covers_autonomy_dims": ["compliance", "support"], "status": "production" },
+    { "id": "might_guy",    "icon": "🛡", "name": "Might Guy — security / defense",
+      "covers_autonomy_dims": ["compliance"], "status": "production" },
+    { "id": "kushina",      "icon": "💫", "name": "Kushina — kaizen (continuous improvement)",
+      "covers_autonomy_dims": ["content_ops", "fulfillment"], "status": "production" },
+    { "id": "merlin",       "icon": "🧙", "name": "Merlin — scheduled wisdom / cron strategist",
+      "covers_autonomy_dims": ["fulfillment"], "status": "production" }
+  ]
+}
