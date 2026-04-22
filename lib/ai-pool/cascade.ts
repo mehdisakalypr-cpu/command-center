@@ -227,11 +227,82 @@ export async function withFallback(input: GenInput, opts: CascadeOptions = {}): 
   throw new Error(`ai-pool cascade failed · ${errors.join(' | ')}`)
 }
 
-/** Extract the first JSON object/array from a free-form response. */
+/**
+ * Repair a JSON payload truncated mid-stream (e.g. LLM output hit maxTokens).
+ *
+ * Strategy: collect every `}` position outside strings, then try candidates
+ * in reverse order — treat each as a potential truncation point, close any
+ * still-open `{` / `[`, and test with `JSON.parse`. Returns the first slice
+ * that parses, otherwise `null`.
+ *
+ * This tolerates truncation inside strings, numbers, or nested objects by
+ * simply retreating to the most recent complete top-level child boundary.
+ */
+export function repairTruncatedJSON(raw: string): string | null {
+  const text = raw.trim()
+  if (!text) return null
+  try { JSON.parse(text); return text } catch { /* fall through */ }
+
+  const closePositions: number[] = []
+  let inStr = false
+  let esc = false
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]
+    if (esc) { esc = false; continue }
+    if (c === '\\' && inStr) { esc = true; continue }
+    if (c === '"') { inStr = !inStr; continue }
+    if (!inStr && c === '}') closePositions.push(i)
+  }
+
+  for (let idx = closePositions.length - 1; idx >= 0; idx--) {
+    let candidate = text.slice(0, closePositions[idx] + 1)
+    candidate = candidate.replace(/,\s*$/, '')
+
+    const stack: string[] = []
+    let istr = false, es = false
+    for (let i = 0; i < candidate.length; i++) {
+      const c = candidate[i]
+      if (es) { es = false; continue }
+      if (c === '\\' && istr) { es = true; continue }
+      if (c === '"') { istr = !istr; continue }
+      if (istr) continue
+      if (c === '{') stack.push('}')
+      else if (c === '[') stack.push(']')
+      else if ((c === '}' || c === ']') && stack.length > 0 && stack[stack.length - 1] === c) {
+        stack.pop()
+      }
+    }
+    if (istr) continue
+
+    let repaired = candidate
+    while (stack.length > 0) repaired += stack.pop()
+
+    try { JSON.parse(repaired); return repaired } catch { /* try earlier */ }
+  }
+
+  return null
+}
+
+/**
+ * Extract the first JSON object/array from a free-form response.
+ * Falls back to {@link repairTruncatedJSON} on truncated LLM outputs —
+ * tries repair on the regex match first, then on the full text starting
+ * at the first opening brace/bracket (handles payloads with no closing).
+ */
 export function extractJSON<T = unknown>(text: string): T {
   const match = text.match(/(\{[\s\S]*\}|\[[\s\S]*\])/)
-  if (!match) throw new Error(`No JSON in response: ${text.slice(0, 160)}`)
-  return JSON.parse(match[0]) as T
+  if (match) {
+    try { return JSON.parse(match[0]) as T } catch {
+      const repaired = repairTruncatedJSON(match[0])
+      if (repaired) return JSON.parse(repaired) as T
+    }
+  }
+  const firstOpen = text.search(/[{[]/)
+  if (firstOpen >= 0) {
+    const repaired = repairTruncatedJSON(text.slice(firstOpen))
+    if (repaired) return JSON.parse(repaired) as T
+  }
+  throw new Error(`No JSON in response: ${text.slice(0, 160)}`)
 }
 
 export async function withFallbackJSON<T = unknown>(

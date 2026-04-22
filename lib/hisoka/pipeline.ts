@@ -64,7 +64,9 @@ export async function runDiscovery(
         // otherwise falls through to free models (capped at 4096 output tokens).
         model: 'anthropic/claude-3-5-haiku',
         temperature: 0.8,
-        maxTokens: 8000,
+        // 16k output — 5 ideas × dense JSON can exceed 8k; Gemini 2.5-flash
+        // supports up to 65k output tokens, Groq/OpenAI also comfortable.
+        maxTokens: 16000,
       },
       {
         project: 'cc',
