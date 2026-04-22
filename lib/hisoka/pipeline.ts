@@ -76,7 +76,8 @@ export async function runDiscovery(
     } catch (_parseErr) {
       // Attempt partial recovery: grab every complete top-level object in the ideas array.
       // Match objects that start with {"slug": and end with a balanced brace.
-      const partialMatches = cleanedText.matchAll(/\{\s*"slug"\s*:\s*"[^"]+".+?\}(?=\s*[,\]])/gs);
+      // [\s\S] is the ES2017-compatible equivalent of `.` with the `s` (dotall) flag.
+      const partialMatches = cleanedText.matchAll(/\{\s*"slug"\s*:\s*"[^"]+"[\s\S]+?\}(?=\s*[,\]])/g);
       for (const m of partialMatches) {
         try {
           const obj = JSON.parse(m[0]) as ScoredIdea;
