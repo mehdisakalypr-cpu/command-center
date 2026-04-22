@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
+import Link from 'next/link'
 import { StrategyNav } from '@/components/StrategyNav'
 import FleetGapCard from '@/app/admin/cc-fleet/components/FleetGapCard'
 
@@ -445,6 +446,16 @@ function BusinessTab() {
   return (
     <>
     <StrategyNav active="simulator" />
+    <div style={{ padding: '12px 20px 0' }}>
+      <Link href="/admin/hisoka" style={{
+        display: 'block', background: '#0A1A2E', border: '1px solid rgba(201,168,76,.2)',
+        padding: '10px 14px', borderRadius: 6, marginBottom: 4, textDecoration: 'none', color: '#E6EEF7',
+      }}>
+        <span style={{ color: '#C9A84C', fontWeight: 600 }}>🃏 Hisoka</span>
+        {' '}propose des idées à importer ici —{' '}
+        <span style={{ color: '#9BA8B8', fontSize: 12 }}>Voir le top 20 →</span>
+      </Link>
+    </div>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, padding: '16px 20px 0' }}>
       <div style={panelStyle}>
         <h2 style={headerGold}>Objectif</h2>
