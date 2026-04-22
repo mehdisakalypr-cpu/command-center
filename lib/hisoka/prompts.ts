@@ -34,6 +34,7 @@ Baseline comparisons: HYSA 2%/yr, bonds 4%/yr, S&P 500 10%/yr. Only surface idea
 export function buildIdeatorUserPrompt(opts: {
   bricks: Brick[];
   agents: MinatoAgent[];
+  signals?: Array<{ source: string; title: string; url?: string; score?: number; tag?: string }>;
   previousTop20?: Array<{ slug: string; name: string; score: number }>;
   countTarget?: number;
 }): string {
@@ -48,12 +49,21 @@ export function buildIdeatorUserPrompt(opts: {
   ).join('\n') || '(none — first run)';
   const n = opts.countTarget ?? 30;
 
+  // Build signals section: top 20 from the pre-sorted/deduped harvester output
+  const signalsSection = (opts.signals && opts.signals.length > 0)
+    ? `\nCURRENT MARKET SIGNALS (use as inspiration, not prescriptive):\n${
+        opts.signals.slice(0, 20).map(s =>
+          `- [${s.source}] ${s.title}${s.score !== undefined ? ` (score: ${s.score})` : ''}`
+        ).join('\n')
+      }\n`
+    : '';
+
   return `AVAILABLE BRICKS (rewardable via assets_leveraged):
 ${bricksList}
 
 AVAILABLE MINATO AGENTS (map autonomy dims to these where possible):
 ${agentsList}
-
+${signalsSection}
 PREVIOUS TOP 20 (avoid duplicates; generate distinct ideas):
 ${prev}
 
@@ -73,4 +83,65 @@ ${candidateSummary}
 
 Output strict JSON matching the ScoredIdea schema. No prose. If any hard constraint fails,
 set the offending field to its true value anyway — filtering happens in code, not here.`;
+}
+
+// Benchmark prompt: score ONE user-supplied idea against Hisoka's framework.
+export function buildBenchmarkPrompt(opts: {
+  userText: string;
+  bricks: Brick[];
+  agents: MinatoAgent[];
+}): string {
+  const bricksList = opts.bricks.map(b =>
+    `- ${b.id}: ${b.name}`
+  ).join('\n');
+  const agentsList = opts.agents.map(a =>
+    `- ${a.id} ${a.icon}`
+  ).join('\n');
+
+  return `A user proposes this business idea:
+"""
+${opts.userText}
+"""
+
+Score it using the same rigorous framework Hisoka applies to the top 20.
+Available bricks to reference in assets_leveraged:
+${bricksList}
+
+Available Minato agents (inform operability):
+${agentsList}
+
+Return strict JSON matching the ScoredIdea schema (ONE idea, not an array).
+Your response MUST start with { and end with }. No preamble, no trailing text, no code fences, no markdown.
+{
+  "slug": "<kebab-case-from-title>",
+  "name": "<short name>",
+  "tagline": "<one-line pitch>",
+  "category": "<one of: middleware_api, data_platform, productized_service, marketplace, content_platform, tool_utility, b2b_integration>",
+  "autonomy": { "acquisition": 0.xx, "content_ops": 0.xx, "fulfillment": 0.xx, "support": 0.xx, "billing": 0.xx, "compliance": 0.xx },
+  "setup_hours_user": <number>,
+  "ongoing_user_hours_per_month": <number>,
+  "distribution_channels": ["<channel>", ...],
+  "monetization_model": "<subscription|usage|hybrid|commission>",
+  "assets_leveraged": ["<brick_id>", ...],
+  "unit_economics": {
+    "v10":  { "rev_eur_mo": <n>, "cost_eur_mo": <n>, "gm_pct": <n> },
+    "v100": { "rev_eur_mo": <n>, "cost_eur_mo": <n>, "gm_pct": <n> },
+    "v1k":  { "rev_eur_mo": <n>, "cost_eur_mo": <n>, "gm_pct": <n> },
+    "v10k": { "rev_eur_mo": <n>, "cost_eur_mo": <n>, "gm_pct": <n> }
+  },
+  "self_funding_score": 1.0,
+  "llc_gate": "<none|needs_llc|post_expat|blocked>",
+  "effort_weeks": <number>,
+  "monthly_ops_cost_eur": <number>,
+  "scalability_per_worker": "<linear|step|capped>",
+  "mrr_conservative": {"m1":<n>,"m3":<n>,"m6":<n>,"m12":<n>,"m24":<n>,"m36":<n>},
+  "mrr_median":       {"m1":<n>,"m3":<n>,"m6":<n>,"m12":<n>,"m24":<n>,"m36":<n>},
+  "mrr_optimistic":   {"m1":<n>,"m3":<n>,"m6":<n>,"m12":<n>,"m24":<n>,"m36":<n>},
+  "leverage_configs": [
+    { "label": "bootstrap", "launch_eur": 0, "workers": 1, "leverage": <n>, "mrr_curve": {"m1":<n>,"m3":<n>,"m6":<n>,"m12":<n>,"m24":<n>,"m36":<n>}, "irr_y3_pct": <n>, "sp500_delta_pct": <n>, "risk_score": 0.<n> }
+  ],
+  "rationale": "<short justification>"
+}
+
+Do not filter: if the idea has obvious autonomy gaps, reflect them honestly. Code applies gates.`;
 }
