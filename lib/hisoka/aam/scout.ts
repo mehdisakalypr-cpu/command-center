@@ -9,10 +9,16 @@ const HN_SEARCH = 'https://hn.algolia.com/api/v1/search';
 export async function scoutCandidates(gap: AutomationGap, maxPerSource = 3): Promise<Candidate[]> {
   const prompt = `Gap on dimension "${gap.dim}": ${gap.description}. Propose 3 narrow search queries (GitHub repo topics/keywords that maximize finding mature tools that close this gap). Return JSON: { "queries": ["<q1>", "<q2>", "<q3>"] }`;
   const gen = await withFallback(
-    { system: SYSTEM, prompt, model: 'llama-4-scout-17b-16e-instruct', temperature: 0.4, maxTokens: 400 },
+    // 1200 tokens — Gemini often wraps strict JSON in ```json fences + whitespace
+    // that can push a 3-query payload past 400 tokens, causing mid-string
+    // truncation that even repairTruncatedJSON can't recover (no closing `}`).
+    { system: SYSTEM, prompt, model: 'llama-4-scout-17b-16e-instruct', temperature: 0.4, maxTokens: 1200 },
     { project: 'cc', order: ['gemini','mistral','groq','openrouter','anthropic'] },
   );
-  const parsed = extractJSON<{ queries: string[] }>(gen.text);
+  // Strip markdown code fences defensively before parsing — Gemini sometimes
+  // ignores "Strict JSON only" and wraps in ```json ... ```.
+  const cleaned = gen.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+  const parsed = extractJSON<{ queries: string[] }>(cleaned);
   const queries = (parsed.queries ?? []).slice(0, 3);
   if (queries.length === 0) return [];
 
