@@ -14,15 +14,16 @@ export type SceneKind =
   | 'hr'
   | 'default';
 
+// Modern tech palettes inspired by Stripe / Linear / Vercel / Figma.
 const PALETTE: Record<SceneKind, string[]> = {
-  music:       ['#ec4899', '#a78bfa', '#f472b6'],
-  data:        ['#10b981', '#34d399', '#6ee7b7'],
-  marketplace: ['#f59e0b', '#fbbf24', '#fcd34d'],
-  api:         ['#6366f1', '#818cf8', '#a5b4fc'],
-  legal:       ['#fbbf24', '#fde68a', '#fef3c7'],
-  content:     ['#60a5fa', '#93c5fd', '#bfdbfe'],
-  hr:          ['#f472b6', '#fbcfe8', '#fce7f3'],
-  default:     ['#10b981', '#6366f1', '#ec4899'],
+  data:        ['#8b5cf6', '#06b6d4', '#10b981'], // Linear violet + emerald
+  api:         ['#6366f1', '#4f46e5', '#818cf8'], // Stripe indigo
+  music:       ['#ec4899', '#a78bfa', '#f59e0b'], // creative mix
+  marketplace: ['#f97316', '#ec4899', '#8b5cf6'], // Figma sunset
+  legal:       ['#eab308', '#f59e0b', '#64748b'], // gold + slate trust
+  content:     ['#0ea5e9', '#06b6d4', '#14b8a6'], // Vercel sky + teal
+  hr:          ['#f43f5e', '#a78bfa', '#ec4899'], // warm modern
+  default:     ['#6366f1', '#06b6d4', '#ec4899'], // mixed modern
 };
 
 type ObjProps = {
