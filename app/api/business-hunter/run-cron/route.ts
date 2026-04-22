@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   }
   try {
     const admin = createSupabaseAdmin();
-    const result = await runDiscovery(admin, { trigger: 'cron', countTarget: 10 });
+    const result = await runDiscovery(admin, { trigger: 'cron', countTarget: 5 });
     return NextResponse.json({ ok: true, ...result });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e).slice(0, 500) }, { status: 500 });
