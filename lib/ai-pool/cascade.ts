@@ -52,7 +52,7 @@ async function callAnthropic(apiKey: string, input: GenInput): Promise<{ text: s
 // Lazy Groq caller — free tier, very fast, supports Llama 4 + Qwen models.
 async function callGroq(apiKey: string, input: GenInput): Promise<{ text: string; inputTokens?: number; outputTokens?: number; costUsd?: number }> {
   // Strip provider prefix if present; default to llama-4-scout which handles large structured outputs.
-  const model = input.model?.startsWith('groq/') ? input.model.replace('groq/', '') : 'meta-llama/llama-4-scout-17b-16e-instruct'
+  const model = input.model?.startsWith('groq/') ? input.model.replace('groq/', '') : 'llama-3.3-70b-versatile'
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
