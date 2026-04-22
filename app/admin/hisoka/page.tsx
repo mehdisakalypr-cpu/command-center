@@ -59,7 +59,7 @@ export default async function HisokaPage() {
   const admin = createSupabaseAdmin();
   const [{ data: ideas }, { data: lastRun }, { data: recentRuns }] = await Promise.all([
     admin.from('business_ideas')
-      .select('id, slug, name, tagline, category, autonomy_score, score, rank, llc_gate, assets_leveraged, leverage_configs, optimal_config, leverage_elasticity, mrr_median')
+      .select('id, slug, name, tagline, category, autonomy_score, score, rank, llc_gate, assets_leveraged, leverage_configs, optimal_config, leverage_elasticity, mrr_median, deployed_url')
       .not('rank', 'is', null).order('rank').limit(20),
     admin.from('business_hunter_runs')
       .select('started_at, status, cost_eur, ideas_upserted')

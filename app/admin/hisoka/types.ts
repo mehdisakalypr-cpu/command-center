@@ -24,6 +24,7 @@ export type IdeaRow = {
   optimal_config: LeverageConfigUI | null;
   leverage_elasticity: 'high' | 'medium' | 'flat' | null;
   mrr_median?: { m12?: number; m36?: number } | null;
+  deployed_url?: string | null;
 };
 
 export type Envelope = {

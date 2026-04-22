@@ -94,11 +94,18 @@ export default function IdeasTable({ initialIdeas }: { initialIdeas: IdeaRow[] }
                     <td style={{ padding: '8px 10px' }}>
                       {i.llc_gate === 'none' ? '✓' : i.llc_gate === 'blocked' ? '🔒' : '⚠'}
                     </td>
-                    <td style={{ padding: '8px 10px' }}>
+                    <td style={{ padding: '8px 10px', display: 'flex', gap: 6, alignItems: 'center' }}>
                       <button onClick={() => setOpenId(i.id)}
                               style={{ background: 'transparent', border: '1px solid #C9A84C', color: '#C9A84C', padding: '4px 10px', borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>
                         👁 Deep
                       </button>
+                      {i.deployed_url && (
+                        <a href={i.deployed_url} target="_blank" rel="noreferrer"
+                           title="Voir la landing SaaS"
+                           style={{ border: '1px solid #6BCB77', color: '#6BCB77', padding: '4px 8px', borderRadius: 4, fontSize: 11, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                          🚀 SaaS ↗
+                        </a>
+                      )}
                     </td>
                   </tr>
                 );
