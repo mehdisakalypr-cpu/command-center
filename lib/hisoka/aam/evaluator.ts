@@ -59,12 +59,52 @@ export async function evaluate(
     };
   }
 
-  // Phase 5.3 will cover acquisition + fulfillment
+  if (dim === 'acquisition') {
+    const { scoreAcquisitionCase, ACQUISITION_QUALIFY_THRESHOLD } = await import('@/lib/hisoka/aam-benchmarks/acquisition/run');
+    const scored = await Promise.all(results.map(async r => {
+      const expected = (r as { expected?: { qualify: boolean; hook: string } }).expected;
+      const actual = (r as { actual?: { qualified: boolean; hook: string; message: string } }).actual;
+      if (!expected || !actual) return { case_id: 'missing', score: 0, passed: false };
+      const s = await scoreAcquisitionCase(expected, actual);
+      return { case_id: String((r as { id?: string }).id ?? 'unknown'), score: s.qualify_match + s.hook_match + s.message_quality / 5, passed: s.qualify_match === 1 };
+    }));
+    const qualifyRate = scored.filter(x => x.passed).length / Math.max(1, scored.length);
+    const passed = qualifyRate >= ACQUISITION_QUALIFY_THRESHOLD;
+    return {
+      autonomy_after: passed ? Math.min(1, autonomyBefore + 0.20) : autonomyBefore + 0.05,
+      passed_threshold: passed,
+      score_per_case: scored,
+      human_params_needed: requiredEnvKeys.map(k => ({ param: k, optional: false })),
+      notes: `qualify rate ${qualifyRate.toFixed(2)} (threshold ${ACQUISITION_QUALIFY_THRESHOLD})`,
+    };
+  }
+
+  if (dim === 'fulfillment') {
+    const { scoreFulfillmentCase, FULFILLMENT_DELIVERY_THRESHOLD } = await import('@/lib/hisoka/aam-benchmarks/fulfillment/run');
+    const scored = await Promise.all(results.map(async r => {
+      const expected = (r as { expected?: { artifact: string; sla: number } }).expected;
+      const actual = (r as { actual?: { artifact_type: string; elapsed_seconds: number } }).actual;
+      if (!expected || !actual) return { case_id: 'missing', score: 0, passed: false };
+      const s = await scoreFulfillmentCase(expected, actual);
+      return { case_id: String((r as { id?: string }).id ?? 'unknown'), score: s.artifact_match + s.within_sla, passed: s.artifact_match === 1 && s.within_sla === 1 };
+    }));
+    const deliveryRate = scored.filter(x => x.passed).length / Math.max(1, scored.length);
+    const passed = deliveryRate >= FULFILLMENT_DELIVERY_THRESHOLD;
+    return {
+      autonomy_after: passed ? Math.min(1, autonomyBefore + 0.20) : autonomyBefore + 0.05,
+      passed_threshold: passed,
+      score_per_case: scored,
+      human_params_needed: requiredEnvKeys.map(k => ({ param: k, optional: false })),
+      notes: `delivery rate ${deliveryRate.toFixed(2)} (threshold ${FULFILLMENT_DELIVERY_THRESHOLD})`,
+    };
+  }
+
+  // Phase 5.4+ will cover additional dimensions
   return {
     autonomy_after: autonomyBefore,
     passed_threshold: false,
     score_per_case: [],
     human_params_needed: requiredEnvKeys.map(k => ({ param: k, optional: false })),
-    notes: `dim ${dim} benchmark not yet implemented (Phase 5.3)`,
+    notes: `dim ${dim} benchmark not yet implemented`,
   };
 }

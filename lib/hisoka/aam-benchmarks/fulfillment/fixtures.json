@@ -1,0 +1,24 @@
+{
+  "cases": [
+    { "id": "fl_1", "order": { "type": "ebook_download", "email": "jane@example.com", "product": "gardening-101" }, "expected_artifact": "download_link", "sla_seconds": 30 },
+    { "id": "fl_2", "order": { "type": "access_credential", "email": "bob@techstartup.io", "product": "premium-course" }, "expected_artifact": "access_credential", "sla_seconds": 30 },
+    { "id": "fl_3", "order": { "type": "confirmation_email", "email": "alice@company.com", "product": "newsletter-signup" }, "expected_artifact": "confirmation_email", "sla_seconds": 30 },
+    { "id": "fl_4", "order": { "type": "software_license_key", "email": "dev@agency.co", "product": "pro-version" }, "expected_artifact": "software_license_key", "sla_seconds": 30 },
+    { "id": "fl_5", "order": { "type": "access_token", "email": "researcher@university.edu", "product": "api-access" }, "expected_artifact": "access_token", "sla_seconds": 30 },
+    { "id": "fl_6", "order": { "type": "personalized_pdf_report", "email": "consultant@firm.com", "product": "market-analysis-2026" }, "expected_artifact": "personalized_pdf_report", "sla_seconds": 30 },
+    { "id": "fl_7", "order": { "type": "digital_voucher", "email": "shopper@retail.com", "product": "spring-discount" }, "expected_artifact": "digital_voucher", "sla_seconds": 30 },
+    { "id": "fl_8", "order": { "type": "password_reset_link", "email": "user@app.io", "product": "account-recovery" }, "expected_artifact": "password_reset_link", "sla_seconds": 30 },
+    { "id": "fl_9", "order": { "type": "account_activation", "email": "newuser@platform.com", "product": "trial-access" }, "expected_artifact": "account_activation", "sla_seconds": 30 },
+    { "id": "fl_10", "order": { "type": "onboarding_email_sequence", "email": "new_customer@client.net", "product": "onboarding-flow" }, "expected_artifact": "onboarding_email_sequence", "sla_seconds": 30 },
+    { "id": "fl_11", "order": { "type": "ebook_download", "email": "marketing@biz.com", "product": "sales-funnel-guide" }, "expected_artifact": "download_link", "sla_seconds": 30 },
+    { "id": "fl_12", "order": { "type": "access_credential", "email": "student@school.org", "product": "course-enrollment" }, "expected_artifact": "access_credential", "sla_seconds": 30 },
+    { "id": "fl_13", "order": { "type": "confirmation_email", "email": "contact@enterprise.com", "product": "webinar-registration" }, "expected_artifact": "confirmation_email", "sla_seconds": 30 },
+    { "id": "fl_14", "order": { "type": "software_license_key", "email": "admin@sme.co.uk", "product": "enterprise-suite" }, "expected_artifact": "software_license_key", "sla_seconds": 30 },
+    { "id": "fl_15", "order": { "type": "access_token", "email": "integrator@partner.io", "product": "api-integration" }, "expected_artifact": "access_token", "sla_seconds": 30 },
+    { "id": "fl_16", "order": { "type": "personalized_pdf_report", "email": "executive@corp.fr", "product": "quarterly-report-q1" }, "expected_artifact": "personalized_pdf_report", "sla_seconds": 30 },
+    { "id": "fl_17", "order": { "type": "digital_voucher", "email": "customer@store.de", "product": "loyalty-reward" }, "expected_artifact": "digital_voucher", "sla_seconds": 30 },
+    { "id": "fl_18", "order": { "type": "password_reset_link", "email": "locked@service.com", "product": "access-recovery" }, "expected_artifact": "password_reset_link", "sla_seconds": 30 },
+    { "id": "fl_19", "order": { "type": "account_activation", "email": "freshsignup@beta.io", "product": "beta-program" }, "expected_artifact": "account_activation", "sla_seconds": 30 },
+    { "id": "fl_20", "order": { "type": "onboarding_email_sequence", "email": "fresh@startup.com", "product": "getting-started" }, "expected_artifact": "onboarding_email_sequence", "sla_seconds": 30 }
+  ]
+}
