@@ -22,7 +22,7 @@ Return JSON: { "install_script": "...", "entry_point": "run.mjs", "entry_code": 
 
   const gen = await withFallback(
     { system: SYSTEM, prompt, model: 'anthropic/claude-sonnet-4-6', temperature: 0.2, maxTokens: 2000 },
-    { project: 'cc', order: ['openrouter','anthropic','groq'] },
+    { project: 'cc', order: ['gemini','mistral','openrouter','anthropic','groq'] },
   );
   const parsed = extractJSON<Omit<IntegrationPlan,'candidate'>>(gen.text);
   return { ...parsed, candidate };

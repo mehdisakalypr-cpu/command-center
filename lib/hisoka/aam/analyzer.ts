@@ -34,7 +34,7 @@ Return strict JSON: { "gaps": [{ "dim": "acquisition"|"content_ops"|"fulfillment
 
   const gen = await withFallback(
     { system: SYSTEM, prompt, model: 'llama-4-scout-17b-16e-instruct', temperature: 0.3, maxTokens: 1000 },
-    { project: 'cc', order: ['groq','openrouter','anthropic'] },
+    { project: 'cc', order: ['gemini','mistral','groq','openrouter','anthropic'] },
   );
   const parsed = extractJSON<{ gaps: AutomationGap[] }>(gen.text);
   // Enforce compliance/billing are never forgeable regardless of LLM output

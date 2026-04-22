@@ -69,7 +69,7 @@ export async function runDiscovery(
       {
         project: 'cc',
         // Groq first (free, large outputs, reliable JSON), then openrouter as fallback.
-        order: ['groq', 'openrouter', 'anthropic', 'openai'],
+        order: ['gemini','mistral','groq','openrouter','anthropic','openai'],
       },
     );
     const costEur = (gen.costUsd ?? 0) * 0.92;

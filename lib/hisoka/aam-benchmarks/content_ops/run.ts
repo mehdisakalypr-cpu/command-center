@@ -5,7 +5,7 @@ export async function scoreContentCase(post: string, expectedWordMin: number): P
   const prompt = `Blog post (expected ≥${expectedWordMin} words):\n"""\n${post.slice(0, 4000)}\n"""\nScore strictly. JSON only.`;
   const gen = await withFallback(
     { system: CONTENT_OPS_RUBRIC_SYSTEM, prompt, model: 'llama-4-scout-17b-16e-instruct', temperature: 0, maxTokens: 400 },
-    { project: 'cc', order: ['groq','openrouter'] },
+    { project: 'cc', order: ['gemini','mistral','groq','openrouter'] },
   );
   const parsed = extractJSON<{ originality: number; factuality: number; seo_signals: number; length_voice: number; overall: number }>(gen.text);
   return { overall: parsed.overall ?? 0, breakdown: parsed };

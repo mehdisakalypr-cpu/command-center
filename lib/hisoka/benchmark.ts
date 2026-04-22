@@ -44,7 +44,7 @@ export async function benchmarkIdea(
     },
     {
       project: 'cc',
-      order: ['groq', 'openrouter', 'anthropic'],
+      order: ['gemini','mistral','groq','openrouter','anthropic'],
     },
   );
   const costEur = (gen.costUsd ?? 0) * 0.92;

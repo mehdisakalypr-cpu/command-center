@@ -10,7 +10,7 @@ export async function scoutCandidates(gap: AutomationGap, maxPerSource = 3): Pro
   const prompt = `Gap on dimension "${gap.dim}": ${gap.description}. Propose 3 narrow search queries (GitHub repo topics/keywords that maximize finding mature tools that close this gap). Return JSON: { "queries": ["<q1>", "<q2>", "<q3>"] }`;
   const gen = await withFallback(
     { system: SYSTEM, prompt, model: 'llama-4-scout-17b-16e-instruct', temperature: 0.4, maxTokens: 400 },
-    { project: 'cc', order: ['groq','openrouter','anthropic'] },
+    { project: 'cc', order: ['gemini','mistral','groq','openrouter','anthropic'] },
   );
   const parsed = extractJSON<{ queries: string[] }>(gen.text);
   const queries = (parsed.queries ?? []).slice(0, 3);
