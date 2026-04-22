@@ -34,6 +34,7 @@ Baseline comparisons: HYSA 2%/yr, bonds 4%/yr, S&P 500 10%/yr. Only surface idea
 export function buildIdeatorUserPrompt(opts: {
   bricks: Brick[];
   agents: MinatoAgent[];
+  signals?: Array<{ source: string; title: string; url?: string; score?: number; tag?: string }>;
   previousTop20?: Array<{ slug: string; name: string; score: number }>;
   countTarget?: number;
 }): string {
@@ -48,12 +49,21 @@ export function buildIdeatorUserPrompt(opts: {
   ).join('\n') || '(none — first run)';
   const n = opts.countTarget ?? 30;
 
+  // Build signals section: top 20 from the pre-sorted/deduped harvester output
+  const signalsSection = (opts.signals && opts.signals.length > 0)
+    ? `\nCURRENT MARKET SIGNALS (use as inspiration, not prescriptive):\n${
+        opts.signals.slice(0, 20).map(s =>
+          `- [${s.source}] ${s.title}${s.score !== undefined ? ` (score: ${s.score})` : ''}`
+        ).join('\n')
+      }\n`
+    : '';
+
   return `AVAILABLE BRICKS (rewardable via assets_leveraged):
 ${bricksList}
 
 AVAILABLE MINATO AGENTS (map autonomy dims to these where possible):
 ${agentsList}
-
+${signalsSection}
 PREVIOUS TOP 20 (avoid duplicates; generate distinct ideas):
 ${prev}
 

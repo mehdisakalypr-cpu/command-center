@@ -3,6 +3,7 @@ import { withFallback, extractJSON } from '@/lib/ai-pool/cascade';
 import { getBricks, getMinatoAgents } from './registries';
 import { IDEATOR_SYSTEM, buildIdeatorUserPrompt } from './prompts';
 import { hardGates, baseScore } from './scoring';
+import { harvestSignals } from './harvester';
 import type { ScoredIdea, HunterRunResult } from './types';
 
 const DEFAULT_COUNT = 30;
@@ -21,8 +22,8 @@ export async function runDiscovery(
   const run_id: string = (runRow as { id: string }).id;
 
   try {
-    // 2. Load context
-    const [bricks, agents, prevResult] = await Promise.all([
+    // 2. Load context (bricks, agents, prev top 20, and real-time signals in parallel)
+    const [bricks, agents, prevResult, signals] = await Promise.all([
       getBricks(),
       getMinatoAgents(),
       supabaseAdmin
@@ -31,8 +32,14 @@ export async function runDiscovery(
         .not('rank', 'is', null)
         .order('rank')
         .limit(20),
+      // Harvest signals defensively — never throws, returns [] on full failure
+      harvestSignals({ timeoutMs: 20_000 }).catch((err: unknown) => {
+        console.warn('[hisoka/pipeline] harvestSignals unexpected error (graceful):', String(err));
+        return [] as Awaited<ReturnType<typeof harvestSignals>>;
+      }),
     ]);
     const prevTop = (prevResult.data ?? []) as Array<{ slug: string; name: string; score: number }>;
+    console.log(`[hisoka/pipeline] signals_fetched: ${signals.length}`);
 
     // 3. LLM call — adapted to real ai-pool signature:
     //    withFallback(input: GenInput, opts?: CascadeOptions) → Promise<GenOutput>
@@ -43,6 +50,7 @@ export async function runDiscovery(
     const userPrompt = buildIdeatorUserPrompt({
       bricks,
       agents,
+      signals: signals.length > 0 ? signals : undefined,
       previousTop20: prevTop,
       countTarget: opts.countTarget ?? DEFAULT_COUNT,
     });
