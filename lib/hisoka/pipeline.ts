@@ -100,8 +100,35 @@ export async function runDiscovery(
       console.warn(`[hisoka] JSON truncated — recovered ${ideas.length} ideas via partial parse`);
     }
 
-    // 5. Filter + score
-    const scored = ideas
+    // 5. Drop structurally incomplete ideas (may appear when repairTruncatedJSON
+    // recovers a trailing object that was partially written). hardGates + baseScore
+    // assume full nested shapes — access via `idea.unit_economics.v10k.gm_pct` etc.
+    const structurallyComplete = ideas.filter((i) => {
+      const ok =
+        !!i && typeof i === 'object' &&
+        !!i.slug && !!i.name &&
+        !!i.autonomy && typeof i.autonomy.acquisition === 'number' &&
+        typeof i.autonomy.content_ops === 'number' &&
+        typeof i.autonomy.fulfillment === 'number' &&
+        typeof i.autonomy.support === 'number' &&
+        typeof i.autonomy.billing === 'number' &&
+        typeof i.autonomy.compliance === 'number' &&
+        typeof i.setup_hours_user === 'number' &&
+        typeof i.ongoing_user_hours_per_month === 'number' &&
+        Array.isArray(i.distribution_channels) &&
+        typeof i.self_funding_score === 'number' &&
+        !!i.llc_gate &&
+        !!i.unit_economics &&
+        !!i.unit_economics.v10k && typeof i.unit_economics.v10k.gm_pct === 'number' &&
+        !!i.mrr_median &&
+        Array.isArray(i.leverage_configs) &&
+        Array.isArray(i.assets_leveraged);
+      if (!ok) console.warn(`[hisoka] dropped incomplete idea slug="${i?.slug ?? '?'}"`);
+      return ok;
+    });
+
+    // 6. Filter + score
+    const scored = structurallyComplete
       .filter(i => hardGates(i).passed)
       .map(i => ({ idea: i, score: baseScore(i) }))
       .sort((a, b) => b.score - a.score);
