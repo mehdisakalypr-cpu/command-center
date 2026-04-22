@@ -88,7 +88,7 @@ async function callGroq(apiKey: string, input: GenInput): Promise<{ text: string
 
 // Lazy OpenAI caller — wired for GPT-4o class models.
 async function callOpenAI(apiKey: string, input: GenInput): Promise<{ text: string; inputTokens?: number; outputTokens?: number; costUsd?: number }> {
-  const model = input.model?.startsWith('openai/') ? input.model.replace('openai/', '') : (input.model ?? 'gpt-4o-mini')
+  const model = input.model?.startsWith('openai/') ? input.model.replace('openai/', '') : 'gpt-4o-mini'
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
