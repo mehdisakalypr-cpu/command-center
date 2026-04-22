@@ -47,13 +47,18 @@ export async function proxy(request: NextRequest) {
   if (isPublicPage(pathname)) return NextResponse.next();
   if (pathname.startsWith("/api/") && isPublicApi(pathname)) return NextResponse.next();
 
-  // Cron-authed endpoints: laisser passer si X-Cron-Secret correspond.
-  // Le route handler revalidera (requireAdmin fallback) — le middleware ne fait que
-  // ne pas bloquer pour les jobs automatisés (VPS cron, Vercel cron).
-  const cronHeader = request.headers.get("x-cron-secret");
-  if (cronHeader && process.env.CRON_SECRET && cronHeader === process.env.CRON_SECRET) {
-    return NextResponse.next();
+  // Cron-authed endpoints: laisser passer pour les jobs automatisés.
+  // 3 formes acceptées :
+  //  - x-cron-secret: <CRON_SECRET>           (VPS curl — legacy)
+  //  - Authorization: Bearer <CRON_SECRET>    (Vercel cron native)
+  //  - x-vercel-cron présent                  (trustable, signé par Vercel infra)
+  if (process.env.CRON_SECRET) {
+    const xCronSecret = request.headers.get("x-cron-secret");
+    if (xCronSecret === process.env.CRON_SECRET) return NextResponse.next();
+    const authz = request.headers.get("authorization");
+    if (authz === `Bearer ${process.env.CRON_SECRET}`) return NextResponse.next();
   }
+  if (request.headers.get("x-vercel-cron")) return NextResponse.next();
 
   // Global rate-limit for /api/* (sliding window, 100 req / 60s / IP).
   // Upstash-backed in prod, in-memory fallback dev. Skips static + public pages.

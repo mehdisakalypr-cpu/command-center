@@ -1,9 +1,9 @@
 {
   "alias": ["cc-dashboard.vercel.app"],
   "crons": [
-    {
-      "path": "/api/cron/refresh-country-pricing",
-      "schedule": "0 4 1 1,4,7,10 *"
-    }
+    { "path": "/api/cron/refresh-country-pricing", "schedule": "0 4 1 1,4,7,10 *" },
+    { "path": "/api/business-hunter/run-cron", "schedule": "0 2 * * *" },
+    { "path": "/api/business-hunter/aam/cron", "schedule": "0 3 * * *" },
+    { "path": "/api/business-hunter/aam/kaizen", "schedule": "0 4 * * 0" }
   ]
 }

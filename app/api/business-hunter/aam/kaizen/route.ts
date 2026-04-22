@@ -6,8 +6,9 @@ export const runtime = 'nodejs';
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
-  const token = req.headers.get('x-cron-secret') ?? req.headers.get('x-cron-token');
-  if (token !== process.env.CRON_SECRET) {
+  const token = req.headers.get('x-cron-secret') ?? req.headers.get('x-cron-token') ?? req.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+  const vercelCron = req.headers.get('x-vercel-cron');
+  if (!vercelCron && token !== process.env.CRON_SECRET) {
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   }
   const admin = createSupabaseAdmin();
@@ -41,3 +42,5 @@ Identify top 3 patterns (e.g. "candidates on dim X routinely fail because Y"). R
   });
   return NextResponse.json({ ok: true, summary: gen.text });
 }
+
+export const GET = POST;
