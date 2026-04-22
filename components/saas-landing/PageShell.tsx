@@ -1,21 +1,26 @@
 import { AnimatedBackground } from './AnimatedBackground';
 import { TopNav } from './TopNav';
+import { FloatingScene } from './FloatingScene';
+import type { IconSet } from '@/lib/hisoka/saas-forge/archetype-scenes';
 
 export function PageShell({
   slug,
   name,
   lang,
+  scene,
   children,
 }: {
   slug: string;
   name: string;
   lang: string;
+  scene?: IconSet | null;
   children: React.ReactNode;
 }) {
   const isFr = lang === 'fr';
   return (
     <>
       <AnimatedBackground />
+      {scene ? <FloatingScene scene={scene} /> : null}
       <TopNav slug={slug} name={name} lang={lang} />
       <main className="relative min-h-screen text-neutral-100">
         {children}

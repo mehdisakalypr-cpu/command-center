@@ -1,18 +1,28 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { motion } from 'framer-motion';
 import type { LandingContent } from '@/lib/hisoka/saas-forge/types';
+import type { SceneKind } from '@/lib/hisoka/saas-forge/archetype-scenes';
 import { AnimatedBackground } from './AnimatedBackground';
 import { TopNav } from './TopNav';
+
+const Hero3DScene = dynamic(
+  () => import('./Hero3DScene').then((m) => m.Hero3DScene),
+  { ssr: false },
+);
 
 export function LandingView({
   slug,
   content,
   name,
+  sceneKind,
 }: {
   slug: string;
   content: LandingContent;
   name: string;
+  sceneKind: SceneKind;
 }) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'err'>('idle');
@@ -46,15 +56,26 @@ export function LandingView({
   return (
     <>
       <AnimatedBackground />
+      <Hero3DScene kind={sceneKind} />
       <TopNav slug={slug} name={name} lang={content.lang} />
       <main className="relative min-h-screen text-neutral-100">
-        <section className="mx-auto max-w-3xl px-6 pt-20 pb-16 text-center">
-        <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">
+        <section className="mx-auto max-w-3xl px-6 pt-24 pb-16 text-center">
+        <motion.h1
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="text-4xl sm:text-6xl font-bold leading-[1.05] tracking-tight"
+        >
           {content.hero_title}
-        </h1>
-        <p className="mt-6 text-lg sm:text-xl text-neutral-300 leading-relaxed">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
+          className="mt-6 text-lg sm:text-xl text-neutral-300 leading-relaxed"
+        >
           {content.hero_tagline}
-        </p>
+        </motion.p>
         <form onSubmit={submit} className="mt-10 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
           <input
             type="email"
