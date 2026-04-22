@@ -45,7 +45,7 @@ export function buildIdeatorUserPrompt(opts: {
     `- ${a.id} ${a.icon} — covers: ${a.covers_autonomy_dims.join(',')}`
   ).join('\n');
   const prev = (opts.previousTop20 ?? []).slice(0, 20).map(p =>
-    `- ${p.slug}: ${p.name} (score ${p.score.toFixed(1)})`
+    `- ${p.slug}: ${p.name} (score ${Number(p.score ?? 0).toFixed(1)})`
   ).join('\n') || '(none — first run)';
   const n = opts.countTarget ?? 30;
 
