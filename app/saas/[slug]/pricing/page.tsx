@@ -72,7 +72,7 @@ export default async function Page({ params }: PageProps) {
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
           {isFr ? 'Tarifs simples' : 'Simple pricing'}
         </h1>
-        <p className="mt-4 text-lg text-neutral-300 max-w-2xl mx-auto">
+        <p className="mt-4 text-lg text-neutral-700 max-w-2xl mx-auto">
           {isFr
             ? "Accès anticipé gratuit pendant que nous validons l'offre. Les early-access gardent leur tarif à vie."
             : 'Early access is free while we validate the offer. Early-access users keep their price forever.'}
@@ -83,12 +83,12 @@ export default async function Page({ params }: PageProps) {
         {tiers.map((t) => (
           <div
             key={t.name}
-            className={`rounded-xl p-8 flex flex-col ${t.highlight ? 'border-emerald-500/40 bg-emerald-500/5 border-2' : 'border-white/10 bg-neutral-900/40 border'} backdrop-blur`}
+            className={`rounded-xl p-8 flex flex-col ${t.highlight ? 'border-emerald-500/40 bg-emerald-500/5 border-2' : 'border-neutral-200 bg-white border'} `}
           >
             <div className="text-sm text-neutral-400">{t.name}</div>
             <div className="mt-3 text-3xl font-bold">{t.price}</div>
-            <div className="text-xs text-neutral-500 mt-1">{t.period}</div>
-            <ul className="mt-6 space-y-2 text-sm text-neutral-300 flex-1">
+            <div className="text-xs text-neutral-400 mt-1">{t.period}</div>
+            <ul className="mt-6 space-y-2 text-sm text-neutral-700 flex-1">
               {t.features.map((f, i) => (
                 <li key={i} className="flex gap-2">
                   <span className="text-emerald-400">✓</span>
@@ -98,7 +98,7 @@ export default async function Page({ params }: PageProps) {
             </ul>
             <a
               href={t.highlight ? `/saas/${slug}` : `/saas/${slug}/contact`}
-              className={`mt-8 rounded-lg text-center font-medium px-5 py-3 text-sm ${t.highlight ? 'bg-emerald-500 text-neutral-950 hover:bg-emerald-400' : 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700'}`}
+              className={`mt-8 rounded-lg text-center font-medium px-5 py-3 text-sm ${t.highlight ? 'bg-emerald-500 text-neutral-950 hover:bg-emerald-400' : 'bg-neutral-200 text-neutral-900 hover:bg-neutral-700'}`}
             >
               {t.cta}
             </a>
@@ -106,7 +106,7 @@ export default async function Page({ params }: PageProps) {
         ))}
       </section>
 
-      <section className="mx-auto max-w-3xl px-6 py-12 text-center text-sm text-neutral-500">
+      <section className="mx-auto max-w-3xl px-6 py-12 text-center text-sm text-neutral-400">
         {isFr
           ? "Les prix finaux seront annoncés avant le lancement. Vous serez prévenu·e par email avec 30 jours d'avance."
           : 'Final pricing will be announced before launch. You will be notified by email 30 days in advance.'}

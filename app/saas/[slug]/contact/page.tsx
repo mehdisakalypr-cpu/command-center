@@ -33,7 +33,7 @@ export default async function Page({ params }: PageProps) {
         <h1 className="text-4xl font-bold tracking-tight">
           {isFr ? 'Contactez-nous' : 'Contact us'}
         </h1>
-        <p className="mt-4 text-neutral-300">
+        <p className="mt-4 text-neutral-700">
           {isFr
             ? `Une question, une suggestion, un bug ? Écrivez-nous — on lit tout, on répond sous 24h ouvrées.`
             : 'Question, suggestion, bug? Write to us — we read everything, reply within 24 business hours.'}
@@ -43,8 +43,8 @@ export default async function Page({ params }: PageProps) {
         <ContactForm slug={slug} lang={content.lang} />
       </section>
       <section className="mx-auto max-w-2xl px-6 pb-20 text-sm text-neutral-400">
-        <div className="rounded-xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur">
-          <div className="font-semibold text-neutral-200">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 ">
+          <div className="font-semibold text-neutral-900">
             {isFr ? 'Contact direct' : 'Direct contact'}
           </div>
           <div className="mt-2">

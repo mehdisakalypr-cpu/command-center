@@ -63,7 +63,7 @@ export function ContactForm({ slug, lang }: { slug: string; lang: string }) {
   return (
     <form
       onSubmit={submit}
-      className="rounded-xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur space-y-4"
+      className="rounded-xl border border-white/10 bg-white p-6  space-y-4"
     >
       <label className="block">
         {label(isFr ? 'Votre email *' : 'Your email *')}
@@ -73,7 +73,7 @@ export function ContactForm({ slug, lang }: { slug: string; lang: string }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={disabled}
-          className="w-full rounded-lg bg-neutral-950 border border-neutral-700 px-4 py-2 outline-none focus:border-neutral-500 text-sm"
+          className="w-full rounded-lg bg-neutral-50 border border-neutral-300 px-4 py-2 outline-none focus:border-neutral-500 text-sm"
         />
       </label>
       <label className="block">
@@ -83,7 +83,7 @@ export function ContactForm({ slug, lang }: { slug: string; lang: string }) {
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           disabled={disabled}
-          className="w-full rounded-lg bg-neutral-950 border border-neutral-700 px-4 py-2 outline-none focus:border-neutral-500 text-sm"
+          className="w-full rounded-lg bg-neutral-50 border border-neutral-300 px-4 py-2 outline-none focus:border-neutral-500 text-sm"
         >
           {reasons.map((r) => (
             <option key={r.v} value={r.v}>
@@ -100,7 +100,7 @@ export function ContactForm({ slug, lang }: { slug: string; lang: string }) {
           onChange={(e) => setSubject(e.target.value)}
           disabled={disabled}
           maxLength={120}
-          className="w-full rounded-lg bg-neutral-950 border border-neutral-700 px-4 py-2 outline-none focus:border-neutral-500 text-sm"
+          className="w-full rounded-lg bg-neutral-50 border border-neutral-300 px-4 py-2 outline-none focus:border-neutral-500 text-sm"
         />
       </label>
       <label className="block">
@@ -112,7 +112,7 @@ export function ContactForm({ slug, lang }: { slug: string; lang: string }) {
           disabled={disabled}
           maxLength={4000}
           rows={6}
-          className="w-full rounded-lg bg-neutral-950 border border-neutral-700 px-4 py-2 outline-none focus:border-neutral-500 text-sm resize-y"
+          className="w-full rounded-lg bg-neutral-50 border border-neutral-300 px-4 py-2 outline-none focus:border-neutral-500 text-sm resize-y"
         />
       </label>
       <button

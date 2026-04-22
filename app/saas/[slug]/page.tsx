@@ -45,7 +45,7 @@ export default async function Page({ params }: PageProps) {
   const admin = createSupabaseAdmin();
   const { data } = await admin
     .from('business_ideas')
-    .select('slug, name, category, landing_content')
+    .select('slug, name, landing_content')
     .eq('slug', slug)
     .maybeSingle();
 
@@ -53,11 +53,5 @@ export default async function Page({ params }: PageProps) {
   if (!data || !content) return notFound();
 
   const name = (data.name as string) ?? slug;
-  const { pickSceneKind } = await import('@/lib/hisoka/saas-forge/archetype-scenes');
-  const sceneKind = pickSceneKind({
-    category: data.category as string | null,
-    slug,
-    name,
-  });
-  return <LandingView slug={slug} content={content} name={name} sceneKind={sceneKind} />;
+  return <LandingView slug={slug} content={content} name={name} />;
 }

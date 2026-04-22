@@ -34,6 +34,25 @@ FAQ rules (3-5 items):
 
 footer_note: one honest sentence (e.g. "Built by a solo founder. Early access — expect rough edges.").
 
+hero_image_prompt rule (CRITICAL):
+  Describe a CONCRETE use-case scene that illustrates the product's benefit for its specific user.
+  Think: who is in the scene, what are they doing, what is the product showing them, what does the
+  outcome look like. Example inputs → prompts:
+    - "AI Personal Coach" → "A young professional woman in a bright modern apartment looking at a
+       holographic tablet showing a progression chart and weekly goals with a friendly AI assistant
+       avatar guiding her, soft morning light, editorial photography, warm color grade"
+    - "Market Trends Dashboard" → "An analyst at a clean desk studying a large monitor with
+       real-time stock trend waves and heatmaps, notes scattered with key insights highlighted,
+       daylight window behind, shallow depth of field, editorial"
+    - "B2B Matching" → "Two founders meeting in a sunny co-working space, laptops side by side
+       showing a matched partnership dashboard with green approval signals, handshake moment,
+       candid photography"
+  Rules:
+    - 20-60 words. Specific scene. Real people or objects, not abstract shapes.
+    - Must convey the OUTCOME the product creates, visualized.
+    - End with "editorial photography, cinematic, soft natural light, rich detail".
+    - No logos, no text overlays, no brand names in the scene.
+
 Language rules:
   - lang: ISO code matching target market ('en' default, 'fr' if clearly francophone, 'es' etc.).
   - All text in that language. No mixed languages. No placeholders, no TODOs, no lorem ipsum.
@@ -80,7 +99,8 @@ function buildPrompt(idea: RenderIdeaInput): string {
   "features": [{ "title": string, "description": string, "icon": string }],
   "faq": [{ "question": string, "answer": string }],
   "footer_note": string,
-  "lang": string
+  "lang": string,
+  "hero_image_prompt": string
 }`);
   return lines.join('\n');
 }
@@ -107,7 +127,26 @@ function validate(c: unknown): c is LandingContent {
   }
   if (typeof x.footer_note !== 'string') return false;
   if (typeof x.lang !== 'string' || x.lang.length < 2) return false;
+  // hero_image_prompt is optional (older landings don't have it); when present, must be non-empty.
+  if (x.hero_image_prompt !== undefined && (typeof x.hero_image_prompt !== 'string' || x.hero_image_prompt.length < 20)) return false;
   return true;
+}
+
+/** Pollinations free image gen (URL-based, no API key). Use for hero use-case illustration. */
+export function pollinationsHeroUrl(prompt: string, seed: number): string {
+  const width = 1920;
+  const height = 1080;
+  const q = encodeURIComponent(prompt);
+  return `https://image.pollinations.ai/prompt/${q}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`;
+}
+
+function stableSeed(text: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return Math.abs(hash) % 99_999;
 }
 
 export async function renderLanding(idea: RenderIdeaInput): Promise<LandingRenderResult> {
@@ -130,9 +169,14 @@ export async function renderLanding(idea: RenderIdeaInput): Promise<LandingRende
     if (!validate(parsed)) {
       return { ok: false, error: 'validation failed: shape mismatch' };
     }
+    // Compute hero_image_url (Pollinations) if prompt was produced.
+    const heroPrompt = parsed.hero_image_prompt;
+    const hero_image_url = heroPrompt
+      ? pollinationsHeroUrl(heroPrompt, stableSeed(idea.name + ':' + heroPrompt))
+      : undefined;
     return {
       ok: true,
-      content: { ...parsed, generated_with: out.provider },
+      content: { ...parsed, hero_image_url, generated_with: out.provider },
       cost_usd: out.costUsd ?? 0,
       provider: out.provider,
     };

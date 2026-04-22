@@ -32,7 +32,7 @@ export default async function Page({ params }: PageProps) {
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
           {isFr ? 'Nos services' : 'Our services'}
         </h1>
-        <p className="mt-4 text-lg text-neutral-300 max-w-2xl">
+        <p className="mt-4 text-lg text-neutral-700 max-w-2xl">
           {isFr
             ? `Tout ce que ${name} fait pour vous, en détail. Accès anticipé actif — rejoignez la waitlist pour prioriser.`
             : `Everything ${name} does for you, in detail. Early access is live — join the waitlist to prioritize.`}
@@ -43,13 +43,13 @@ export default async function Page({ params }: PageProps) {
         {content.features.map((f, i) => (
           <div
             key={i}
-            className="rounded-xl border border-white/10 bg-neutral-900/40 backdrop-blur p-8 transition-colors hover:bg-neutral-900/60"
+            className="rounded-xl border border-neutral-200 bg-white  p-8 transition-colors hover:bg-neutral-50"
           >
             <div className="flex items-start gap-5">
               <div className="text-3xl flex-shrink-0" aria-hidden="true">{f.icon}</div>
               <div className="flex-1">
                 <h2 className="text-xl font-semibold">{f.title}</h2>
-                <p className="mt-3 text-neutral-300 leading-relaxed">{f.description}</p>
+                <p className="mt-3 text-neutral-700 leading-relaxed">{f.description}</p>
               </div>
             </div>
           </div>
