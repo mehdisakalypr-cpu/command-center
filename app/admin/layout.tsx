@@ -22,7 +22,6 @@ const NAV_GROUPS: NavGroupX[] = [
       { href: '/admin/dashboard',         label: 'Dashboard',   icon: '📊', desc: 'Monitoring & VPS' },
       { href: '/admin/vr',                label: 'V/R',         icon: '🎯', desc: 'Vision vs Réalisé' },
       { href: '/admin/simulator',         label: 'Simulateur',  icon: '🧮', desc: 'Objectifs → plan', subgroup: 'Stratégie' },
-      { href: '/admin/hisoka',            label: 'Hisoka',      icon: '🃏', desc: 'Business Hunter · top 20 preys · deep analysis', subgroup: 'Stratégie' },
       { href: '/admin/mrr-max-scenarios', label: 'MRR MAX 3×',  icon: '🌌', desc: 'T0/T0+T1/Resend coût/ROI', subgroup: 'Stratégie' },
       { href: '/admin/globe',             label: 'BANKAI',      icon: '🗡️', desc: 'Revenue Globe 3D temps réel · multi-sites', subgroup: 'Stratégie' },
       { href: '/admin/ftg-launch',        label: 'FTG Launch',  icon: '🚀', desc: 'Budget + MRR M1 scenarios + leviers 15 mai', subgroup: 'Stratégie' },
@@ -35,6 +34,7 @@ const NAV_GROUPS: NavGroupX[] = [
     label: 'Agents', icon: '⚡', items: [
       { href: '/admin/minato',       label: 'Minato',       icon: '⚡', desc: 'Shonen + Managed · Arsenal · NEJI · Infinite Tsukuyomi' },
       { href: '/admin/cc-fleet',     label: 'CC Fleet',     icon: '🔀', desc: 'N-worker orchestration · capability-based · scope-locked' },
+      { href: '/admin/hisoka',       label: 'Hisoka',       icon: '🃏', desc: 'Business Hunter · top 20 preys · deep analysis' },
       { href: '/admin/hisoka/forge', label: 'AAM Forge',    icon: '💪', desc: 'Armored All Might · lift weak ideas above 0.92 autonomy' },
       { href: '/admin/ki-sense',     label: 'Ki Sense',     icon: '🧘', desc: 'Flywheel health · crons · anomalies · LLM pool 24h' },
       { href: '/admin/orchestrator', label: 'Orchestrator', icon: '⚙️', desc: '6 phases pipeline live', subgroup: 'Pipeline' },
