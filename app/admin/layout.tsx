@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { authFetch } from '@/lib/auth-v2/client-fetch'
 import { createSupabaseBrowser } from '@/lib/auth-v2/supabase'
+import { BusinessProvider } from '@/lib/businesses/context'
+import { BusinessPicker } from '@/components/BusinessPicker'
 
 type NavItem = { href: string; label: string; icon: string; desc: string }
 type NavGroup = { label: string; icon: string; items: NavItem[] }
@@ -152,6 +154,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const w = expanded ? W_OPEN : W_CLOSED
 
   return (
+    <BusinessProvider>
     <div style={{ display: 'flex', minHeight: '100vh', background: '#040D1C', fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
 
       {/* Mobile overlay when expanded */}
@@ -331,13 +334,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         position: 'relative',
         ...(isMobile ? { marginLeft: W_CLOSED } : {}),
       }}>
-        {/* Floating top-right logout */}
+        {/* Floating top-right: business picker + logout */}
         <div style={{
           position: 'absolute',
           top: 12,
           right: 14,
           zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
         }}>
+          <BusinessPicker />
           <TopbarLogoutButton />
         </div>
 
@@ -346,6 +353,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </main>
     </div>
+    </BusinessProvider>
   )
 }
 
