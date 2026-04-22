@@ -31,7 +31,9 @@ export function isRateLimit(err: unknown): boolean {
 
 export function isAuthError(err: unknown): boolean {
   const s = String((err as any)?.message ?? err ?? '').toLowerCase()
-  return /401|403|unauthorized|invalid.?api.?key|invalid_api_key/.test(s)
+  // Includes provider-specific "org restricted" / "access denied" messages
+  // that return 400 but should open the circuit for 24h like a bad key.
+  return /401|403|unauthorized|invalid.?api.?key|invalid_api_key|organization has been restricted|organization.*restricted|access denied|account.*suspended|permission.?denied/.test(s)
 }
 
 /**

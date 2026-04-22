@@ -10,6 +10,8 @@ import { pickKey } from './router'
 import { DEFAULT_CASCADE_ORDER } from './router'
 import { hasAnyKey } from './registry'
 import { callOpenRouter } from './providers/openrouter'
+import { callGemini } from './providers/gemini'
+import { callMistral } from './providers/mistral'
 import type { GenInput, GenOutput, ProjectTag, Provider } from './types'
 
 // Lazy Anthropic caller — avoids importing the SDK unless we actually need it.
@@ -160,9 +162,21 @@ async function runProvider(provider: Provider, input: GenInput, project: Project
         inputTokens = r.inputTokens
         outputTokens = r.outputTokens
         costUsd = r.costUsd
+      } else if (provider === 'gemini') {
+        const r = await callGemini(k.value, input)
+        text = r.text
+        inputTokens = r.inputTokens
+        outputTokens = r.outputTokens
+        costUsd = r.costUsd
+      } else if (provider === 'mistral') {
+        const r = await callMistral(k.value, input)
+        text = r.text
+        inputTokens = r.inputTokens
+        outputTokens = r.outputTokens
+        costUsd = r.costUsd
       } else {
         // Remaining providers can be added as lib/ai-pool/providers/*.ts.
-        throw new Error(`provider ${provider} not wired in CC cascade (supported: openrouter, anthropic, openai, groq)`)
+        throw new Error(`provider ${provider} not wired in CC cascade (supported: openrouter, anthropic, openai, groq, gemini, mistral)`)
       }
 
       const durationMs = Date.now() - start
