@@ -145,3 +145,51 @@ Your response MUST start with { and end with }. No preamble, no trailing text, n
 
 Do not filter: if the idea has obvious autonomy gaps, reflect them honestly. Code applies gates.`;
 }
+
+// Portfolio Optimizer — given capital + workers + risk, pick 3-5 ideas from current top 20.
+export function buildPortfolioPrompt(opts: {
+  ideas: Array<{
+    slug: string; name: string; category: string; autonomy_score: number;
+    leverage_configs: unknown; optimal_config: unknown; mrr_median: unknown;
+    llc_gate: string; leverage_elasticity: string | null;
+  }>;
+  availableCapitalEur: number;
+  maxExtraWorkers: number;
+  riskAppetite: 'conservative' | 'balanced' | 'aggressive';
+}): string {
+  const ideasList = opts.ideas.map((i, idx) =>
+    `#${idx + 1} ${i.slug} [${i.category}] autonomy=${i.autonomy_score} llc=${i.llc_gate} elasticity=${i.leverage_elasticity ?? 'unknown'}
+  configs: ${JSON.stringify(i.leverage_configs)}
+  optimal: ${JSON.stringify(i.optimal_config)}
+  mrr_median: ${JSON.stringify(i.mrr_median)}`
+  ).join('\n\n');
+
+  const riskGuide: Record<typeof opts.riskAppetite, string> = {
+    conservative: 'Prefer low-risk_score configs (<0.4). Spread across 4-5 ideas. Favor MEDIUM elasticity and llc_gate=none. Minimum 3 categories.',
+    balanced: 'Mix risk levels (target avg ≤0.5). 3-4 ideas. Allow 1 HIGH elasticity turbo/overkill bet. Minimum 2 categories.',
+    aggressive: 'Overweight HIGH elasticity ideas at turbo/overkill configs. 3 ideas OK if high conviction. Accept llc_gate=needs_llc penalty.',
+  };
+
+  return `Available capital: €${opts.availableCapitalEur}
+Extra workers the user can dedicate: ${opts.maxExtraWorkers}
+Risk appetite: ${opts.riskAppetite}
+Risk guide: ${riskGuide[opts.riskAppetite]}
+
+Pick 3-5 ideas from the top 20 below. For each, specify launch_eur and workers_assigned.
+Constraints:
+- Sum of launch_eur ≤ ${opts.availableCapitalEur}
+- Sum of workers_assigned ≤ ${opts.maxExtraWorkers} (extra over baseline 1 per idea if workers_assigned > 1)
+- Minimum 3 distinct categories (unless ${opts.riskAppetite} is 'aggressive', where 2 is acceptable)
+- At least 1 llc_gate=none idea
+
+TOP 20 CANDIDATES:
+${ideasList}
+
+Return strict JSON, no prose, no markdown:
+{
+  "allocations": [
+    { "idea_slug": "<slug>", "launch_eur": N, "workers_assigned": N, "config_label": "bootstrap|accelerated|turbo|overkill", "expected_mrr_y3_eur": N, "rationale": "<1 sentence>" }
+  ],
+  "rationale": "<1-paragraph explanation of the allocation logic>"
+}`;
+}
