@@ -1,16 +1,30 @@
 import { withFallback, extractJSON, stripPreamble, STRICT_JSON_DIRECTIVE } from '@/lib/ai-pool/cascade';
 import type { LandingContent, LandingRenderResult } from './types';
 
-const LANDING_SYSTEM = `You are a SaaS copywriter. From a business idea brief, produce a conversion-grade landing page as strict JSON.
+const LANDING_SYSTEM = `You are a conversion copywriter for indie SaaS founders. Study the reference example before writing.
+
+Reference (Feel The Gap style — emulate the tightness):
+  hero_title: "Find where to sell before everyone else"
+  hero_tagline: "From raw data to actionable opportunities"
+
+Pattern:
+  - hero_title = ACTION VERB + CONCRETE OUTCOME for the named audience. It must answer
+    "what does the visitor GET in one line". No nouns-only titles. No AI jargon. No buzzwords
+    ("revolutionary", "cutting-edge", "game-changing", "next-gen", "AI-powered", "unlock",
+    "supercharge", "empower"). Under 70 chars ideal, max 90.
+  - hero_tagline = HOW we deliver, process summary, 6-12 words. Under 100 chars.
+  - audience is implicit but the hero must FEEL written for that person.
+
 Rules:
-- hero_title: punchy, benefit-first, concrete outcome. <=80 chars. No emoji. No buzzwords ("revolutionary", "game-changing", "next-gen").
-- hero_tagline: concrete promise, <=180 chars.
-- hero_cta: short verb phrase ("Join waitlist", "Rejoindre la liste").
-- features: 3 to 6 items. Each: title <=40 chars, description <=200 chars, one relevant emoji icon.
-- faq: 3 to 5 items addressing real objections (pricing, trust, fit, alternatives, timeline). Answers <=300 chars.
+- hero_cta: short verb phrase ("Join waitlist" / "Rejoindre la liste").
+- features: 3 to 6 items. Each title <=50 chars, description <=180 chars. One relevant emoji icon.
+  Each feature must name WHO benefits and HOW (not just WHAT).
+- faq: 3 to 5 items answering real buyer objections: pricing, trust, fit vs alternatives, timeline,
+  data/privacy, what happens after waitlist. Answers <=280 chars, concrete, no hedge.
 - footer_note: one honest sentence (e.g. "Built by a solo founder. Early access — expect rough edges.").
-- lang: ISO code matching target market ('en' default, 'fr' if clearly francophone, 'es' etc.). All text must be in that lang.
-- No placeholders, no TODOs, no lorem ipsum.
+- lang: ISO code matching target market ('en' default, 'fr' if clearly francophone, 'es' etc.).
+  All text must be in that language — no mixed languages.
+- No placeholders, no TODOs, no lorem ipsum. No passive voice.
 ${STRICT_JSON_DIRECTIVE}`;
 
 export type RenderIdeaInput = {
@@ -27,7 +41,7 @@ function buildPrompt(idea: RenderIdeaInput): string {
   const lines: string[] = [
     'Business idea brief:',
     `- Name: ${idea.name}`,
-    `- Tagline: ${idea.tagline}`,
+    `- One-liner: ${idea.tagline}`,
     `- Category: ${idea.category}`,
     `- Monetization: ${idea.monetization_model ?? 'waitlist first, monetization TBD'}`,
   ];
@@ -38,6 +52,12 @@ function buildPrompt(idea: RenderIdeaInput): string {
   if (idea.assets_leveraged?.length) {
     lines.push(`- Bricks leveraged: ${idea.assets_leveraged.join(', ')}`);
   }
+  lines.push('');
+  lines.push('Before writing, silently identify:');
+  lines.push('  1. The specific visitor (role, context, pain)');
+  lines.push('  2. The one outcome this product delivers that others miss');
+  lines.push('  3. The process/how in 1 verb');
+  lines.push('Then write the hero with those answers baked in. Do not output the reasoning.');
   lines.push('');
   lines.push('Return JSON matching:');
   lines.push(`{
