@@ -1,5 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { runMonteCarlo, type McPercentiles, type McAnchor } from '@/lib/hisoka/monte-carlo';
+import MonteCarloChart from './MonteCarloChart';
 
 type IdeaFull = {
   name: string;
@@ -11,7 +13,9 @@ type IdeaFull = {
   autonomy_support?: number;
   autonomy_billing?: number;
   autonomy_compliance?: number;
+  mrr_conservative?: unknown;
   mrr_median?: unknown;
+  mrr_optimistic?: unknown;
   assets_leveraged?: string[];
   leverage_configs?: unknown[];
   optimal_config?: unknown;
@@ -20,9 +24,24 @@ type IdeaFull = {
 
 export default function DeepDiveDrawer({ ideaId, onClose }: { ideaId: string; onClose: () => void }) {
   const [data, setData] = useState<{ idea?: IdeaFull } | null>(null);
+  const [mc, setMc] = useState<McPercentiles | null>(null);
+
   useEffect(() => {
     fetch(`/api/business-hunter/ideas/${ideaId}`).then(r => r.json()).then(setData);
   }, [ideaId]);
+
+  useEffect(() => {
+    if (!data?.idea) return;
+    const c = data.idea.mrr_conservative as McAnchor | undefined;
+    const m = data.idea.mrr_median as McAnchor | undefined;
+    const o = data.idea.mrr_optimistic as McAnchor | undefined;
+    if (!c || !m || !o) return;
+    try {
+      setMc(runMonteCarlo(c, m, o, 500));
+    } catch {
+      // ignore degenerate distributions
+    }
+  }, [data]);
 
   return (
     <div style={{
@@ -60,6 +79,24 @@ export default function DeepDiveDrawer({ ideaId, onClose }: { ideaId: string; on
               {JSON.stringify(data.idea.mrr_median, null, 2)}
             </pre>
           </section>
+          {mc && (
+            <section style={{ marginBottom: 16 }}>
+              <div style={{ color: '#C9A84C', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                Monte Carlo — 500 runs · P10/P50/P90
+              </div>
+              <MonteCarloChart mc={mc} />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginTop: 8, fontSize: 11 }}>
+                {(['m1', 'm3', 'm6', 'm12', 'm24', 'm36'] as Array<keyof McAnchor>).map(h => (
+                  <div key={h} style={{ background: '#112233', padding: '6px 8px', borderRadius: 4 }}>
+                    <div style={{ color: '#9BA8B8', fontSize: 9, marginBottom: 2 }}>{h.replace('m', '')}m horizon</div>
+                    <div style={{ color: '#FF6B6B', fontSize: 10 }}>P10: €{mc.p10[h].toLocaleString('fr-FR')}</div>
+                    <div style={{ color: '#C9A84C', fontSize: 10, fontWeight: 600 }}>P50: €{mc.p50[h].toLocaleString('fr-FR')}</div>
+                    <div style={{ color: '#6BCB77', fontSize: 10 }}>P90: €{mc.p90[h].toLocaleString('fr-FR')}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
           {data.idea.leverage_configs && Array.isArray(data.idea.leverage_configs) && (
             <section style={{ marginBottom: 16 }}>
               <div style={{ color: '#C9A84C', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>

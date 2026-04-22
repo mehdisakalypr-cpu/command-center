@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Link from 'next/link'
 import { StrategyNav } from '@/components/StrategyNav'
 
 const C = {
@@ -149,6 +150,14 @@ export default function MrrMaxScenariosPage() {
     <>
     <StrategyNav active="mrr-max" />
     <div style={{ padding: 24, color: C.text, maxWidth: 1400, margin: '0 auto' }}>
+      <Link href="/admin/hisoka" style={{
+        display: 'block', background: '#0A1A2E', border: '1px solid rgba(201,168,76,.2)',
+        padding: '10px 14px', borderRadius: 6, marginBottom: 16, textDecoration: 'none', color: '#E6EEF7',
+      }}>
+        <span style={{ color: '#C9A84C', fontWeight: 600 }}>🃏 Hisoka</span>
+        {' '}propose 5 idées pour atteindre ta cible MRR —{' '}
+        <span style={{ color: '#9BA8B8', fontSize: 12 }}>Voir Portfolio Mode →</span>
+      </Link>
       <header style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: C.gold, margin: 0 }}>
           🌌 MRR MAX — 3 scénarios de coût

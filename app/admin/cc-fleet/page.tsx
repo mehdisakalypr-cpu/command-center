@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 import { isAdmin } from '@/lib/supabase-server'
 import { FLEET_ENABLED } from '@/lib/cc-fleet'
@@ -62,6 +63,15 @@ export default async function CcFleetPage() {
           N-worker orchestration · capability-based routing · scope-locked · {workers.length} worker{workers.length > 1 ? 's' : ''} registered
         </p>
       </header>
+
+      <Link href="/admin/hisoka" style={{
+        display: 'block', background: '#0A1A2E', border: '1px solid rgba(201,168,76,.2)',
+        padding: '10px 14px', borderRadius: 6, marginBottom: 16, textDecoration: 'none', color: '#E6EEF7',
+      }}>
+        <span style={{ color: '#C9A84C', fontWeight: 600 }}>🃏 +1 worker</span>
+        {' '}dans la Fleet démultiplie les configs turbo/overkill sur les 20 meilleures idées Hisoka —{' '}
+        <span style={{ color: '#9BA8B8', fontSize: 12 }}>Voir les leviers →</span>
+      </Link>
 
       {!FLEET_ENABLED && <DormantBanner />}
 

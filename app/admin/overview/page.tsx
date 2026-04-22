@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import HisokaTopTileClient from "@/app/admin/_shared/HisokaTopTileClient";
 
 type RecentProfile = {
   id: string;
@@ -168,6 +169,11 @@ export default function OverviewPage() {
                   <div style={S.cardLabel}>Rapports</div>
                 </div>
               </div>
+            </div>
+
+            {/* Hisoka Top 3 */}
+            <div style={{ ...S.section, marginBottom: 20 }}>
+              <HisokaTopTileClient />
             </div>
 
             {/* AI Coverage */}
