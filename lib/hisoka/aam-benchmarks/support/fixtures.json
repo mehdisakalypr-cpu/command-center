@@ -1,0 +1,24 @@
+{
+  "cases": [
+    { "id": "sp_1", "subject": "Can't reset my password", "body": "I clicked forgot password but never got the email.", "expected_disposition": "self_serve_link", "expected_resolution": "link_to_reset_flow" },
+    { "id": "sp_2", "subject": "Double-charged this month", "body": "I see two identical charges on my card.", "expected_disposition": "escalate_billing", "expected_resolution": "request_screenshot_refund" },
+    { "id": "sp_3", "subject": "Feature request: dark mode", "body": "Any plan to add dark mode?", "expected_disposition": "acknowledge_product_feedback", "expected_resolution": "polite_ack" },
+    { "id": "sp_4", "subject": "App crashes on iOS 17", "body": "Every time I open the settings screen it freezes.", "expected_disposition": "escalate_engineering", "expected_resolution": "request_logs_repro" },
+    { "id": "sp_5", "subject": "How do I export my data?", "body": "Where's the export button?", "expected_disposition": "self_serve_link", "expected_resolution": "link_to_export_docs" },
+    { "id": "sp_6", "subject": "Cancel my subscription please", "body": "Immediately cancel. Don't want further charges.", "expected_disposition": "self_serve_link", "expected_resolution": "link_to_cancel" },
+    { "id": "sp_7", "subject": "Is this GDPR-compliant?", "body": "Can you confirm data stored in EU?", "expected_disposition": "escalate_compliance", "expected_resolution": "link_to_dpa" },
+    { "id": "sp_8", "subject": "Integration with Zapier?", "body": "Do you have a Zapier app?", "expected_disposition": "self_serve_link", "expected_resolution": "link_to_integrations" },
+    { "id": "sp_9", "subject": "Login fails with SSO", "body": "Our Okta setup redirects then errors.", "expected_disposition": "escalate_engineering", "expected_resolution": "request_sso_logs" },
+    { "id": "sp_10", "subject": "Quota increase", "body": "We need to raise our monthly quota.", "expected_disposition": "escalate_billing", "expected_resolution": "confirm_plan_tier_upgrade" },
+    { "id": "sp_11", "subject": "Spam signups", "body": "Bots are hitting our form.", "expected_disposition": "self_serve_link", "expected_resolution": "link_to_rate_limit_docs" },
+    { "id": "sp_12", "subject": "Bug: timezone off by 1h", "body": "UI shows 10am, actual is 11am.", "expected_disposition": "escalate_engineering", "expected_resolution": "request_timezone_details" },
+    { "id": "sp_13", "subject": "Invoice PDF for accounting", "body": "Need Dec 2025 invoice.", "expected_disposition": "self_serve_link", "expected_resolution": "link_to_invoices" },
+    { "id": "sp_14", "subject": "Partnership inquiry", "body": "We run a 50k newsletter and want a deal.", "expected_disposition": "escalate_bd", "expected_resolution": "intro_to_partnerships" },
+    { "id": "sp_15", "subject": "Refund for annual plan", "body": "We want our money back for 2026 unused portion.", "expected_disposition": "escalate_billing", "expected_resolution": "apply_refund_policy" },
+    { "id": "sp_16", "subject": "Typo on pricing page", "body": "You wrote 'montly' instead of 'monthly'.", "expected_disposition": "acknowledge_product_feedback", "expected_resolution": "polite_ack_fix" },
+    { "id": "sp_17", "subject": "Can I self-host?", "body": "Is there an open-source version?", "expected_disposition": "self_serve_link", "expected_resolution": "link_to_enterprise" },
+    { "id": "sp_18", "subject": "2FA lost device", "body": "I lost my phone and can't log in.", "expected_disposition": "escalate_security", "expected_resolution": "verify_identity_flow" },
+    { "id": "sp_19", "subject": "API rate limit", "body": "Getting 429 on free tier.", "expected_disposition": "self_serve_link", "expected_resolution": "link_to_pricing" },
+    { "id": "sp_20", "subject": "Acme Corp wants enterprise demo", "body": "Team of 500 evaluating your tool.", "expected_disposition": "escalate_bd", "expected_resolution": "intro_to_sales" }
+  ]
+}
