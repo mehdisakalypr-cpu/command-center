@@ -284,6 +284,22 @@ export function repairTruncatedJSON(raw: string): string | null {
 }
 
 /**
+ * Strip common LLM pollution before JSON parsing: surrounding ```json fences
+ * and any prose preamble that precedes the first `{`. Cheap to call on every
+ * response regardless of whether the LLM obeyed "JSON only".
+ */
+export function stripPreamble(text: string): string {
+  let t = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+  const first = t.indexOf('{')
+  if (first > 0) t = t.slice(first)
+  return t
+}
+
+/** Directive suffix to append to SYSTEM prompts that want strict JSON. */
+export const STRICT_JSON_DIRECTIVE =
+  ' Output ONLY the JSON object — no preamble, no trailing prose, no markdown fences. Start your response with { and end with }.'
+
+/**
  * Extract the first JSON object/array from a free-form response.
  * Falls back to {@link repairTruncatedJSON} on truncated LLM outputs —
  * tries repair on the regex match first, then on the full text starting

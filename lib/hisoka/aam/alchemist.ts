@@ -1,7 +1,7 @@
-import { withFallback, extractJSON } from '@/lib/ai-pool/cascade';
+import { withFallback, extractJSON, stripPreamble, STRICT_JSON_DIRECTIVE } from '@/lib/ai-pool/cascade';
 import type { AutomationGap, Candidate, IntegrationPlan } from './types';
 
-const SYSTEM = `You are Power Loader, support-item engineer. Given a gap and a chosen candidate (GitHub repo or library), you synthesize a minimal integration plan: an install script (bash), an entry-point file (JS or Python), and the code that invokes the library against a benchmark fixture file. Strict JSON only.`;
+const SYSTEM = `You are Power Loader, support-item engineer. Given a gap and a chosen candidate (GitHub repo or library), you synthesize a minimal integration plan: an install script (bash), an entry-point file (JS or Python), and the code that invokes the library against a benchmark fixture file.${STRICT_JSON_DIRECTIVE}`;
 
 export async function synthesizeIntegration(
   gap: AutomationGap,
@@ -21,9 +21,9 @@ Write:
 Return JSON: { "install_script": "...", "entry_point": "run.mjs", "entry_code": "...", "required_env_keys": [...], "notes": "..." }`;
 
   const gen = await withFallback(
-    { system: SYSTEM, prompt, model: 'anthropic/claude-sonnet-4-6', temperature: 0.2, maxTokens: 2000 },
+    { system: SYSTEM, prompt, model: 'anthropic/claude-sonnet-4-6', temperature: 0.2, maxTokens: 4000 },
     { project: 'cc', order: ['gemini','mistral','openrouter','anthropic','groq'] },
   );
-  const parsed = extractJSON<Omit<IntegrationPlan,'candidate'>>(gen.text);
+  const parsed = extractJSON<Omit<IntegrationPlan,'candidate'>>(stripPreamble(gen.text));
   return { ...parsed, candidate };
 }

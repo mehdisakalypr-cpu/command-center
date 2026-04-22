@@ -1,10 +1,9 @@
-import { withFallback, extractJSON } from '@/lib/ai-pool/cascade';
+import { withFallback, extractJSON, stripPreamble, STRICT_JSON_DIRECTIVE } from '@/lib/ai-pool/cascade';
 import type { AutomationGap, ForgeableDim } from './types';
 
 const FORGEABLE: ForgeableDim[] = ['acquisition','content_ops','fulfillment','support'];
 
-const SYSTEM = `You are a business-automation auditor. Given an idea and its per-dimension autonomy scores, you identify which dimensions have the biggest automation gap and describe what human work remains.
-Output strict JSON only.`;
+const SYSTEM = `You are a business-automation auditor. Given an idea and its per-dimension autonomy scores, you identify which dimensions have the biggest automation gap and describe what human work remains.${STRICT_JSON_DIRECTIVE}`;
 
 export type AnalyzerInput = {
   idea: {
@@ -33,10 +32,10 @@ For each dimension with autonomy < 0.92, describe what human work currently prev
 Return strict JSON: { "gaps": [{ "dim": "acquisition"|"content_ops"|"fulfillment"|"support"|"billing"|"compliance", "current_autonomy": 0.xx, "description": "<1 sentence>", "forgeable": true|false }] }`;
 
   const gen = await withFallback(
-    { system: SYSTEM, prompt, model: 'llama-4-scout-17b-16e-instruct', temperature: 0.3, maxTokens: 1000 },
+    { system: SYSTEM, prompt, model: 'llama-4-scout-17b-16e-instruct', temperature: 0.3, maxTokens: 2000 },
     { project: 'cc', order: ['gemini','mistral','groq','openrouter','anthropic'] },
   );
-  const parsed = extractJSON<{ gaps: AutomationGap[] }>(gen.text);
+  const parsed = extractJSON<{ gaps: AutomationGap[] }>(stripPreamble(gen.text));
   // Enforce compliance/billing are never forgeable regardless of LLM output
   return (parsed.gaps ?? []).map(g => ({
     ...g,

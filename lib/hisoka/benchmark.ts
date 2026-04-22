@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { withFallback, extractJSON } from '@/lib/ai-pool/cascade';
+import { withFallback, extractJSON, stripPreamble } from '@/lib/ai-pool/cascade';
 import { getBricks, getMinatoAgents } from './registries';
 import { buildBenchmarkPrompt, IDEATOR_SYSTEM } from './prompts';
 import { hardGates, baseScore } from './scoring';
@@ -49,12 +49,9 @@ export async function benchmarkIdea(
   );
   const costEur = (gen.costUsd ?? 0) * 0.92;
 
-  // Strip code fences defensively before extracting JSON
-  const cleanedText = gen.text.replace(/^```(?:json)?\n?|\n?```$/g, '').trim();
-
   let scored: ScoredIdea;
   try {
-    scored = extractJSON<ScoredIdea>(cleanedText);
+    scored = extractJSON<ScoredIdea>(stripPreamble(gen.text));
   } catch (e) {
     throw new Error(`Benchmark LLM JSON parse failed: ${String(e).slice(0, 200)} | raw=${gen.text.slice(0, 400)}`);
   }

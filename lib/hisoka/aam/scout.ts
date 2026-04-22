@@ -1,7 +1,7 @@
-import { withFallback, extractJSON } from '@/lib/ai-pool/cascade';
+import { withFallback, extractJSON, stripPreamble, STRICT_JSON_DIRECTIVE } from '@/lib/ai-pool/cascade';
 import type { AutomationGap, Candidate } from './types';
 
-const SYSTEM = `You are Mei Hatsume, a mad inventor scout. Given an automation gap, you compose narrow search queries to find existing tools that could close it. Output ONLY a JSON object. No preamble, no trailing prose, no markdown fences. Start your response with { and end with }.`;
+const SYSTEM = `You are Mei Hatsume, a mad inventor scout. Given an automation gap, you compose narrow search queries to find existing tools that could close it.${STRICT_JSON_DIRECTIVE}`;
 
 const GH_SEARCH = 'https://api.github.com/search/repositories';
 const HN_SEARCH = 'https://hn.algolia.com/api/v1/search';
@@ -14,11 +14,7 @@ export async function scoutCandidates(gap: AutomationGap, maxPerSource = 3): Pro
     { system: SYSTEM, prompt, model: 'llama-4-scout-17b-16e-instruct', temperature: 0.4, maxTokens: 2400 },
     { project: 'cc', order: ['gemini','mistral','groq','openrouter','anthropic'] },
   );
-  // Strip markdown code fences + any prose preamble before the first `{`.
-  let cleaned = gen.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
-  const firstBrace = cleaned.indexOf('{');
-  if (firstBrace > 0) cleaned = cleaned.slice(firstBrace);
-  const parsed = extractJSON<{ queries: string[] }>(cleaned);
+  const parsed = extractJSON<{ queries: string[] }>(stripPreamble(gen.text));
   const queries = (parsed.queries ?? []).slice(0, 2);
   if (queries.length === 0) return [];
 
