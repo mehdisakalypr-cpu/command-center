@@ -9,6 +9,7 @@ const PUBLIC_PAGE_PREFIXES = [
   "/auth/",      // login, register, forgot, reset-password, callback, biometric-setup
   "/login",      // legacy redirect page
   "/saas/",      // Hisoka Phase 5 — public landings /saas/[slug]
+  "/hubs/",      // Phase 7b — public portfolio hubs (gapup.io root rewrites here)
 ];
 const PUBLIC_API = new Set([
   "/api/auth/login",                  // server-side login proxy (rate-limit + Turnstile)
