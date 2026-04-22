@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import FleetScaleCta from '@/app/admin/cc-fleet/components/FleetScaleCta'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Capacity · OFA' }
@@ -63,6 +64,8 @@ export default async function CapacityPage() {
         <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, color: GOLD }}>Capacity</h1>
         <p style={{ color: '#94A3B8', margin: '6px 0 0' }}>Pipeline OFA · {days} jours restants dans le mois.</p>
       </header>
+
+      <FleetScaleCta reason="capacity-ofa-dashboard" prefillCount={2} prefillCaps={['scout', 'content']} />
 
       {/* Today */}
       <Section title="Aujourd'hui (dernières 24h)">

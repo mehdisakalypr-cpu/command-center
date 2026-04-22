@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { StrategyNav } from '@/components/StrategyNav'
+import FleetGapCard from '@/app/admin/cc-fleet/components/FleetGapCard'
 
 type Product = 'ofa' | 'ftg' | 'estate' | 'shiftdynamics' | 'cc' | 'all'
 type ObjectiveType = 'mrr' | 'clients' | 'revenue'
@@ -563,6 +564,22 @@ function BusinessTab() {
           <Kpi label="Leads à scouter" value={results.leadsNeeded.toLocaleString()} color={C.text} />
           <Kpi label="Conversion globale" value={`${(results.totalConv * 100).toFixed(3)} %`} color={C.text} />
         </div>
+
+        {/* CC Fleet gap : combien de comptes CC manquent pour scouter à temps ? */}
+        {results.leadsNeeded > 0 && product !== 'cc' && (
+          <div style={{ marginBottom: 16 }}>
+            <h3 style={subH}>Gap CC Fleet (scout)</h3>
+            <FleetGapCard
+              target_output={results.leadsNeeded}
+              target_date={new Date(Date.now() + horizonDays * 86400_000).toISOString().slice(0, 10)}
+              capability="scout"
+              project={product}
+              label={`${results.leadsNeeded.toLocaleString('fr-FR')} leads à scouter en ${horizonDays}j pour ${product.toUpperCase()}`}
+              compact
+            />
+          </div>
+        )}
+
         <h3 style={subH}>Funnel</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
           {results.stageVolumes.map(s => (

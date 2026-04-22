@@ -33,6 +33,7 @@ const NAV_GROUPS: NavGroupX[] = [
   {
     label: 'Agents', icon: '⚡', items: [
       { href: '/admin/minato',       label: 'Minato',       icon: '⚡', desc: 'Shonen + Managed · Arsenal · NEJI · Infinite Tsukuyomi' },
+      { href: '/admin/cc-fleet',     label: 'CC Fleet',     icon: '🔀', desc: 'N-worker orchestration · capability-based · scope-locked' },
       { href: '/admin/orchestrator', label: 'Orchestrator', icon: '⚙️', desc: '6 phases pipeline live', subgroup: 'Pipeline' },
       { href: '/admin/capacity',     label: 'Capacity OFA', icon: '📈', desc: 'Pipeline sites/emails/enrich', subgroup: 'Pipeline' },
       { href: '/admin/creator',      label: 'Creator',      icon: '🐉', desc: 'Power level Saiyan + progression' },

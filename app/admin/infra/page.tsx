@@ -4,6 +4,7 @@
  * les alertes ouvertes, le coût mensuel actuel.
  */
 import { createClient } from '@supabase/supabase-js'
+import FleetScaleCta from '@/app/admin/cc-fleet/components/FleetScaleCta'
 
 export const metadata = { title: 'Infrastructure Capacity — Admin' }
 export const dynamic = 'force-dynamic'
@@ -74,6 +75,8 @@ export default async function InfraPage() {
             <div className="text-[10px] text-gray-500 mt-1">{subscriptions.length} abonnements actifs</div>
           </div>
         </header>
+
+        <FleetScaleCta reason="infra-capacity-dashboard" prefillCount={1} prefillCaps={['scout', 'content', 'cron']} />
 
         {/* Alertes ouvertes */}
         {alertsOpen.length > 0 && (

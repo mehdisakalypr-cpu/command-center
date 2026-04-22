@@ -1,0 +1,59 @@
+# systemd template unit — one file for N workers.
+# Usage: systemctl enable --now cc-worker@1  (starts worker-1)
+#        systemctl enable --now cc-worker@2  (starts worker-2)
+# etc.
+#
+# Blueprint: memory/project_cc_dual_account_architecture.md (v2 §N-worker)
+# Install path: /etc/systemd/system/cc-worker@.service
+# Worker runs in its own tmux session for persistence and manual inspection.
+
+[Unit]
+Description=Claude Code Worker #%i (autonomous)
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/srv/shared/PAUSE_ALL
+ConditionPathExists=!/srv/shared/PAUSE_WORKER_%i
+
+[Service]
+Type=simple
+User=cc-worker-%i
+Group=cc-worker-%i
+WorkingDirectory=/home/cc-worker-%i
+
+# Environment
+Environment="HOME=/home/cc-worker-%i"
+Environment="CC_WORKER_ID=worker-%i"
+Environment="CC_FLEET_ENABLED=true"
+EnvironmentFile=-/srv/shared/secrets/cc-worker-%i.env
+
+# Launch worker — runs a loop script that polls the queue and claims tickets.
+# Script is /home/cc-worker-%i/workspace/worker-loop.sh, provisioned by setup-cc-worker.sh.
+ExecStart=/usr/bin/tmux new-session -d -s cc-worker-%i '/home/cc-worker-%i/workspace/worker-loop.sh 2>&1 | tee -a /var/log/cc-worker-%i.log'
+ExecStop=/usr/bin/tmux kill-session -t cc-worker-%i
+
+# Graceful stop via killswitch file handled inside worker-loop.sh (checks every tick).
+# systemd TERM gives 30s before KILL.
+TimeoutStopSec=30
+Restart=on-failure
+RestartSec=15s
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+# Sandboxing
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/cc-worker-%i /var/log
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+# Network locked down via host-level ufw/nftables — see firewall.conf
+
+[Install]
+WantedBy=multi-user.target
