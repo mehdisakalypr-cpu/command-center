@@ -38,6 +38,7 @@ const NAV_GROUPS: NavGroupX[] = [
       { href: '/admin/minato',       label: 'Minato',       icon: '⚡', desc: 'Shonen + Managed · Arsenal · NEJI · Infinite Tsukuyomi' },
       { href: '/admin/cc-fleet',     label: 'CC Fleet',     icon: '🔀', desc: 'N-worker orchestration · capability-based · scope-locked' },
       { href: '/admin/hisoka',          label: 'Hisoka',         icon: '🃏', desc: 'Business Hunter · top 20 preys · deep analysis' },
+      { href: '/admin/hisoka/portfolio',label: 'Hisoka Portfolio',icon: '📦', desc: 'Suivi E2E production top 10 · barres progression · Pipeline + Services' },
       { href: '/admin/hisoka/forge',    label: 'AAM Forge',      icon: '💪', desc: 'Armored All Might · lift weak ideas above 0.92 autonomy' },
       { href: '/admin/saas-portfolio',  label: 'SaaS Portfolio', icon: '🚀', desc: 'Landings live · numérotées · waitlists · ouvrir page publique' },
       { href: '/admin/ki-sense',     label: 'Ki Sense',     icon: '🧘', desc: 'Flywheel health · crons · anomalies · LLM pool 24h' },
