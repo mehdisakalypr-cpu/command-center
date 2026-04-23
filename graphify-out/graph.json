@@ -18591,8 +18591,8 @@
       "source_file": "lib/optimus/tradability.ts",
       "source_location": "L103",
       "weight": 1.0,
-      "_src": "tradability_computetradability",
-      "_tgt": "page_push",
+      "_src": "page_push",
+      "_tgt": "tradability_computetradability",
       "source": "page_push",
       "target": "tradability_computetradability"
     },
