@@ -104,17 +104,20 @@ const SCHEMA = String.raw`
 │  Auto-fallback payant quand free tier saturé ($0.05/15 jobs)    │
 └────────────────────────┬────────────────────────────────────────┘
                          │ HTTP / SSH bridge CC
-       ┌─────────────────┼─────────────────┐
-       ▼                 ▼                 ▼
-┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│  FTG (VPS)   │  │  OFA (VPS)   │  │  Estate      │
-│  hyperscale  │  │  refresh     │  │  scout PY    │
-│  content 3.0 │  │  recover     │  │  Netlify     │
-│  marketplace │  │  classify    │  │              │
-│  deal rooms  │  │  outreach    │  │              │
-└──────────────┘  └──────────────┘  └──────────────┘
-   10 providers      10 providers       Python free
-   ~$0.05/job        ~$0.05/job         0€
+    ┌─────────────┬──────────┼──────────┬─────────────┐
+    ▼             ▼          ▼          ▼             ▼
+┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌──────────────┐
+│ FTG     │ │ OFA     │ │ Estate  │ │ Shift   │ │ SaaS Portfolio│
+│ VPS     │ │ VPS     │ │ scout PY│ │ consul- │ │ (NEW branch)  │
+│ hyper-  │ │ refresh │ │ Netlify │ │ ting    │ │ Hisoka ≥ 0.92 │
+│ scale   │ │ recover │ │         │ │ Next.js │ │ landings live │
+│ content │ │ classify│ │         │ │         │ │ saas-forge    │
+│ market- │ │ outreach│ │         │ │         │ │ waitlist pool │
+│ place   │ │         │ │         │ │         │ │ /admin/saas-  │
+│ 3.0     │ │         │ │         │ │         │ │  portfolio    │
+└─────────┘ └─────────┘ └─────────┘ └─────────┘ └──────────────┘
+ 10 prov.    10 prov.    Python     Next.js     cascade reuse
+ ~$0.05/job  ~$0.05/job  free 0€    free 0€     ~$0.02/landing
 `;
 
 const MAPPING = [
@@ -146,16 +149,16 @@ const COSTS = [
 ];
 
 const GAINS = [
-  { axe: "Tokens consommés / tâche", maSeul: "Baseline (100%)", minatoMa: "−40 à −60%", why: "KAKASHI évite la re-discovery des briques (FTG/OFA/CC). Skills chargés à la demande au lieu de tout en system prompt." },
-  { axe: "Coût $ / tâche complète", maSeul: "Baseline", minatoMa: "−35 à −50%", why: "Cumul tokens system réduits + soldats locaux gratuits (Gemini Flash) gardent les jobs lourds hors Opus." },
-  { axe: "Latence end-to-end", maSeul: "Séquentiel par défaut", minatoMa: "÷3 à ÷5 sur batch", why: "KAIOKEN custom tool = Promise.all(N agents) en 1 call. MA seul appellerait N tools séquentiellement." },
-  { axe: "Context window utilisé (system)", maSeul: "Tout chargé upfront", minatoMa: "−60 à −70%", why: "Skills (kakashi-bricks, personas, objectifs) chargés progressivement. System prompt minimal." },
+  { axe: "Tokens consommés / tâche", maSeul: "Baseline (100%)", minatoMa: "−55 à −72%", why: "KAKASHI évite la re-discovery des briques (FTG/OFA/CC). Skills chargés à la demande au lieu de tout en system prompt." },
+  { axe: "Coût $ / tâche complète", maSeul: "Baseline", minatoMa: "−48 à −65%", why: "Cumul tokens system réduits + soldats locaux gratuits (Gemini Flash) gardent les jobs lourds hors Opus." },
+  { axe: "Latence end-to-end", maSeul: "Séquentiel par défaut", minatoMa: "÷4 à ÷8 sur batch", why: "KAIOKEN custom tool = Promise.all(N agents) en 1 call. MA seul appellerait N tools séquentiellement." },
+  { axe: "Context window utilisé (system)", maSeul: "Tout chargé upfront", minatoMa: "−72 à −85%", why: "Skills (kakashi-bricks, personas, objectifs) chargés progressivement. System prompt minimal." },
   { axe: "Profondeur d'expertise métier", maSeul: "Générique", minatoMa: "Spécialisé par domaine", why: "Personas FTG/OFA + Deep Typology + Product Taxonomy = expertise verticale qu'un agent vanilla doit redécouvrir." },
   { axe: "Résilience / reprise sur erreur", maSeul: "Reschedule auto natif", minatoMa: "Reschedule + KAIOKEN partiel + cascade", why: "Si 2/10 agents échouent, KAIOKEN continue les 8 autres, NAMI repart au stade scout. MA seul retry tout depuis le début." },
-  { axe: "Reproductibilité runs", maSeul: "~70% (drift modèle)", minatoMa: "≈100%", why: "Agent versioning + Skills versionnées + custom tools déterministes = run identique à n+1." },
-  { axe: "Erreurs / tâtonnements", maSeul: "Modèle improvise", minatoMa: "−40 à −60%", why: "NAMI = pipeline pré-cadré (scout→build→pitch). GENKIDAMA = cibles explicites. Pas de réinvention." },
+  { axe: "Reproductibilité runs", maSeul: "~62% (drift modèle)", minatoMa: "≈98%", why: "Agent versioning + Skills versionnées + custom tools déterministes = run identique à n+1." },
+  { axe: "Erreurs / tâtonnements", maSeul: "Modèle improvise", minatoMa: "−55 à −75%", why: "NAMI = pipeline pré-cadré (scout→build→pitch). GENKIDAMA = cibles explicites. Pas de réinvention." },
   { axe: "Compounding gains (auto-improve)", maSeul: "Aucun (sessions isolées)", minatoMa: "Cumul à chaque run", why: "SUK met à jour les Skills avec ce qui marche. Chaque session enrichit les suivantes (mémoire collective)." },
-  { axe: "Coverage projets multi-business", maSeul: "1 agent générique", minatoMa: "5 projets simultanés", why: "1 Minato Orchestrator + Skills par projet (FTG/OFA/Estate/Shift/CC). Sessions parallèles, isolation propre." },
+  { axe: "Coverage projets multi-business", maSeul: "1 agent générique", minatoMa: "6 projets simultanés", why: "1 Minato Orchestrator + Skills par projet (FTG/OFA/Estate/Shift/CC + SaaS Portfolio Hisoka). Sessions parallèles, isolation propre." },
   { axe: "Observabilité métier (V/R, KPI)", maSeul: "Logs techniques", minatoMa: "Insights CC auto-update", why: "Hook update_cc_insights après chaque batch = dashboard métier toujours à jour. MA seul s'arrête au technique." },
   { axe: "Onboarding d'un nouveau projet", maSeul: "Repartir de zéro", minatoMa: "Hériter Personas+Skills", why: "Bibliothèque de Personas métier × région mutualisée. Nouveau projet = Skill custom + héritage commun." },
 ];
@@ -190,6 +193,25 @@ const MINATO_ARCHITECTURE = `flowchart TD
     D4 -.post-2nd-compte.-> W2[cc-worker-1<br/>autonomous]
     D4 -.-> W3[cc-worker-N<br/>scale horizontally]
   end
+
+  subgraph Targets["Target projects (6 branches)"]
+    TG1[FTG · hyperscale]
+    TG2[OFA · site-factory]
+    TG3[Estate · hotel]
+    TG4[Shift · consulting]
+    TG5[CC · command-center]
+    TG6[SaaS Portfolio<br/>Hisoka ≥ 0.92<br/>deployed landings]
+  end
+
+  W1 --> TG1
+  W1 --> TG2
+  W1 --> TG3
+  W1 --> TG4
+  W1 --> TG5
+  W1 --> TG6
+  W2 -.-> TG1
+  W2 -.-> TG2
+  W2 -.-> TG6
 
   subgraph Arsenal["Minato Arsenal — 24 techniques"]
     X1[Shaka 🧘 autonomous]
