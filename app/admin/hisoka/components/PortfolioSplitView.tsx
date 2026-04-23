@@ -53,9 +53,17 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
     setLocale(detectBrowserLocale());
   }, []);
   const [minatoState, setMinatoState] = useState<
-    Record<string, { status: 'idle' | 'pushing' | 'pushed' | 'error'; ticketId?: string; error?: string }>
+    Record<
+      string,
+      {
+        status: 'idle' | 'pushing' | 'pushed' | 'error' | 'building' | 'done' | 'failed';
+        ticketId?: string;
+        error?: string;
+        prUrl?: string;
+      }
+    >
   >(() => {
-    const init: Record<string, { status: 'idle' | 'pushing' | 'pushed' | 'error'; ticketId?: string }> = {};
+    const init: Record<string, { status: 'pushed'; ticketId?: string }> = {};
     for (const i of initialIdeas) {
       if (i.pushed_to_minato_at || i.minato_ticket_id) {
         init[i.id] = { status: 'pushed', ticketId: i.minato_ticket_id ?? undefined };
@@ -63,6 +71,45 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
     }
     return init;
   });
+
+  useEffect(() => {
+    const pushedIds = Object.entries(minatoState)
+      .filter(([, v]) => v.status === 'pushed' || v.status === 'building')
+      .map(([id]) => id);
+    if (pushedIds.length === 0) return;
+
+    let cancelled = false;
+    async function poll() {
+      for (const id of pushedIds) {
+        if (cancelled) return;
+        try {
+          const r = await authFetch(`/api/business-hunter/ideas/${id}/minato-status`);
+          const j = await r.json();
+          if (cancelled || !j.ok) continue;
+          const s = j.status as 'queued' | 'building' | 'done' | 'failed' | null;
+          if (!s) continue;
+          setMinatoState((prev) => ({
+            ...prev,
+            [id]: {
+              status: s === 'queued' ? 'pushed' : s,
+              ticketId: j.ticket_id ?? prev[id]?.ticketId,
+              error: j.error ?? undefined,
+              prUrl: j.pr_url ?? undefined,
+            },
+          }));
+        } catch {
+          // ignore transient errors
+        }
+      }
+    }
+    poll();
+    const interval = setInterval(poll, 10000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Object.keys(minatoState).length]);
 
   async function launchWithMinato(ideaId: string, ideaName: string) {
     if (minatoState[ideaId]?.status === 'pushing') return;
@@ -287,6 +334,7 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
                   </div>
                   <MinatoLaunchButton
                     state={minatoState[idea.id]?.status ?? 'idle'}
+                    prUrl={minatoState[idea.id]?.prUrl}
                     onLaunch={(e) => {
                       e.stopPropagation();
                       launchWithMinato(idea.id, idea.name);
@@ -343,46 +391,96 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
   );
 }
 
+type MinatoState = 'idle' | 'pushing' | 'pushed' | 'error' | 'building' | 'done' | 'failed';
+
 function MinatoLaunchButton({
   state,
+  prUrl,
   onLaunch,
 }: {
-  state: 'idle' | 'pushing' | 'pushed' | 'error';
+  state: MinatoState;
+  prUrl?: string;
   onLaunch: (e: React.MouseEvent) => void;
 }) {
-  const label =
-    state === 'pushed' ? '✓ En queue' : state === 'pushing' ? '…' : state === 'error' ? '↻ Relancer' : '▶ Minato';
-  const bg =
-    state === 'pushed' ? 'rgba(107,203,119,.15)' : state === 'error' ? 'rgba(255,107,107,.15)' : 'rgba(201,168,76,.15)';
-  const color = state === 'pushed' ? GOOD : state === 'error' ? BAD : GOLD;
-  const border = state === 'pushed' ? GOOD : state === 'error' ? BAD : GOLD;
-  const title =
-    state === 'pushed'
-      ? 'Déjà dans la queue Minato — cliquer pour relancer'
-      : state === 'pushing'
-      ? 'Envoi en cours…'
-      : state === 'error'
-      ? 'Erreur au dernier push — cliquer pour réessayer'
-      : 'Créer un ticket Minato pour commencer la construction';
+  const cfg: Record<MinatoState, { label: string; bg: string; color: string; border: string; title: string }> = {
+    idle: {
+      label: '▶ Minato',
+      bg: 'rgba(201,168,76,.15)',
+      color: GOLD,
+      border: GOLD,
+      title: 'Créer un ticket Minato pour commencer la construction',
+    },
+    pushing: {
+      label: '…',
+      bg: 'rgba(201,168,76,.15)',
+      color: GOLD,
+      border: GOLD,
+      title: 'Envoi en cours…',
+    },
+    pushed: {
+      label: '✓ En queue',
+      bg: 'rgba(107,203,119,.15)',
+      color: GOOD,
+      border: GOOD,
+      title: 'Dans la queue Minato, en attente de claim par un worker',
+    },
+    building: {
+      label: '⚙ Build…',
+      bg: 'rgba(255,184,76,.18)',
+      color: WARN,
+      border: WARN,
+      title: 'Un worker Minato construit le projet en ce moment',
+    },
+    done: {
+      label: prUrl ? '✅ PR ↗' : '✅ Done',
+      bg: 'rgba(107,203,119,.2)',
+      color: GOOD,
+      border: GOOD,
+      title: prUrl ?? 'Construction terminée',
+    },
+    failed: {
+      label: '⚠ Failed',
+      bg: 'rgba(255,107,107,.2)',
+      color: BAD,
+      border: BAD,
+      title: 'Le worker a échoué — cliquer pour relancer un ticket',
+    },
+    error: {
+      label: '↻ Relancer',
+      bg: 'rgba(255,107,107,.15)',
+      color: BAD,
+      border: BAD,
+      title: 'Erreur au dernier push — cliquer pour réessayer',
+    },
+  };
+  const c = cfg[state];
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (state === 'done' && prUrl) {
+      window.open(prUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    onLaunch(e);
+  };
   return (
     <button
-      onClick={onLaunch}
-      disabled={state === 'pushing'}
-      title={title}
+      onClick={handleClick}
+      disabled={state === 'pushing' || state === 'building'}
+      title={c.title}
       style={{
-        background: bg,
-        color,
-        border: `1px solid ${border}`,
+        background: c.bg,
+        color: c.color,
+        border: `1px solid ${c.border}`,
         padding: '3px 7px',
         borderRadius: 3,
         fontSize: 10,
         fontWeight: 600,
-        cursor: state === 'pushing' ? 'wait' : 'pointer',
+        cursor: state === 'pushing' || state === 'building' ? 'wait' : 'pointer',
         whiteSpace: 'nowrap',
         flexShrink: 0,
       }}
     >
-      {label}
+      {c.label}
     </button>
   );
 }
