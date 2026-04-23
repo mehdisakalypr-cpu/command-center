@@ -45,3 +45,12 @@ next-env.d.ts
 
 # auth-v1 rollback snapshot (local only)
 .auth-v1-backup/
+
+# ultra instinct session lock
+.ultra-instinct.lock
+
+# graphify cache (AST-only, regenerable)
+graphify-out/cache/
+
+# runtime logs
+/logs/
