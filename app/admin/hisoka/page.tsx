@@ -5,6 +5,8 @@ import IdeasTable from './components/IdeasTable';
 import RunLog, { type RunRow } from './components/RunLog';
 import HeaderActions from './components/HeaderActions';
 import ArchitectureDiagram from '@/app/admin/_shared/ArchitectureDiagram';
+import PortfolioSplitView from './components/PortfolioSplitView';
+import HisokaViewSwitcher from './components/HisokaViewSwitcher';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,9 +89,10 @@ export default async function HisokaPage() {
         </div>
       </div>
       <RunButton />
-      <div style={{ marginTop: 16 }}>
-        <IdeasTable initialIdeas={(ideas ?? []) as IdeaRow[]} />
-      </div>
+      <HisokaViewSwitcher
+        splitView={<PortfolioSplitView initialIdeas={(ideas ?? []) as IdeaRow[]} />}
+        tableView={<IdeasTable initialIdeas={(ideas ?? []) as IdeaRow[]} />}
+      />
       <RunLog runs={(recentRuns ?? []) as RunRow[]} />
       <ArchitectureDiagram title="🏗 Architecture Hisoka" mermaid={HISOKA_ARCHITECTURE} />
     </div>
