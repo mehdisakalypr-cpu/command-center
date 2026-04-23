@@ -5,14 +5,16 @@ const GOLD = '#C9A84C';
 const BG = '#0A1A2E';
 const DIM = '#9BA8B8';
 
-type View = 'split' | 'table';
+type View = 'split' | 'table' | 'build';
 
 export default function HisokaViewSwitcher({
   splitView,
   tableView,
+  buildView,
 }: {
   splitView: ReactNode;
   tableView: ReactNode;
+  buildView: ReactNode;
 }) {
   const [view, setView] = useState<View>('split');
   return (
@@ -21,6 +23,7 @@ export default function HisokaViewSwitcher({
         {([
           ['split', '📂 Portfolio (split)'],
           ['table', '📊 Tableau filtres'],
+          ['build', '🏗 Priorité Build'],
         ] as const).map(([v, label]) => (
           <button
             key={v}
@@ -40,7 +43,9 @@ export default function HisokaViewSwitcher({
           </button>
         ))}
       </div>
-      {view === 'split' ? splitView : tableView}
+      {view === 'split' && splitView}
+      {view === 'table' && tableView}
+      {view === 'build' && buildView}
     </div>
   );
 }

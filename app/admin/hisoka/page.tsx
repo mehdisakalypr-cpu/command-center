@@ -6,6 +6,7 @@ import RunLog, { type RunRow } from './components/RunLog';
 import HeaderActions from './components/HeaderActions';
 import ArchitectureDiagram from '@/app/admin/_shared/ArchitectureDiagram';
 import PortfolioSplitView from './components/PortfolioSplitView';
+import BuildPriorityView from './components/BuildPriorityView';
 import HisokaViewSwitcher from './components/HisokaViewSwitcher';
 
 export const dynamic = 'force-dynamic';
@@ -61,7 +62,7 @@ export default async function HisokaPage() {
   const admin = createSupabaseAdmin();
   const [{ data: ideas }, { data: lastRun }, { data: recentRuns }] = await Promise.all([
     admin.from('business_ideas')
-      .select('id, slug, name, tagline, category, autonomy_score, score, rank, llc_gate, assets_leveraged, leverage_configs, optimal_config, leverage_elasticity, mrr_median, deployed_url, visibility, pushed_to_minato_at, minato_ticket_id')
+      .select('id, slug, name, tagline, category, autonomy_score, score, rank, llc_gate, assets_leveraged, leverage_configs, optimal_config, leverage_elasticity, mrr_median, deployed_url, visibility, pushed_to_minato_at, minato_ticket_id, build_priority')
       .order('autonomy_score', { ascending: false, nullsFirst: false })
       .order('score', { ascending: false, nullsFirst: false })
       .limit(500),
@@ -92,6 +93,7 @@ export default async function HisokaPage() {
       <HisokaViewSwitcher
         splitView={<PortfolioSplitView initialIdeas={(ideas ?? []) as IdeaRow[]} />}
         tableView={<IdeasTable initialIdeas={(ideas ?? []) as IdeaRow[]} />}
+        buildView={<BuildPriorityView initialIdeas={(ideas ?? []) as IdeaRow[]} />}
       />
       <RunLog runs={(recentRuns ?? []) as RunRow[]} />
       <ArchitectureDiagram title="🏗 Architecture Hisoka" mermaid={HISOKA_ARCHITECTURE} />

@@ -28,6 +28,7 @@ export type IdeaRow = {
   visibility?: 'public' | 'private';
   pushed_to_minato_at?: string | null;
   minato_ticket_id?: string | null;
+  build_priority?: number | null;
 };
 
 export type Envelope = {
