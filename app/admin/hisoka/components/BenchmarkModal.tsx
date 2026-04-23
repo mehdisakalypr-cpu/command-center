@@ -47,20 +47,20 @@ export default function BenchmarkModal({ onClose }: { onClose: () => void }) {
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.7)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div style={{ background: '#0A1A2E', padding: 24, borderRadius: 8, width: 560, maxHeight: '90vh', overflowY: 'auto', color: '#E6EEF7', border: '1px solid rgba(201,168,76,.2)' }}>
+      <div style={{ background: '#0A1A2E', padding: 24, borderRadius: 8, width: 'min(720px, 92vw)', maxHeight: '90vh', overflowY: 'auto', color: '#E6EEF7', border: '1px solid rgba(201,168,76,.2)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h3 style={{ color: '#C9A84C', margin: 0 }}>📝 Benchmark My Idea</h3>
           <button onClick={onClose} style={{ background: 'transparent', color: '#9BA8B8', border: 'none', fontSize: 18, cursor: 'pointer' }}>✕</button>
         </div>
         <textarea
           value={text}
-          onChange={e => setText(e.target.value.slice(0, 500))}
-          rows={6}
-          placeholder="Décris ton idée en 1-2 phrases (10–500 caractères)…"
-          style={{ width: '100%', background: '#112233', color: '#E6EEF7', border: '1px solid rgba(201,168,76,.2)', padding: 10, borderRadius: 4, fontFamily: 'inherit', fontSize: 13 }}
+          onChange={e => setText(e.target.value.slice(0, 5000))}
+          rows={14}
+          placeholder="Décris ton idée en détail (10–5000 caractères). Tu peux y mettre hypothèses, mécanique, questions, sources à investiguer — plus c'est précis, meilleur le scoring."
+          style={{ width: '100%', background: '#112233', color: '#E6EEF7', border: '1px solid rgba(201,168,76,.2)', padding: 10, borderRadius: 4, fontFamily: 'inherit', fontSize: 13, resize: 'vertical', minHeight: 200 }}
         />
-        <div style={{ fontSize: 11, color: '#9BA8B8', textAlign: 'right', marginTop: 4 }}>
-          {text.length}/500
+        <div style={{ fontSize: 11, color: text.length > 4500 ? '#FFB84C' : '#9BA8B8', textAlign: 'right', marginTop: 4 }}>
+          {text.length}/5000
         </div>
         <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between' }}>
           <button

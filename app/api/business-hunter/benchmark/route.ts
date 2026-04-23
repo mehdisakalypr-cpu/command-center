@@ -16,8 +16,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'invalid JSON' }, { status: 400 });
   }
   const text = (payload.text ?? '').trim();
-  if (text.length < 10 || text.length > 500) {
-    return NextResponse.json({ ok: false, error: 'text must be 10-500 chars' }, { status: 400 });
+  if (text.length < 10 || text.length > 5000) {
+    return NextResponse.json({ ok: false, error: 'text must be 10-5000 chars' }, { status: 400 });
   }
   try {
     const admin = createSupabaseAdmin();
