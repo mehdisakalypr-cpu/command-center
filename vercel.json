@@ -6,6 +6,8 @@
     { "path": "/api/business-hunter/aam/cron", "schedule": "0 3 * * *" },
     { "path": "/api/business-hunter/auto-push-cron", "schedule": "30 3 * * *" },
     { "path": "/api/business-hunter/saas-forge/cron", "schedule": "45 3 * * *" },
-    { "path": "/api/business-hunter/aam/kaizen", "schedule": "0 4 * * 0" }
+    { "path": "/api/business-hunter/aam/kaizen", "schedule": "0 4 * * 0" },
+    { "path": "/api/cron/video-worker", "schedule": "*/15 * * * *" },
+    { "path": "/api/cron/video-poll", "schedule": "*/5 * * * *" }
   ]
 }
