@@ -25,6 +25,7 @@ export type IdeaRow = {
   leverage_elasticity: 'high' | 'medium' | 'flat' | null;
   mrr_median?: { m12?: number; m36?: number } | null;
   deployed_url?: string | null;
+  visibility?: 'public' | 'private';
 };
 
 export type Envelope = {
