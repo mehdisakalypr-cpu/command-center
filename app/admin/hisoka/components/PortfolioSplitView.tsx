@@ -5,6 +5,17 @@ import { authFetch } from '@/lib/auth-v2/client-fetch';
 import IdeaDetailClient from '../[slug]/IdeaDetailClient';
 import type { IdeaRow } from '../types';
 
+const SUPPORTED_LOCALES = [
+  'en', 'fr', 'es', 'pt', 'ar', 'zh', 'de', 'tr', 'ja', 'ko', 'hi', 'ru', 'id', 'sw', 'it',
+];
+
+function detectBrowserLocale(): string {
+  if (typeof navigator === 'undefined') return 'en';
+  const raw = navigator.languages?.[0] ?? navigator.language ?? 'en';
+  const base = raw.split('-')[0].toLowerCase();
+  return SUPPORTED_LOCALES.includes(base) ? base : 'en';
+}
+
 const GOLD = '#C9A84C';
 const BG = '#0A1A2E';
 const FG = '#E6EEF7';
@@ -36,6 +47,11 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
   const [search, setSearch] = useState('');
   const [fullIdea, setFullIdea] = useState<FullIdea | null>(null);
   const [loading, setLoading] = useState(false);
+  const [locale, setLocale] = useState<string>('en');
+
+  useEffect(() => {
+    setLocale(detectBrowserLocale());
+  }, []);
   const [minatoState, setMinatoState] = useState<
     Record<string, { status: 'idle' | 'pushing' | 'pushed' | 'error'; ticketId?: string; error?: string }>
   >(() => {
@@ -89,7 +105,8 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
     if (!selectedId) return;
     let cancelled = false;
     setLoading(true);
-    authFetch(`/api/business-hunter/ideas/${selectedId}`)
+    const qs = locale && locale !== 'en' ? `?locale=${encodeURIComponent(locale)}` : '';
+    authFetch(`/api/business-hunter/ideas/${selectedId}${qs}`)
       .then((r) => r.json())
       .then((j) => {
         if (cancelled) return;
@@ -102,7 +119,7 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [selectedId]);
+  }, [selectedId, locale]);
 
   const counts = useMemo(
     () => ({
@@ -292,11 +309,28 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
 
       {/* RIGHT — Detail */}
       <div>
+        {locale !== 'en' && (
+          <div
+            style={{
+              fontSize: 10,
+              color: DIM,
+              padding: '4px 10px',
+              background: 'rgba(201,168,76,.08)',
+              border: `1px solid rgba(201,168,76,.2)`,
+              borderRadius: 3,
+              marginBottom: 8,
+              display: 'inline-block',
+            }}
+            title="Analyses traduites à la volée (cache LLM) — retirer le paramètre ?locale pour voir la source EN"
+          >
+            🌐 Analyse traduite · {locale}
+          </div>
+        )}
         {loading && !fullIdea && (
           <div style={{ padding: 40, textAlign: 'center', color: DIM }}>Chargement…</div>
         )}
         {fullIdea && (
-          <IdeaDetailClient key={fullIdea.id} initialIdea={fullIdea} />
+          <IdeaDetailClient key={`${fullIdea.id}:${locale}`} initialIdea={fullIdea} />
         )}
         {!loading && !fullIdea && selectedId && (
           <div style={{ padding: 40, textAlign: 'center', color: BAD }}>Projet introuvable.</div>
