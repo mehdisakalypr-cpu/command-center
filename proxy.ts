@@ -9,7 +9,6 @@ const PUBLIC_PAGE_PREFIXES = [
   "/auth/",      // login, register, forgot, reset-password, callback, biometric-setup
   "/login",      // legacy redirect page
   "/saas/",      // Hisoka Phase 5 — public landings /saas/[slug]
-  "/hubs/",      // Phase 7b — public portfolio hubs (gapup.io root rewrites here)
 ];
 const PUBLIC_API = new Set([
   "/api/auth/login",                  // server-side login proxy (rate-limit + Turnstile)
@@ -77,14 +76,10 @@ export async function proxy(request: NextRequest) {
     }
   }
   if (slug === "__root__") {
-    // Root gapup.io: for now, forward to a simple landing. If /root or
-    // /hubs/gapup page exists, use that; otherwise serve a generic hub.
-    if (pathname === "/" || pathname === "") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/hubs/gapup";
-      return NextResponse.rewrite(url);
-    }
-    // Same admin block as subdomains.
+    // gapup.io root has no public homepage for now — portfolio lives inside
+    // the Command Center at /admin/businesses (auth-gated). Block admin
+    // paths from leaking on this host; everything else falls through to the
+    // default auth flow (which redirects to /auth/login).
     if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
       return NextResponse.rewrite(new URL("/404", request.url));
     }
