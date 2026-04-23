@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { ReactNode } from 'react';
 import { createSupabaseAdmin } from '@/lib/supabase-server';
+import TradabilityHeatmap from './TradabilityHeatmap';
 
 export const dynamic = 'force-dynamic';
 
@@ -243,6 +244,8 @@ export default async function OptimusPage() {
           </a>
         )}
       </div>
+
+      <TradabilityHeatmap />
 
       <DocBlock
         title="🔍 Recherche V2 (exhaustive, free + payant, analyse vs execution)"
