@@ -26,6 +26,8 @@ export type IdeaRow = {
   mrr_median?: { m12?: number; m36?: number } | null;
   deployed_url?: string | null;
   visibility?: 'public' | 'private';
+  pushed_to_minato_at?: string | null;
+  minato_ticket_id?: string | null;
 };
 
 export type Envelope = {

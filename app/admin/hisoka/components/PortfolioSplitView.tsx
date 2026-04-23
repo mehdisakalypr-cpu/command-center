@@ -1,4 +1,5 @@
 'use client';
+import type React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { authFetch } from '@/lib/auth-v2/client-fetch';
 import IdeaDetailClient from '../[slug]/IdeaDetailClient';
@@ -35,6 +36,37 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
   const [search, setSearch] = useState('');
   const [fullIdea, setFullIdea] = useState<FullIdea | null>(null);
   const [loading, setLoading] = useState(false);
+  const [minatoState, setMinatoState] = useState<
+    Record<string, { status: 'idle' | 'pushing' | 'pushed' | 'error'; ticketId?: string; error?: string }>
+  >(() => {
+    const init: Record<string, { status: 'idle' | 'pushing' | 'pushed' | 'error'; ticketId?: string }> = {};
+    for (const i of initialIdeas) {
+      if (i.pushed_to_minato_at || i.minato_ticket_id) {
+        init[i.id] = { status: 'pushed', ticketId: i.minato_ticket_id ?? undefined };
+      }
+    }
+    return init;
+  });
+
+  async function launchWithMinato(ideaId: string, ideaName: string) {
+    if (minatoState[ideaId]?.status === 'pushing') return;
+    if (!confirm(`Lancer « ${ideaName} » avec Minato ? Ça crée un ticket dans la queue d'exécution.`)) return;
+    setMinatoState((s) => ({ ...s, [ideaId]: { status: 'pushing' } }));
+    try {
+      const r = await authFetch(`/api/business-hunter/ideas/${ideaId}/push-to-minato`, { method: 'POST' });
+      const j = await r.json();
+      if (j.ok) {
+        setMinatoState((s) => ({
+          ...s,
+          [ideaId]: { status: 'pushed', ticketId: j.ticket_id },
+        }));
+      } else {
+        setMinatoState((s) => ({ ...s, [ideaId]: { status: 'error', error: j.error ?? 'push failed' } }));
+      }
+    } catch (e) {
+      setMinatoState((s) => ({ ...s, [ideaId]: { status: 'error', error: String(e) } }));
+    }
+  }
 
   const filtered = useMemo(() => {
     let list = sorted;
@@ -236,7 +268,19 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
                       </span>
                     </div>
                   </div>
+                  <MinatoLaunchButton
+                    state={minatoState[idea.id]?.status ?? 'idle'}
+                    onLaunch={(e) => {
+                      e.stopPropagation();
+                      launchWithMinato(idea.id, idea.name);
+                    }}
+                  />
                 </div>
+                {minatoState[idea.id]?.status === 'error' && (
+                  <div style={{ color: BAD, fontSize: 10, marginTop: 4, marginLeft: 22 }}>
+                    ⚠ {minatoState[idea.id]?.error}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -262,5 +306,49 @@ export default function PortfolioSplitView({ initialIdeas }: Props) {
         )}
       </div>
     </div>
+  );
+}
+
+function MinatoLaunchButton({
+  state,
+  onLaunch,
+}: {
+  state: 'idle' | 'pushing' | 'pushed' | 'error';
+  onLaunch: (e: React.MouseEvent) => void;
+}) {
+  const label =
+    state === 'pushed' ? '✓ En queue' : state === 'pushing' ? '…' : state === 'error' ? '↻ Relancer' : '▶ Minato';
+  const bg =
+    state === 'pushed' ? 'rgba(107,203,119,.15)' : state === 'error' ? 'rgba(255,107,107,.15)' : 'rgba(201,168,76,.15)';
+  const color = state === 'pushed' ? GOOD : state === 'error' ? BAD : GOLD;
+  const border = state === 'pushed' ? GOOD : state === 'error' ? BAD : GOLD;
+  const title =
+    state === 'pushed'
+      ? 'Déjà dans la queue Minato — cliquer pour relancer'
+      : state === 'pushing'
+      ? 'Envoi en cours…'
+      : state === 'error'
+      ? 'Erreur au dernier push — cliquer pour réessayer'
+      : 'Créer un ticket Minato pour commencer la construction';
+  return (
+    <button
+      onClick={onLaunch}
+      disabled={state === 'pushing'}
+      title={title}
+      style={{
+        background: bg,
+        color,
+        border: `1px solid ${border}`,
+        padding: '3px 7px',
+        borderRadius: 3,
+        fontSize: 10,
+        fontWeight: 600,
+        cursor: state === 'pushing' ? 'wait' : 'pointer',
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+      }}
+    >
+      {label}
+    </button>
   );
 }
