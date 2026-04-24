@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import HisokaTopTileClient from "@/app/admin/_shared/HisokaTopTileClient";
+import { RefreshDashboardsButton } from "@/components/admin/RefreshDashboardsButton";
 
 type RecentProfile = {
   id: string;
@@ -128,6 +129,9 @@ export default function OverviewPage() {
       <div style={S.header}>
         <span style={S.title}>Overview</span>
         <span style={S.sub}>Vue d&apos;ensemble business - Feel The Gap</span>
+        <span style={{ marginLeft: "auto" }}>
+          <RefreshDashboardsButton />
+        </span>
       </div>
 
       <div style={S.body}>

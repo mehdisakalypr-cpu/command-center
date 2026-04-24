@@ -9,6 +9,7 @@
     { "path": "/api/business-hunter/aam/kaizen", "schedule": "0 4 * * 0" },
     { "path": "/api/cron/video-worker", "schedule": "0 2 * * *" },
     { "path": "/api/cron/video-poll", "schedule": "15 2 * * *" },
-    { "path": "/api/cron/wiki-gen", "schedule": "30 2 * * *" }
+    { "path": "/api/cron/wiki-gen", "schedule": "30 2 * * *" },
+    { "path": "/api/admin/refresh-dashboards", "schedule": "7 6 * * *" }
   ]
 }

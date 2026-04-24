@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { StrategyNav } from '@/components/StrategyNav'
 import FleetGapCard from '@/app/admin/cc-fleet/components/FleetGapCard'
+import { RefreshDashboardsButton } from '@/components/admin/RefreshDashboardsButton'
 
 type Product = 'ofa' | 'ftg' | 'estate' | 'shiftdynamics' | 'cc' | 'all'
 type ObjectiveType = 'mrr' | 'clients' | 'revenue'
@@ -162,7 +163,12 @@ export default function SimulatorPage() {
   const [tab, setTab] = useState<Tab>('business')
   return (
     <div style={{ padding: 24, color: C.text, fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>Simulateurs & Opérations</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Simulateurs & Opérations</h1>
+        <span style={{ marginLeft: 'auto' }}>
+          <RefreshDashboardsButton label="🔄 Actualiser simulations" />
+        </span>
+      </div>
       <p style={{ color: C.muted, fontSize: 13, marginBottom: 20 }}>
         Pilote business (revenus/funnel), vitesse de production (leviers capacité) et registre des clés API.
       </p>
