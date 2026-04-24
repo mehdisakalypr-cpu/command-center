@@ -269,6 +269,8 @@ export default async function OptimusCoveragePage() {
       <div style={{ marginTop: 20, fontSize: 10, color: DIM }}>
         <a href="/admin/hisoka/optimus" style={{ color: GOLD, textDecoration: 'none' }}>← Cockpit Optimus</a>
         {' · '}
+        <a href="/admin/optimus/l2-features" style={{ color: GOLD, textDecoration: 'none' }}>L2 Features Live →</a>
+        {' · '}
         Revalidation automatique toutes les 30 secondes.
       </div>
     </div>
