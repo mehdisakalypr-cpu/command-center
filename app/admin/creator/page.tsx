@@ -126,12 +126,9 @@ export default async function CreatorPage() {
   return (
     <div style={{ color: '#E8EEF7', padding: '24px 32px', fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       <style>{ANIM_CSS}</style>
-      <header style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
-        <div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, color: GOLD }}>Creator Performance</h1>
-          <p style={{ color: '#94A3B8', margin: '6px 0 0' }}>Ta progression fondateur · 9 paliers Saiyan · unités de puissance.</p>
-        </div>
-        <nav style={{ display: 'flex', gap: 8 }}>
+      <header style={{ marginBottom: 20, paddingTop: 64 }}>
+        {/* Tabs en premier (placés sous la zone des boutons floating top-right BusinessPicker + logout) */}
+        <nav style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           <a
             href="/admin/creator"
             style={{
@@ -147,6 +144,8 @@ export default async function CreatorPage() {
             }}
           >💻 Dev (LoC + UI-Intensity)</a>
         </nav>
+        <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, color: GOLD }}>Creator Performance</h1>
+        <p style={{ color: '#94A3B8', margin: '6px 0 0' }}>Ta progression fondateur · 9 paliers Saiyan · unités de puissance.</p>
       </header>
 
       {/* ════════ 1) ÉCHELLE DE PUISSANCE — all 9 tiers with animated characters ════════ */}

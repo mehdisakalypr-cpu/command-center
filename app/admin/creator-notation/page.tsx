@@ -66,7 +66,24 @@ export default function CreatorNotationPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#030314', color: '#E8EEF7', fontFamily: 'Inter, system-ui, sans-serif', padding: '24px clamp(16px, 5vw, 48px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <header style={{ marginBottom: 32 }}>
+        <header style={{ marginBottom: 32, paddingTop: 64 }}>
+          {/* Tabs en premier (placés sous la zone des boutons floating top-right BusinessPicker + logout) */}
+          <nav style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <a
+              href="/admin/creator"
+              style={{
+                padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, letterSpacing: '.06em',
+                background: 'rgba(255,255,255,.05)', color: '#cfd2dc', border: '1px solid rgba(255,255,255,.12)', textDecoration: 'none',
+              }}
+            >🐉 Saiyan</a>
+            <a
+              href="/admin/creator-notation"
+              style={{
+                padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, letterSpacing: '.06em',
+                background: '#C9A84C', color: '#0a0a1e', textDecoration: 'none',
+              }}
+            >💻 Dev (LoC + UI-Intensity)</a>
+          </nav>
           <div style={{ fontSize: 11, letterSpacing: '.15em', color: '#C9A84C', textTransform: 'uppercase' }}>Creator Notation</div>
           <h1 style={{ fontSize: 28, fontWeight: 800, margin: '4px 0 0', color: '#fff' }}>Mehdi Sakaly · Founder Score</h1>
           <p style={{ fontSize: 13, color: '#8a8d99', marginTop: 8 }}>Tracking la trajectoire de progression founder/creator. Mis à jour à chaque session bilan.</p>
