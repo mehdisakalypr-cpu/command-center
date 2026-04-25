@@ -126,9 +126,27 @@ export default async function CreatorPage() {
   return (
     <div style={{ color: '#E8EEF7', padding: '24px 32px', fontFamily: "Inter, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif" }}>
       <style>{ANIM_CSS}</style>
-      <header style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, color: GOLD }}>Creator Performance</h1>
-        <p style={{ color: '#94A3B8', margin: '6px 0 0' }}>Ta progression fondateur · 9 paliers Saiyan · unités de puissance.</p>
+      <header style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+        <div>
+          <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, color: GOLD }}>Creator Performance</h1>
+          <p style={{ color: '#94A3B8', margin: '6px 0 0' }}>Ta progression fondateur · 9 paliers Saiyan · unités de puissance.</p>
+        </div>
+        <nav style={{ display: 'flex', gap: 8 }}>
+          <a
+            href="/admin/creator"
+            style={{
+              padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, letterSpacing: '.06em',
+              background: GOLD, color: '#0a0a1e', textDecoration: 'none',
+            }}
+          >🐉 Saiyan</a>
+          <a
+            href="/admin/creator-notation"
+            style={{
+              padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, letterSpacing: '.06em',
+              background: 'rgba(255,255,255,.05)', color: '#cfd2dc', border: '1px solid rgba(255,255,255,.12)', textDecoration: 'none',
+            }}
+          >💻 Dev (LoC + UI-Intensity)</a>
+        </nav>
       </header>
 
       {/* ════════ 1) ÉCHELLE DE PUISSANCE — all 9 tiers with animated characters ════════ */}
