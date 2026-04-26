@@ -77,12 +77,14 @@ ${body}
   // Vercel build fails on `<style jsx>` in Server Components — either
   // promote to client component or strip the tag.
   const usesStyledJsx = /<style\s+jsx(\s+global)?\s*>/.test(txt)
+  // Catch ALL React event handlers (onClick, onMouseEnter, onMouseLeave, etc.)
+  const hasAnyHandler = /\bon[A-Z]\w+\s*=\s*\{/.test(txt)
   const usesClientOnly =
     usesStyledJsx ||
+    hasAnyHandler ||
     /\buseState\s*\(/.test(txt) ||
     /\buseEffect\s*\(/.test(txt) ||
-    /\buseRef\s*\(/.test(txt) ||
-    /\bonClick=|\bonChange=|\bonSubmit=/.test(txt)
+    /\buseRef\s*\(/.test(txt)
 
   if (usesClientOnly && !/^"use client"/.test(txt)) {
     txt = `"use client";\n\n${txt}`
