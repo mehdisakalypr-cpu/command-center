@@ -74,23 +74,22 @@ ${body}
     txt = txt.slice(start).trim()
   }
 
-  // Vercel build fails on `<style jsx>` in Server Components — either
-  // promote to client component or strip the tag.
-  const usesStyledJsx = /<style\s+jsx(\s+global)?\s*>/.test(txt)
-  // Catch ALL React event handlers (onClick, onMouseEnter, onMouseLeave, etc.)
-  const hasAnyHandler = /\bon[A-Z]\w+\s*=\s*\{/.test(txt)
-  const usesClientOnly =
-    usesStyledJsx ||
-    hasAnyHandler ||
-    /\buseState\s*\(/.test(txt) ||
-    /\buseEffect\s*\(/.test(txt) ||
-    /\buseRef\s*\(/.test(txt)
+  // L2. Strip <style jsx> blocks entirely — they cause build failures and
+  // the same effect can be achieved with regular <style> or inline styles.
+  txt = txt.replace(/<style\s+jsx(?:\s+global)?>(?:[^]*?)<\/style>/g, '')
 
-  if (usesClientOnly && !/^"use client"/.test(txt)) {
+  // L1. Force "use client" on every generated page. Marketing pages don't
+  // need server components, and this kills the entire server/client
+  // boundary class of bugs (event handlers, hooks, state).
+  if (!/^"use client"/.test(txt)) {
     txt = `"use client";\n\n${txt}`
   }
 
-  // Auto-inject Next.js imports the LLM commonly forgets.
+  // L3. CSS custom props in inline style: handled at the project level by
+  // types/css-vars.d.ts which extends React.CSSProperties to allow `--*` keys.
+  // No transform needed here.
+
+  // L4. Auto-inject Next.js imports the LLM commonly forgets.
   const insertImport = (need: RegExp, importLine: string, importMatch: RegExp): void => {
     if (need.test(txt) && !importMatch.test(txt)) {
       const useClientMatch = /^"use client";?\s*\n\s*\n?/.exec(txt)
