@@ -13,6 +13,17 @@ import type { PortfolioProduct, PageType } from './products'
 const COMMON_RULES = `
 RULES (HARD):
 - Output ONE valid TSX block. No markdown fences, no prose before/after.
+- The output MUST start with imports, then \`export default function <Name>() {\`.
+  Concretely:
+    import Nav from "@/components/Nav";
+    import Footer from "@/components/Footer";
+    import ChatbotWidget from "@/components/ChatbotWidget";
+
+    export default function HomePage() {
+      return (
+        <main>...</main>
+      );
+    }
 - Default-export a React Server Component (no "use client" unless animations require client).
 - Import Nav, Footer, ChatbotWidget from "@/components/Nav", "@/components/Footer", "@/components/ChatbotWidget".
 - Use inline styles or Tailwind classes only. Do NOT import any external CSS file.

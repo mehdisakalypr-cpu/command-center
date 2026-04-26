@@ -33,9 +33,23 @@ function sanitiseTSX(raw: string): string {
   // Strip stray leading "tsx" or "typescript" labels.
   txt = txt.replace(/^(?:tsx|typescript|jsx)\s*\n/i, '').trim()
 
+  // Repair: if model returned only a JSX body, wrap it in a default function.
   if (!/export\s+default\s+/.test(txt)) {
-    const preview = txt.slice(0, 400).replace(/\n/g, ' ')
-    throw new Error(`generator: no \`export default\` in output (preview: ${preview})`)
+    const trimmed = txt.replace(/^\s*\{/, '').trim()
+    if (/^(?:return\s*\(|<\w+)/.test(trimmed)) {
+      const body = trimmed.endsWith('}') ? trimmed.slice(0, -1).trim() : trimmed
+      const ensuredReturn = /^return\s*\(/.test(body) ? body : `return (\n${body}\n)`
+      txt = `import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
+import ChatbotWidget from "@/components/ChatbotWidget";
+
+export default function GeneratedPage() {
+  ${ensuredReturn}
+}`
+    } else {
+      const preview = txt.slice(0, 400).replace(/\n/g, ' ')
+      throw new Error(`generator: no \`export default\` and no JSX body to repair (preview: ${preview})`)
+    }
   }
 
   // Slice from the earliest legitimate file-start anchor.
