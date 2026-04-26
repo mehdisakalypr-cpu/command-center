@@ -57,9 +57,15 @@ export async function pushFile(opts: {
     message: opts.message,
     content: Buffer.from(opts.content, 'utf8').toString('base64'),
     branch: opts.branch,
+    // Committer email MUST be a verified email on a GitHub user that's a
+    // member of the linked Vercel team — otherwise Vercel's gitForkProtection
+    // refuses the build with `readyStateReason: "GitHub could not associate
+    // the committer with a GitHub user"`, no errorMessage, alwaysRefuseToBuild.
+    // bot@gapup.io is not yet verified on mehdisakalypr-cpu so we sign as the
+    // human owner. See feedback_vercel_deploy_hardening.md.
     committer: {
       name: opts.committerName ?? 'gapup-portfolio-bot',
-      email: opts.committerEmail ?? 'bot@gapup.io',
+      email: opts.committerEmail ?? 'mehdi.sakalypr@gmail.com',
     },
   }
   if (existing) body.sha = existing
