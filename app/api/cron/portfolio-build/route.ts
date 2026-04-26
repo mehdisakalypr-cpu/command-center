@@ -61,18 +61,12 @@ async function heartbeatFinish(
 }
 
 async function claimJob(admin: ReturnType<typeof createSupabaseAdmin>): Promise<Job | null> {
-  // Atomic claim: select + update where status = 'pending'.
-  // Use a single UPDATE ... RETURNING via RPC if defined, else simple UPDATE.
-  const { data, error } = await admin
-    .from('portfolio_build_jobs')
-    .update({ status: 'processing', claimed_at: new Date().toISOString() })
-    .eq('status', 'pending')
-    .order('id', { ascending: true })
-    .limit(1)
-    .select('id, product_slug, page_type, brief, attempts')
-    .maybeSingle()
-  if (error || !data) return null
-  return data as Job
+  // Atomic single-row claim via RPC (FOR UPDATE SKIP LOCKED).
+  // PostgREST .update().limit(1) does NOT bound the SQL, so we delegate
+  // to a stored function that uses a real LIMIT 1.
+  const { data, error } = await admin.rpc('claim_portfolio_job')
+  if (error || !data || !Array.isArray(data) || data.length === 0) return null
+  return data[0] as Job
 }
 
 async function markDone(
