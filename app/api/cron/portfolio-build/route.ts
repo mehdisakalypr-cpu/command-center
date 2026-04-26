@@ -1,13 +1,7 @@
-/**
- * Vercel cron — pulls one pending portfolio_build_jobs row, generates the
- * page TSX via cascade LLM, pushes it to the target repo via GitHub
- * Contents API, marks the job done.
- *
- * Schedule: */10 * * * * (declared in vercel.json)
- * Auth: x-vercel-cron OR x-cron-secret matches CRON_SECRET.
- *
- * Heartbeat: writes start/end into public.cron_runs (cron_name='portfolio-build').
- */
+// Vercel cron — pulls portfolio_build_jobs rows, generates page TSX via
+// cascade LLM, pushes to GitHub via Contents API, marks done.
+// Auth: x-vercel-cron OR x-cron-secret matches CRON_SECRET.
+// Heartbeat: writes start/end into public.cron_runs (cron_name='portfolio-build').
 import { NextResponse } from 'next/server'
 import { createSupabaseAdmin } from '@/lib/supabase-server'
 import { generatePage } from '@/lib/portfolio/generator'
