@@ -33,18 +33,29 @@ function sanitiseTSX(raw: string): string {
   // Strip stray leading "tsx" or "typescript" labels.
   txt = txt.replace(/^(?:tsx|typescript|jsx)\s*\n/i, '').trim()
 
-  // Repair: if model returned only a JSX body, wrap it in a default function.
+  // Repair: if model returned only a function body / JSX block, wrap it.
   if (!/export\s+default\s+/.test(txt)) {
-    const trimmed = txt.replace(/^\s*\{/, '').trim()
-    if (/^(?:return\s*\(|<\w+)/.test(trimmed)) {
-      const body = trimmed.endsWith('}') ? trimmed.slice(0, -1).trim() : trimmed
-      const ensuredReturn = /^return\s*\(/.test(body) ? body : `return (\n${body}\n)`
+    let body = txt.trim()
+    // Drop wrapping curlies if present
+    if (body.startsWith('{') && body.endsWith('}')) {
+      body = body.slice(1, -1).trim()
+    }
+    // Drop wrapping parens around a JSX return value
+    if (body.startsWith('(') && body.endsWith(')')) {
+      body = `return ${body};`
+    }
+    // Looks like component body if it has any of: return statement, JSX root, var decl + JSX
+    const hasJSX = /<\w/.test(body)
+    const hasReturn = /\breturn\s*[\(<]/.test(body)
+    if (hasReturn || hasJSX) {
+      // If body is JSX without return, wrap it
+      if (!hasReturn && hasJSX) body = `return (\n${body}\n);`
       txt = `import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ChatbotWidget from "@/components/ChatbotWidget";
 
 export default function GeneratedPage() {
-  ${ensuredReturn}
+${body}
 }`
     } else {
       const preview = txt.slice(0, 400).replace(/\n/g, ' ')
