@@ -98,11 +98,12 @@ async function markFailed(
   errorMsg: string,
   attempts: number,
 ) {
-  const newStatus = attempts >= 2 ? 'failed' : 'pending' // re-queue twice
+  // Always mark failed within a single tick — retry is via /admin button.
+  // (Previous behaviour re-queued to 'pending' which caused tight in-tick loops.)
   await admin
     .from('portfolio_build_jobs')
     .update({
-      status: newStatus,
+      status: 'failed',
       attempts: attempts + 1,
       last_error: errorMsg.slice(0, 1000),
       claimed_at: null,
