@@ -109,9 +109,15 @@ SECTIONS REQUIRED:
 const DEMO = (p: PortfolioProduct) => `
 SECTIONS REQUIRED:
 1. Hero (compact) — H1 "Démo de ${p.name}", H2 with a known brand the demo is run on.
-2. Three side-by-side preview cards mimicking the product output. Each card has a header bar (title + tag like "snapshot", "diff", "digest"), then 6-8 mocked rows of fake but realistic data.
-3. "Cliquez pour voir le rapport complet" — link to a static example page on /demo/exemple.
-4. Final CTA: "Lancer ma démo" → /contact?from=demo.
+2. Three side-by-side preview cards mimicking the product output.
+   Each card has a header bar (title + tag like "snapshot", "diff", "digest").
+   Each card displays 6-8 DISTINCT mocked rows. Hard-code each row literally with
+   different data (different prices, different feature names, different dates).
+   DO NOT use Array.from({length:N}).map(), .fill(), or any loop with identical
+   content — every row must have its own unique text.
+3. Final CTA: "Lancer ma démo" → /contact?from=demo.
+   Do NOT add a "voir le rapport complet" link unless /demo/exemple actually
+   exists in the repo (it doesn't — would 404).
 `
 
 const LEGAL: Record<string, (p: PortfolioProduct) => string> = {
