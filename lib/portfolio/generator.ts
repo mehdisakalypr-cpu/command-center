@@ -41,6 +41,54 @@ function validateTSX(code: string): void {
   }
 }
 
+/**
+ * Detect identifiers referenced in JSX/expression position that are neither
+ * imported nor declared locally. Catches the class of bugs where the LLM
+ * writes `<form action={submitContactForm}>` without ever defining/importing
+ * the function — `next build` would fail with "Cannot find name 'X'".
+ */
+function validateUndefinedIdentifiers(code: string): void {
+  const sf = ts.createSourceFile('page.tsx', code, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
+  const declared = new Set<string>([
+    // JS / browser globals routinely used in client pages
+    'window', 'document', 'navigator', 'console', 'location', 'history', 'fetch',
+    'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'JSON', 'Math',
+    'Date', 'Array', 'Object', 'String', 'Number', 'Boolean', 'Promise', 'Error',
+    'URL', 'URLSearchParams', 'FormData', 'localStorage', 'sessionStorage',
+    'undefined', 'null', 'true', 'false', 'NaN', 'Infinity',
+    // React
+    'React', 'useState', 'useEffect', 'useMemo', 'useCallback', 'useRef',
+    'Fragment', 'props', 'children',
+  ])
+  const referenced = new Map<string, number>()
+  function visit(node: ts.Node): void {
+    // Track declarations (imports, var/let/const, function/class names, params).
+    if (ts.isImportDeclaration(node) && node.importClause) {
+      const ic = node.importClause
+      if (ic.name) declared.add(ic.name.text)
+      if (ic.namedBindings) {
+        if (ts.isNamespaceImport(ic.namedBindings)) declared.add(ic.namedBindings.name.text)
+        else for (const e of ic.namedBindings.elements) declared.add(e.name.text)
+      }
+    } else if (ts.isFunctionDeclaration(node) && node.name) declared.add(node.name.text)
+      else if (ts.isClassDeclaration(node) && node.name) declared.add(node.name.text)
+      else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) declared.add(node.name.text)
+      else if (ts.isParameter(node) && ts.isIdentifier(node.name)) declared.add(node.name.text)
+      else if (ts.isBindingElement(node) && ts.isIdentifier(node.name)) declared.add(node.name.text)
+    // Collect identifier references in JSX expression positions (action={x}, onClick={x}, etc.)
+    if (ts.isJsxExpression(node) && node.expression && ts.isIdentifier(node.expression)) {
+      const name = node.expression.text
+      if (/^[a-z]/.test(name)) referenced.set(name, (referenced.get(name) ?? 0) + 1)
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(sf)
+  const undef = [...referenced.keys()].filter((n) => !declared.has(n))
+  if (undef.length > 0) {
+    throw new Error(`generator: undefined identifier(s) in JSX → ${undef.slice(0, 3).join(', ')}`)
+  }
+}
+
 export type GenerateResult = {
   product: PortfolioProduct
   pageType: PageType
@@ -173,6 +221,15 @@ ${body}
       .replace(/<Check\s*\/>/g, '✓')
   }
 
+  // L10b. Coerce hallucinated Server Action refs to plain HTML form POST.
+  // The LLM frequently writes `<form action={submitContactForm}>` (Server Action
+  // pattern) even when prompted for `action="/api/contact"`. In a `"use client"`
+  // component this is a guaranteed `Cannot find name` build error.
+  // Strategy: any `<form action={...}>` becomes `<form action="/api/contact" method="POST">`.
+  txt = txt.replace(/<form\s+action=\{[^}]+\}/g, '<form action="/api/contact" method="POST"')
+  // Also strip stale Server Action refs sitting next to onSubmit handlers.
+  txt = txt.replace(/<form\s+action=\{[^}]+\}\s+onSubmit=\{/g, '<form action="/api/contact" method="POST" onSubmit={')
+
   // L11. Substitute undefined Tailwind brand classes (bg-primary, etc.) with
   // the actual hex via inline style — these classes don't exist in our
   // tailwind config and render as transparent → invisible buttons. We can
@@ -201,6 +258,11 @@ ${body}
   // L12. Final gate: parse the result with TypeScript. Catches LLM
   // truncation, unbalanced braces, unescaped `}`/`>` in JSX text, etc.
   validateTSX(txt)
+
+  // L13. AST gate: refuse output that references identifiers in JSX expressions
+  // that were neither imported nor declared. Prevents `next build` from later
+  // crashing with "Cannot find name 'X'" when the page lands on Vercel.
+  validateUndefinedIdentifiers(txt)
 
   return txt
 }

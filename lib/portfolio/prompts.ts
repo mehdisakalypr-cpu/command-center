@@ -63,6 +63,15 @@ BUTTON / CTA STYLING (HARD RULE — readability):
 - Contrast minimum 4.5:1: dark bg → white text; light bg → dark text. NEVER
   white-on-white or pale-on-pale. The visitor must read the button without hovering.
 
+FORMS (HARD RULE — anti-build-fail):
+- Every \`<form>\` MUST set \`action\` to a literal STRING URL (e.g. action="/api/contact")
+  AND \`method="POST"\`. NEVER write \`action={someFunctionName}\` — that's the Server
+  Action pattern, but pages are forced to "use client", so the function reference is
+  guaranteed undefined and breaks \`next build\` with "Cannot find name '...'".
+- Every \`<input>\` and \`<textarea>\` inside such a form MUST have a \`name\` attribute.
+- Don't define \`async function submitX() { 'use server' ... }\` at module scope — it
+  would be stripped/inert in the final client component.
+
 IMAGES (HARD RULE):
 - Hero MUST include an AI-generated background image via Pollinations:
     <img src="https://image.pollinations.ai/prompt/<encoded prompt>?width=1920&height=1080&model=flux&nologo=true" alt="..." />
@@ -148,7 +157,14 @@ const CONTACT = (p: PortfolioProduct) => `
 SECTIONS REQUIRED:
 1. Hero (compact) — H1 "Contact", H2 "Réponse en moins de 24h".
 2. Two-column layout:
-   - LEFT: form (name, email, company, message) submitting POST to /api/contact. Use action="/api/contact" form for SSR; on submit show "Merci, message envoyé".
+   - LEFT: a plain HTML form with these EXACT attributes:
+     <form action="/api/contact" method="POST" className="space-y-4">
+     CRITICAL — DO NOT write \`action={someFunctionName}\` (Server Action ref). It is FORBIDDEN
+     because the file is forced to "use client" and the function is never imported, which
+     guarantees a \`Cannot find name\` build failure on Vercel. Use the literal string URL only.
+     Fields: name, email, company (optional), message. Each \`<input>\` and \`<textarea>\` must have
+     a matching \`name\` attribute so /api/contact can read req.formData(). On submit, the API
+     redirects back with ?status=success — read \`searchParams.status\` to show "Merci, message envoyé".
    - RIGHT: contact info card (email contact@${p.repoName}.com, hours, "vous parlez à un humain, pas un bot").
 3. Map / location placeholder card (simple <div> with city name).
 `
