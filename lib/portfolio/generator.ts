@@ -144,7 +144,36 @@ ${body}
     .replace(/<Footer\s*\/>\s*\n?/g, '')
     .replace(/<ChatbotWidget\s*\/>\s*\n?/g, '')
 
-  // L7. Final gate: parse the result with TypeScript. Catches LLM
+  // L7. JSX HTML attribute corrections (LLM occasionally writes raw HTML attrs).
+  // Only touches attributes inside opening tags so we don't rewrite text content.
+  txt = txt.replace(/(<[a-zA-Z][^>]*?)\sclass="/g, '$1 className="')
+
+  // L8. Strip invalid pseudo-selector keys from inline-style objects.
+  // React's CSSProperties does not accept '::marker', '::before', etc. as keys.
+  txt = txt.replace(/,\s*['"]::(?:marker|before|after|placeholder|selection|first-line|first-letter)['"]\s*:\s*\{[^}]*\}/g, '')
+
+  // L9. Coerce string aria-level / tabIndex values to numbers (LLM writes
+  // `aria-level="3"` which TS rejects as HTMLAttributes type mismatch).
+  txt = txt.replace(/\baria-level="(\d+)"/g, 'aria-level={$1}')
+  txt = txt.replace(/\btabIndex="(-?\d+)"/g, 'tabIndex={$1}')
+  // Same in spread-form: {...{ 'aria-level': '3' }} — easiest to drop the spread.
+  txt = txt.replace(/\{\.\.\.\{\s*role:\s*['"]heading['"]\s*,\s*['"]aria-level['"]\s*:\s*['"]\d+['"]\s*\}\}/g, '')
+
+  // L10. Replace hallucinated lucide-react icon refs (LLM forgets the import)
+  // with a unicode glyph fallback. Only common arrow / check icons covered.
+  if (!/from\s+["']lucide-react["']/.test(txt)) {
+    txt = txt
+      .replace(/<ArrowRight\s+size=\{[^}]*\}\s*\/>/g, '→')
+      .replace(/<ArrowRight\s*\/>/g, '→')
+      .replace(/<ArrowLeft\s+size=\{[^}]*\}\s*\/>/g, '←')
+      .replace(/<ArrowLeft\s*\/>/g, '←')
+      .replace(/<ChevronRight\s+size=\{[^}]*\}\s*\/>/g, '›')
+      .replace(/<ChevronRight\s*\/>/g, '›')
+      .replace(/<Check\s+size=\{[^}]*\}\s*\/>/g, '✓')
+      .replace(/<Check\s*\/>/g, '✓')
+  }
+
+  // L11. Final gate: parse the result with TypeScript. Catches LLM
   // truncation, unbalanced braces, unescaped `}`/`>` in JSX text, etc.
   validateTSX(txt)
 
