@@ -73,6 +73,21 @@ ${body}
     const start = Math.min(...anchors)
     txt = txt.slice(start).trim()
   }
+
+  // Vercel build fails on `<style jsx>` in Server Components — either
+  // promote to client component or strip the tag.
+  const usesStyledJsx = /<style\s+jsx(\s+global)?\s*>/.test(txt)
+  const usesClientOnly =
+    usesStyledJsx ||
+    /\buseState\s*\(/.test(txt) ||
+    /\buseEffect\s*\(/.test(txt) ||
+    /\buseRef\s*\(/.test(txt) ||
+    /\bonClick=|\bonChange=|\bonSubmit=/.test(txt)
+
+  if (usesClientOnly && !/^"use client"/.test(txt)) {
+    txt = `"use client";\n\n${txt}`
+  }
+
   return txt
 }
 
