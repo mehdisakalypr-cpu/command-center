@@ -187,25 +187,44 @@ export default function PortfolioBuilderPage() {
       </div>
 
       {/* Products */}
-      <h2 style={hdr}>Produits</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12, marginBottom: 32 }}>
+      <h2 style={hdr}>Produits — sites live</h2>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12, marginBottom: 32 }}>
         {data?.products.map((p) => (
           <div key={p.slug} style={{ background: "#0A1A2E", border: "1px solid rgba(201,168,76,.15)", padding: "20px 22px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
               <span style={{ width: 14, height: 14, borderRadius: "50%", background: `linear-gradient(135deg, ${p.colorPrimary}, ${p.colorAccent})` }} />
               <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#E8E8E8" }}>{p.name}</h3>
+              <code style={{ marginLeft: "auto", fontSize: ".65rem", color: "#6B7280" }}>{p.slug}</code>
             </div>
             <p style={{ margin: "0 0 12px", color: "#8B95A4", fontSize: ".85rem" }}>{p.tagline}</p>
-            <div style={{ fontSize: ".7rem", color: "#6B7280", marginBottom: 12 }}>
-              {p.repoOwner}/{p.repoName} · <a href={p.baseUrl} target="_blank" rel="noopener" style={{ color: "#C9A84C" }}>{new URL(p.baseUrl).hostname}</a>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: ".75rem", marginBottom: 8, padding: "6px 10px", background: "#06101F", border: "1px solid rgba(201,168,76,.1)", fontFamily: "monospace" }}>
+              <span style={{ color: "#10B981" }}>●</span>
+              <a href={p.baseUrl} target="_blank" rel="noopener" style={{ color: "#C9A84C", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={p.baseUrl}>
+                {p.baseUrl.replace(/^https?:\/\//, "")}
+              </a>
+              <button
+                onClick={() => { navigator.clipboard.writeText(p.baseUrl); setMsg(`URL ${p.slug} copiée`); }}
+                title="Copier l'URL"
+                style={{ background: "none", border: "1px solid rgba(201,168,76,.2)", color: "#8B95A4", padding: "1px 6px", cursor: "pointer", fontSize: ".7rem" }}
+              >
+                ⧉
+              </button>
             </div>
-            <button
-              onClick={() => enqueueAll(p.slug)}
-              disabled={busy === `enqueue-${p.slug}`}
-              style={{ ...btnGold, width: "100%" }}
-            >
-              {busy === `enqueue-${p.slug}` ? "Enqueueing…" : `Build all ${data.pageTypes.length} pages`}
-            </button>
+            <div style={{ fontSize: ".7rem", color: "#6B7280", marginBottom: 12 }}>
+              repo: <a href={`https://github.com/${p.repoOwner}/${p.repoName}`} target="_blank" rel="noopener" style={{ color: "#8B95A4" }}>{p.repoOwner}/{p.repoName}</a>
+            </div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <a href={p.baseUrl} target="_blank" rel="noopener" style={{ ...btnGhost, flex: 1, textAlign: "center", textDecoration: "none", display: "inline-block" }}>
+                Visit live →
+              </a>
+              <button
+                onClick={() => enqueueAll(p.slug)}
+                disabled={busy === `enqueue-${p.slug}`}
+                style={{ ...btnGold, flex: 1 }}
+              >
+                {busy === `enqueue-${p.slug}` ? "…" : `Build ${data.pageTypes.length}`}
+              </button>
+            </div>
           </div>
         ))}
       </div>
