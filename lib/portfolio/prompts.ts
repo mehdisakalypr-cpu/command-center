@@ -4,8 +4,8 @@
  *
  * The LLM output convention is strict: a single TSX block, default-exported
  * React Server Component for Next.js App Router, no markdown fences, no
- * commentary. Components Nav, Footer, ChatbotWidget are imported from
- * `@/components/*` and are assumed to exist in the target repo.
+ * commentary. Nav, Footer and ChatbotWidget are mounted by the root
+ * layout (app/layout.tsx) — pages must render only their own content.
  */
 
 import type { PortfolioProduct, PageType } from './products'
@@ -13,24 +13,22 @@ import type { PortfolioProduct, PageType } from './products'
 const COMMON_RULES = `
 RULES (HARD):
 - Output ONE valid TSX block. No markdown fences, no prose before/after.
-- The output MUST start with imports, then \`export default function <Name>() {\`.
+- The output MUST start with imports (if any), then \`export default function <Name>() {\`.
   Concretely:
-    import Nav from "@/components/Nav";
-    import Footer from "@/components/Footer";
-    import ChatbotWidget from "@/components/ChatbotWidget";
-
     export default function HomePage() {
       return (
         <main>...</main>
       );
     }
+- DO NOT import Nav, Footer, or ChatbotWidget. They are rendered by the root layout
+  (app/layout.tsx) on every page. Importing them in your page would duplicate them.
+- Render ONLY the page-specific content inside <main> (or section/article).
 - Default-export a React Server Component (no "use client" unless animations require client).
-- Import Nav, Footer, ChatbotWidget from "@/components/Nav", "@/components/Footer", "@/components/ChatbotWidget".
 - Use inline styles or Tailwind classes only. Do NOT import any external CSS file.
 - Page background: \${COLOR_BG}. Primary: \${COLOR_PRIMARY}. Accent: \${COLOR_ACCENT}.
 - Hero (where applicable): full-width, prominent headline, gradient using primary+accent.
 - Always wrap content in <main style={{ minHeight: '100vh', background: 'var(--bg)' }}> with --bg as inline CSS var.
-- Render <Nav /> at top, <Footer /> at bottom, <ChatbotWidget /> floating bottom-right.
+- DO NOT render <Nav />, <Footer />, or <ChatbotWidget /> — they are mounted by the root layout already.
 - French copy. Native, persuasive, concrete. NO buzzwords ("révolutionnaire", "leader", "next-gen").
 - All headlines under 9 words. Bullet items under 14 words.
 - Include semantic HTML: <header>, <section>, <article>, <h1>/<h2>/<h3> hierarchy.

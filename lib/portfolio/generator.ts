@@ -100,6 +100,17 @@ ${body}
   insertImport(/<Link[\s>]/, `import Link from "next/link";`, /\bfrom\s+["']next\/link["']/)
   insertImport(/<Image[\s>]/, `import Image from "next/image";`, /\bfrom\s+["']next\/image["']/)
 
+  // L6. Strip Nav / Footer / ChatbotWidget — they are rendered by the root
+  // layout (app/layout.tsx). LLM frequently re-includes them, causing
+  // duplicate header/footer in production.
+  txt = txt
+    .replace(/^import\s+Nav\s+from\s+["']@\/components\/Nav["'];?\s*\n/m, '')
+    .replace(/^import\s+Footer\s+from\s+["']@\/components\/Footer["'];?\s*\n/m, '')
+    .replace(/^import\s+ChatbotWidget\s+from\s+["']@\/components\/ChatbotWidget["'];?\s*\n/m, '')
+    .replace(/<Nav\s*\/>\s*\n?/g, '')
+    .replace(/<Footer\s*\/>\s*\n?/g, '')
+    .replace(/<ChatbotWidget\s*\/>\s*\n?/g, '')
+
   return txt
 }
 
