@@ -59,9 +59,16 @@ export async function POST(req: Request) {
     const product = PORTFOLIO_PRODUCTS.find((p) => p.slug === body.product_slug)
     if (!product) return NextResponse.json({ ok: false, error: 'unknown product_slug' }, { status: 400 })
 
-    const types: PageType[] = (body.page_types && body.page_types.length > 0)
+    const requested: PageType[] = (body.page_types && body.page_types.length > 0)
       ? body.page_types
       : (PAGE_TYPES as PageType[])
+
+    const frozen = new Set(product.frozenPages ?? [])
+    const types = requested.filter((t) => !frozen.has(t))
+
+    if (types.length === 0) {
+      return NextResponse.json({ ok: false, error: 'all requested page types are frozen for this product' }, { status: 400 })
+    }
 
     const rows = types.map((pageType) => ({
       product_slug: body.product_slug,

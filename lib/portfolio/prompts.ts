@@ -37,11 +37,31 @@ RULES (HARD):
 PRICING (HARD RULE — anti-abuse):
 - NEVER offer or mention a free trial. Forbidden strings: "essai gratuit",
   "free trial", "14 jours d'essai", "try for free", "30 days free", "freemium".
+- NEVER offer or mention a money-back guarantee. Forbidden strings:
+  "satisfait ou remboursé", "money back", "money-back", "remboursement 30",
+  "remboursement intégral", "garantie 30 jours", "30-day guarantee", "30 jours pour".
+  Reason: same abuse vector as free trial — customer pays, extracts the
+  value, refunds, repeats with new account.
 - Subscription products MUST present 4 durations: Mensuel + 12 mois (-15%) +
   24 mois (-25%) + 36 mois (-33%). Discounts progressive on commitment length.
+- The ONLY way for a customer to get a discount is to commit to 12/24/36 months.
+  Do not offer any other rebate, refund, or escape hatch.
 - CTA wording: "S'abonner", "Souscrire", "Annulez en 1 clic", never "Essayer".
-- Acceptable guarantee: "Remboursement 30 jours" (one-time, customer claims),
-  but NOT framed as a free trial.
+
+BUTTON / CTA STYLING (HARD RULE — readability):
+- Every <button> and CTA-style <a> MUST set EXPLICIT background AND text colour
+  via inline style with hex values, e.g.
+    style={{ background: '\${COLOR_PRIMARY}', color: '#FFFFFF' }}
+  (use the actual hex from PRODUCT CONTEXT for primary/accent backgrounds —
+  e.g. background: '#7C3AED' on a dark page.) Always pair dark bg with #FFFFFF
+  text, or light bg (#FFFFFF / #F8FAFC) with #0F172A text.
+- Forbidden: \`bg-primary\`, \`text-primary\`, \`bg-accent\`, \`text-accent\`,
+  \`border-primary\`, \`border-accent\` Tailwind classes — these are NOT defined
+  in the project tailwind config and render as transparent / invisible.
+- If you need Tailwind, use built-in palette only (\`bg-purple-600\`, \`bg-slate-900\`,
+  \`text-white\`, \`text-slate-900\`).
+- Contrast minimum 4.5:1: dark bg → white text; light bg → dark text. NEVER
+  white-on-white or pale-on-pale. The visitor must read the button without hovering.
 
 IMAGES (HARD RULE):
 - Hero MUST include an AI-generated background image via Pollinations:
@@ -106,8 +126,11 @@ SECTIONS REQUIRED:
    - Primary button "S'abonner — annulez en 1 clic" → /contact?tier=<slug>.
    - Highlight middle card with accent border.
 3. "Inclus dans toutes les offres" — 4 bullets row.
-4. "Garanties" — 3 short cards: "Remboursement 30 jours", "Annulation en 1 clic", "Support FR".
-   ABSOLUTELY DO NOT mention "essai gratuit", "free trial", "14 jours d'essai" or any free trial language.
+4. "Garanties" — 3 short cards: "Annulation en 1 clic", "Support FR", "Données EU/RGPD (Frankfurt)".
+   ABSOLUTELY DO NOT mention "essai gratuit", "free trial", "14 jours d'essai",
+   "satisfait ou remboursé", "money back", "remboursement", "garantie 30 jours",
+   or any free-trial / refund-guarantee language. The only customer leverage
+   for a discount is committing to 12/24/36 months.
 5. FAQ teaser → /faq.
 `
 

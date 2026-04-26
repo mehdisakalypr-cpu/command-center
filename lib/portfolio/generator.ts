@@ -56,7 +56,7 @@ export type GenerateResult = {
  * preamble, trailing chatter. If `export default` exists anywhere, slice
  * from the most plausible component start (import / "use client" / export).
  */
-function sanitiseTSX(raw: string): string {
+function sanitiseTSX(raw: string, product?: PortfolioProduct): string {
   let txt = stripPreamble(raw).trim()
 
   // Drop fenced code blocks — keep the fence body if present.
@@ -173,7 +173,32 @@ ${body}
       .replace(/<Check\s*\/>/g, '✓')
   }
 
-  // L11. Final gate: parse the result with TypeScript. Catches LLM
+  // L11. Substitute undefined Tailwind brand classes (bg-primary, etc.) with
+  // the actual hex via inline style — these classes don't exist in our
+  // tailwind config and render as transparent → invisible buttons. We can
+  // only do real substitution if we know the product colours; otherwise
+  // fall back to safe Tailwind built-ins so the element stays visible.
+  if (product) {
+    const PRIMARY = product.colorPrimary
+    const ACCENT = product.colorAccent
+    txt = txt
+      .replace(/className="([^"]*)\bbg-primary\b([^"]*)"/g, (_m, a, b) => `className="${a}${b}" style={{ background: '${PRIMARY}' }}`)
+      .replace(/className="([^"]*)\btext-primary\b([^"]*)"/g, (_m, a, b) => `className="${a}${b}" style={{ color: '${PRIMARY}' }}`)
+      .replace(/className="([^"]*)\bborder-primary\b([^"]*)"/g, (_m, a, b) => `className="${a}${b}" style={{ borderColor: '${PRIMARY}' }}`)
+      .replace(/className="([^"]*)\bbg-accent\b([^"]*)"/g, (_m, a, b) => `className="${a}${b}" style={{ background: '${ACCENT}' }}`)
+      .replace(/className="([^"]*)\btext-accent\b([^"]*)"/g, (_m, a, b) => `className="${a}${b}" style={{ color: '${ACCENT}' }}`)
+      .replace(/className="([^"]*)\bborder-accent\b([^"]*)"/g, (_m, a, b) => `className="${a}${b}" style={{ borderColor: '${ACCENT}' }}`)
+  } else {
+    txt = txt
+      .replace(/\bbg-primary\b/g, 'bg-purple-600')
+      .replace(/\btext-primary\b/g, 'text-white')
+      .replace(/\bborder-primary\b/g, 'border-purple-500')
+      .replace(/\bbg-accent\b/g, 'bg-cyan-500')
+      .replace(/\btext-accent\b/g, 'text-cyan-400')
+      .replace(/\bborder-accent\b/g, 'border-cyan-500')
+  }
+
+  // L12. Final gate: parse the result with TypeScript. Catches LLM
   // truncation, unbalanced braces, unescaped `}`/`>` in JSX text, etc.
   validateTSX(txt)
 
@@ -200,7 +225,7 @@ export async function generatePage(opts: {
     { project: 'cc' },
   )
 
-  const tsx = sanitiseTSX(out.text)
+  const tsx = sanitiseTSX(out.text, product)
   return {
     product,
     pageType: opts.pageType,
