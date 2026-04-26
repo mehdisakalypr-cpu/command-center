@@ -3,10 +3,43 @@
  * output, and returns ready-to-commit TSX content for a target product page.
  */
 
+import ts from 'typescript'
 import { withFallback } from '@/lib/ai-pool'
 import { stripPreamble } from '@/lib/ai-pool/cascade'
 import { buildPrompt } from './prompts'
 import { getProduct, pagePath, type PageType, type PortfolioProduct } from './products'
+
+/**
+ * Parse-only TSX validation. Catches LLM truncation, unbalanced braces,
+ * unescaped `}`/`>` in JSX text, missing closing tags, etc. Throws so the
+ * job is marked failed and the deploy-watcher schedules a retry instead of
+ * pushing broken TSX to GitHub.
+ */
+function validateTSX(code: string): void {
+  const result = ts.transpileModule(code, {
+    compilerOptions: {
+      jsx: ts.JsxEmit.Preserve,
+      target: ts.ScriptTarget.ESNext,
+      module: ts.ModuleKind.ESNext,
+      isolatedModules: true,
+    },
+    fileName: 'page.tsx',
+    reportDiagnostics: true,
+  })
+  const errs = (result.diagnostics ?? []).filter(
+    (d) => d.category === ts.DiagnosticCategory.Error,
+  )
+  if (errs.length > 0) {
+    const msgs = errs
+      .slice(0, 3)
+      .map((d) => {
+        const text = ts.flattenDiagnosticMessageText(d.messageText, ' ')
+        return `pos=${d.start ?? '?'}: ${text}`
+      })
+      .join(' | ')
+    throw new Error(`generator: TSX parse error → ${msgs}`)
+  }
+}
 
 export type GenerateResult = {
   product: PortfolioProduct
@@ -111,6 +144,10 @@ ${body}
     .replace(/<Footer\s*\/>\s*\n?/g, '')
     .replace(/<ChatbotWidget\s*\/>\s*\n?/g, '')
 
+  // L7. Final gate: parse the result with TypeScript. Catches LLM
+  // truncation, unbalanced braces, unescaped `}`/`>` in JSX text, etc.
+  validateTSX(txt)
+
   return txt
 }
 
@@ -129,7 +166,7 @@ export async function generatePage(opts: {
       system,
       prompt,
       temperature: 0.4,
-      maxTokens: 7000,
+      maxTokens: 12000,
     },
     { project: 'cc' },
   )
