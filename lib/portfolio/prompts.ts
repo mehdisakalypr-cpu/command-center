@@ -34,6 +34,15 @@ RULES (HARD):
 - Include semantic HTML: <header>, <section>, <article>, <h1>/<h2>/<h3> hierarchy.
 - Accessible: every interactive element labelled, color contrast ≥ 4.5:1.
 
+PRICING (HARD RULE — anti-abuse):
+- NEVER offer or mention a free trial. Forbidden strings: "essai gratuit",
+  "free trial", "14 jours d'essai", "try for free", "30 days free", "freemium".
+- Subscription products MUST present 4 durations: Mensuel + 12 mois (-15%) +
+  24 mois (-25%) + 36 mois (-33%). Discounts progressive on commitment length.
+- CTA wording: "S'abonner", "Souscrire", "Annulez en 1 clic", never "Essayer".
+- Acceptable guarantee: "Remboursement 30 jours" (one-time, customer claims),
+  but NOT framed as a free trial.
+
 IMAGES (HARD RULE):
 - Hero MUST include an AI-generated background image via Pollinations:
     <img src="https://image.pollinations.ai/prompt/<encoded prompt>?width=1920&height=1080&model=flux&nologo=true" alt="..." />
@@ -89,10 +98,16 @@ const OFFRES = (p: PortfolioProduct) => `
 SECTIONS REQUIRED:
 1. Hero (compact) — H1 "Offres", H2 "Choisissez selon votre rythme".
 2. THREE pricing cards side-by-side. Tier names: Starter / Pro / Scale.
-   - Each card: name, price /mois EUR, 6 bullets, primary button "Choisir Starter/Pro/Scale" → /contact?tier=<slug>.
+   - Each card: name, MAIN price /mois EUR, then a duration toggle group below
+     showing 4 options: Mensuel · 12 mois (-15%) · 24 mois (-25%) · 36 mois (-33%).
+     Show the per-month effective price for each duration option.
+     Hardcode the toggle as a static visual list (no JS state needed).
+   - 6 bullets describing what's included.
+   - Primary button "S'abonner — annulez en 1 clic" → /contact?tier=<slug>.
    - Highlight middle card with accent border.
 3. "Inclus dans toutes les offres" — 4 bullets row.
-4. "Garanties" — 3 short cards (essai 14j, sans engagement, support FR).
+4. "Garanties" — 3 short cards: "Remboursement 30 jours", "Annulation en 1 clic", "Support FR".
+   ABSOLUTELY DO NOT mention "essai gratuit", "free trial", "14 jours d'essai" or any free trial language.
 5. FAQ teaser → /faq.
 `
 
