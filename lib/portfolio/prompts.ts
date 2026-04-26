@@ -33,6 +33,15 @@ RULES (HARD):
 - All headlines under 9 words. Bullet items under 14 words.
 - Include semantic HTML: <header>, <section>, <article>, <h1>/<h2>/<h3> hierarchy.
 - Accessible: every interactive element labelled, color contrast ≥ 4.5:1.
+
+IMAGES (HARD RULE):
+- Hero MUST include an AI-generated background image via Pollinations:
+    <img src="https://image.pollinations.ai/prompt/<encoded prompt>?width=1920&height=1080&model=flux&nologo=true" alt="..." />
+  Wrap it in a relative container with the gradient overlay on top.
+- At least ONE additional generated image in a content section. Use a prompt
+  that matches the page meaning (e.g. services → "isometric 3D dashboard").
+- Do NOT use placeholder URLs (placehold.co, unsplash random). Always Pollinations.
+- All <img> tags MUST have alt text (accessibility).
 `
 
 function header(product: PortfolioProduct, pageType: PageType): string {
