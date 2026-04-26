@@ -19,18 +19,34 @@ export type GenerateResult = {
 }
 
 /**
- * Strip code fences and common LLM preambles, ensuring we end up with
- * raw TSX. Fails loudly if the result doesn't at least look like a React
- * component (no `export default`).
+ * Extract a TSX file body from LLM output. Tolerates code fences, leading
+ * preamble, trailing chatter. If `export default` exists anywhere, slice
+ * from the most plausible component start (import / "use client" / export).
  */
 function sanitiseTSX(raw: string): string {
   let txt = stripPreamble(raw).trim()
-  // Drop ```tsx / ```jsx / ``` fences
-  txt = txt.replace(/^```(?:tsx|jsx|ts|js)?\s*\n/i, '').replace(/\n```\s*$/i, '').trim()
-  // Drop a stray leading "tsx" word some LLMs emit
-  txt = txt.replace(/^tsx\s*\n/i, '').trim()
+
+  // Drop fenced code blocks — keep the fence body if present.
+  const fenceMatch = txt.match(/```(?:tsx|jsx|ts|js|typescript|javascript)?\s*\n([\s\S]*?)\n```/i)
+  if (fenceMatch) txt = fenceMatch[1].trim()
+
+  // Strip stray leading "tsx" or "typescript" labels.
+  txt = txt.replace(/^(?:tsx|typescript|jsx)\s*\n/i, '').trim()
+
   if (!/export\s+default\s+/.test(txt)) {
-    throw new Error('generator: output missing `export default` — likely truncation or refusal')
+    const preview = txt.slice(0, 400).replace(/\n/g, ' ')
+    throw new Error(`generator: no \`export default\` in output (preview: ${preview})`)
+  }
+
+  // Slice from the earliest legitimate file-start anchor.
+  const anchors = [
+    txt.search(/^"use client"/m),
+    txt.search(/^import\s+/m),
+    txt.search(/^export\s+default\s+/m),
+  ].filter((i) => i >= 0)
+  if (anchors.length) {
+    const start = Math.min(...anchors)
+    txt = txt.slice(start).trim()
   }
   return txt
 }
