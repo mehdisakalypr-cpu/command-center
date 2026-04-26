@@ -88,6 +88,17 @@ ${body}
     txt = `"use client";\n\n${txt}`
   }
 
+  // Auto-inject Next.js imports the LLM commonly forgets.
+  const insertImport = (need: RegExp, importLine: string, importMatch: RegExp): void => {
+    if (need.test(txt) && !importMatch.test(txt)) {
+      const useClientMatch = /^"use client";?\s*\n\s*\n?/.exec(txt)
+      const at = useClientMatch ? useClientMatch[0].length : 0
+      txt = txt.slice(0, at) + importLine + '\n' + txt.slice(at)
+    }
+  }
+  insertImport(/<Link[\s>]/, `import Link from "next/link";`, /\bfrom\s+["']next\/link["']/)
+  insertImport(/<Image[\s>]/, `import Image from "next/image";`, /\bfrom\s+["']next\/image["']/)
+
   return txt
 }
 
