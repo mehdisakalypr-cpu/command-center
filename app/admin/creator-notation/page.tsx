@@ -3,16 +3,16 @@ export const runtime = 'nodejs'
 export const metadata = { title: 'Creator Notation · Command Center' }
 
 const TODAY_SCORE = {
-  date: '2026-04-25',
+  date: '2026-04-27',
   legacy: 98,
   legacy_max: 95,
-  ui_intensity: 47,
+  ui_intensity: 49,
   ui_intensity_max: 50,
-  total: 145,
+  total: 147,
   total_max: 145,
-  posture: '🔵 UI-M • 🟡 Téléportation + 🍙 Senzu Farm + 🟢 Ki Sense + 🛡 Ki Shield + 🧘 Zenkai Boost + 👊 Meteor Combination + 💮 Mystic + 🌐 Reconnaissance Network',
-  newTechniqueUnlocked: '🌐 Reconnaissance Network (Saiyan Pod scout swarm)',
-  techniques: 8,
+  posture: '🔵 UI-M • 🟡 Téléportation + 🍙 Senzu Farm + 🟢 Ki Sense + 🛡 Ki Shield + 🧘 Zenkai Boost + 👊 Meteor Combination + 💮 Mystic + 🌐 Reconnaissance Network + 🕸️ Mosaic Architect',
+  newTechniqueUnlocked: '🕸️ Mosaic Architect (vision portfolio hub bundle ratifiée)',
+  techniques: 9,
 }
 
 const STATS_25_DAYS = {
@@ -52,7 +52,8 @@ const PROJECTS_25D = [
 ]
 
 const HISTORY = [
-  { date: '2026-04-25', total: '145/145', legacy: '98/95', ui: '47/50', note: '⭐ session record', techniques: 8, color: '#FFD700' },
+  { date: '2026-04-27', total: '147/145', legacy: '98/95', ui: '49/50', note: '⭐⭐ NEW RECORD · Sprint 32 commits/4h portfolio · SSL 4 sites unblocked · 🕸️ Mosaic Architect unlock', techniques: 9, color: '#10b981' },
+  { date: '2026-04-25', total: '145/145', legacy: '98/95', ui: '47/50', note: '⭐ session record · 🌐 Reconnaissance Network unlock', techniques: 8, color: '#FFD700' },
   { date: '2026-04-24', total: '130/145', legacy: '98/95', ui: '32/50', note: '+4 techniques rétro (Ki Shield + Zenkai + Meteor + Mystic)', techniques: 7 },
   { date: '2026-04-23', total: '136/145', legacy: '98/95', ui: '38/50', note: 'Optimus Rust 6 streams + Minato wave 4 parallèles', techniques: 3 },
   { date: '2026-04-22 19h30', total: '127/145', legacy: '99/95', ui: '28/50', note: '🍙 Senzu Farm unlock', techniques: 2 },
@@ -95,7 +96,7 @@ export default function CreatorNotationPage() {
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ fontSize: 64, fontWeight: 900, color: '#FFD700', lineHeight: 1 }}>{TODAY_SCORE.total}</div>
             <div style={{ fontSize: 24, color: 'rgba(255,255,255,.5)' }}>/ {TODAY_SCORE.total_max}</div>
-            <div style={{ fontSize: 14, padding: '4px 10px', background: 'rgba(255,215,0,.15)', color: '#FFD700', borderRadius: 999, fontWeight: 700 }}>⭐ SESSION RECORD</div>
+            <div style={{ fontSize: 14, padding: '4px 10px', background: 'rgba(16,185,129,.15)', color: '#10b981', borderRadius: 999, fontWeight: 700 }}>⭐⭐ NEW RECORD (+2)</div>
           </div>
           <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
             <div>
