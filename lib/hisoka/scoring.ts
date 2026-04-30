@@ -26,24 +26,37 @@ export function autonomyScore(a: ScoredIdea['autonomy']): number {
 
 /**
  * Auto-fix self_funding_score=1.0 IF unit_economics actually show positive GM
- * at every breakpoint (v10/v100/v1k/v10k). The system prompt instructs LLMs to
- * always set 1.0 but they sometimes drift to 0.95/0.9. This corrects the
- * declared value when the underlying data confirms it — preserves the rigor
- * of the gate without forfeiting valid ideas to LLM compliance noise.
+ * at every breakpoint, AND coerce category to the allowed CHECK constraint.
+ * The DB enforces category ∈ {middleware_api, data_platform, productized_service,
+ * marketplace, content_platform, tool_utility, b2b_integration}; LLMs in
+ * vertical mode often emit "fintech_solution" / "agri_tool" etc. which fail the
+ * upsert silently. We map unknown categories to productized_service (safe default).
  */
+const ALLOWED_CATEGORIES = new Set([
+  'middleware_api', 'data_platform', 'productized_service', 'marketplace',
+  'content_platform', 'tool_utility', 'b2b_integration',
+]);
 export function normalizeIdea(idea: ScoredIdea): ScoredIdea {
-  if (idea.self_funding_score < 1.0 && idea.unit_economics) {
-    const ue = idea.unit_economics;
+  let out = idea;
+
+  // Coerce category to allowed enum
+  if (!ALLOWED_CATEGORIES.has(out.category as string)) {
+    out = { ...out, category: 'productized_service' as ScoredIdea['category'] };
+  }
+
+  // Auto-fix self_funding_score
+  if (out.self_funding_score < 1.0 && out.unit_economics) {
+    const ue = out.unit_economics;
     const allPositive =
       (ue.v10?.gm_pct ?? 0) > 0 &&
       (ue.v100?.gm_pct ?? 0) > 0 &&
       (ue.v1k?.gm_pct ?? 0) > 0 &&
       (ue.v10k?.gm_pct ?? 0) > 0;
     if (allPositive) {
-      return { ...idea, self_funding_score: 1.0 };
+      out = { ...out, self_funding_score: 1.0 };
     }
   }
-  return idea;
+  return out;
 }
 
 export function hardGates(idea: ScoredIdea, opts?: { vertical?: boolean }): GateResult {
