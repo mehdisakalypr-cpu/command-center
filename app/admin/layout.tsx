@@ -33,6 +33,7 @@ const NAV_GROUPS: NavGroupX[] = [
       { href: '/admin/ftg-campaigns',     label: 'FTG Campaigns',icon: '📧', desc: 'Outbound orchestrator: segments × templates × providers', subgroup: 'Stratégie' },
       { href: '/admin/insights',          label: 'Insights',    icon: '🧠', desc: 'Stratégie & benchmark', subgroup: 'Stratégie' },
       { href: '/admin/code-map',          label: 'Code Map',    icon: '🗺️', desc: 'Architecture projets' },
+      { href: '/admin/video-analyzer',    label: 'Video Analyzer', icon: '📹', desc: 'YouTube/TikTok URL → transcript Groq Whisper + analyse Claude', subgroup: 'Outils' },
     ],
   },
   {
