@@ -15,9 +15,10 @@ export async function POST(req: Request) {
     const url = new URL(req.url);
     const countParam = Number(url.searchParams.get('count'));
     const countTarget = Number.isFinite(countParam) && countParam > 0 ? Math.min(countParam, 30) : 5;
+    const vertical = url.searchParams.get('vertical') ?? undefined;
     const admin = createSupabaseAdmin();
-    const result = await runDiscovery(admin, { trigger: 'cron', countTarget });
-    return NextResponse.json({ ok: true, countTarget, ...result });
+    const result = await runDiscovery(admin, { trigger: 'cron', countTarget, vertical });
+    return NextResponse.json({ ok: true, countTarget, vertical: vertical ?? null, ...result });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e).slice(0, 500) }, { status: 500 });
   }

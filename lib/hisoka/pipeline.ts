@@ -11,7 +11,7 @@ const TOP_N = 20;
 
 export async function runDiscovery(
   supabaseAdmin: SupabaseClient,
-  opts: { trigger: 'manual' | 'cron'; countTarget?: number } = { trigger: 'manual' },
+  opts: { trigger: 'manual' | 'cron'; countTarget?: number; vertical?: string } = { trigger: 'manual' },
 ): Promise<HunterRunResult> {
   // 1. Insert run row
   const { data: runRow, error: runErr } = await supabaseAdmin
@@ -33,7 +33,7 @@ export async function runDiscovery(
         .order('rank')
         .limit(20),
       // Harvest signals defensively — never throws, returns [] on full failure
-      harvestSignals({ timeoutMs: 20_000 }).catch((err: unknown) => {
+      harvestSignals({ timeoutMs: 20_000, vertical: opts.vertical }).catch((err: unknown) => {
         console.warn('[hisoka/pipeline] harvestSignals unexpected error (graceful):', String(err));
         return [] as Awaited<ReturnType<typeof harvestSignals>>;
       }),

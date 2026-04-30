@@ -60,10 +60,11 @@ async function fetchHN(timeoutMs: number): Promise<Signal[]> {
 // ---------------------------------------------------------------------------
 // Source: Reddit multi-subreddit (public JSON API)
 // ---------------------------------------------------------------------------
-async function fetchReddit(timeoutMs: number): Promise<Signal[]> {
+const DEFAULT_SUBS = 'startups+SaaS+Entrepreneur';
+async function fetchReddit(timeoutMs: number, subs: string = DEFAULT_SUBS): Promise<Signal[]> {
   try {
     const res = await fetchWithTimeout(
-      'https://www.reddit.com/r/startups+SaaS+Entrepreneur/top.json?t=week&limit=30',
+      `https://www.reddit.com/r/${subs}/top.json?t=week&limit=30`,
       { headers: { 'User-Agent': 'Hisoka-Hunter/1.0' } },
       timeoutMs,
     );
@@ -131,14 +132,33 @@ async function fetchYCRFS(timeoutMs: number): Promise<Signal[]> {
 }
 
 // ---------------------------------------------------------------------------
+// Vertical seed packs — feed a domain-specific subreddit cluster to bias
+// LLM ideation toward agriculture, healthcare, fintech, real-estate, ESG.
+// Used when discovery is invoked with ?vertical=<slug>.
+// ---------------------------------------------------------------------------
+const VERTICAL_SUBS: Record<string, string> = {
+  agriculture: 'agriculture+farming+homestead+precisionagriculture',
+  healthcare: 'medicine+healthIT+nursing+publichealth+digitalhealth',
+  fintech: 'fintech+CryptoCurrency+investing+personalfinance+banking',
+  realestate: 'realestate+commercialrealestate+RealEstateTechnology+landlord',
+  esg: 'sustainability+climatechange+RenewableEnergy+ESG+climate',
+  trade: 'logistics+supplychain+freight+shipping+ecommerce',
+  legal: 'law+Lawyertalk+LegalAdvice+compliance',
+  ecommerce: 'ecommerce+shopify+amazon+FulfillmentByAmazon+ecom',
+  hr: 'humanresources+recruiting+managers+AskHR',
+  education: 'edtech+education+OnlineLearning+teaching',
+};
+
+// ---------------------------------------------------------------------------
 // Main: harvestSignals
 // ---------------------------------------------------------------------------
 export async function harvestSignals(
-  { timeoutMs = DEFAULT_TIMEOUT_MS }: { timeoutMs?: number } = {},
+  { timeoutMs = DEFAULT_TIMEOUT_MS, vertical }: { timeoutMs?: number; vertical?: string } = {},
 ): Promise<Signal[]> {
+  const subs = vertical && VERTICAL_SUBS[vertical] ? VERTICAL_SUBS[vertical] : DEFAULT_SUBS;
   const [hnResult, redditResult, ycResult] = await Promise.allSettled([
     fetchHN(timeoutMs),
-    fetchReddit(timeoutMs),
+    fetchReddit(timeoutMs, subs),
     fetchYCRFS(timeoutMs),
   ]);
 
