@@ -112,8 +112,9 @@ export async function runDiscovery(
       if (!i?.name) missing.push('name');
       if (!i?.autonomy) missing.push('autonomy');
       else {
-        for (const dim of ['acquisition','content_ops','fulfillment','support','billing','compliance']) {
-          if (typeof i.autonomy[dim] !== 'number') missing.push(`autonomy.${dim}`);
+        const dims = ['acquisition','content_ops','fulfillment','support','billing','compliance'] as const;
+        for (const dim of dims) {
+          if (typeof (i.autonomy as Record<string, unknown>)[dim] !== 'number') missing.push(`autonomy.${dim}`);
         }
       }
       if (typeof i?.setup_hours_user !== 'number') missing.push('setup_hours_user');
