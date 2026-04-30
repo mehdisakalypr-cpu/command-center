@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { withFallback, extractJSON } from '@/lib/ai-pool/cascade';
 import { getBricks, getMinatoAgents } from './registries';
 import { IDEATOR_SYSTEM, buildIdeatorUserPrompt } from './prompts';
-import { hardGates, baseScore } from './scoring';
+import { hardGates, baseScore, normalizeIdea } from './scoring';
 import { harvestSignals } from './harvester';
 import type { ScoredIdea, HunterRunResult } from './types';
 
@@ -128,8 +128,9 @@ export async function runDiscovery(
       return ok;
     });
 
-    // 6. Filter + score
+    // 6. Normalize (auto-fix self_funding_score when GM data justifies it) → filter → score
     const scored = structurallyComplete
+      .map(i => normalizeIdea(i))
       .filter(i => hardGates(i).passed)
       .map(i => ({ idea: i, score: baseScore(i) }))
       .sort((a, b) => b.score - a.score);

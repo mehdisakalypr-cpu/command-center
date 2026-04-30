@@ -13,6 +13,28 @@ export function autonomyScore(a: ScoredIdea['autonomy']): number {
   return Math.min(a.acquisition, a.content_ops, a.fulfillment, a.support, a.billing, a.compliance);
 }
 
+/**
+ * Auto-fix self_funding_score=1.0 IF unit_economics actually show positive GM
+ * at every breakpoint (v10/v100/v1k/v10k). The system prompt instructs LLMs to
+ * always set 1.0 but they sometimes drift to 0.95/0.9. This corrects the
+ * declared value when the underlying data confirms it — preserves the rigor
+ * of the gate without forfeiting valid ideas to LLM compliance noise.
+ */
+export function normalizeIdea(idea: ScoredIdea): ScoredIdea {
+  if (idea.self_funding_score < 1.0 && idea.unit_economics) {
+    const ue = idea.unit_economics;
+    const allPositive =
+      (ue.v10?.gm_pct ?? 0) > 0 &&
+      (ue.v100?.gm_pct ?? 0) > 0 &&
+      (ue.v1k?.gm_pct ?? 0) > 0 &&
+      (ue.v10k?.gm_pct ?? 0) > 0;
+    if (allPositive) {
+      return { ...idea, self_funding_score: 1.0 };
+    }
+  }
+  return idea;
+}
+
 export function hardGates(idea: ScoredIdea): GateResult {
   const reasons: string[] = [];
   const aScore = autonomyScore(idea.autonomy);
