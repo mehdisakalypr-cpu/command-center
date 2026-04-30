@@ -31,12 +31,59 @@ rationale.
 
 Baseline comparisons: HYSA 2%/yr, bonds 4%/yr, S&P 500 10%/yr. Only surface ideas whose IRR_y3 clearly beats S&P 500.`;
 
+// Vertical packs — when a vertical is requested via API, the prompt foregrounds
+// real end-user ICPs in that domain instead of letting the LLM anchor on the
+// existing bricks registry (which is heavily tech/SaaS-flavored).
+const VERTICAL_BRIEFS: Record<string, string> = {
+  agriculture: `TARGET VERTICAL: AGRICULTURE & FARMING.
+End-users: farmers, agronomists, cooperatives, agri-input distributors, food processors, crop insurers.
+Real pain points to solve: yield prediction, irrigation optimization, livestock health monitoring, pesticide compliance, farm-to-fork traceability, commodity price hedging, subsidy/grant discovery, weather-driven decision support, crop disease detection from images, field-level carbon accounting.
+DO NOT propose dev tools, code reviewers, or generic SaaS — propose products a farmer or agronomist would actually pay for.`,
+  healthcare: `TARGET VERTICAL: HEALTHCARE.
+End-users: clinics, private practices, dentists, physiotherapists, telemedicine providers, medical billing companies, pharma reps, clinical trial managers.
+Real pain points: appointment no-show prediction, prior-authorization automation, ICD-10 coding, patient intake AI, HIPAA-compliant secure messaging, medical record summarization, drug interaction checks, clinical trial recruitment, dental insurance claim adjudication, telehealth note generation.
+DO NOT propose dev tools or generic SaaS — propose products a clinic or physician would buy.`,
+  fintech: `TARGET VERTICAL: FINTECH.
+End-users: SMB CFOs, accountants, financial advisors, retail investors, fintech founders, lending fintechs, treasury managers.
+Real pain points: cash flow forecasting, AP/AR automation, expense categorization, reconciliation, compliance (KYC/AML/SOC2), fraud detection on payments, credit scoring on alternative data, automated investor reporting, tax loss harvesting, multi-entity consolidation.
+DO NOT propose dev tools — propose products a CFO or accountant would buy.`,
+  realestate: `TARGET VERTICAL: REAL ESTATE.
+End-users: real-estate agents, brokerages, property managers, landlords, real estate investors, mortgage brokers, commercial RE analysts, homebuilders.
+Real pain points: listing description generation, comparable market analysis, lead nurturing, virtual staging, tenant screening, rent collection, maintenance ticket triage, lease abstraction, off-market deal sourcing, ARV (after-repair value) prediction, vacancy forecasting.
+DO NOT propose dev tools — propose products a realtor or property manager would buy.`,
+  esg: `TARGET VERTICAL: ESG / SUSTAINABILITY.
+End-users: ESG officers, corporate sustainability teams, fund managers (impact investing), CSR consultants, supply chain managers, regulatory compliance officers.
+Real pain points: scope 1/2/3 emissions calculation, supplier ESG scoring, CSRD/SFDR/TCFD report drafting, greenwashing detection, ESG data verification, carbon offset marketplace fraud detection, biodiversity impact assessment, modern slavery audits, packaging recyclability scoring.
+DO NOT propose dev tools — propose products an ESG officer would buy.`,
+  trade: `TARGET VERTICAL: INTERNATIONAL TRADE & LOGISTICS.
+End-users: import/export companies, customs brokers, freight forwarders, supply chain managers, sourcing agents, trade finance officers.
+Real pain points: HS code classification, customs documentation auto-generation, sanctions screening, freight rate forecasting, container tracking, supplier discovery (sourcing), letter of credit automation, incoterm advice, anti-dumping monitoring, carbon tariff (CBAM) compliance.
+DO NOT propose dev tools — propose products an import/export manager would buy.`,
+  legal: `TARGET VERTICAL: LEGAL SERVICES (law firms + legal departments).
+End-users: solo lawyers, small/mid law firms, in-house counsel, paralegals, legal ops managers, contract managers, IP attorneys, litigation support firms.
+Real pain points: contract review, deposition summarization, discovery review (e-disco), legal research, billing time tracking, client intake automation, conflict checks, motion drafting, deposition transcript analysis, IP portfolio management.
+DO NOT propose dev tools — propose products a lawyer or legal ops manager would buy.`,
+  ecommerce: `TARGET VERTICAL: E-COMMERCE & DTC BRANDS.
+End-users: Shopify/Amazon sellers, DTC brand operators, marketplace operators, dropshippers, FBA sellers, e-com agencies.
+Real pain points: product description generation, dynamic pricing, inventory forecasting, return rate prediction, fake review detection, ad creative testing, abandoned cart recovery, customer segmentation, supplier reliability scoring, marketplace policy compliance.
+DO NOT propose dev tools — propose products an e-commerce operator would buy.`,
+  hr: `TARGET VERTICAL: HUMAN RESOURCES.
+End-users: HR managers, recruiters, talent ops, people analytics, learning & development, EOR/PEO operators.
+Real pain points: candidate sourcing automation, AI screening (bias-audited), interview scheduling, employee onboarding, payroll variance detection, compensation benchmarking, engagement surveys, exit interview analysis, training content generation, retention prediction.
+DO NOT propose dev tools — propose products an HR manager would buy.`,
+  education: `TARGET VERTICAL: EDUCATION & EDTECH.
+End-users: K-12 teachers, university faculty, corporate trainers, online course creators, tutoring services, school administrators, edtech operators.
+Real pain points: lesson plan generation, automated grading, plagiarism detection, individualized learning paths, parent communication automation, course content updates, learning analytics, accessibility compliance, certification verification.
+DO NOT propose dev tools — propose products a teacher or course creator would buy.`,
+};
+
 export function buildIdeatorUserPrompt(opts: {
   bricks: Brick[];
   agents: MinatoAgent[];
   signals?: Array<{ source: string; title: string; url?: string; score?: number; tag?: string }>;
   previousTop20?: Array<{ slug: string; name: string; score: number }>;
   countTarget?: number;
+  vertical?: string;
 }): string {
   const bricksList = opts.bricks.map(b =>
     `- ${b.id}: ${b.name} [saves ~${b.saves_dev_weeks}w] (used in: ${b.projects_using.join(',')})`
@@ -58,7 +105,11 @@ export function buildIdeatorUserPrompt(opts: {
       }\n`
     : '';
 
-  return `AVAILABLE BRICKS (rewardable via assets_leveraged):
+  const verticalBrief = opts.vertical && VERTICAL_BRIEFS[opts.vertical]
+    ? `\n${VERTICAL_BRIEFS[opts.vertical]}\n`
+    : '';
+
+  return `${verticalBrief}AVAILABLE BRICKS (rewardable via assets_leveraged — only when applicable to the target vertical):
 ${bricksList}
 
 AVAILABLE MINATO AGENTS (map autonomy dims to these where possible):
@@ -68,8 +119,7 @@ PREVIOUS TOP 20 (avoid duplicates; generate distinct ideas):
 ${prev}
 
 TASK: generate ${n} distinct business idea candidates meeting ALL hard constraints above.
-Diversify across categories (middleware_api, data_platform, productized_service, marketplace,
-content_platform, tool_utility, b2b_integration).
+${opts.vertical ? `EVERY idea must serve the TARGET VERTICAL described above. If a candidate is a horizontal dev tool (code review, API docs, devops, OSS monitoring), DROP IT and propose a vertical-native alternative. The end-user persona (e.g. "farmer", "real estate agent") must appear naturally in the tagline.` : 'Diversify across categories (middleware_api, data_platform, productized_service, marketplace, content_platform, tool_utility, b2b_integration).'}
 IMPORTANT: set self_funding_score=1.0 for every idea (all your ideas have positive GM at v10+).
 IMPORTANT: leverage_configs must be a JSON array, not an object.
 IMPORTANT: scalability_per_worker must be a string: "linear", "step", or "capped".

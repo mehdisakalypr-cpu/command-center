@@ -53,6 +53,7 @@ export async function runDiscovery(
       signals: signals.length > 0 ? signals : undefined,
       previousTop20: prevTop,
       countTarget: opts.countTarget ?? DEFAULT_COUNT,
+      vertical: opts.vertical,
     });
 
     const gen = await withFallback(
