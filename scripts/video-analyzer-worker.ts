@@ -11,9 +11,9 @@
  */
 import { createClient } from '@supabase/supabase-js'
 import { spawn } from 'node:child_process'
-import { readFile, unlink, stat } from 'node:fs/promises'
+import { readFile, unlink, stat, readdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, dirname, basename } from 'node:path'
 import { randomUUID } from 'node:crypto'
 
 const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -35,8 +35,9 @@ type Job = {
 }
 
 const POLL_MS = 5_000
-const MAX_AUDIO_BYTES = 25 * 1024 * 1024 // Groq limit
-const MAX_DURATION_S = 60 * 30 // 30 min cap
+const MAX_AUDIO_BYTES = 25 * 1024 * 1024 // Groq per-file limit
+const CHUNK_DURATION_S = 29 * 60 + 59 // 1799s — split au-delà pour rester sous Groq
+const MAX_TOTAL_DURATION_S = 4 * 60 * 60 // 4h cap absolu (sanity)
 
 function log(...args: unknown[]) {
   console.log(`[${new Date().toISOString()}]`, ...args)
@@ -77,8 +78,31 @@ async function downloadAudio(url: string, outPath: string): Promise<void> {
     '--no-playlist', '--no-warnings',
     '-o', outPath,
     url,
-  ], { timeoutMs: 5 * 60_000 })
+  ], { timeoutMs: 15 * 60_000 })
   if (r.code !== 0) throw new Error(`yt-dlp download: ${r.stderr.slice(0, 300)}`)
+}
+
+// Split a m4a file into chunks of ≤ chunkS seconds. Returns absolute paths in order.
+async function splitAudio(inputPath: string, chunkS: number): Promise<string[]> {
+  const dir = dirname(inputPath)
+  const base = basename(inputPath).replace(/\.m4a$/, '')
+  const pattern = join(dir, `${base}-chunk-%03d.m4a`)
+  const r = await execCmd('ffmpeg', [
+    '-hide_banner', '-loglevel', 'error',
+    '-i', inputPath,
+    '-f', 'segment',
+    '-segment_time', String(chunkS),
+    '-c', 'copy',
+    '-reset_timestamps', '1',
+    '-y',
+    pattern,
+  ], { timeoutMs: 10 * 60_000 })
+  if (r.code !== 0) throw new Error(`ffmpeg split: ${r.stderr.slice(0, 300)}`)
+  const files = await readdir(dir)
+  return files
+    .filter((f) => f.startsWith(`${base}-chunk-`) && f.endsWith('.m4a'))
+    .sort()
+    .map((f) => join(dir, f))
 }
 
 async function transcribeGroq(audioPath: string): Promise<{ text: string; language: string | null; cost_eur: number }> {
@@ -159,37 +183,77 @@ ${userPrompt ? `\n\nQuestion de l'utilisateur (champ "custom") : ${userPrompt}` 
   return { analysis, cost_eur: cost }
 }
 
+async function bumpStatus(id: string, status: string, extra: Record<string, unknown> = {}) {
+  await sb.from('video_analyses').update({
+    status,
+    started_at: new Date().toISOString(), // bump heartbeat at each phase transition
+    ...extra,
+  }).eq('id', id)
+}
+
 async function processJob(job: Job): Promise<void> {
   const tmpAudio = join(tmpdir(), `vid-${job.id}-${randomUUID()}.m4a`)
+  const allTempFiles: string[] = [tmpAudio]
   let totalCost = 0
   try {
     log(`📹 ${job.id} ${job.platform} ${job.url}`)
 
-    await sb.from('video_analyses').update({ status: 'downloading', started_at: new Date().toISOString() }).eq('id', job.id)
+    await bumpStatus(job.id, 'downloading')
     const meta = await fetchMetadata(job.url)
-    if (meta.duration && meta.duration > MAX_DURATION_S) {
-      throw new Error(`vidéo trop longue (${meta.duration}s > ${MAX_DURATION_S}s cap)`)
+    if (meta.duration && meta.duration > MAX_TOTAL_DURATION_S) {
+      throw new Error(`vidéo > ${MAX_TOTAL_DURATION_S / 3600}h non supportée (durée=${meta.duration}s)`)
     }
     await sb.from('video_analyses').update({
       title: meta.title, uploader: meta.uploader, duration_s: meta.duration,
     }).eq('id', job.id)
     await downloadAudio(job.url, tmpAudio)
     const fstat = await stat(tmpAudio)
-    log(`  audio ${(fstat.size / 1024 / 1024).toFixed(1)}MB`)
+    log(`  audio ${(fstat.size / 1024 / 1024).toFixed(1)}MB · duration=${meta.duration}s`)
 
-    await sb.from('video_analyses').update({ status: 'transcribing' }).eq('id', job.id)
-    const t = await transcribeGroq(tmpAudio)
-    totalCost += t.cost_eur
-    log(`  transcript ${t.text.length} chars, lang=${t.language}, €${t.cost_eur.toFixed(5)}`)
+    // Split into chunks if duration > 29:59
+    const needsSplit = meta.duration && meta.duration > CHUNK_DURATION_S
+    let chunks: string[] = [tmpAudio]
+    if (needsSplit) {
+      log(`  splitting into chunks of ${CHUNK_DURATION_S}s…`)
+      chunks = await splitAudio(tmpAudio, CHUNK_DURATION_S)
+      allTempFiles.push(...chunks)
+      log(`  → ${chunks.length} chunks generated`)
+    }
 
-    if (!t.text.trim()) throw new Error('transcription vide')
+    // Transcribe each chunk
+    await bumpStatus(job.id, 'transcribing')
+    const transcriptParts: string[] = []
+    let detectedLang: string | null = null
+    for (let i = 0; i < chunks.length; i++) {
+      await bumpStatus(job.id, 'transcribing', {
+        error: chunks.length > 1 ? `transcribing chunk ${i + 1}/${chunks.length}` : null,
+      })
+      const cstat = await stat(chunks[i])
+      if (cstat.size > MAX_AUDIO_BYTES) {
+        throw new Error(`chunk ${i + 1} trop gros: ${(cstat.size / 1024 / 1024).toFixed(1)}MB > 25MB Groq`)
+      }
+      const t = await transcribeGroq(chunks[i])
+      totalCost += t.cost_eur
+      if (!detectedLang) detectedLang = t.language
+      const piece = chunks.length > 1
+        ? `--- partie ${i + 1}/${chunks.length} ---\n\n${t.text}`
+        : t.text
+      transcriptParts.push(piece)
+      log(`  chunk ${i + 1}/${chunks.length}: ${t.text.length} chars · €${t.cost_eur.toFixed(5)}`)
+    }
+    const fullTranscript = transcriptParts.join('\n\n')
+    log(`  transcript total ${fullTranscript.length} chars · lang=${detectedLang}`)
 
-    await sb.from('video_analyses').update({
-      status: 'analyzing', transcript: t.text, language: t.language,
-    }).eq('id', job.id)
-    const a = await analyzeClaude(t.text, job.user_prompt, job.platform)
+    if (!fullTranscript.trim()) throw new Error('transcription vide')
+
+    await bumpStatus(job.id, 'analyzing', {
+      transcript: fullTranscript,
+      language: detectedLang,
+      error: null, // clear chunk progress note
+    })
+    const a = await analyzeClaude(fullTranscript, job.user_prompt, job.platform)
     totalCost += a.cost_eur
-    log(`  analysis ok, €${a.cost_eur.toFixed(5)}`)
+    log(`  analysis ok · €${a.cost_eur.toFixed(5)}`)
 
     await sb.from('video_analyses').update({
       status: 'done',
@@ -197,7 +261,7 @@ async function processJob(job: Job): Promise<void> {
       cost_eur: totalCost,
       finished_at: new Date().toISOString(),
     }).eq('id', job.id)
-    log(`✅ ${job.id} done — total €${totalCost.toFixed(5)}`)
+    log(`✅ ${job.id} done — chunks=${chunks.length} · total €${totalCost.toFixed(5)}`)
   } catch (e) {
     const msg = (e as Error).message.slice(0, 500)
     log(`❌ ${job.id} failed: ${msg}`)
@@ -206,13 +270,14 @@ async function processJob(job: Job): Promise<void> {
       finished_at: new Date().toISOString(),
     }).eq('id', job.id)
   } finally {
-    await unlink(tmpAudio).catch(() => undefined)
+    await Promise.all(allTempFiles.map((f) => unlink(f).catch(() => undefined)))
   }
 }
 
 async function claimNextJob(): Promise<Job | null> {
-  // Re-claim stuck rows (>10 min in non-terminal status with no progress)
-  const stuckBefore = new Date(Date.now() - 10 * 60_000).toISOString()
+  // Re-claim stuck rows (>30 min without heartbeat update). bumpStatus refreshes started_at
+  // at each phase transition, so a healthy long-running job stays under this threshold.
+  const stuckBefore = new Date(Date.now() - 30 * 60_000).toISOString()
   await sb.from('video_analyses').update({ status: 'pending' })
     .in('status', ['downloading', 'transcribing', 'analyzing'])
     .lt('started_at', stuckBefore)

@@ -40,25 +40,39 @@ export async function POST(req: Request) {
 
   const body = (await req.json().catch(() => ({}))) as {
     url?: string
+    urls?: string[]
     user_prompt?: string
   }
-  const url = (body.url ?? '').trim()
   const userPrompt = (body.user_prompt ?? '').trim() || null
 
-  if (!url) return NextResponse.json({ error: 'url required' }, { status: 400 })
-  try {
-    new URL(url)
-  } catch {
-    return NextResponse.json({ error: 'invalid url' }, { status: 400 })
+  // Accept either {url} (single) or {urls: [...]} (batch). UI uses batch.
+  const rawUrls = body.urls && body.urls.length ? body.urls : (body.url ? [body.url] : [])
+  const urls = rawUrls.map((u) => u.trim()).filter(Boolean)
+  if (!urls.length) return NextResponse.json({ error: 'no url provided' }, { status: 400 })
+
+  const rows: { url: string; platform: string; status: string; user_prompt: string | null }[] = []
+  const invalid: string[] = []
+  for (const u of urls) {
+    try {
+      new URL(u)
+      rows.push({ url: u, platform: detectPlatform(u), status: 'pending', user_prompt: userPrompt })
+    } catch {
+      invalid.push(u)
+    }
   }
+  if (!rows.length) return NextResponse.json({ error: `all urls invalid: ${invalid.join(', ')}` }, { status: 400 })
 
   const { data, error } = await sb()
     .from('video_analyses')
-    .insert({ url, platform: detectPlatform(url), status: 'pending', user_prompt: userPrompt })
+    .insert(rows)
     .select('id')
-    .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  return NextResponse.json({ ok: true, id: data!.id })
+  return NextResponse.json({
+    ok: true,
+    ids: (data ?? []).map((r) => r.id),
+    enqueued: data?.length ?? 0,
+    invalid,
+  })
 }

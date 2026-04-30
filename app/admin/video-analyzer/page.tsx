@@ -66,11 +66,12 @@ function fmtAge(iso: string): string {
 }
 
 export default function VideoAnalyzerPage() {
-  const [url, setUrl] = useState('')
+  const [urls, setUrls] = useState<string[]>([''])
   const [userPrompt, setUserPrompt] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [jobs, setJobs] = useState<Job[]>([])
   const [selected, setSelected] = useState<JobDetail | null>(null)
+  const [batchMessage, setBatchMessage] = useState<string | null>(null)
 
   const refreshList = useCallback(async () => {
     const r = await fetch('/api/admin/video-analyzer', { cache: 'no-store' })
@@ -98,26 +99,40 @@ export default function VideoAnalyzerPage() {
     return () => clearInterval(iv)
   }, [selected, refreshSelected])
 
+  const setUrlAt = (i: number, v: string) => setUrls((u) => u.map((x, idx) => idx === i ? v : x))
+  const addUrl = () => setUrls((u) => [...u, ''])
+  const removeUrl = (i: number) => setUrls((u) => u.length === 1 ? [''] : u.filter((_, idx) => idx !== i))
+
   const submit = async () => {
-    if (!url.trim()) return
+    const cleaned = urls.map((u) => u.trim()).filter(Boolean)
+    if (!cleaned.length) return
     setSubmitting(true)
+    setBatchMessage(null)
     try {
       const r = await fetch('/api/admin/video-analyzer', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ url: url.trim(), user_prompt: userPrompt.trim() || undefined }),
+        body: JSON.stringify({ urls: cleaned, user_prompt: userPrompt.trim() || undefined }),
       })
       const j = await r.json()
       if (j.ok) {
-        setUrl('')
+        const enqueued = j.enqueued ?? 0
+        const invalid = (j.invalid ?? []) as string[]
+        setBatchMessage(
+          `✅ ${enqueued} URL${enqueued > 1 ? 's' : ''} enfilée${enqueued > 1 ? 's' : ''}` +
+          (invalid.length ? ` · ${invalid.length} invalide${invalid.length > 1 ? 's' : ''} ignorée${invalid.length > 1 ? 's' : ''}` : ''),
+        )
+        setUrls([''])
         setUserPrompt('')
         await refreshList()
-        if (j.id) await refreshSelected(j.id)
+        const firstId = j.ids?.[0]
+        if (firstId) await refreshSelected(firstId)
       } else {
-        alert(j.error ?? 'submission failed')
+        setBatchMessage(`❌ ${j.error ?? 'submission failed'}`)
       }
     } finally {
       setSubmitting(false)
+      setTimeout(() => setBatchMessage(null), 6000)
     }
   }
 
@@ -140,17 +155,49 @@ export default function VideoAnalyzerPage() {
         <section>
           <h2 style={{ fontSize: 16, marginBottom: 12 }}>Nouvelle analyse</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://www.tiktok.com/@user/video/123 — ou youtube.com/watch?v=..."
-              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) submit() }}
+            {urls.map((u, i) => (
+              <div key={i} style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="url"
+                  value={u}
+                  onChange={(e) => setUrlAt(i, e.target.value)}
+                  placeholder={i === 0 ? 'https://www.tiktok.com/@user/video/123 — ou youtube.com/watch?v=...' : 'URL suivante'}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      if (i === urls.length - 1 && u.trim()) addUrl()
+                      else submit()
+                    }
+                  }}
+                  style={{
+                    flex: 1, padding: 12, borderRadius: 6, border: '1px solid #374151',
+                    background: '#1F2937', color: '#F9FAFB', fontSize: 14,
+                  }}
+                />
+                {urls.length > 1 && (
+                  <button
+                    onClick={() => removeUrl(i)}
+                    title="Retirer cette URL"
+                    style={{
+                      padding: '0 12px', borderRadius: 6, background: '#374151', color: '#9CA3AF',
+                      border: 'none', cursor: 'pointer', fontSize: 16,
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              onClick={addUrl}
               style={{
-                padding: 12, borderRadius: 6, border: '1px solid #374151',
-                background: '#1F2937', color: '#F9FAFB', fontSize: 14,
+                alignSelf: 'flex-start', padding: '6px 12px', borderRadius: 6,
+                background: 'transparent', color: '#60A5FA', border: '1px dashed #3B82F6',
+                cursor: 'pointer', fontSize: 13, fontWeight: 500,
               }}
-            />
+            >
+              + Ajouter une URL
+            </button>
             <textarea
               value={userPrompt}
               onChange={(e) => setUserPrompt(e.target.value)}
@@ -164,7 +211,7 @@ export default function VideoAnalyzerPage() {
             />
             <button
               onClick={submit}
-              disabled={submitting || !url.trim()}
+              disabled={submitting || urls.every((u) => !u.trim())}
               style={{
                 padding: '10px 16px', borderRadius: 6,
                 background: submitting ? '#4B5563' : '#3B82F6',
@@ -172,8 +219,19 @@ export default function VideoAnalyzerPage() {
                 fontSize: 14, fontWeight: 600,
               }}
             >
-              {submitting ? 'Soumission…' : 'Analyser'}
+              {submitting
+                ? 'Soumission…'
+                : `Analyser ${urls.filter((u) => u.trim()).length || ''}`.trim() + (urls.filter((u) => u.trim()).length > 1 ? ' URLs en cascade' : '')}
             </button>
+            {batchMessage && (
+              <div style={{
+                padding: 8, borderRadius: 4, fontSize: 13,
+                background: batchMessage.startsWith('✅') ? '#064E3B' : '#7F1D1D',
+                color: batchMessage.startsWith('✅') ? '#A7F3D0' : '#FCA5A5',
+              }}>
+                {batchMessage}
+              </div>
+            )}
           </div>
 
           <h2 style={{ fontSize: 16, marginTop: 32, marginBottom: 12 }}>Historique (50 derniers)</h2>
