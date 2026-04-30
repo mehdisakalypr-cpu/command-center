@@ -104,28 +104,34 @@ export async function runDiscovery(
     // 5. Drop structurally incomplete ideas (may appear when repairTruncatedJSON
     // recovers a trailing object that was partially written). hardGates + baseScore
     // assume full nested shapes — access via `idea.unit_economics.v10k.gm_pct` etc.
+    const structuralDrops: Array<{ slug: string; missing: string[] }> = [];
     const structurallyComplete = ideas.filter((i) => {
-      const ok =
-        !!i && typeof i === 'object' &&
-        !!i.slug && !!i.name &&
-        !!i.autonomy && typeof i.autonomy.acquisition === 'number' &&
-        typeof i.autonomy.content_ops === 'number' &&
-        typeof i.autonomy.fulfillment === 'number' &&
-        typeof i.autonomy.support === 'number' &&
-        typeof i.autonomy.billing === 'number' &&
-        typeof i.autonomy.compliance === 'number' &&
-        typeof i.setup_hours_user === 'number' &&
-        typeof i.ongoing_user_hours_per_month === 'number' &&
-        Array.isArray(i.distribution_channels) &&
-        typeof i.self_funding_score === 'number' &&
-        !!i.llc_gate &&
-        !!i.unit_economics &&
-        !!i.unit_economics.v10k && typeof i.unit_economics.v10k.gm_pct === 'number' &&
-        !!i.mrr_median &&
-        Array.isArray(i.leverage_configs) &&
-        Array.isArray(i.assets_leveraged);
-      if (!ok) console.warn(`[hisoka] dropped incomplete idea slug="${i?.slug ?? '?'}"`);
-      return ok;
+      const missing: string[] = [];
+      if (!i || typeof i !== 'object') missing.push('not-object');
+      if (!i?.slug) missing.push('slug');
+      if (!i?.name) missing.push('name');
+      if (!i?.autonomy) missing.push('autonomy');
+      else {
+        for (const dim of ['acquisition','content_ops','fulfillment','support','billing','compliance']) {
+          if (typeof i.autonomy[dim] !== 'number') missing.push(`autonomy.${dim}`);
+        }
+      }
+      if (typeof i?.setup_hours_user !== 'number') missing.push('setup_hours_user');
+      if (typeof i?.ongoing_user_hours_per_month !== 'number') missing.push('ongoing_user_hours_per_month');
+      if (!Array.isArray(i?.distribution_channels)) missing.push('distribution_channels');
+      if (typeof i?.self_funding_score !== 'number') missing.push('self_funding_score');
+      if (!i?.llc_gate) missing.push('llc_gate');
+      if (!i?.unit_economics) missing.push('unit_economics');
+      else if (!i.unit_economics.v10k || typeof i.unit_economics.v10k.gm_pct !== 'number') missing.push('unit_economics.v10k.gm_pct');
+      if (!i?.mrr_median) missing.push('mrr_median');
+      if (!Array.isArray(i?.leverage_configs)) missing.push('leverage_configs');
+      if (!Array.isArray(i?.assets_leveraged)) missing.push('assets_leveraged');
+      if (missing.length > 0) {
+        structuralDrops.push({ slug: String(i?.slug ?? '?'), missing });
+        console.warn(`[hisoka] dropped incomplete slug="${i?.slug ?? '?'}" missing=${missing.join(',')}`);
+        return false;
+      }
+      return true;
     });
 
     // 6. Normalize (auto-fix self_funding_score when GM data justifies it) → filter → score
@@ -134,9 +140,17 @@ export async function runDiscovery(
     // supervision than horizontal SaaS. baseScore still penalizes lower
     // autonomy via aScore² so they rank naturally below dev tools.
     const isVertical = !!opts.vertical;
+    const gateDrops: Array<{ slug: string; reasons: string[] }> = [];
     const scored = structurallyComplete
       .map(i => normalizeIdea(i))
-      .filter(i => hardGates(i, { vertical: isVertical }).passed)
+      .filter(i => {
+        const result = hardGates(i, { vertical: isVertical });
+        if (!result.passed) {
+          gateDrops.push({ slug: i.slug, reasons: result.reasons });
+          console.warn(`[hisoka] gate-fail slug="${i.slug}" reasons=${result.reasons.join(';')}`);
+        }
+        return result.passed;
+      })
       .map(i => ({ idea: i, score: baseScore(i) }))
       .sort((a, b) => b.score - a.score);
 
@@ -218,6 +232,11 @@ export async function runDiscovery(
       ideas_upserted: upserts,
       cost_eur: costEur,
       top20_slugs: keptSlugs,
+      // Debug fields when nothing upserted — help diagnose gate failures
+      ...(upserts === 0 && (structuralDrops.length > 0 || gateDrops.length > 0) ? {
+        debug_structural_drops: structuralDrops.slice(0, 5),
+        debug_gate_drops: gateDrops.slice(0, 5),
+      } : {}),
     };
   } catch (e) {
     await supabaseAdmin
