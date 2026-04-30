@@ -2,9 +2,20 @@
 
 import type { ScoredIdea, GateResult } from './types';
 
+// Default gates — calibrated for horizontal dev/SaaS where "AI handles everything"
+// is realistic.
 const MIN_AUTONOMY = 0.9;
 const MAX_SETUP_HOURS = 40;
 const MAX_ONGOING_HOURS_PER_MONTH = 1;
+
+// Vertical-mode gates — relaxed because true verticals (healthcare/legal/agri)
+// require realistic human supervision and longer setup. Ideas still ranked by
+// baseScore which penalizes lower autonomy via aScore², so they naturally
+// sort below horizontal SaaS but enter the DB instead of being silently
+// rejected. Without this, vertical-mode runs return 0 upserts.
+const VERTICAL_MIN_AUTONOMY = 0.75;
+const VERTICAL_MAX_SETUP_HOURS = 80;
+const VERTICAL_MAX_ONGOING_HOURS = 4;
 
 const HOURLY_RATE_PROXY_EUR = 100;     // implicit user-time cost
 const WORKER_COST_OVER_3Y_EUR = 7200;  // ~€200/mo × 36
@@ -35,14 +46,17 @@ export function normalizeIdea(idea: ScoredIdea): ScoredIdea {
   return idea;
 }
 
-export function hardGates(idea: ScoredIdea): GateResult {
+export function hardGates(idea: ScoredIdea, opts?: { vertical?: boolean }): GateResult {
   const reasons: string[] = [];
   const aScore = autonomyScore(idea.autonomy);
-  if (aScore < MIN_AUTONOMY) reasons.push(`autonomy ${aScore.toFixed(2)} < ${MIN_AUTONOMY}`);
-  if (idea.setup_hours_user > MAX_SETUP_HOURS)
-    reasons.push(`setup ${idea.setup_hours_user}h > ${MAX_SETUP_HOURS}h`);
-  if (idea.ongoing_user_hours_per_month > MAX_ONGOING_HOURS_PER_MONTH)
-    reasons.push(`ongoing ${idea.ongoing_user_hours_per_month}h/mo > ${MAX_ONGOING_HOURS_PER_MONTH}h/mo`);
+  const minAuto = opts?.vertical ? VERTICAL_MIN_AUTONOMY : MIN_AUTONOMY;
+  const maxSetup = opts?.vertical ? VERTICAL_MAX_SETUP_HOURS : MAX_SETUP_HOURS;
+  const maxOngoing = opts?.vertical ? VERTICAL_MAX_ONGOING_HOURS : MAX_ONGOING_HOURS_PER_MONTH;
+  if (aScore < minAuto) reasons.push(`autonomy ${aScore.toFixed(2)} < ${minAuto}`);
+  if (idea.setup_hours_user > maxSetup)
+    reasons.push(`setup ${idea.setup_hours_user}h > ${maxSetup}h`);
+  if (idea.ongoing_user_hours_per_month > maxOngoing)
+    reasons.push(`ongoing ${idea.ongoing_user_hours_per_month}h/mo > ${maxOngoing}h/mo`);
   if (!idea.distribution_channels?.length) reasons.push('no distribution channel');
   if (idea.self_funding_score < 1.0) reasons.push(`self_funding_score ${idea.self_funding_score} < 1.0`);
   if (idea.llc_gate === 'blocked') reasons.push('llc_gate=blocked');

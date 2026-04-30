@@ -129,9 +129,14 @@ export async function runDiscovery(
     });
 
     // 6. Normalize (auto-fix self_funding_score when GM data justifies it) → filter → score
+    // Vertical-mode runs use relaxed autonomy/setup/ongoing thresholds because
+    // true verticals (healthcare/legal/agri) realistically require more human
+    // supervision than horizontal SaaS. baseScore still penalizes lower
+    // autonomy via aScore² so they rank naturally below dev tools.
+    const isVertical = !!opts.vertical;
     const scored = structurallyComplete
       .map(i => normalizeIdea(i))
-      .filter(i => hardGates(i).passed)
+      .filter(i => hardGates(i, { vertical: isVertical }).passed)
       .map(i => ({ idea: i, score: baseScore(i) }))
       .sort((a, b) => b.score - a.score);
 
