@@ -157,6 +157,7 @@ export async function runDiscovery(
 
     // 6. Upsert
     let upserts = 0;
+    const upsertErrors: Array<{ slug: string; error: string }> = [];
     for (let i = 0; i < scored.length; i++) {
       const { idea, score } = scored[i];
       const rank = i < TOP_N ? i + 1 : null;
@@ -202,7 +203,12 @@ export async function runDiscovery(
       const { error } = await supabaseAdmin
         .from('business_ideas')
         .upsert(payload, { onConflict: 'slug' });
-      if (!error) upserts++;
+      if (error) {
+        upsertErrors.push({ slug: idea.slug, error: error.message });
+        console.warn(`[hisoka] upsert-fail slug="${idea.slug}" error=${error.message}`);
+      } else {
+        upserts++;
+      }
     }
 
     // Archive evictions: clear rank on ideas that were ranked but are NOT in the new top 20
@@ -234,9 +240,10 @@ export async function runDiscovery(
       cost_eur: costEur,
       top20_slugs: keptSlugs,
       // Debug fields when nothing upserted — help diagnose gate failures
-      ...(upserts === 0 && (structuralDrops.length > 0 || gateDrops.length > 0) ? {
+      ...(upserts === 0 ? {
         debug_structural_drops: structuralDrops.slice(0, 5),
         debug_gate_drops: gateDrops.slice(0, 5),
+        debug_upsert_errors: upsertErrors.slice(0, 5),
       } : {}),
     };
   } catch (e) {
