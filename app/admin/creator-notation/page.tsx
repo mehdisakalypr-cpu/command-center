@@ -3,7 +3,7 @@ export const runtime = 'nodejs'
 export const metadata = { title: 'Creator Notation · Command Center' }
 
 const TODAY_SCORE = {
-  date: '2026-05-01',
+  date: '2026-05-01 (day-end snapshot 22h47 UTC)',
   legacy: 98,
   legacy_max: 95,
   ui_intensity: 50,
@@ -15,68 +15,78 @@ const TODAY_SCORE = {
   techniques: 12,
 }
 
+const STATS_TODAY = {
+  period: '1er mai 2026 (24h, jour-fin 22h47 UTC)',
+  commits: 191,
+  lines_added: 146904,
+  lines_deleted: 113113,
+  code_net: 33791,
+  repos_touched: 54,
+  vs_typical_solo: '×20-40 vs typical solo 5-10 commits/jour',
+}
+
 const STATS_30_DAYS = {
   period: '1er avril → 1er mai 2026 (30 jours)',
-  commits: 2415,
-  lines_added: 1625460,
-  lines_deleted: 373430,
-  code_net: 1252030,
-  total_touched: 1998890,
-  memory_entries: 226,
-  memory_lines: 17390,
-  grand_total: 2016280,
-  velocity_per_day: 54182,
-  commits_per_day: 80,
+  commits: 2460,
+  lines_added: 1707303,
+  lines_deleted: 373510,
+  code_net: 1333793,
+  total_touched: 2080813,
+  memory_entries: 230,
+  memory_lines: 17600,
+  grand_total: 2098413,
+  velocity_per_day: 56910,
+  commits_per_day: 82,
 }
 
 const STATS_BURST_4D = {
-  period: '27 avril 22h → 1er mai 02h UTC (~4 jours, depuis dernière notation)',
-  commits: 806,
-  lines_added: 772373,
-  lines_deleted: 104185,
-  code_net: 668188,
+  period: '27 avril 22h → 1er mai 22h47 UTC (~4 jours, depuis dernière notation)',
+  commits: 927,
+  lines_added: 946012,
+  lines_deleted: 172940,
+  code_net: 773072,
   repos_touched: 56,
-  velocity_per_day: 193094,
-  commits_per_day: 194,
-  vs_previous_record: '×4.6 vs ancien record 42 commits/jour',
+  velocity_per_day: 232000,
+  commits_per_day: 232,
+  vs_previous_record: '×5.5 vs ancien record 42 commits/jour',
 }
 
 const COMPARE = [
   { label: 'Dev senior solo classique', loc_per_month: '3-5k', loc_per_day: '~150' },
   { label: 'Équipe 5 devs', loc_per_month: '15-25k', loc_per_day: '~700' },
-  { label: 'Mehdi solo + Claude (Opus/Sonnet) — 30j', loc_per_month: '~1.6M', loc_per_day: '~54k', highlight: true },
-  { label: 'Mehdi burst depuis 27/04 (4j)', loc_per_month: '~5.8M proj.', loc_per_day: '~193k', highlight: true },
+  { label: 'Mehdi solo + Claude (Opus/Sonnet) — 30j', loc_per_month: '~1.71M', loc_per_day: '~57k', highlight: true },
+  { label: 'Mehdi burst depuis 27/04 (4j)', loc_per_month: '~7M proj.', loc_per_day: '~232k', highlight: true },
 ]
 
 const PROJECTS_30D = [
   { name: 'FTG (feel-the-gap)', commits: 513, plus: '438k', minus: '158k', tam: '€1.5B' },
-  { name: 'Command Center', commits: 345, plus: '158k', minus: '36k', tam: 'internal' },
+  { name: 'Command Center', commits: 348, plus: '159k', minus: '36k', tam: 'internal' },
   { name: 'OFA (site-factory)', commits: 221, plus: '74k', minus: '5k', tam: '€420M-470M' },
-  { name: 'AICI', commits: 183, plus: '29k', minus: '11k', tam: '€99-499/mo SaaS' },
+  { name: 'AICI', commits: 208, plus: '38k', minus: '13k', tam: '€99-499/mo SaaS' },
   { name: 'ANCF', commits: 120, plus: '21k', minus: '7k', tam: 'AI portfolio' },
   { name: 'AIPLB', commits: 117, plus: '20k', minus: '8k', tam: 'AI portfolio' },
-  { name: 'CFAPI', commits: 67, plus: '17k', minus: '6k', tam: 'AI portfolio' },
+  { name: 'CFAPI', commits: 67, plus: '19k', minus: '4k', tam: 'AI portfolio' },
   { name: 'PFAI', commits: 64, plus: '18k', minus: '3k', tam: 'AI portfolio' },
   { name: 'ARAI', commits: 64, plus: '18k', minus: '4k', tam: 'AI portfolio' },
   { name: 'IVAI', commits: 64, plus: '17k', minus: '4k', tam: 'AI portfolio' },
-  { name: 'Optimus (Python)', commits: 46, plus: '18k', minus: '0.5k', tam: 'alpha' },
+  { name: 'Gapup-Hub', commits: 40, plus: '12k', minus: '2k', tam: 'hub mosaïque' },
   { name: 'Estate', commits: 36, plus: '13k', minus: '2k', tam: '€960M' },
-  { name: 'Gapup-Hub', commits: 32, plus: '12k', minus: '2k', tam: 'mosaic' },
-  { name: 'AINF', commits: 20, plus: '15k', minus: '1k', tam: 'AI Wave-2' },
-  { name: 'Consulting', commits: 19, plus: '18k', minus: '1k', tam: 'side' },
+  { name: 'AINF', commits: 21, plus: '18k', minus: '1k', tam: 'AI Wave-2' },
+  { name: 'LPFG', commits: 20, plus: '21k', minus: '0.7k', tam: 'AI Wave-3' },
+  { name: 'LTVP / LGCD', commits: 19, plus: '21k', minus: '0.6k', tam: 'AI Wave-3' },
 ]
 
 const PROJECTS_BURST_4D = [
+  { name: 'AICI', commits: 74, plus: '11k', minus: '2k' },
   { name: 'FTG (feel-the-gap)', commits: 55, plus: '65k', minus: '31k' },
-  { name: 'AICI', commits: 49, plus: '9k', minus: '1k' },
-  { name: 'Gapup-Hub (NEW)', commits: 32, plus: '12k', minus: '2k' },
+  { name: 'Gapup-Hub', commits: 40, plus: '12k', minus: '2k' },
   { name: 'CFAPI', commits: 26, plus: '6k', minus: '3k' },
   { name: 'AIPLB', commits: 24, plus: '5k', minus: '2k' },
   { name: 'ARAI', commits: 23, plus: '7k', minus: '2k' },
   { name: 'ANCF', commits: 23, plus: '6k', minus: '1k' },
   { name: 'PFAI', commits: 22, plus: '6k', minus: '1k' },
   { name: 'IVAI', commits: 22, plus: '5k', minus: '2k' },
-  { name: 'AINF', commits: 20, plus: '15k', minus: '1k' },
+  { name: 'AINF', commits: 21, plus: '18k', minus: '1k' },
 ]
 
 const TECHNIQUES_UNLOCKED_BURST = [
@@ -104,7 +114,7 @@ const TECHNIQUES_UNLOCKED_BURST = [
 ]
 
 const HISTORY = [
-  { date: '2026-05-01', total: '148/145', legacy: '98/95', ui: '50/50', note: '⭐⭐⭐ NEW RECORD · 806 commits/4j (×4.6 record) sur 56 repos · 🟦 Bukū Jutsu + 🧿 3rd Eye + 🔬 Pod Swarm (3 unlocks)', techniques: 12, color: '#FFD700' },
+  { date: '2026-05-01 (EOD)', total: '148/145', legacy: '98/95', ui: '50/50', note: '⭐⭐⭐ NEW RECORD · 191 commits/jour · burst 4j 927 commits ×5.5 record sur 56 repos · 30j 2460 commits +1.71M LoC · 🟦 Bukū Jutsu + 🧿 3rd Eye + 🔬 Pod Swarm', techniques: 12, color: '#FFD700' },
   { date: '2026-04-27', total: '147/145', legacy: '98/95', ui: '49/50', note: 'Sprint 32 commits/4h portfolio · SSL 4 sites unblocked · 🕸️ Mosaic Architect unlock', techniques: 9, color: '#10b981' },
   { date: '2026-04-25', total: '145/145', legacy: '98/95', ui: '47/50', note: '⭐ session record · 🌐 Reconnaissance Network unlock', techniques: 8, color: '#FFD700' },
   { date: '2026-04-24', total: '130/145', legacy: '98/95', ui: '32/50', note: '+4 techniques rétro (Ki Shield + Zenkai + Meteor + Mystic)', techniques: 7 },
@@ -171,6 +181,31 @@ export default function CreatorNotationPage() {
           </div>
           <div style={{ marginTop: 20, padding: 14, background: 'rgba(0,0,0,.3)', borderRadius: 8, fontSize: 13, color: '#cfd2dc', fontFamily: 'monospace' }}>
             {TODAY_SCORE.posture}
+          </div>
+        </section>
+
+        {/* Today (EOD snapshot 24h) */}
+        <section style={{ background: 'rgba(16,185,129,.08)', border: '1px solid rgba(16,185,129,.4)', borderRadius: 16, padding: 28, marginBottom: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <div style={{ fontSize: 32 }}>🌅</div>
+            <div>
+              <div style={{ fontSize: 11, letterSpacing: '.2em', color: '#10b981', textTransform: 'uppercase', fontWeight: 700 }}>Today (24h, day-end snapshot) · {STATS_TODAY.vs_typical_solo}</div>
+              <div style={{ fontSize: 16, color: '#E8EEF7', marginTop: 2 }}>{STATS_TODAY.period}</div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginTop: 20 }}>
+            {[
+              ['Commits', STATS_TODAY.commits.toLocaleString('fr-FR'), '24h cross-portfolio'],
+              ['Lignes ajoutées', STATS_TODAY.lines_added.toLocaleString('fr-FR'), '~147k'],
+              ['Code net livré', STATS_TODAY.code_net.toLocaleString('fr-FR'), '~34k'],
+              ['Repos touchés', STATS_TODAY.repos_touched.toString(), '54 SaaS portfolio + CC'],
+            ].map(([label, value, sub]) => (
+              <div key={label as string} style={{ background: 'rgba(0,0,0,.3)', padding: '14px 16px', borderRadius: 10 }}>
+                <div style={{ fontSize: 10, color: '#8a8d99', letterSpacing: '.1em', textTransform: 'uppercase' }}>{label}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#10b981', marginTop: 4 }}>{value}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,.45)', marginTop: 2 }}>{sub}</div>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -357,7 +392,7 @@ export default function CreatorNotationPage() {
 
         {/* Footer */}
         <footer style={{ marginTop: 32, padding: 16, fontSize: 11, color: '#666', borderTop: '1px solid rgba(255,255,255,.08)' }}>
-          Source : <code>~/.claude/projects/-root/memory/project_creator_notation.md</code> · Updated 2026-05-01
+          Source : <code>~/.claude/projects/-root/memory/project_creator_notation.md</code> · Updated 2026-05-01 22h47 UTC (EOD snapshot)
         </footer>
       </div>
     </div>
