@@ -114,11 +114,16 @@ export default async function CreatorPage() {
   const targetScore = futureScores[0]
   const targetTier = targetScore ? tiers.find(t => targetScore.score >= t.score_min && targetScore.score <= t.score_max) : null
 
-  // SVG curve
+  // SVG curve — Y axis auto-scales to max(highest score, highest tier score_max) so points and tier overlays never overflow.
   const W = 900, H = 220, PAD = 36
+  const Y_MAX = Math.max(
+    100,
+    ...allScores.map(s => s.score),
+    ...tiers.map(t => t.score_max),
+  )
   const curvePoints = allScores.map((s, i) => {
     const x = PAD + (i / Math.max(1, allScores.length - 1)) * (W - 2 * PAD)
-    const y = H - PAD - ((s.score / 100) * (H - 2 * PAD))
+    const y = H - PAD - ((s.score / Y_MAX) * (H - 2 * PAD))
     return { x, y, score: s.score, at: s.captured_at, tier: s.tier_code, isFuture: new Date(s.captured_at).getTime() > now }
   })
   const pathD = curvePoints.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
@@ -211,7 +216,7 @@ export default async function CreatorPage() {
                 {currentTier.label}
               </h2>
               <div style={{ fontSize: 44, fontWeight: 900, color: currentTier.aura_color || GOLD, marginBottom: 4, lineHeight: 1 }}>
-                {latest.score}<span style={{ fontSize: 18, opacity: .5 }}> / 100</span>
+                {latest.score}<span style={{ fontSize: 18, opacity: .5 }}> / {currentTier.score_max}</span>
               </div>
               <div style={{ fontSize: 13, fontFamily: 'ui-monospace, Menlo, monospace', color: currentTier.aura_color || GOLD, marginBottom: 18, letterSpacing: '.1em' }}>
                 ⚡ Power Level {formatPL(currentTier.power_level)} ({currentTier.power_level?.toLocaleString()} unités)
@@ -269,8 +274,8 @@ export default async function CreatorPage() {
         </h2>
         <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }}>
           {tiers.map(t => {
-            const yTop = H - PAD - ((t.score_max / 100) * (H - 2 * PAD))
-            const yBot = H - PAD - ((t.score_min / 100) * (H - 2 * PAD))
+            const yTop = H - PAD - ((Math.min(t.score_max, Y_MAX) / Y_MAX) * (H - 2 * PAD))
+            const yBot = H - PAD - ((Math.min(t.score_min, Y_MAX) / Y_MAX) * (H - 2 * PAD))
             return (
               <g key={t.code}>
                 <rect x={PAD} y={yTop} width={W - 2 * PAD} height={yBot - yTop} fill={t.aura_color || '#fff'} fillOpacity=".05" />
@@ -342,7 +347,7 @@ export default async function CreatorPage() {
                   </div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 2 }}>{tier.label}</div>
                   <div style={{ fontSize: 28, fontWeight: 900, color: aura, marginBottom: 4, lineHeight: 1 }}>
-                    {s.score}<span style={{ fontSize: 14, opacity: .5 }}> / 100</span>
+                    {s.score}<span style={{ fontSize: 14, opacity: .5 }}> / {tier.score_max}</span>
                   </div>
                   <div style={{ fontSize: 11, color: aura, marginBottom: 12, fontFamily: 'ui-monospace, Menlo, monospace' }}>⚡ {formatPL(tier.power_level)} unités</div>
                   {s.session_summary && <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 8 }}>{s.session_summary}</div>}
@@ -368,7 +373,7 @@ export default async function CreatorPage() {
             </div>
             <h2 style={{ fontSize: 28, fontWeight: 900, margin: 0, marginBottom: 4 }}>{targetTier.label}</h2>
             <div style={{ fontSize: 36, fontWeight: 900, color: targetTier.aura_color || GOLD, marginBottom: 4 }}>
-              {targetScore.score}<span style={{ fontSize: 14, opacity: .5 }}> / 100</span>
+              {targetScore.score}<span style={{ fontSize: 14, opacity: .5 }}> / {targetTier.score_max}</span>
             </div>
             <div style={{ fontSize: 12, color: targetTier.aura_color || GOLD, marginBottom: 12, fontFamily: 'ui-monospace, Menlo, monospace' }}>
               ⚡ PL {formatPL(targetTier.power_level)} · ×{latest && currentTier?.power_level && targetTier.power_level ? (targetTier.power_level / currentTier.power_level).toFixed(0) : '?'} vs actuel

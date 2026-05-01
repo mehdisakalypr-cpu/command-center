@@ -15,40 +15,92 @@ const TODAY_SCORE = {
   techniques: 12,
 }
 
-const STATS_25_DAYS = {
-  period: '1er avril → 25 avril 2026 (25 jours)',
-  commits: 1050,
-  lines_added: 709782,
-  lines_deleted: 208690,
-  code_net: 501092,
-  total_touched: 918472,
-  memory_entries: 164,
-  memory_lines: 11073,
-  monitor_lines: 2667,
-  skills_lines: 3060,
-  grand_total: 535000,
-  velocity_per_day: 21400,
-  commits_per_day: 42,
+const STATS_30_DAYS = {
+  period: '1er avril → 1er mai 2026 (30 jours)',
+  commits: 2415,
+  lines_added: 1625460,
+  lines_deleted: 373430,
+  code_net: 1252030,
+  total_touched: 1998890,
+  memory_entries: 226,
+  memory_lines: 17390,
+  grand_total: 2016280,
+  velocity_per_day: 54182,
+  commits_per_day: 80,
+}
+
+const STATS_BURST_4D = {
+  period: '27 avril 22h → 1er mai 02h UTC (~4 jours, depuis dernière notation)',
+  commits: 806,
+  lines_added: 772373,
+  lines_deleted: 104185,
+  code_net: 668188,
+  repos_touched: 56,
+  velocity_per_day: 193094,
+  commits_per_day: 194,
+  vs_previous_record: '×4.6 vs ancien record 42 commits/jour',
 }
 
 const COMPARE = [
   { label: 'Dev senior solo classique', loc_per_month: '3-5k', loc_per_day: '~150' },
   { label: 'Équipe 5 devs', loc_per_month: '15-25k', loc_per_day: '~700' },
-  { label: 'Mehdi solo + Claude (Opus/Sonnet)', loc_per_month: '~210k', loc_per_day: '~21k', highlight: true },
+  { label: 'Mehdi solo + Claude (Opus/Sonnet) — 30j', loc_per_month: '~1.6M', loc_per_day: '~54k', highlight: true },
+  { label: 'Mehdi burst depuis 27/04 (4j)', loc_per_month: '~5.8M proj.', loc_per_day: '~193k', highlight: true },
 ]
 
-const PROJECTS_25D = [
-  { name: 'FTG (feel-the-gap)', commits: 423, plus: '329k', minus: '97k', tam: '€1.5B' },
-  { name: 'Command Center', commits: 298, plus: '150k', minus: '35k', tam: 'internal' },
-  { name: 'OFA (site-factory)', commits: 211, plus: '72k', minus: '5k', tam: '€420M-470M' },
-  { name: 'Optimus-rs (Rust)', commits: 13, plus: '69k', minus: '66k', tam: 'alpha' },
+const PROJECTS_30D = [
+  { name: 'FTG (feel-the-gap)', commits: 513, plus: '438k', minus: '158k', tam: '€1.5B' },
+  { name: 'Command Center', commits: 345, plus: '158k', minus: '36k', tam: 'internal' },
+  { name: 'OFA (site-factory)', commits: 221, plus: '74k', minus: '5k', tam: '€420M-470M' },
+  { name: 'AICI', commits: 183, plus: '29k', minus: '11k', tam: '€99-499/mo SaaS' },
+  { name: 'ANCF', commits: 120, plus: '21k', minus: '7k', tam: 'AI portfolio' },
+  { name: 'AIPLB', commits: 117, plus: '20k', minus: '8k', tam: 'AI portfolio' },
+  { name: 'CFAPI', commits: 67, plus: '17k', minus: '6k', tam: 'AI portfolio' },
+  { name: 'PFAI', commits: 64, plus: '18k', minus: '3k', tam: 'AI portfolio' },
+  { name: 'ARAI', commits: 64, plus: '18k', minus: '4k', tam: 'AI portfolio' },
+  { name: 'IVAI', commits: 64, plus: '17k', minus: '4k', tam: 'AI portfolio' },
   { name: 'Optimus (Python)', commits: 46, plus: '18k', minus: '0.5k', tam: 'alpha' },
-  { name: 'Consulting', commits: 19, plus: '17k', minus: '0.6k', tam: 'side' },
-  { name: 'Estate', commits: 26, plus: '12k', minus: '1.6k', tam: '€960M' },
-  { name: 'AICI (NEW today)', commits: 1, plus: '4k', minus: '0', tam: '€99-499/mo SaaS' },
-  { name: 'Hôtelier Investissement', commits: 7, plus: '17k', minus: '0.4k', tam: 'side' },
-  { name: 'Monorepo', commits: 5, plus: '8k', minus: '0.8k', tam: 'engines' },
-  { name: 'Isekai Football', commits: 1, plus: '7k', minus: '0', tam: 'side' },
+  { name: 'Estate', commits: 36, plus: '13k', minus: '2k', tam: '€960M' },
+  { name: 'Gapup-Hub', commits: 32, plus: '12k', minus: '2k', tam: 'mosaic' },
+  { name: 'AINF', commits: 20, plus: '15k', minus: '1k', tam: 'AI Wave-2' },
+  { name: 'Consulting', commits: 19, plus: '18k', minus: '1k', tam: 'side' },
+]
+
+const PROJECTS_BURST_4D = [
+  { name: 'FTG (feel-the-gap)', commits: 55, plus: '65k', minus: '31k' },
+  { name: 'AICI', commits: 49, plus: '9k', minus: '1k' },
+  { name: 'Gapup-Hub (NEW)', commits: 32, plus: '12k', minus: '2k' },
+  { name: 'CFAPI', commits: 26, plus: '6k', minus: '3k' },
+  { name: 'AIPLB', commits: 24, plus: '5k', minus: '2k' },
+  { name: 'ARAI', commits: 23, plus: '7k', minus: '2k' },
+  { name: 'ANCF', commits: 23, plus: '6k', minus: '1k' },
+  { name: 'PFAI', commits: 22, plus: '6k', minus: '1k' },
+  { name: 'IVAI', commits: 22, plus: '5k', minus: '2k' },
+  { name: 'AINF', commits: 20, plus: '15k', minus: '1k' },
+]
+
+const TECHNIQUES_UNLOCKED_BURST = [
+  {
+    icon: '🟦',
+    name: 'Bukū Jutsu (vol)',
+    when: '2026-04-29 16h09 UTC',
+    criterion: 'Indépendance hôte ≥7j consécutifs',
+    proof: 'Machine a tourné autonomie totale 22/04 16h09 → 29/04 16h09 sans crash hôte. Memory entries continues 28/04 (perf unblock), 29/04 (SSO + auth audit + Vercel guard), 30/04 (Optimus 18 agents). Aucun reboot manuel forcé. Cron cycle complet maintenu (Hisoka harvest + AAM forge + Minato auto-push + portfolio-builder + demo-improver overnight).',
+  },
+  {
+    icon: '🧿',
+    name: 'Ki Sense Amplifié (Tenshinhan 3rd Eye)',
+    when: '2026-04-29',
+    criterion: 'Forecast anomalies AVANT qu\'elles arrivent (différent de Ki Sense qui détecte EN TEMPS RÉEL)',
+    proof: 'Auth audit Senku-grade 24 SaaS découvre 6 vulnérabilités aici (no rate-limit, no CSRF, magic-link bypass, forgot-pwd, signup enum, idle session) AVANT incident production. Vercel guard pre-push v2 sur 25 repos prévient les deploys ERROR. 306 ERROR Vercel deploys forensic purgés. Resource sentinel 60s adapte concurrency AVANT saturation.',
+  },
+  {
+    icon: '🔬',
+    name: 'Pod Research Swarm',
+    when: '2026-04-30',
+    criterion: '≥10 agents recherche dispatchés en parallèle en 1 jour sur axes orthogonaux',
+    proof: '18 agents Optimus dual-bot research : Wave 1 (5 axes orthogonaux académique/OSS/infra/échecs/alternatives) + Wave 2 (9 synthèse multiplier stack) + Wave 3 (4 top funds best practices). Pattern réutilisable documenté project_optimus_senku_research_2026_04_30.',
+  },
 ]
 
 const HISTORY = [
@@ -122,23 +174,71 @@ export default function CreatorNotationPage() {
           </div>
         </section>
 
-        {/* Top 0.1% callout */}
+        {/* Burst stats since last notation (4d) */}
+        <section style={{ background: 'rgba(255,215,0,.08)', border: '1px solid rgba(255,215,0,.4)', borderRadius: 16, padding: 28, marginBottom: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <div style={{ fontSize: 32 }}>⚡</div>
+            <div>
+              <div style={{ fontSize: 11, letterSpacing: '.2em', color: '#FFD700', textTransform: 'uppercase', fontWeight: 700 }}>Burst depuis dernière notation · {STATS_BURST_4D.vs_previous_record}</div>
+              <div style={{ fontSize: 16, color: '#E8EEF7', marginTop: 2 }}>{STATS_BURST_4D.period}</div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginTop: 20 }}>
+            {[
+              ['Commits', STATS_BURST_4D.commits.toLocaleString('fr-FR'), `${STATS_BURST_4D.commits_per_day}/jour`],
+              ['Lignes ajoutées', STATS_BURST_4D.lines_added.toLocaleString('fr-FR'), '~772k'],
+              ['Code net livré', STATS_BURST_4D.code_net.toLocaleString('fr-FR'), '~668k'],
+              ['Repos touchés', STATS_BURST_4D.repos_touched.toString(), '55 portfolio + CC'],
+              ['Vélocité', `${STATS_BURST_4D.velocity_per_day.toLocaleString('fr-FR')}/jour`, `vs ancien 21k/j (×9)`],
+            ].map(([label, value, sub]) => (
+              <div key={label as string} style={{ background: 'rgba(0,0,0,.3)', padding: '14px 16px', borderRadius: 10 }}>
+                <div style={{ fontSize: 10, color: '#8a8d99', letterSpacing: '.1em', textTransform: 'uppercase' }}>{label}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#FFD700', marginTop: 4 }}>{value}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,.45)', marginTop: 2 }}>{sub}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Techniques unlocked this burst (3 unlocks) */}
+        <section style={{ marginBottom: 28 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 16 }}>🆕 Techniques débloquées ce burst (3)</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
+            {TECHNIQUES_UNLOCKED_BURST.map((t) => (
+              <div key={t.name} style={{ background: 'rgba(16,185,129,.06)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: 18 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                  <div style={{ fontSize: 28 }}>{t.icon}</div>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>{t.name}</div>
+                    <div style={{ fontSize: 10, color: '#10b981', letterSpacing: '.1em', textTransform: 'uppercase' }}>Unlocked {t.when}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, color: '#8a8d99', marginTop: 8, marginBottom: 4, fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase' }}>Critère</div>
+                <div style={{ fontSize: 13, color: '#cfd2dc', marginBottom: 10 }}>{t.criterion}</div>
+                <div style={{ fontSize: 12, color: '#8a8d99', marginBottom: 4, fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase' }}>Preuve factuelle</div>
+                <div style={{ fontSize: 12.5, color: '#cfd2dc', lineHeight: 1.55 }}>{t.proof}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Top 0.1% callout — 30 jours cumulatif */}
         <section style={{ background: 'rgba(16,185,129,.08)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 16, padding: 28, marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
             <div style={{ fontSize: 32 }}>🏆</div>
             <div>
               <div style={{ fontSize: 11, letterSpacing: '.2em', color: '#10b981', textTransform: 'uppercase', fontWeight: 700 }}>Top 0.1% solopreneur — vélocité de production code</div>
-              <div style={{ fontSize: 16, color: '#E8EEF7', marginTop: 2 }}>{STATS_25_DAYS.period}</div>
+              <div style={{ fontSize: 16, color: '#E8EEF7', marginTop: 2 }}>{STATS_30_DAYS.period}</div>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginTop: 20 }}>
             {[
-              ['Commits', STATS_25_DAYS.commits.toLocaleString('fr-FR'), `${STATS_25_DAYS.commits_per_day}/jour`],
-              ['Lignes ajoutées', STATS_25_DAYS.lines_added.toLocaleString('fr-FR'), '~709k'],
-              ['Code net livré', STATS_25_DAYS.code_net.toLocaleString('fr-FR'), '~501k'],
-              ['Memory entries', `${STATS_25_DAYS.memory_entries} files`, `${STATS_25_DAYS.memory_lines.toLocaleString('fr-FR')} lignes`],
-              ['Grand total output', STATS_25_DAYS.grand_total.toLocaleString('fr-FR'), `${STATS_25_DAYS.velocity_per_day.toLocaleString('fr-FR')}/jour`],
+              ['Commits', STATS_30_DAYS.commits.toLocaleString('fr-FR'), `${STATS_30_DAYS.commits_per_day}/jour`],
+              ['Lignes ajoutées', STATS_30_DAYS.lines_added.toLocaleString('fr-FR'), '~1.6M'],
+              ['Code net livré', STATS_30_DAYS.code_net.toLocaleString('fr-FR'), '~1.25M'],
+              ['Memory entries', `${STATS_30_DAYS.memory_entries} files`, `${STATS_30_DAYS.memory_lines.toLocaleString('fr-FR')} lignes`],
+              ['Grand total touché', STATS_30_DAYS.grand_total.toLocaleString('fr-FR'), `${STATS_30_DAYS.velocity_per_day.toLocaleString('fr-FR')}/jour`],
             ].map(([label, value, sub]) => (
               <div key={label as string} style={{ background: 'rgba(0,0,0,.25)', padding: '14px 16px', borderRadius: 10 }}>
                 <div style={{ fontSize: 10, color: '#8a8d99', letterSpacing: '.1em', textTransform: 'uppercase' }}>{label}</div>
@@ -174,9 +274,34 @@ export default function CreatorNotationPage() {
           </div>
         </section>
 
-        {/* Projects 25j */}
+        {/* Projets — Burst 4 jours */}
         <section style={{ marginBottom: 28 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Projets 25 derniers jours</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Top projets · Burst 4 jours (depuis 27/04)</h2>
+          <div style={{ background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,215,0,.18)', borderRadius: 12, overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr style={{ background: 'rgba(0,0,0,.3)' }}>
+                  <th style={{ textAlign: 'left', padding: '12px 16px', color: '#8a8d99', fontWeight: 600 }}>Projet</th>
+                  <th style={{ textAlign: 'right', padding: '12px 16px', color: '#8a8d99', fontWeight: 600 }}>Commits</th>
+                  <th style={{ textAlign: 'right', padding: '12px 16px', color: '#8a8d99', fontWeight: 600 }}>+/-</th>
+                </tr>
+              </thead>
+              <tbody>
+                {PROJECTS_BURST_4D.map((p) => (
+                  <tr key={p.name} style={{ borderTop: '1px solid rgba(255,255,255,.05)' }}>
+                    <td style={{ padding: '10px 16px', color: '#E8EEF7' }}>{p.name}</td>
+                    <td style={{ textAlign: 'right', padding: '10px 16px', color: '#FFD700', fontWeight: 700 }}>{p.commits}</td>
+                    <td style={{ textAlign: 'right', padding: '10px 16px', color: '#10b981', fontFamily: 'monospace' }}>+{p.plus} <span style={{ color: '#ef4444' }}>-{p.minus}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Projets — 30 jours cumulatif */}
+        <section style={{ marginBottom: 28 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Top projets · 30 jours cumulatif (1er avril → 1er mai)</h2>
           <div style={{ background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 12, overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
@@ -188,7 +313,7 @@ export default function CreatorNotationPage() {
                 </tr>
               </thead>
               <tbody>
-                {PROJECTS_25D.map((p) => (
+                {PROJECTS_30D.map((p) => (
                   <tr key={p.name} style={{ borderTop: '1px solid rgba(255,255,255,.05)' }}>
                     <td style={{ padding: '10px 16px', color: '#E8EEF7' }}>{p.name}</td>
                     <td style={{ textAlign: 'right', padding: '10px 16px', color: '#cfd2dc' }}>{p.commits}</td>
