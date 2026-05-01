@@ -155,9 +155,9 @@ export default async function CreatorPage() {
           <div style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 999, background: 'rgba(74,222,128,.12)', border: '1px solid rgba(74,222,128,.4)', fontSize: 11, fontFamily: 'ui-monospace, Menlo, monospace' }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ADE80', boxShadow: '0 0 8px #4ADE80' }} />
             <span style={{ color: '#4ADE80', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' }}>Live</span>
-            <span style={{ color: '#CBD5E1' }}>last insert {new Date(latest.captured_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC</span>
+            <span style={{ color: '#CBD5E1' }}>last insert {new Date(latest.captured_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })} Paris</span>
             <span style={{ color: '#7D8BA0' }}>· #{latest.id.slice(0, 8)}</span>
-            <span style={{ color: '#7D8BA0' }}>· rendered {new Date().toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC' })} UTC</span>
+            <span style={{ color: '#7D8BA0' }}>· rendered {new Date().toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Paris' })} Paris</span>
           </div>
         )}
       </header>
@@ -219,7 +219,7 @@ export default async function CreatorPage() {
           <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr minmax(280px, 420px)', gap: 28, alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 11, color: currentTier.aura_color || GOLD, letterSpacing: '.3em', textTransform: 'uppercase', marginBottom: 6 }}>
-                Aujourd'hui · {new Date(latest.captured_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} · {new Date(latest.captured_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC
+                Aujourd'hui · {new Date(latest.captured_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', timeZone: 'Europe/Paris' })} · {new Date(latest.captured_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })} Paris
               </div>
               <h2 style={{ fontSize: 36, fontWeight: 900, margin: 0, marginBottom: 4, lineHeight: 1.1 }}>
                 {currentTier.label}
@@ -310,7 +310,7 @@ export default async function CreatorPage() {
         return (
           <section style={{ background: '#071425', border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 18, marginBottom: 28 }}>
             <h2 style={{ fontSize: 13, color: '#7D8BA0', textTransform: 'uppercase', letterSpacing: '.2em', margin: 0, marginBottom: 6 }}>
-              Benchmark détaillé · {new Date(withCrit.captured_at).toLocaleDateString('fr-FR')} {new Date(withCrit.captured_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC · {withCrit.score}/{currentTier?.score_max ?? 100}
+              Benchmark détaillé · {new Date(withCrit.captured_at).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })} {new Date(withCrit.captured_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })} Paris · {withCrit.score}/{currentTier?.score_max ?? 100}
             </h2>
             <p style={{ fontSize: 12, color: '#94A3B8', margin: '0 0 14px' }}>{withCrit.criteria.length} critères, notés sur leur barème respectif.</p>
             <div style={{ display: 'grid', gap: 10 }}>
@@ -354,7 +354,7 @@ export default async function CreatorPage() {
               }}>
                 <div>
                   <div style={{ fontSize: 11, color: aura, letterSpacing: '.3em', textTransform: 'uppercase', marginBottom: 4 }}>
-                    {new Date(s.captured_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} · {s.category}{s.project ? ` · ${s.project}` : ''}
+                    {new Date(s.captured_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Paris' })} {new Date(s.captured_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })} · {s.category}{s.project ? ` · ${s.project}` : ''}
                   </div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 2 }}>{tier.label}</div>
                   <div style={{ fontSize: 28, fontWeight: 900, color: aura, marginBottom: 4, lineHeight: 1 }}>
@@ -380,7 +380,7 @@ export default async function CreatorPage() {
         }}>
           <div>
             <div style={{ fontSize: 11, letterSpacing: '.3em', color: targetTier.aura_color || GOLD, textTransform: 'uppercase', marginBottom: 6 }}>
-              🎯 Objectif · {new Date(targetScore.captured_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+              🎯 Objectif · {new Date(targetScore.captured_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric', timeZone: 'Europe/Paris' })}
             </div>
             <h2 style={{ fontSize: 28, fontWeight: 900, margin: 0, marginBottom: 4 }}>{targetTier.label}</h2>
             <div style={{ fontSize: 36, fontWeight: 900, color: targetTier.aura_color || GOLD, marginBottom: 4 }}>

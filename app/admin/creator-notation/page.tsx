@@ -3,7 +3,7 @@ export const runtime = 'nodejs'
 export const metadata = { title: 'Creator Notation · Command Center' }
 
 const TODAY_SCORE = {
-  date: '2026-05-01 (day-end snapshot 22h47 UTC)',
+  date: '2026-05-02 (00h47 Paris · day-end snapshot)',
   legacy: 98,
   legacy_max: 95,
   ui_intensity: 50,
@@ -16,7 +16,7 @@ const TODAY_SCORE = {
 }
 
 const STATS_TODAY = {
-  period: '1er mai 2026 (24h, jour-fin 22h47 UTC)',
+  period: '1er mai 2026 (24h Paris, jour-fin 00h47 Paris du 2 mai)',
   commits: 191,
   lines_added: 146904,
   lines_deleted: 113113,
@@ -26,7 +26,7 @@ const STATS_TODAY = {
 }
 
 const STATS_30_DAYS = {
-  period: '1er avril → 1er mai 2026 (30 jours)',
+  period: '1er avril → 2 mai 2026 (30 jours, heures Paris)',
   commits: 2460,
   lines_added: 1707303,
   lines_deleted: 373510,
@@ -40,7 +40,7 @@ const STATS_30_DAYS = {
 }
 
 const STATS_BURST_4D = {
-  period: '27 avril 22h → 1er mai 22h47 UTC (~4 jours, depuis dernière notation)',
+  period: '28 avril 00h → 2 mai 00h47 Paris (~4 jours, depuis dernière notation)',
   commits: 927,
   lines_added: 946012,
   lines_deleted: 172940,
@@ -114,17 +114,17 @@ const TECHNIQUES_UNLOCKED_BURST = [
 ]
 
 const HISTORY = [
-  { date: '2026-05-01 (EOD 22h47)', total: '148/145', legacy: '98/95', ui: '50/50', note: '🌅 Day-end snapshot · 191 commits/jour sur 54 repos · burst 4j passé à 927 commits (×5.5 record) · 30j 2460 commits +1.71M LoC · même posture 12 techniques', techniques: 12, color: '#FFD700' },
-  { date: '2026-05-01 (02h46)', total: '148/145', legacy: '98/95', ui: '50/50', note: '⭐⭐⭐ NEW RECORD · 806 commits/4j (×4.6 record) sur 56 repos · 🟦 Bukū Jutsu + 🧿 3rd Eye + 🔬 Pod Swarm (3 unlocks en 4j)', techniques: 12, color: '#FFD700' },
-  { date: '2026-04-27', total: '147/145', legacy: '98/95', ui: '49/50', note: 'Sprint 32 commits/4h portfolio · SSL 4 sites unblocked · 🕸️ Mosaic Architect unlock', techniques: 9, color: '#10b981' },
-  { date: '2026-04-25', total: '145/145', legacy: '98/95', ui: '47/50', note: '⭐ session record · 🌐 Reconnaissance Network unlock', techniques: 8, color: '#FFD700' },
-  { date: '2026-04-24', total: '130/145', legacy: '98/95', ui: '32/50', note: '+4 techniques rétro (Ki Shield + Zenkai + Meteor + Mystic)', techniques: 7 },
-  { date: '2026-04-23', total: '136/145', legacy: '98/95', ui: '38/50', note: 'Optimus Rust 6 streams + Minato wave 4 parallèles', techniques: 3 },
-  { date: '2026-04-22 19h30', total: '127/145', legacy: '99/95', ui: '28/50', note: '🍙 Senzu Farm unlock', techniques: 2 },
-  { date: '2026-04-22 16h', total: '123/145', legacy: '98/95', ui: '25/50', note: '🔵 UI-M unlock day', techniques: 1 },
-  { date: '2026-04-21', total: '129/145', legacy: '94/95', ui: '35/50', note: 'Eishi Layer + Rock Lee v2', techniques: 0 },
-  { date: '2026-04-19', total: '92/95', legacy: '92/95', ui: 'N/A', note: 'pré-UI-M' },
-  { date: '2026-04-11', total: '64/100', legacy: '64/100', ui: 'N/A', note: 'baseline' },
+  { date: '2026-05-02 00h47 Paris', total: '148/145', legacy: '98/95', ui: '50/50', note: '🌅 Day-end snapshot du 1er mai · 191 commits/jour sur 54 repos · burst 4j 927 commits ×5.5 record · 30j 2460 commits +1.71M LoC · même posture 12 techniques', techniques: 12, color: '#FFD700' },
+  { date: '2026-05-01 04h46 Paris', total: '148/145', legacy: '98/95', ui: '50/50', note: '⭐⭐⭐ NEW RECORD · 806 commits/4j (×4.6 record) sur 56 repos · 🟦 Bukū Jutsu + 🧿 3rd Eye + 🔬 Pod Swarm (3 unlocks en 4j)', techniques: 12, color: '#FFD700' },
+  { date: '2026-04-28 00h45 Paris', total: '147/145', legacy: '98/95', ui: '49/50', note: 'Sprint 32 commits/4h portfolio · SSL 4 sites unblocked · 🕸️ Mosaic Architect unlock', techniques: 9, color: '#10b981' },
+  { date: '2026-04-26 ~00h Paris', total: '145/145', legacy: '98/95', ui: '47/50', note: '⭐ session record · 🌐 Reconnaissance Network unlock', techniques: 8, color: '#FFD700' },
+  { date: '2026-04-24 (Paris)', total: '130/145', legacy: '98/95', ui: '32/50', note: '+4 techniques rétro (Ki Shield + Zenkai + Meteor + Mystic)', techniques: 7 },
+  { date: '2026-04-23 (Paris)', total: '136/145', legacy: '98/95', ui: '38/50', note: 'Optimus Rust 6 streams + Minato wave 4 parallèles', techniques: 3 },
+  { date: '2026-04-22 21h30 Paris', total: '127/145', legacy: '99/95', ui: '28/50', note: '🍙 Senzu Farm unlock', techniques: 2 },
+  { date: '2026-04-22 18h Paris', total: '123/145', legacy: '98/95', ui: '25/50', note: '🔵 UI-M unlock day', techniques: 1 },
+  { date: '2026-04-21 (Paris)', total: '129/145', legacy: '94/95', ui: '35/50', note: 'Eishi Layer + Rock Lee v2', techniques: 0 },
+  { date: '2026-04-19 (Paris)', total: '92/95', legacy: '92/95', ui: 'N/A', note: 'pré-UI-M' },
+  { date: '2026-04-11 (Paris)', total: '64/100', legacy: '64/100', ui: 'N/A', note: 'baseline' },
 ]
 
 export default function CreatorNotationPage() {
@@ -393,7 +393,7 @@ export default function CreatorNotationPage() {
 
         {/* Footer */}
         <footer style={{ marginTop: 32, padding: 16, fontSize: 11, color: '#666', borderTop: '1px solid rgba(255,255,255,.08)' }}>
-          Source : <code>~/.claude/projects/-root/memory/project_creator_notation.md</code> · Updated 2026-05-01 22h47 UTC (EOD snapshot)
+          Source : <code>~/.claude/projects/-root/memory/project_creator_notation.md</code> · Updated 2026-05-02 00h47 Paris (EOD snapshot du 1er mai · 22h47 UTC)
         </footer>
       </div>
     </div>
