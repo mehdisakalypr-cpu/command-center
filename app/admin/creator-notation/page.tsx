@@ -114,7 +114,8 @@ const TECHNIQUES_UNLOCKED_BURST = [
 ]
 
 const HISTORY = [
-  { date: '2026-05-01 (EOD)', total: '148/145', legacy: '98/95', ui: '50/50', note: '⭐⭐⭐ NEW RECORD · 191 commits/jour · burst 4j 927 commits ×5.5 record sur 56 repos · 30j 2460 commits +1.71M LoC · 🟦 Bukū Jutsu + 🧿 3rd Eye + 🔬 Pod Swarm', techniques: 12, color: '#FFD700' },
+  { date: '2026-05-01 (EOD 22h47)', total: '148/145', legacy: '98/95', ui: '50/50', note: '🌅 Day-end snapshot · 191 commits/jour sur 54 repos · burst 4j passé à 927 commits (×5.5 record) · 30j 2460 commits +1.71M LoC · même posture 12 techniques', techniques: 12, color: '#FFD700' },
+  { date: '2026-05-01 (02h46)', total: '148/145', legacy: '98/95', ui: '50/50', note: '⭐⭐⭐ NEW RECORD · 806 commits/4j (×4.6 record) sur 56 repos · 🟦 Bukū Jutsu + 🧿 3rd Eye + 🔬 Pod Swarm (3 unlocks en 4j)', techniques: 12, color: '#FFD700' },
   { date: '2026-04-27', total: '147/145', legacy: '98/95', ui: '49/50', note: 'Sprint 32 commits/4h portfolio · SSL 4 sites unblocked · 🕸️ Mosaic Architect unlock', techniques: 9, color: '#10b981' },
   { date: '2026-04-25', total: '145/145', legacy: '98/95', ui: '47/50', note: '⭐ session record · 🌐 Reconnaissance Network unlock', techniques: 8, color: '#FFD700' },
   { date: '2026-04-24', total: '130/145', legacy: '98/95', ui: '32/50', note: '+4 techniques rétro (Ki Shield + Zenkai + Meteor + Mystic)', techniques: 7 },
