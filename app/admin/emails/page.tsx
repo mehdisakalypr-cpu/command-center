@@ -185,10 +185,8 @@ export default async function EmailsHubPage({ searchParams }: { searchParams: Pr
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14, marginBottom: 28 }}>
         {cards.map((c) => {
-          const isExternal = !c.html && c.externalPreviewUrl
-          const previewHref = isExternal
-            ? c.externalPreviewUrl
-            : `/admin/emails?locale=${locale}&preview=${c.name}#preview`
+          const externalUrl = !c.html ? c.externalPreviewUrl : undefined
+          const internalHref = `/admin/emails?locale=${locale}&preview=${c.name}#preview`
           return (
             <div key={c.name} style={{
               background: C.card, border: `1px solid ${C.border}`,
@@ -208,13 +206,13 @@ export default async function EmailsHubPage({ searchParams }: { searchParams: Pr
                 <div style={{ fontSize: 11, color: C.muted, fontFamily: 'Menlo, monospace' }}>{c.externalRepo}</div>
               )}
               <div style={{ marginTop: 'auto' }}>
-                {isExternal ? (
-                  <a href={previewHref} target="_blank" rel="noopener noreferrer"
+                {externalUrl ? (
+                  <a href={externalUrl} target="_blank" rel="noopener noreferrer"
                     style={{ fontSize: 12, color: C.accent, textDecoration: 'none' }}>
                     Open preview in FTG ↗
                   </a>
                 ) : (
-                  <Link href={previewHref} style={{ fontSize: 12, color: C.accent, textDecoration: 'none' }}>
+                  <Link href={internalHref} style={{ fontSize: 12, color: C.accent, textDecoration: 'none' }}>
                     Render preview →
                   </Link>
                 )}
