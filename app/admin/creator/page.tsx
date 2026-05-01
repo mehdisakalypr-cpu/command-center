@@ -22,7 +22,7 @@ type Score = {
   analysis?: string | null
   strengths?: string[] | null
   improvement_areas?: string[] | null
-  criteria?: { name: string; score: number; comment: string }[] | null
+  criteria?: { name: string; score: number; max?: number; comment: string }[] | null
 }
 
 type Tier = {
@@ -151,6 +151,15 @@ export default async function CreatorPage() {
         </nav>
         <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, color: GOLD }}>Creator Performance</h1>
         <p style={{ color: '#94A3B8', margin: '6px 0 0' }}>Ta progression fondateur · 9 paliers Saiyan · unités de puissance.</p>
+        {latest && (
+          <div style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 999, background: 'rgba(74,222,128,.12)', border: '1px solid rgba(74,222,128,.4)', fontSize: 11, fontFamily: 'ui-monospace, Menlo, monospace' }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ADE80', boxShadow: '0 0 8px #4ADE80' }} />
+            <span style={{ color: '#4ADE80', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' }}>Live</span>
+            <span style={{ color: '#CBD5E1' }}>last insert {new Date(latest.captured_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC</span>
+            <span style={{ color: '#7D8BA0' }}>· #{latest.id.slice(0, 8)}</span>
+            <span style={{ color: '#7D8BA0' }}>· rendered {new Date().toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC' })} UTC</span>
+          </div>
+        )}
       </header>
 
       {/* ════════ 1) ÉCHELLE DE PUISSANCE — all 9 tiers with animated characters ════════ */}
@@ -210,7 +219,7 @@ export default async function CreatorPage() {
           <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr minmax(280px, 420px)', gap: 28, alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 11, color: currentTier.aura_color || GOLD, letterSpacing: '.3em', textTransform: 'uppercase', marginBottom: 6 }}>
-                Aujourd'hui · {new Date(latest.captured_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+                Aujourd'hui · {new Date(latest.captured_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} · {new Date(latest.captured_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC
               </div>
               <h2 style={{ fontSize: 36, fontWeight: 900, margin: 0, marginBottom: 4, lineHeight: 1.1 }}>
                 {currentTier.label}
@@ -301,17 +310,19 @@ export default async function CreatorPage() {
         return (
           <section style={{ background: '#071425', border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 18, marginBottom: 28 }}>
             <h2 style={{ fontSize: 13, color: '#7D8BA0', textTransform: 'uppercase', letterSpacing: '.2em', margin: 0, marginBottom: 6 }}>
-              Benchmark détaillé · {new Date(withCrit.captured_at).toLocaleDateString('fr-FR')} · {withCrit.score}/100
+              Benchmark détaillé · {new Date(withCrit.captured_at).toLocaleDateString('fr-FR')} {new Date(withCrit.captured_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC · {withCrit.score}/{currentTier?.score_max ?? 100}
             </h2>
-            <p style={{ fontSize: 12, color: '#94A3B8', margin: '0 0 14px' }}>10 critères, notés sur 10.</p>
+            <p style={{ fontSize: 12, color: '#94A3B8', margin: '0 0 14px' }}>{withCrit.criteria.length} critères, notés sur leur barème respectif.</p>
             <div style={{ display: 'grid', gap: 10 }}>
               {withCrit.criteria.map(c => {
-                const pct = (c.score / 10) * 100
-                const color = c.score >= 9 ? '#4ADE80' : c.score >= 7 ? '#FFC107' : c.score >= 5 ? '#FB923C' : '#F87171'
+                const max = c.max ?? 10
+                const pct = Math.min(100, (c.score / max) * 100)
+                const ratio = c.score / max
+                const color = ratio >= 0.9 ? '#4ADE80' : ratio >= 0.7 ? '#FFC107' : ratio >= 0.5 ? '#FB923C' : '#F87171'
                 return (
-                  <div key={c.name} style={{ display: 'grid', gridTemplateColumns: '200px 54px 1fr', gap: 12, alignItems: 'center' }}>
+                  <div key={c.name} style={{ display: 'grid', gridTemplateColumns: '200px 64px 1fr', gap: 12, alignItems: 'center' }}>
                     <div style={{ fontSize: 13, fontWeight: 600 }}>{c.name}</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color, fontFamily: 'ui-monospace, Menlo, monospace' }}>{c.score}/10</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color, fontFamily: 'ui-monospace, Menlo, monospace' }}>{c.score}/{max}</div>
                     <div>
                       <div style={{ height: 6, background: '#1A2332', borderRadius: 999, overflow: 'hidden', marginBottom: 4 }}>
                         <div style={{ height: '100%', width: `${pct}%`, background: color }} />
